@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="51px" height="96px" viewBox="0 0 51 96" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.2 (47327) - http://www.bohemiancoding.com/sketch -->
+    <title>Group 2</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path d="M39.9981116,0.882167139 C43.0371663,1.22501956 45.688108,3.91559773 45.688108,7.48078304 L45.688108,77.7605516 C45.7673645,81.8693801 45.3650527,84.5370135 44.4811725,85.7634517 C43.1553522,87.6031091 41.2330833,88.4440386 38.7292711,88.5746526 C34.0383615,88.8193589 29.072804,88.9683663 23.8325986,89.0216748 C23.7210178,89.0269877 23.6095603,89.0259868 23.4982263,89.0249429 C23.3868924,89.0259868 23.2754349,89.0269877 23.1638541,89.0279455 C17.9236487,88.9683663 12.9580912,88.8193589 8.26718157,88.5746526 C5.76336942,88.4440386 3.84110046,87.6031091 2.51528019,85.7634517 C1.63140001,84.5370135 1.22908819,81.8693801 1.30834472,77.7605516 L1.30834472,7.48078304 C1.30834472,3.91559773 3.96019368,1.25579922 6.99834108,0.882167139 C10.6500401,0.433080343 36.3862216,0.474690023 39.9981116,0.882167139 Z" id="path-1"></path>
+        <filter x="-11.9%" y="-4.8%" width="123.8%" height="111.9%" filterUnits="objectBoundingBox" id="filter-2">
+            <feMorphology radius="0.2754" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
+            <feOffset dx="0" dy="1" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="1.5" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feComposite in="shadowBlurOuter1" in2="SourceAlpha" operator="out" result="shadowBlurOuter1"></feComposite>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.107223732 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-3">
+            <stop stop-color="#72A3B8" offset="0%"></stop>
+            <stop stop-color="#507199" offset="100%"></stop>
+        </linearGradient>
+        <rect id="path-4" x="4.17387549" y="11.1303346" width="38.9561713" height="69.5645915"></rect>
+    </defs>
+    <g id="1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-1004.000000, -403.000000)">
+        <g id="Group-2" transform="translate(1005.994249, 405.160728)">
+            <g id="Combined-Shape">
+                <use fill="black" fill-opacity="1" filter="url(#filter-2)" xlink:href="#path-1"></use>
+                <use stroke="#5E5E5E" stroke-width="0.5508" fill="#FDFDFD" fill-rule="evenodd" xlink:href="#path-1"></use>
+            </g>
+            <g id="Rectangle-2">
+                <use fill="url(#linearGradient-3)" fill-rule="evenodd" xlink:href="#path-4"></use>
+                <rect stroke-opacity="0.358667346" stroke="#2F2F2F" stroke-width="0.71604" x="4.53189549" y="11.4883546" width="38.2401313" height="68.8485515"></rect>
+            </g>
+            <rect id="Rectangle-3" stroke-opacity="0.742442255" stroke="#979797" stroke-width="0.5508" fill="#F5F5F5" x="19.4780856" y="83.1003054" width="8.34775098" height="3.53699263" rx="1.43208"></rect>
+            <rect id="Rectangle-3-Copy" fill="#D8D8D8" x="19.3243509" y="5.1959451" width="8.34775098" height="1" rx="0.5"></rect>
+            <circle id="Oval-2" fill="#D8D8D8" cx="39.0100091" cy="5.57314959" r="1.10376045"></circle>
+            <circle id="Oval-2-Copy" fill="#D8D8D8" cx="7.72427194" cy="5.57314959" r="1.10376045"></circle>
+        </g>
+    </g>
+</svg>
