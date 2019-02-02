@@ -76,6 +76,12 @@ class Frontend {
 			[ 'title' => '6' ],
 		];
 
+		$data['deviceColors'] = [
+			[ 'title' => 'Midnight Black', 'sub_title' => 'Black panel', 'color' => 'rgb(51, 51, 51)' ],
+			[ 'title' => 'Orchid Gray', 'sub_title' => 'Gray panel', 'color' => 'rgb(197, 194, 215)' ],
+			[ 'title' => 'Arctic Silver', 'sub_title' => 'Silver panel', 'color' => 'rgb(176, 180, 183)' ],
+		];
+
 		return $data;
 	}
 }

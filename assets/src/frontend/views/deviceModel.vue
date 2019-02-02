@@ -25,7 +25,7 @@
 		},
 		methods: {
 			chooseDeviceModel() {
-				window.location.href = '#device-model';
+				this.$router.push('/device-color');
 			}
 		}
 	}
