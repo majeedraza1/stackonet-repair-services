@@ -2,7 +2,7 @@
 	<div class="device-list">
 		<div class="select-device-content-container">
 			<template v-for="device in devices">
-				<div class="scale-on-mount scale-on-mount-active" @click="chooseDeviceModel">
+				<div class="scale-on-mount scale-on-mount-active" @click="chooseDeviceModel(device)">
 					<div class="phone-family-item-wrapper hoverable">
 						<div class="phone-family-image-wrapper">
 							<img :src="device.image" :alt="device.title">
@@ -19,15 +19,21 @@
 	export default {
 		name: "device",
 		data() {
-			return {
-				devices: [],
+			return {}
+		},
+		computed: {
+			devices() {
+				return this.$store.state.devices;
 			}
 		},
 		mounted() {
-			this.devices = window.Stackonet.devices;
+			let devices = window.Stackonet.devices;
+			this.$store.commit('SET_LOADING_STATUS', false);
+			this.$store.commit('SET_DEVICES', devices);
 		},
 		methods: {
-			chooseDeviceModel() {
+			chooseDeviceModel(device) {
+				this.$store.commit('SET_DEVICE', device);
 				this.$router.push('/device-model');
 			}
 		}

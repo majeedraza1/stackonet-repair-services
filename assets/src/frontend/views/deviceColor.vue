@@ -2,7 +2,7 @@
 	<div class="device-colors-list">
 		<div class="select-color-content-container">
 			<template v-for="color in colors">
-				<div class="scale-on-mount scale-on-mount-active" @click="chooseZipCode">
+				<div class="scale-on-mount scale-on-mount-active" @click="chooseDeviceColor(color)">
 					<div class="phone-color-item-wrapper hoverable">
 						<div class="phone-color-item-color-circle" :style="{backgroundColor: color.color}"></div>
 						<div class="phone-color-item-color-title" v-text="color.title"></div>
@@ -18,16 +18,21 @@
 	export default {
 		name: "deviceColor",
 		data() {
-			return {
-				colors: [],
+			return {}
+		},
+		computed: {
+			colors() {
+				return this.$store.state.deviceColors;
 			}
 		},
-		computed: {},
 		mounted() {
-			this.colors = window.Stackonet.deviceColors;
+			let colors = window.Stackonet.deviceColors;
+			this.$store.commit('SET_LOADING_STATUS', false);
+			this.$store.commit('SET_DEVICES_COLORS', colors);
 		},
 		methods: {
-			chooseZipCode() {
+			chooseDeviceColor(color) {
+				this.$store.commit('SET_DEVICE_COLOR', color);
 				this.$router.push('/zip-code');
 			}
 		}
