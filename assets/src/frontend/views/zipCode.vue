@@ -3,8 +3,10 @@
 		<div class="step-nav-page-wrapper">
 			<div class="step-nav-wrapper"><span class="step-nav-title">What's your zip code?</span></div>
 		</div>
-		<div class="zip-code-input-wrapper"><input type="tel" placeholder="Please enter zip code" value=""></div>
-		<div class="zip-code-continue-wrapper">
+		<div class="zip-code-input-wrapper">
+			<input type="tel" placeholder="Please enter zip code" :value="zip_code" @input="updateZipCode($event)">
+		</div>
+		<div class="zip-code-continue-wrapper" :class="{'is-active': isSubmitActive}" @click="handleSubmit">
 			<div>Continue</div>
 		</div>
 	</div>
@@ -12,7 +14,24 @@
 
 <script>
 	export default {
-		name: "zipCode"
+		name: "zipCode",
+		computed: {
+			zip_code() {
+				return this.$store.state.zipCode;
+			},
+			isSubmitActive() {
+				return this.zip_code.length >= 3;
+			}
+		},
+		methods: {
+			updateZipCode(event) {
+				let value = event.target.value;
+				this.$store.commit('SET_ZIP_CODE', value);
+			},
+			handleSubmit(){
+				this.$router.push('/screen-cracked');
+			}
+		}
 	}
 </script>
 

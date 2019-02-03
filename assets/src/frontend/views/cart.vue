@@ -195,6 +195,9 @@
 		},
 		methods: {
 			editDevice() {
+				this.$store.commit('SET_DEVICE', {});
+				this.$store.commit('SET_DEVICE_MODEL', {});
+				this.$store.commit('SET_DEVICE_COLOR', {});
 				this.$router.push('/');
 			}
 		}
@@ -215,6 +218,7 @@
 		flex-direction: column;
 		transition: all .4s ease;
 		overflow: auto;
+		z-index: 9999;
 	}
 
 	.my-cart-small-items-container {

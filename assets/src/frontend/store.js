@@ -14,6 +14,11 @@ export default new Vuex.Store({
 		deviceModel: {},
 		deviceColor: {},
 		zipCode: '',
+		screenCracked: '',
+		issues: [],
+		issueDescription: '',
+		date: '',
+		timeRange: '',
 	},
 
 	mutations: { // Commit + track state changes
@@ -40,7 +45,22 @@ export default new Vuex.Store({
 		},
 		SET_DEVICES_COLORS(state, deviceColors) {
 			state.deviceColors = deviceColors;
-		}
+		},
+		SET_SCREEN_CRACKED(state, screenCracked) {
+			state.screenCracked = screenCracked;
+		},
+		SET_ISSUE(state, issues) {
+			state.issues = issues;
+		},
+		SET_ISSUE_DESCRIPTION(state, issueDescription) {
+			state.issueDescription = issueDescription;
+		},
+		SET_DATE(state, date) {
+			state.date = date;
+		},
+		SET_TIME_RANGE(state, timeRange) {
+			state.timeRange = timeRange;
+		},
 	},
 
 	// Same as Vue methods

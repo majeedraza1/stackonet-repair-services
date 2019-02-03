@@ -40,7 +40,7 @@
 		display: none;
 		align-items: center;
 		justify-content: center;
-		background: rgba(#000, 0.5);
+		background: rgba(#fff, 0.5);
 
 		&.is-active {
 			display: flex;

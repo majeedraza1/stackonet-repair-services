@@ -43,6 +43,7 @@ class Frontend {
 	public function repair_services() {
 		echo '<script>window.Stackonet = ' . wp_json_encode( self::temp_data() ) . '</script>';
 		echo '<div id="stackonet_repair_services"></div>';
+		include STACKONET_REPAIR_SERVICES_PATH . "/assets/img/frontend-icons.svg";
 	}
 
 	/**

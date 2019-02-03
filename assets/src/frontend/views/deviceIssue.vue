@@ -1,0 +1,158 @@
+<template>
+	<div class="select-issue-wrapper">
+		<div class="step-nav-page-wrapper">
+			<div class="step-nav-wrapper"><span class="step-nav-title">What can we fix for you?</span></div>
+		</div>
+		<div class="info-box-wrapper">
+			<div class="info-box-inner-wrapper">
+				<span>Parts and labor come with a </span><span><b>lifetime guarantee.</b></span>
+			</div>
+		</div>
+		<label class="issue-subline">Select issue(s)</label>
+		<div class="select-issue-content-container">
+
+			<template v-for="issue in noIssues">
+				<div class="scale-on-mount scale-on-mount-active" @click="pushIssue(issue)">
+					<div class="select-issue-item hoverable" v-text="issue"></div>
+				</div>
+			</template>
+
+		</div>
+		<div class="select-issue-description">
+			<label>Describe your issue (optional)</label>
+			<textarea placeholder="Tell us what's wrong" v-text="issueDescription"
+					  @input="updateDescription($event)"></textarea>
+		</div>
+		<button class="select-issue-continue-wrapper" v-if="showContinueButton" @click="handleContinue">Done Editing
+		</button>
+	</div>
+</template>
+
+<script>
+	export default {
+		name: "deviceIssue",
+		mounted() {
+			this.$store.commit('SET_LOADING_STATUS', false);
+		},
+		data() {
+			return {
+				noIssues: ['Battery Replacement', 'Back Glass Replacement'],
+				yesIssues: [],
+				multiIssues: [],
+			}
+		},
+		computed: {
+			screenCracked() {
+				return this.$store.state.screenCracked;
+			},
+			issues() {
+				return this.$store.state.issues;
+			},
+			issueDescription() {
+				return this.$store.state.issueDescription;
+			},
+			showContinueButton() {
+				return (this.issues && this.issues.length);
+			}
+		},
+		methods: {
+			updateDescription(event) {
+				this.$store.commit('SET_ISSUE_DESCRIPTION', event.target.value);
+			},
+			pushIssue(issue) {
+				let issues = this.issues, index = issues.indexOf(issue);
+				if (-1 === index) {
+					issues.push(issue);
+				} else {
+					issues.splice(index, 1);
+				}
+
+				this.$store.commit('SET_ISSUE', issues);
+			},
+			handleContinue() {
+				this.$router.push('/select-time');
+			}
+		}
+	}
+</script>
+
+<style lang="scss">
+	.issue-subline,
+	.select-issue-description label {
+		text-align: center;
+		display: block;
+		font-size: 13px;
+		margin-top: 20px;
+		margin-bottom: 10px;
+	}
+
+	.issue-subline {
+		margin-top: 0;
+	}
+
+	.select-issue-item {
+		box-sizing: border-box;
+		cursor: pointer;
+		display: inline-block;
+		height: 50px;
+		width: 200px;
+		margin: 10px;
+		text-align: center;
+		border-radius: 4px;
+		background-color: #fff;
+		display: -ms-flexbox;
+		display: flex;
+		align-items: center;
+		font-size: 16px;
+		color: #4a4a4a;
+		border: 2px solid transparent;
+		transition: all .4s;
+		padding: 0 5px;
+
+		@media (max-width: 1500px) {
+			height: 45px;
+			width: 130px;
+			font-size: 14px;
+			margin: 5px;
+		}
+	}
+
+	.select-issue-description {
+		width: 350px;
+		display: block;
+		margin: 0 auto;
+
+		label {
+			text-align: center;
+			display: block;
+			font-size: 13px;
+			margin-top: 20px;
+			margin-bottom: 10px;
+		}
+
+		textarea {
+			width: 350px;
+			box-sizing: border-box;
+			height: 120px;
+			resize: none;
+			padding: 15px;
+			font-size: 15px;
+			border: none;
+			border-radius: 6px;
+		}
+	}
+
+	.select-issue-continue-wrapper {
+		height: 64px;
+		border: none;
+		width: 280px;
+		text-align: center;
+		border-radius: 6px;
+		background-color: #12ffcd;
+		color: #0161c7;
+		font-size: 18px;
+		transition: all .3s;
+		display: block;
+		margin: 20px auto 50px;
+	}
+</style>
