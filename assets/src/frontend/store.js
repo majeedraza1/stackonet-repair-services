@@ -8,11 +8,11 @@ export default new Vuex.Store({
 	state: {
 		loading: true,
 		devices: [],
-		device: '',
 		deviceModels: [],
-		deviceModel: '',
 		deviceColors: [],
-		deviceColor: '',
+		device: {},
+		deviceModel: {},
+		deviceColor: {},
 		zipCode: '',
 	},
 

@@ -1,6 +1,7 @@
 <template>
 	<div class="repair-services-container">
 		<router-view></router-view>
+		<cart></cart>
 		<mdl-snackbar align-start></mdl-snackbar>
 		<div class="repair-services-loader" :class="{'is-active':loading}">
 			<mdl-spinner :active="loading"></mdl-spinner>
@@ -11,10 +12,11 @@
 <script>
 	import mdlSnackbar from '../material-design-lite/snackbar/mdlSnackbar.vue';
 	import mdlSpinner from '../material-design-lite/spinner/mdlSpinner.vue';
+	import cart from './views/cart.vue';
 
 	export default {
 		name: 'App',
-		components: {mdlSnackbar, mdlSpinner},
+		components: {mdlSnackbar, mdlSpinner, cart},
 		computed: {
 			loading() {
 				return this.$store.state.loading;
