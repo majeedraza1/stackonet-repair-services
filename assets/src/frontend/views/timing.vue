@@ -44,7 +44,7 @@
 				</button>
 			</template>
 		</div>
-		<div class="select-time-continue-button-wrapper">
+		<div class="select-time-continue-button-wrapper" @click="handleContinue">
 			<div class="select-time-continue-button select-time-continue-button-active">Continue</div>
 		</div>
 		<p class="select-time-additional-text">Timing is subject to technician availability. We will<br>confirm timing
@@ -92,6 +92,9 @@
 				let dateNumber = date2.getDate();
 
 				return dateNumber.length === 1 ? '0' + dateNumber : dateNumber;
+			},
+			handleContinue() {
+				this.$router.push('/user-address');
 			}
 		}
 	}
