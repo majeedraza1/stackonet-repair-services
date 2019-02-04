@@ -11,83 +11,26 @@
 				<div class="select-time-day-selector-box">
 
 					<div class="select-time-day-selector-wrapper">
-						<div class="select-time-day-item-wrapper">
-							<div class="select-time-day-item day-active">
-								<div class="select-time-weekday"> Today</div>
-							</div>
-						</div>
-						<div class="select-time-day-item-wrapper">
-							<div class="select-time-day-item ">
-								<div class="">
-									<div class="select-time-weekday"> Mon</div>
-									<div class="select-time-day-in-number"> 04</div>
+
+						<template v-for="(_date, index) in dateRanges">
+							<template v-if="index === 0">
+								<div class="select-time-day-item-wrapper" @click="updateDate(_date)">
+									<div class="select-time-day-item" :class="{'day-active': date === _date }">
+										<div class="select-time-weekday">Today</div>
+									</div>
 								</div>
-							</div>
-						</div>
-						<div class="select-time-day-item-wrapper">
-							<div class="select-time-day-item ">
-								<div class="">
-									<div class="select-time-weekday"> Tue</div>
-									<div class="select-time-day-in-number"> 05</div>
+							</template>
+							<template v-else>
+								<div class="select-time-day-item-wrapper" @click="updateDate(_date)">
+									<div class="select-time-day-item" :class="{'day-active': date === _date }">
+										<div class="">
+											<div class="select-time-weekday" v-html="getDayFromDate(_date)"></div>
+											<div class="select-time-day-in-number" v-html="getDateNumber(_date)"></div>
+										</div>
+									</div>
 								</div>
-							</div>
-						</div>
-						<div class="select-time-day-item-wrapper">
-							<div class="select-time-day-item ">
-								<div class="">
-									<div class="select-time-weekday"> Wed</div>
-									<div class="select-time-day-in-number"> 06</div>
-								</div>
-							</div>
-						</div>
-						<div class="select-time-day-item-wrapper">
-							<div class="select-time-day-item ">
-								<div class="">
-									<div class="select-time-weekday"> Thu</div>
-									<div class="select-time-day-in-number"> 07</div>
-								</div>
-							</div>
-						</div>
-						<div class="select-time-day-item-wrapper">
-							<div class="select-time-day-item ">
-								<div class="">
-									<div class="select-time-weekday"> Fri</div>
-									<div class="select-time-day-in-number"> 08</div>
-								</div>
-							</div>
-						</div>
-						<div class="select-time-day-item-wrapper">
-							<div class="select-time-day-item ">
-								<div class="">
-									<div class="select-time-weekday"> Sat</div>
-									<div class="select-time-day-in-number"> 09</div>
-								</div>
-							</div>
-						</div>
-						<div class="select-time-day-item-wrapper">
-							<div class="select-time-day-item ">
-								<div class="">
-									<div class="select-time-weekday"> Sun</div>
-									<div class="select-time-day-in-number"> 10</div>
-								</div>
-							</div>
-						</div>
-						<div class="select-time-day-item-wrapper">
-							<div class="select-time-day-item ">
-								<div class="">
-									<div class="select-time-weekday"> Mon</div>
-									<div class="select-time-day-in-number"> 11</div>
-								</div>
-							</div>
-						</div>
-						<div class="select-time-day-item-wrapper">
-							<div class="select-time-day-item ">
-								<div class="">
-									<div class="select-time-weekday"> Tue</div>
-									<div class="select-time-day-in-number"> 12</div>
-								</div>
-							</div>
-						</div>
+							</template>
+						</template>
 					</div>
 				</div>
 			</div>
@@ -114,15 +57,15 @@
 		data() {
 			return {
 				dateRanges: [],
-				timeRanges: [
-					'9am - 10am', '10am - 11am', '11am - 12pm', '12pm - 1pm', '1pm - 2pm', '2pm - 3pm', '3pm - 4pm',
-					'4pm - 5pm', '5pm - 6pm', '6pm - 7pm', '7pm - 8pm', '8pm - 9pm', '9pm - 10pm',
-				],
+				timeRanges: [],
 			}
 		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
-			this.$store.commit('SET_TIME_RANGE', '9am - 10am');
+			this.dateRanges = window.Stackonet.dateRanges;
+			this.timeRanges = window.Stackonet.timeRanges;
+			this.$store.commit('SET_DATE', this.dateRanges[0]);
+			this.$store.commit('SET_TIME_RANGE', this.timeRanges[0]);
 		},
 		computed: {
 			date() {
@@ -135,6 +78,20 @@
 		methods: {
 			setTimeRange(time) {
 				this.$store.commit('SET_TIME_RANGE', time);
+			},
+			updateDate(date) {
+				this.$store.commit('SET_DATE', date);
+			},
+			getDayFromDate(time) {
+				let days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+				let date = new Date(time);
+				return days[date.getDay()];
+			},
+			getDateNumber(time) {
+				let date2 = new Date(time);
+				let dateNumber = date2.getDate();
+
+				return dateNumber.length === 1 ? '0' + dateNumber : dateNumber;
 			}
 		}
 	}

@@ -83,6 +83,34 @@ class Frontend {
 			[ 'title' => 'Arctic Silver', 'sub_title' => 'Silver panel', 'color' => 'rgb(176, 180, 183)' ],
 		];
 
+		$days     = [];
+		$date     = new \DateTime();
+		$timezone = get_option( 'timezone_string' );
+		if ( in_array( $timezone, \DateTimeZone::listIdentifiers() ) ) {
+			$date->setTimezone( new \DateTimeZone( $timezone ) );
+		}
+		$period = new \DatePeriod( $date, new \DateInterval( 'P1D' ), 9 );
+		foreach ( $period as $day ) {
+			$days[] = $day->format( 'Y-m-d' );
+		}
+
+		$data['dateRanges'] = $days;
+		$data['timeRanges'] = [
+			'9am - 10am',
+			'10am - 11am',
+			'11am - 12pm',
+			'12pm - 1pm',
+			'1pm - 2pm',
+			'2pm - 3pm',
+			'3pm - 4pm',
+			'4pm - 5pm',
+			'5pm - 6pm',
+			'6pm - 7pm',
+			'7pm - 8pm',
+			'8pm - 9pm',
+			'9pm - 10pm',
+		];
+
 		return $data;
 	}
 }
