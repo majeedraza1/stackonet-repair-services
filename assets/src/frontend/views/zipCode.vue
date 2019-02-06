@@ -4,7 +4,7 @@
 			<div class="step-nav-wrapper"><span class="step-nav-title">What's your zip code?</span></div>
 		</div>
 		<div class="zip-code-input-wrapper">
-			<input type="tel" placeholder="Please enter zip code" :value="zip_code" @input="updateZipCode($event)">
+			<input type="tel" placeholder="Please enter zip code" v-model="tempZipCode">
 		</div>
 		<div class="zip-code-continue-wrapper" :class="{'is-active': isSubmitActive}" @click="handleSubmit">
 			<div>Continue</div>
@@ -15,21 +15,39 @@
 <script>
 	export default {
 		name: "zipCode",
+		data() {
+			return {
+				tempZipCode: '',
+				serviceArea: [],
+			}
+		},
+		mounted() {
+			this.serviceArea = window.Stackonet.serviceArea;
+			this.$store.commit('SET_LOADING_STATUS', false);
+		},
 		computed: {
 			zip_code() {
 				return this.$store.state.zipCode;
 			},
 			isSubmitActive() {
-				return this.zip_code.length >= 3;
+				return this.tempZipCode && this.tempZipCode.length >= 3;
+			},
+			isValidArea() {
+				let value = parseInt(this.tempZipCode);
+				return this.serviceArea.indexOf(value) !== -1;
 			}
 		},
 		methods: {
 			updateZipCode(event) {
-				let value = event.target.value;
-				this.$store.commit('SET_ZIP_CODE', value);
+				this.tempZipCode = event.target.value ? parseInt(event.target.value) : '';
 			},
-			handleSubmit(){
-				this.$router.push('/screen-cracked');
+			handleSubmit() {
+				if (this.isValidArea) {
+					this.$store.commit('SET_ZIP_CODE', this.tempZipCode);
+					this.$router.push('/screen-cracked');
+				} else {
+					this.$router.push('/unsupported-zip-code');
+				}
 			}
 		}
 	}

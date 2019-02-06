@@ -15,14 +15,14 @@
 						<template v-for="(_date, index) in dateRanges">
 							<template v-if="index === 0">
 								<div class="select-time-day-item-wrapper" @click="updateDate(_date)">
-									<div class="select-time-day-item" :class="{'day-active': date === _date }">
+									<div class="select-time-day-item" :class="{'day-active': tempDate === _date }">
 										<div class="select-time-weekday">Today</div>
 									</div>
 								</div>
 							</template>
 							<template v-else>
 								<div class="select-time-day-item-wrapper" @click="updateDate(_date)">
-									<div class="select-time-day-item" :class="{'day-active': date === _date }">
+									<div class="select-time-day-item" :class="{'day-active': tempDate === _date }">
 										<div class="">
 											<div class="select-time-weekday" v-html="getDayFromDate(_date)"></div>
 											<div class="select-time-day-in-number" v-html="getDateNumber(_date)"></div>
@@ -38,7 +38,7 @@
 
 		<div class="select-time-time-picker-wrapper">
 			<template v-for="times in timeRanges">
-				<button class="time-content-box hoverable" :class="{'time-content-box-active': timeRange === times}"
+				<button class="time-content-box hoverable" :class="{'time-content-box-active': tempTime === times}"
 						@click="setTimeRange(times)">
 					<div v-text="times"></div>
 				</button>
@@ -58,14 +58,16 @@
 			return {
 				dateRanges: [],
 				timeRanges: [],
+				tempDate: '',
+				tempTime: '',
 			}
 		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 			this.dateRanges = window.Stackonet.dateRanges;
 			this.timeRanges = window.Stackonet.timeRanges;
-			this.$store.commit('SET_DATE', this.dateRanges[0]);
-			this.$store.commit('SET_TIME_RANGE', this.timeRanges[0]);
+			this.tempDate = this.dateRanges[0];
+			this.tempTime = this.timeRanges[0];
 		},
 		computed: {
 			date() {
@@ -77,10 +79,10 @@
 		},
 		methods: {
 			setTimeRange(time) {
-				this.$store.commit('SET_TIME_RANGE', time);
+				this.tempTime = time;
 			},
 			updateDate(date) {
-				this.$store.commit('SET_DATE', date);
+				this.tempDate = date;
 			},
 			getDayFromDate(time) {
 				let days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -94,6 +96,8 @@
 				return dateNumber.length === 1 ? '0' + dateNumber : dateNumber;
 			},
 			handleContinue() {
+				this.$store.commit('SET_DATE', this.tempDate);
+				this.$store.commit('SET_TIME_RANGE', this.tempTime);
 				this.$router.push('/user-address');
 			}
 		}

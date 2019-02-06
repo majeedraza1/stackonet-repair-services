@@ -1,5 +1,5 @@
 <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg"
-	 xmlns:xlink="http://www.w3.org/1999/xlink">
+>
 	<symbol id="icon-screen-broken-yes" viewBox="0 0 31 54">
 		<g fill="none" fill-rule="evenodd" stroke="#0161C7" stroke-linecap="round" stroke-linejoin="round"
 		   stroke-width="1.75" transform="translate(.59 .892)">
@@ -162,6 +162,33 @@
 						<path d="M10.0201712,22.8977246 C14.6733904,17.3487015 17,12.8193013 17,9.30952381 C17,3.49976749 13.1944204,0 8.5,0 C3.80557963,0 2.6352163e-16,3.32900856 0,9.30952381 C0,12.9184641 2.32146626,17.4514999 6.96439878,22.9086314 L6.96439468,22.9086349 C7.6801604,23.7499195 8.94239908,23.8516726 9.78368368,23.1359069 C9.8690474,23.0632794 9.94815507,22.9836048 10.0201712,22.8977246 Z"
 							  id="Oval-9-Copy" stroke="#0161C7" stroke-width="2"/>
 						<circle id="Oval-Copy" fill="#0161C7" cx="8.5" cy="8.5" r="2.5"/>
+					</g>
+				</g>
+			</g>
+		</g>
+	</symbol>
+	<symbol id="unsupported-zip-code-phone" viewBox="0 0 108 85">
+		<defs>
+			<linearGradient x1="3.061617e-15%" y1="50%" x2="97.5326849%" y2="50%" id="linearGradient-1">
+				<stop stop-color="#FFFFFF" offset="0%"/>
+				<stop stop-color="#79ACE2" offset="100%"/>
+			</linearGradient>
+		</defs>
+		<g id="in-store---phone-repair" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+			<g id="unsupported-zip-code">
+				<g id="Phone-icon" transform="translate(-2.000000, 0.000000)">
+					<g>
+						<rect id="Rectangle-2-Copy" fill="url(#linearGradient-1)" opacity="0.1" x="0" y="6" width="75"
+							  height="73"/>
+						<g id="Phone-Copy" transform="translate(34.660156, 0.000000)" fill="#0161C7">
+							<path d="M37.0810811,0 L4.91891892,0 C2.17567568,0 0,2.16981132 0,4.90566038 L0,80.0943396 C0,82.8301887 2.17567568,85 4.91891892,85 L37.0810811,85 C39.8243243,85 42,82.8301887 42,80.0943396 L42,4.90566038 C42,2.16981132 39.8243243,0 37.0810811,0 Z M17,3.45454545 C17,3.18181818 17.1935484,3 17.483871,3 L25.516129,3 C25.8064516,3 26,3.18181818 26,3.45454545 L26,3.54545455 C26,3.81818182 25.8064516,4 25.516129,4 L17.483871,4 C17.1935484,4 17,3.81818182 17,3.54545455 L17,3.45454545 Z M7.05263158,3 C7.57894737,3 8,3.44444444 8,4 C8,4.55555556 7.57894737,5 7.05263158,5 C6.52631579,5 6,4.55555556 6,4 C6,3.44444444 6.52631579,3 7.05263158,3 Z M1.91992188,6.43554688 L39.9199219,6.43554688 L39.9199219,79.2319336 L1.91992188,79.2319336 L1.91992188,6.43554688 Z"
+								  id="Shape" fill-rule="nonzero"/>
+							<g id="Group-4" transform="translate(13.000000, 45.000000)">
+								<circle id="Oval-Copy-5" cx="15.5" cy="1.5" r="1.5"/>
+								<circle id="Oval-Copy-6" cx="1.5" cy="1.5" r="1.5"/>
+								<circle id="Oval" cx="8" cy="15" r="6"/>
+							</g>
+						</g>
 					</g>
 				</g>
 			</g>

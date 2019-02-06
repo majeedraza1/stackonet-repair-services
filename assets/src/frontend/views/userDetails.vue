@@ -13,6 +13,7 @@
 						   name="firstName"
 						   class="inputText"
 						   placeholder=" " value=""
+						   v-model="firstName"
 						   style="width: 100%;">
 				</span>
 				<span class="floating-label">First name</span>
@@ -25,6 +26,7 @@
 						   name="lastName"
 						   class="inputText"
 						   placeholder=" " value=""
+						   v-model="lastName"
 						   style="width: 100%;">
 				</span>
 				<span class="floating-label">Last name</span>
@@ -35,6 +37,7 @@
 						   name="email"
 						   class="inputText"
 						   placeholder=" " value=""
+						   v-model="email"
 						   style="width: 100%;">
 				</span>
 				<span class="floating-label">Enter your email</span>
@@ -45,6 +48,7 @@
 						   name="instructions"
 						   class="inputText"
 						   placeholder=" " value=""
+						   v-model="phone"
 						   style="width: 100%;">
 				</span>
 				<span class="floating-label">Phone</span>
@@ -64,7 +68,7 @@
 			<div class="userdetails-coupon-button">I have a coupon code</div>
 
 			<div class="enter-details-continue-button-wrapper mobile-mode">
-				<div class="enter-details-continue-button ">Continue</div>
+				<div class="enter-details-continue-button" @click="handleContinue">Continue</div>
 			</div>
 		</div>
 	</div>
@@ -73,11 +77,25 @@
 <script>
 	export default {
 		name: "userDetails",
+		data() {
+			return {
+				firstName: '',
+				lastName: '',
+				email: '',
+				phone: '',
+				couponCode: '',
+			}
+		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 		},
 		methods: {
 			handleContinue() {
+				this.$store.commit('SET_FIRST_NAME', this.firstName);
+				this.$store.commit('SET_LAST_NAME', this.lastName);
+				this.$store.commit('SET_EMAIL_ADDRESS', this.email);
+				this.$store.commit('SET_PHONE', this.phone);
+				this.$store.commit('SET_COUPON_CODE', this.couponCode);
 				this.$router.push('/thank-you');
 			}
 		}

@@ -19,9 +19,18 @@ export default new Vuex.Store({
 		issueDescription: '',
 		date: '',
 		timeRange: '',
+		address: '',
+		additionalAddress: '',
+		instructions: '',
+		firstName: '',
+		lastName: '',
+		emailAddress: '',
+		phone: '',
+		couponCode: '',
 	},
 
-	mutations: { // Commit + track state changes
+	// Commit + track state changes
+	mutations: {
 		SET_LOADING_STATUS(state, loading) {
 			state.loading = loading;
 		},
@@ -60,6 +69,30 @@ export default new Vuex.Store({
 		},
 		SET_TIME_RANGE(state, timeRange) {
 			state.timeRange = timeRange;
+		},
+		SET_ADDRESS(state, address) {
+			state.address = address;
+		},
+		SET_ADDITIONAL_ADDRESS(state, additionalAddress) {
+			state.additionalAddress = additionalAddress;
+		},
+		SET_INSTRUCTIONS(state, instructions) {
+			state.instructions = instructions;
+		},
+		SET_FIRST_NAME(state, firstName) {
+			state.firstName = firstName;
+		},
+		SET_LAST_NAME(state, lastName) {
+			state.lastName = lastName;
+		},
+		SET_EMAIL_ADDRESS(state, emailAddress) {
+			state.emailAddress = emailAddress;
+		},
+		SET_PHONE(state, phone) {
+			state.phone = phone;
+		},
+		SET_COUPON_CODE(state, couponCode) {
+			state.couponCode = couponCode;
 		},
 	},
 

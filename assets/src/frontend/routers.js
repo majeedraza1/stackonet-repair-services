@@ -10,6 +10,8 @@ import timing from './views/timing.vue';
 import thankyou from './views/thankyou.vue';
 import userAddress from './views/userAddress.vue';
 import userDetails from './views/userDetails.vue';
+import unsupportedZipCode from './views/unsupportedZipCode.vue';
+import unsupportedService from './views/unsupportedService.vue';
 
 Vue.use(VueRouter);
 
@@ -18,6 +20,8 @@ const routes = [
 	{path: '/device-model', name: 'device-model', component: deviceModel},
 	{path: '/device-color', name: 'device-color', component: deviceColor},
 	{path: '/zip-code', name: 'zip-code', component: zipCode},
+	{path: '/unsupported-zip-code', name: 'unsupported-zip-code', component: unsupportedZipCode},
+	{path: '/unsupported-service', name: 'unsupported-service', component: unsupportedService},
 	{path: '/screen-cracked', name: 'screen-cracked', component: screenCracked},
 	{path: '/select-issue', name: 'select-issue', component: deviceIssue},
 	{path: '/select-time', name: 'select-time', component: timing},

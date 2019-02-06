@@ -64,7 +64,7 @@
 						</svg>
 						<span class="time-title">Location</span>
 					</div>
-					<div class="my-cart-small-items-text">145 E Jefferson St, Louisville, KY 40202, USA</div>
+					<div class="my-cart-small-items-text" v-html="address"></div>
 				</div>
 			</div>
 
@@ -77,9 +77,9 @@
 						<span class="time-title">Contact Details</span>
 					</div>
 					<div class="my-cart-small-items-text">
-						<div>Sayful Islam</div>
-						<div>sayful.islam001@gmail.com</div>
-						<div>(415) 292-6684</div>
+						<div v-text="firstName"></div>
+						<div v-text="emailAddress"></div>
+						<div v-text="phone"></div>
 					</div>
 				</div>
 			</div>
@@ -106,6 +106,21 @@
 			},
 			timeRange() {
 				return this.$store.state.timeRange;
+			},
+			address() {
+				return this.$store.state.address;
+			},
+			firstName() {
+				return this.$store.state.firstName;
+			},
+			lastName() {
+				return this.$store.state.lastName;
+			},
+			emailAddress() {
+				return this.$store.state.emailAddress;
+			},
+			phone() {
+				return this.$store.state.phone;
 			},
 		},
 		methods: {

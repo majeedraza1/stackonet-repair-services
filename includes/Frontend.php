@@ -111,6 +111,12 @@ class Frontend {
 			'9pm - 10pm',
 		];
 
+		$data['services'] = [
+			[ 'title' => 'Screen broken', 'price' => 109 ],
+		];
+
+		$data["serviceArea"] = [ 40202, 91210 ];
+
 		return $data;
 	}
 }

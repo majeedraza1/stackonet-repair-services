@@ -27,7 +27,7 @@
 
 <style lang="scss">
 	.repair-services-container {
-		background: #f5f5f5;
+		background: #eff2f5;
 		position: relative;
 	}
 
@@ -44,6 +44,12 @@
 
 		&.is-active {
 			display: flex;
+		}
+	}
+
+	.page-repair-services {
+		.content-container {
+			background-color: #eff2f5;
 		}
 	}
 </style>
