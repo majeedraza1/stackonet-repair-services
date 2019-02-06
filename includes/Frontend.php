@@ -44,10 +44,21 @@ class Frontend {
 		echo '<script>window.Stackonet = ' . wp_json_encode( self::temp_data() ) . '</script>';
 		echo '<div id="stackonet_repair_services"></div>';
 		include STACKONET_REPAIR_SERVICES_PATH . "/assets/img/frontend-icons.svg";
+		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
+	}
+
+	public function map_script() {
+		$api_key = 'AIzaSyB0OwbduNqUSls8Lf5RTdyGMOVcjPHC-aE';
+		$map_src = add_query_arg( array(
+			'key'       => $api_key,
+			'libraries' => 'places'
+		), 'https://maps.googleapis.com/maps/api/js' );
+		echo '<script src="' . $map_src . '"></script>';
 	}
 
 	/**
 	 * @return array
+	 * @throws \Exception
 	 */
 	public static function temp_data() {
 		$img  = STACKONET_REPAIR_SERVICES_ASSETS . '/img';
@@ -112,7 +123,9 @@ class Frontend {
 		];
 
 		$data['services'] = [
-			[ 'title' => 'Screen broken', 'price' => 109 ],
+			[ 'id' => 'BrokenScreen', 'title' => 'Broken Screen', 'price' => 399 ],
+			[ 'id' => 'BatteryReplacement', 'title' => 'Battery Replacement', 'price' => 89 ],
+			[ 'id' => 'BackGlassReplacement', 'title' => 'Back Glass Replacement', 'price' => 79 ],
 		];
 
 		$data["serviceArea"] = [ 40202, 91210 ];

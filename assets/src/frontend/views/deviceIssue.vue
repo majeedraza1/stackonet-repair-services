@@ -11,9 +11,9 @@
 		<label class="issue-subline">Select issue(s)</label>
 		<div class="select-issue-content-container">
 
-			<template v-for="issue in noIssues">
+			<template v-for="issue in multiIssues">
 				<div class="scale-on-mount scale-on-mount-active" @click="pushIssue(issue)">
-					<div class="select-issue-item hoverable" v-text="issue"></div>
+					<div class="select-issue-item" v-text="issue.title"></div>
 				</div>
 			</template>
 
@@ -33,6 +33,7 @@
 		name: "deviceIssue",
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
+			this.multiIssues = window.Stackonet.services;
 		},
 		data() {
 			return {
@@ -68,6 +69,11 @@
 				}
 
 				this.$store.commit('SET_ISSUE', issues);
+			},
+			isActive(issue) {
+				return {
+					'is-active': this.issues.indexOf(issue) !== false,
+				};
 			},
 			handleContinue() {
 				this.$router.push('/select-time');
@@ -154,5 +160,9 @@
 		transition: all .3s;
 		display: block;
 		margin: 20px auto 50px;
+	}
+
+	.select-issue-item-selected {
+		border: 2px solid #0161c7;
 	}
 </style>

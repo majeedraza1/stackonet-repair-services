@@ -8,8 +8,8 @@
 			<span class="blocking-span">
 				<div>
 				<input placeholder=""
-					   types="address"
 					   v-model="addressTemp"
+					   @focus="geolocate"
 					   type="text"
 					   id="address"
 					   name="address"
@@ -63,10 +63,24 @@
 				addressTemp: '',
 				additionalAddressTemp: '',
 				instructionsTemp: '',
+				autocomplete: {},
 			}
 		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
+
+			let address = this.$el.querySelector('#address');
+			// Create the autocomplete object, restricting the search predictions to
+			// geographical location types.
+			this.autocomplete = new google.maps.places.Autocomplete(address, {types: ['geocode']});
+
+			// Avoid paying for data that you don't need by restricting the set of
+			// place fields that are returned to just the address components.
+			Autocomplete.setFields('address_components');
+
+			// When the user selects an address from the drop-down, populate the
+			// address fields in the form.
+			this.autocomplete.addListener('place_changed', this.fillInAddress);
 		},
 		methods: {
 			handleContinue() {
@@ -74,6 +88,25 @@
 				this.$store.commit('SET_ADDITIONAL_ADDRESS', this.additionalAddressTemp);
 				this.$store.commit('SET_INSTRUCTIONS', this.instructionsTemp);
 				this.$router.push('/user-details');
+			},
+			geolocate() {
+				if (navigator.geolocation) {
+					navigator.geolocation.getCurrentPosition(function (position) {
+						let geolocation = {
+							lat: position.coords.latitude,
+							lng: position.coords.longitude
+						};
+						let circle = new google.maps.Circle(
+								{center: geolocation, radius: position.coords.accuracy}
+						);
+						this.autocomplete.setBounds(circle.getBounds());
+					});
+				}
+			},
+			fillInAddress() {
+				// Get the place details from the autocomplete object.
+				let place = this.autocomplete.getPlace();
+				console.log(place);
 			}
 		}
 	}

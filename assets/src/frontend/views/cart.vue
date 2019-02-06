@@ -1,5 +1,5 @@
 <template>
-	<div class="my-cart-wrapper ">
+	<div class="my-cart-wrapper" v-show="hasDevice">
 		<div class="my-cart-content-wrapper">
 
 			<div class="my-cart-small-items-container" style="padding-top: 20px;">
@@ -9,7 +9,7 @@
 							<use xlink:href="#icon-phone"></use>
 						</svg>
 						<span class="time-title">Phone Repair</span>
-						<div class="my-cart-small-items-edit" @click="editDevice">
+						<div class="my-cart-small-items-edit" v-if="totalPrice" @click="editDevice">
 							<svg width="12px" height="11px" xmlns="http://www.w3.org/2000/svg">
 								<use xlink:href="#icon-pen"></use>
 							</svg>
@@ -20,19 +20,22 @@
 						<div class="my-cart-device-section-phone-item">
 							<div v-if="device" v-text="device.title"></div>
 							<div v-if="deviceModel" v-text="deviceModel.title"></div>
-							<div v-if="deviceColor">{{deviceColor.title}} - {{deviceColor.sub_title}}</div>
+							<div v-if="hasDeviceColor">{{deviceColor.title}} - {{deviceColor.sub_title}}</div>
 							<div></div>
 							<div>
-								<div class="my-cart-device-section-phone-issue-wrapper"><span>Battery Replacement</span><span>$89</span>
+								<div class="my-cart-device-section-phone-issue-wrapper" v-for="issue in issues"
+									 :key="issue.id">
+									<span>{{issue.title}}</span>
+									<span class="float-right-price">${{issue.price}}</span>
 								</div>
-								<div class="my-cart-device-section-phone-issue-wrapper">
-									<span>Back Glass Replacement</span><span>$79</span></div>
 							</div>
 						</div>
 					</div>
 					<div class="my-cart-small-price-section">
-						<div class="my-cart-small-total-price"><span>Total Price</span><span
-								class="my-cart-small-text-bold">$168.00</span></div>
+						<div class="my-cart-small-total-price">
+							<span>Total Price</span>
+							<span class="my-cart-small-text-bold">${{totalPrice}}</span>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -43,9 +46,8 @@
 						<svg width="20px" height="20px" xmlns="http://www.w3.org/2000/svg">
 							<use xlink:href="#icon-clock"></use>
 						</svg>
-						<span
-								class="time-title">Time</span>
-						<div class="my-cart-small-items-edit">
+						<span class="time-title">Time</span>
+						<div class="my-cart-small-items-edit" v-if="date" @click="editTime">
 							<svg width="12px" height="11px" version="1.1" xmlns="http://www.w3.org/2000/svg">
 								<use xlink:href="#icon-pen"></use>
 							</svg>
@@ -95,11 +97,23 @@
 			device() {
 				return this.$store.state.device;
 			},
+			hasDevice() {
+				return !!(this.device && this.device.title);
+			},
 			deviceModel() {
 				return this.$store.state.deviceModel;
 			},
 			deviceColor() {
 				return this.$store.state.deviceColor;
+			},
+			hasDeviceColor() {
+				return !!(this.deviceColor && this.deviceColor.title);
+			},
+			issues() {
+				return this.$store.state.issues;
+			},
+			totalPrice() {
+				return this.issues.reduce((prev, next) => prev + next.price, 0);
 			},
 			date() {
 				return this.$store.state.date;
@@ -129,6 +143,11 @@
 				this.$store.commit('SET_DEVICE_MODEL', {});
 				this.$store.commit('SET_DEVICE_COLOR', {});
 				this.$router.push('/');
+			},
+			editTime() {
+				this.$store.commit('SET_DATE', '');
+				this.$store.commit('SET_TIME_RANGE', '');
+				this.$router.push('/select-time');
 			}
 		}
 	}
@@ -205,5 +224,9 @@
 		height: 25px;
 		display: flex;
 		justify-content: space-between;
+	}
+
+	.float-right-price {
+		float: right;
 	}
 </style>
