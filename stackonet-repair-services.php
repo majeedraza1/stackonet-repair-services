@@ -150,7 +150,7 @@ final class Stackonet_Repair_Services {
 		$this->container['assets'] = Stackonet\Assets::init();
 
 		if ( $this->is_request( 'admin' ) ) {
-			// $this->container['admin'] = Stackonet\Admin\Admin::init();
+			$this->container['admin'] = Stackonet\Admin\Admin::init();
 		}
 
 		if ( $this->is_request( 'frontend' ) ) {

@@ -1,5 +1,9 @@
 <template>
-	<button class="mdl-button mdl-js-button mdl-button--fab" :class="getClasses" :disabled="disabled">
+	<button class="mdl-button mdl-js-button mdl-button--fab"
+			:class="getClasses"
+			:disabled="disabled"
+			@click="$emit('click')"
+	>
 		<slot></slot>
 	</button>
 </template>

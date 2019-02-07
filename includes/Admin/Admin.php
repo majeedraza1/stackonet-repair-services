@@ -34,13 +34,14 @@ class Admin {
 	public static function add_menu() {
 		global $submenu;
 		$capability = 'manage_options';
-		$slug       = 'vue-wp-starter';
+		$slug       = 'phone-repairs';
 
-		$hook = add_menu_page( __( 'Vue App', 'vue-wp-starter' ), __( 'Vue App', 'vue-wp-starter' ),
-			$capability, $slug, [ self::$instance, 'menu_page_callback' ], 'dashicons-update', 6 );
+		$hook = add_menu_page( __( 'Phone Repairs', 'vue-wp-starter' ), __( 'Phone Repairs', 'vue-wp-starter' ),
+			$capability, $slug, [ self::$instance, 'menu_page_callback' ], 'dashicons-tablet', 6 );
 
 		$menus = [
-			[ 'title' => __( 'Vue App', 'vue-wp-starter' ), 'slug' => '#/' ],
+			[ 'title' => __( 'Devices', 'vue-wp-starter' ), 'slug' => '#/' ],
+			[ 'title' => __( 'Service Areas', 'vue-wp-starter' ), 'slug' => '#/areas' ],
 			[ 'title' => __( 'Settings', 'vue-wp-starter' ), 'slug' => '#/settings' ],
 		];
 
@@ -64,10 +65,10 @@ class Admin {
 	 * Load required styles and scripts
 	 */
 	public static function init_hooks() {
-		wp_enqueue_style( 'vue-wp-starter-admin' );
-		wp_enqueue_script( 'vue-wp-starter-admin' );
-		wp_localize_script( 'vue-wp-starter-admin', 'vueWpStarterSettings', array(
-			'root'  => esc_url_raw( rest_url( 'vue-wp-starter/v1' ) ),
+		wp_enqueue_style( 'stackonet-repair-services-admin' );
+		wp_enqueue_script( 'stackonet-repair-services-admin' );
+		wp_localize_script( 'stackonet-repair-services-admin', 'stackonetSettings', array(
+			'root'  => esc_url_raw( rest_url( 'repair-service/v1' ) ),
 			'nonce' => wp_create_nonce( 'wp_rest' )
 		) );
 	}
