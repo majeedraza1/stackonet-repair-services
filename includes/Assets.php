@@ -46,6 +46,9 @@ class Assets {
 			$deps      = isset( $script['deps'] ) ? $script['deps'] : false;
 			$in_footer = isset( $script['in_footer'] ) ? $script['in_footer'] : false;
 			$version   = isset( $script['version'] ) ? $script['version'] : STACKONET_REPAIR_SERVICES_VERSION;
+			if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+				$version = time();
+			}
 			wp_register_script( $handle, $script['src'], $deps, $version, $in_footer );
 		}
 	}
@@ -59,8 +62,12 @@ class Assets {
 	 */
 	public function register_styles( $styles ) {
 		foreach ( $styles as $handle => $style ) {
-			$deps = isset( $style['deps'] ) ? $style['deps'] : false;
-			wp_register_style( $handle, $style['src'], $deps, STACKONET_REPAIR_SERVICES_VERSION );
+			$deps    = isset( $style['deps'] ) ? $style['deps'] : false;
+			$version = isset( $style['version'] ) ? $style['version'] : STACKONET_REPAIR_SERVICES_VERSION;
+			if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+				$version = time();
+			}
+			wp_register_style( $handle, $style['src'], $deps, $version );
 		}
 	}
 

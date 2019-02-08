@@ -42,6 +42,7 @@ class Admin {
 		$menus = [
 			[ 'title' => __( 'Devices', 'vue-wp-starter' ), 'slug' => '#/' ],
 			[ 'title' => __( 'Service Areas', 'vue-wp-starter' ), 'slug' => '#/areas' ],
+			[ 'title' => __( 'Orders', 'vue-wp-starter' ), 'slug' => '#/orders' ],
 			[ 'title' => __( 'Settings', 'vue-wp-starter' ), 'slug' => '#/settings' ],
 		];
 

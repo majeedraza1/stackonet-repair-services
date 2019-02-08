@@ -5,7 +5,7 @@
 		<div class="clear"></div>
 		<list-table
 				:columns="columns"
-				:rows="rows"
+				:rows="services_areas"
 				:actions="actions"
 				:bulk-actions="bulkActions"
 				action-column="title"
@@ -22,7 +22,7 @@
 				<textarea id="address" v-model="address" class="regular-text"></textarea>
 			</p>
 			<div slot="foot">
-				<button class="button">Save</button>
+				<button class="button" @click="addNewServiceArea">Save</button>
 			</div>
 		</mdl-modal>
 	</div>
@@ -42,7 +42,7 @@
 				address: '',
 				rows: [],
 				columns: [
-					{key: 'zipCode', label: 'Zip Code'},
+					{key: 'zip_code', label: 'Zip Code'},
 					{key: 'address', label: 'Address'},
 				],
 				actions: [],
@@ -53,10 +53,16 @@
 		computed: {
 			loading() {
 				return this.$store.state.loading;
+			},
+			services_areas() {
+				return this.$store.state.services_areas;
 			}
 		},
 		mounted() {
-			this.$store.commit('SET_LOADING_STATUS', false)
+			this.$store.commit('SET_LOADING_STATUS', false);
+			if (!this.services_areas.length) {
+				this.fetchServicesAreas();
+			}
 		},
 		methods: {
 			openModal() {
@@ -65,6 +71,52 @@
 			closeModal() {
 				this.modalActive = false;
 			},
+			fetchServicesAreas() {
+				let $ = window.jQuery, self = this;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				$.ajax({
+					method: 'GET',
+					url: ajaxurl,
+					data: {
+						action: 'get_services_areas',
+					},
+					success: function (response) {
+						if (response.data) {
+							self.$store.commit('SET_SERVICES_AREAS', response.data);
+						}
+						self.$store.commit('SET_LOADING_STATUS', false);
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					}
+				});
+			},
+			addNewServiceArea() {
+				let $ = window.jQuery, self = this;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				$.ajax({
+					method: 'POST',
+					url: ajaxurl,
+					data: {
+						action: 'create_service_area',
+						zip_code: self.zipCode,
+						address: self.address,
+					},
+					success: function (response) {
+						if (response.data) {
+							let services_areas = self.services_areas;
+							services_areas.push(response.data);
+							self.$store.commit('SET_SERVICES_AREAS', services_areas);
+						}
+						self.$store.commit('SET_LOADING_STATUS', false);
+						self.closeModal();
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					}
+				});
+			},
+
 			onActionClick(action, row) {
 				if ('edit' === action) {
 					window.location.href = "#/" + row.id;
