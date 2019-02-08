@@ -26,7 +26,7 @@
 		},
 		props: {
 			modelValue: {default: false},
-			value: {type: String, default: 'on'},
+			value: {default: 'on'},
 			trueValue: {default: true},
 			falseValue: {default: false},
 			disabled: {type: Boolean, default: false},

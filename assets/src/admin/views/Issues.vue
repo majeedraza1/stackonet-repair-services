@@ -1,28 +1,28 @@
 <template>
-	<div class="repair-services-areas-list">
-		<h1 class="wp-heading-inline">Service Areas</h1>
+	<div class="repair-services-issues-list">
+		<h1 class="wp-heading-inline">Issues</h1>
 		<a href="" class="page-title-action" @click.prevent="openModal">Add New</a>
 		<div class="clear"></div>
 		<list-table
 				:columns="columns"
-				:rows="services_areas"
+				:rows="issues"
 				:actions="actions"
 				:bulk-actions="bulkActions"
-				action-column="zip_code"
+				action-column="title"
 				@action:click="onActionClick"
 				@bulk:click="onBulkAction"
 		></list-table>
 		<mdl-modal :active="modalActive" @close="closeModal" title="Add New Area">
 			<p class="">
-				<label for="zipCode">Zip Code</label><br>
-				<input type="text" id="zipCode" class="regular-text" v-model="zipCode">
+				<label for="title">Issue Title</label><br>
+				<input type="text" id="title" class="regular-text" v-model="title">
 			</p>
 			<p class="">
-				<label for="address">Address (optional)</label><br>
-				<textarea id="address" v-model="address" class="regular-text"></textarea>
+				<label for="price">Default Price (optional)</label><br>
+				<input type="number" id="price" v-model="price" class="regular-text" min="0" step="0.01"/>
 			</p>
 			<div slot="foot">
-				<button class="button" @click="addNewServiceArea">Save</button>
+				<button class="button" @click="addNewIssue">Save</button>
 			</div>
 		</mdl-modal>
 	</div>
@@ -33,17 +33,17 @@
 	import mdlModal from '../../material-design-lite/modal/mdlModal.vue';
 
 	export default {
-		name: "ServiceAreas",
+		name: "Issues",
 		components: {ListTable, mdlModal},
 		data() {
 			return {
 				modalActive: false,
-				zipCode: '',
-				address: '',
+				title: '',
+				price: '',
 				rows: [],
 				columns: [
-					{key: 'zip_code', label: 'Zip Code'},
-					{key: 'address', label: 'Address'},
+					{key: 'title', label: 'Issue'},
+					{key: 'price', label: 'Default Price'},
 				],
 				actions: [{key: 'edit', label: 'Edit'}],
 				bulkActions: [],
@@ -54,14 +54,14 @@
 			loading() {
 				return this.$store.state.loading;
 			},
-			services_areas() {
-				return this.$store.state.services_areas;
+			issues() {
+				return this.$store.state.issues;
 			}
 		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
-			if (!this.services_areas.length) {
-				this.fetchServicesAreas();
+			if (!this.issues.length) {
+				this.fetchIssues();
 			}
 		},
 		methods: {
@@ -71,18 +71,18 @@
 			closeModal() {
 				this.modalActive = false;
 			},
-			fetchServicesAreas() {
+			fetchIssues() {
 				let $ = window.jQuery, self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
 				$.ajax({
 					method: 'GET',
 					url: ajaxurl,
 					data: {
-						action: 'get_services_areas',
+						action: 'get_device_issues',
 					},
 					success: function (response) {
 						if (response.data) {
-							self.$store.commit('SET_SERVICES_AREAS', response.data);
+							self.$store.commit('SET_ISSUES', response.data);
 						}
 						self.$store.commit('SET_LOADING_STATUS', false);
 					},
@@ -91,23 +91,25 @@
 					}
 				});
 			},
-			addNewServiceArea() {
+			addNewIssue() {
 				let $ = window.jQuery, self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
 				$.ajax({
 					method: 'POST',
 					url: ajaxurl,
 					data: {
-						action: 'create_service_area',
-						zip_code: self.zipCode,
-						address: self.address,
+						action: 'create_device_issue',
+						title: self.title,
+						price: self.price,
 					},
 					success: function (response) {
 						if (response.data) {
-							let services_areas = self.services_areas;
-							services_areas.push(response.data);
-							self.$store.commit('SET_SERVICES_AREAS', services_areas);
+							let issues = self.issues;
+							issues.push(response.data);
+							self.$store.commit('SET_ISSUES', issues);
 						}
+						self.title = '';
+						self.price = '';
 						self.$store.commit('SET_LOADING_STATUS', false);
 						self.closeModal();
 					},
@@ -166,12 +168,5 @@
 </script>
 
 <style lang="scss">
-	.repair-services-areas-list {
-		.mdl-button--fab {
-			position: fixed;
-			bottom: 20px;
-			right: 20px;
-			z-index: 100;
-		}
-	}
+
 </style>

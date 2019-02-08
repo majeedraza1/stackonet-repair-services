@@ -2,6 +2,8 @@
 
 namespace Stackonet;
 
+use Stackonet\Models\ServiceArea;
+
 defined( 'ABSPATH' ) || exit;
 
 class Frontend {
@@ -128,7 +130,7 @@ class Frontend {
 			[ 'id' => 'BackGlassReplacement', 'title' => 'Back Glass Replacement', 'price' => 79 ],
 		];
 
-		$data["serviceArea"] = [ 40202, 91210 ];
+		$data["serviceArea"] = ServiceArea::get_zip_codes();
 
 		return $data;
 	}

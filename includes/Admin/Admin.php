@@ -42,7 +42,7 @@ class Admin {
 		$menus = [
 			[ 'title' => __( 'Devices', 'vue-wp-starter' ), 'slug' => '#/' ],
 			[ 'title' => __( 'Service Areas', 'vue-wp-starter' ), 'slug' => '#/areas' ],
-			[ 'title' => __( 'Orders', 'vue-wp-starter' ), 'slug' => '#/orders' ],
+			[ 'title' => __( 'Issues', 'vue-wp-starter' ), 'slug' => '#/issues' ],
 			[ 'title' => __( 'Settings', 'vue-wp-starter' ), 'slug' => '#/settings' ],
 		];
 
@@ -66,6 +66,7 @@ class Admin {
 	 * Load required styles and scripts
 	 */
 	public static function init_hooks() {
+		wp_enqueue_media();
 		wp_enqueue_style( 'stackonet-repair-services-admin' );
 		wp_enqueue_script( 'stackonet-repair-services-admin' );
 		wp_localize_script( 'stackonet-repair-services-admin', 'stackonetSettings', array(

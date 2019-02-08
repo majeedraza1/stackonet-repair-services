@@ -1,7 +1,7 @@
 <template>
 	<div class="repair-services-container">
 		<router-view></router-view>
-		<mdl-snackbar align-start></mdl-snackbar>
+		<mdl-snackbar></mdl-snackbar>
 		<div class="repair-services-loader" :class="{'is-active':loading}">
 			<mdl-spinner :active="loading"></mdl-spinner>
 		</div>
@@ -31,6 +31,11 @@
 
 	.repair-services-container {
 		position: relative;
+		box-sizing: border-box;
+
+		* {
+			box-sizing: border-box;
+		}
 	}
 
 	.repair-services-loader {

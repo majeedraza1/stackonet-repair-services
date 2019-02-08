@@ -44,8 +44,7 @@
 			handleSubmit() {
 				if (this.isValidArea) {
 					this.$store.commit('SET_ZIP_CODE', this.tempZipCode);
-					// this.$router.push('/screen-cracked');
-					this.$router.push('/select-issue');
+					this.$router.push('/screen-cracked');
 				} else {
 					this.$router.push('/unsupported-zip-code');
 				}

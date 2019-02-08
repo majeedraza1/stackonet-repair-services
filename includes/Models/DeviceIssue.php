@@ -2,12 +2,12 @@
 
 namespace Stackonet\Models;
 
-class ServiceArea {
+class DeviceIssue {
 
 	/**
 	 * @var string
 	 */
-	private static $option = 'repair_service_area';
+	private static $option = 'device_issues';
 
 	/**
 	 * Get options
@@ -20,21 +20,12 @@ class ServiceArea {
 		return is_array( $option ) ? $option : [];
 	}
 
-	public static function get_zip_codes() {
-		$options   = self::get_option();
-		$zip_codes = wp_list_pluck( $options, 'zip_code' );
-		$zip_codes = array_values( $zip_codes );
-		$zip_codes = count( $zip_codes ) ? array_map( 'intval', $zip_codes ) : [];
-
-		return array_values( $zip_codes );
-	}
-
 	/**
-	 * Get service areas
+	 * Get issues
 	 *
 	 * @return array
 	 */
-	public static function get_areas() {
+	public static function get_issues() {
 		$options = self::get_option();
 
 		return array_values( $options );
@@ -47,7 +38,7 @@ class ServiceArea {
 	 *
 	 * @return array
 	 */
-	public static function get_area( $id ) {
+	public static function get_issue( $id ) {
 		$options = self::get_option();
 		$ids     = wp_list_pluck( $options, 'id' );
 		$index   = array_search( $id, $ids );
@@ -69,9 +60,9 @@ class ServiceArea {
 	public static function create( array $data ) {
 		$id   = uniqid();
 		$data = wp_parse_args( $data, [
-			'id'       => $id,
-			'zip_code' => '',
-			'address'  => '',
+			'id'    => $id,
+			'title' => '',
+			'price' => '',
 		] );
 
 		$options        = self::get_option();

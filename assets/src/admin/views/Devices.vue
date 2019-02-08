@@ -5,10 +5,10 @@
 		<div class="clear"></div>
 		<list-table
 				:columns="columns"
-				:rows="rows"
+				:rows="devices"
 				:actions="actions"
 				:bulk-actions="bulkActions"
-				action-column="title"
+				action-column="device_title"
 				@action:click="onActionClick"
 				@bulk:click="onBulkAction"
 		></list-table>
@@ -25,10 +25,10 @@
 			return {
 				rows: [],
 				columns: [
-					{key: 'title', label: 'Title'},
+					{key: 'device_title', label: 'Title'},
 					{key: 'image', label: 'Image'},
 				],
-				actions: [],
+				actions: [{key: 'edit', label: 'Edit'}],
 				bulkActions: [],
 				counts: {},
 			}
@@ -36,14 +36,40 @@
 		computed: {
 			loading() {
 				return this.$store.state.loading;
+			},
+			devices() {
+				return this.$store.state.devices;
 			}
 		},
 		mounted() {
-			this.$store.commit('SET_LOADING_STATUS', false)
+			this.$store.commit('SET_LOADING_STATUS', false);
+			if (!this.devices.length) {
+				this.fetchDevices();
+			}
 		},
 		methods: {
 			addNewDevice() {
 				this.$router.push('/device/new');
+			},
+			fetchDevices() {
+				let $ = window.jQuery, self = this;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				$.ajax({
+					method: 'GET',
+					url: ajaxurl,
+					data: {
+						action: 'get_devices',
+					},
+					success: function (response) {
+						if (response.data) {
+							self.$store.commit('SET_DEVICES', response.data);
+						}
+						self.$store.commit('SET_LOADING_STATUS', false);
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					}
+				});
 			},
 			onActionClick(action, row) {
 				if ('edit' === action) {

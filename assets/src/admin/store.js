@@ -8,6 +8,9 @@ export default new Vuex.Store({
 	state: {
 		loading: true,
 		services_areas: [],
+		products: [],
+		issues: [],
+		devices: [],
 	},
 
 	// Commit + track state changes
@@ -17,6 +20,15 @@ export default new Vuex.Store({
 		},
 		SET_SERVICES_AREAS(state, services_areas) {
 			state.services_areas = services_areas;
+		},
+		SET_ISSUES(state, issues) {
+			state.issues = issues;
+		},
+		SET_PRODUCTS(state, products) {
+			state.products = products;
+		},
+		SET_DEVICES(state, devices) {
+			state.devices = devices;
 		},
 	},
 

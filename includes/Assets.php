@@ -86,7 +86,7 @@ class Assets {
 			],
 			'stackonet-repair-services-admin'    => [
 				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/admin' . $prefix . '.js',
-				'deps'      => [ 'jquery' ],
+				'deps'      => [ 'jquery', 'wp-color-picker' ],
 				'in_footer' => true
 			]
 		];
@@ -105,7 +105,8 @@ class Assets {
 				'src' => STACKONET_REPAIR_SERVICES_ASSETS . '/css/frontend.css'
 			],
 			'stackonet-repair-services-admin'    => [
-				'src' => STACKONET_REPAIR_SERVICES_ASSETS . '/css/admin.css'
+				'src'  => STACKONET_REPAIR_SERVICES_ASSETS . '/css/admin.css',
+				'deps' => [ 'wp-color-picker' ],
 			],
 		];
 

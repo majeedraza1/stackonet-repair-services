@@ -4,19 +4,17 @@ import Devices from './views/Devices.vue';
 import Device from './views/Device.vue';
 import ServiceAreas from './views/ServiceAreas.vue';
 import Settings from './views/Settings.vue';
-import Orders from './views/Orders.vue';
-import Order from './views/Order.vue';
+import Issues from './views/Issues.vue';
 
 Vue.use(VueRouter);
 
 const routes = [
-	{path: '/', name: 'Devices', component: Devices},
-	{path: '/device/new', name: 'Device', component: Device},
-	{path: '/device/edit/:id', name: 'Device', component: Device},
-	{path: '/areas', name: 'ServiceAreas', component: ServiceAreas},
-	{path: '/orders', name: 'Orders', component: Orders},
-	{path: '/order', name: 'Order', component: Order},
-	{path: '/settings', name: 'Settings', component: Settings}
+	{path: '/', name: 'devices', component: Devices},
+	{path: '/device/new', name: 'device', component: Device},
+	{path: '/device/edit/:id', name: 'device-edit', component: Device},
+	{path: '/areas', name: 'service-areas', component: ServiceAreas},
+	{path: '/issues', name: 'issues', component: Issues},
+	{path: '/settings', name: 'settings', component: Settings}
 ];
 
 export default new VueRouter({

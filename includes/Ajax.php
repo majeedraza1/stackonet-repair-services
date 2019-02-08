@@ -2,6 +2,8 @@
 
 namespace Stackonet;
 
+use Stackonet\Models\Device;
+use Stackonet\Models\DeviceIssue;
 use Stackonet\Models\ServiceArea;
 
 defined( 'ABSPATH' ) || exit;
@@ -24,11 +26,61 @@ class Ajax {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
+			// Service Area
 			add_action( 'wp_ajax_get_services_areas', [ self::$instance, 'get_services_areas' ] );
 			add_action( 'wp_ajax_create_service_area', [ self::$instance, 'create_service_area' ] );
+			// Device Issue
+			add_action( 'wp_ajax_get_device_issues', [ self::$instance, 'get_device_issues' ] );
+			add_action( 'wp_ajax_create_device_issue', [ self::$instance, 'create_device_issue' ] );
+			// Projects
+			add_action( 'wp_ajax_get_woocommerce_products', [ self::$instance, 'get_woocommerce_products' ] );
+			// Device
+			add_action( 'wp_ajax_get_devices', [ self::$instance, 'get_devices' ] );
+			add_action( 'wp_ajax_create_device', [ self::$instance, 'create_device' ] );
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Get devices
+	 */
+	public function get_devices() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'You have no permission to view devices.', 401 );
+		}
+
+		$data = Device::get_devices();
+
+		wp_send_json_success( $data, 200 );
+	}
+
+	/**
+	 * Create device
+	 */
+	public function create_device() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'You have no permission to create new service area.', 401 );
+		}
+
+		$defaults = array(
+			'product_id'          => 0,
+			'device_title'        => '',
+			'device_image'        => '',
+			'broken_screen_label' => '',
+			'broken_screen_price' => '',
+			'device_models'       => [],
+			'multi_issues'        => [],
+			'no_issues'           => [],
+		);
+		$data     = [];
+		foreach ( $defaults as $key => $default ) {
+			$data[ $key ] = isset( $_POST[ $key ] ) ? $_POST[ $key ] : '';
+		}
+
+		$response = Device::create( $data );
+
+		wp_send_json_success( $response, 201 );
 	}
 
 	/**
@@ -41,7 +93,7 @@ class Ajax {
 
 		$data = ServiceArea::get_areas();
 
-		wp_send_json_success( $data, 201 );
+		wp_send_json_success( $data, 200 );
 	}
 
 	/**
@@ -64,6 +116,69 @@ class Ajax {
 			'address'  => $address,
 		] );
 
+		wp_send_json_success( $data, 201 );
+	}
+
+	/**
+	 * Get device issues
+	 */
+	public static function get_device_issues() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'You have no permission to view issues.', 401 );
+		}
+
+		$data = DeviceIssue::get_issues();
+
 		wp_send_json_success( $data, 200 );
+	}
+
+	/**
+	 * Create new device issue
+	 */
+	public function create_device_issue() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'You have no permission to create new device issue.', 401 );
+		}
+
+		$title = isset( $_POST['title'] ) ? sanitize_text_field( $_POST['title'] ) : '';
+		$price = isset( $_POST['price'] ) ? sanitize_text_field( $_POST['price'] ) : '';
+
+		if ( empty( $title ) ) {
+			wp_send_json_error( 'Issue title is required.' );
+		}
+
+		$data = DeviceIssue::create( [
+			'title' => $title,
+			'price' => $price,
+		] );
+
+		wp_send_json_success( $data, 201 );
+	}
+
+	/**
+	 * Get WooCommerce Products
+	 */
+	public function get_woocommerce_products() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'You have no permission to view products.', 401 );
+		}
+
+		$args = array(
+			'limit'   => - 1,
+			'orderby' => 'title',
+			'order'   => 'ASC',
+		);
+		/** @var \WC_Product[] $products */
+		$products = wc_get_products( $args );
+
+		$response = array();
+		foreach ( $products as $product ) {
+			$response[] = [
+				'value' => $product->get_id(),
+				'label' => $product->get_title(),
+			];
+		}
+
+		wp_send_json_success( $response, 200 );
 	}
 }
