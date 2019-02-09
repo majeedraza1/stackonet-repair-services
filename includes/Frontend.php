@@ -3,6 +3,7 @@
 namespace Stackonet;
 
 use Stackonet\Models\ServiceArea;
+use Stackonet\Models\Settings;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -50,9 +51,8 @@ class Frontend {
 	}
 
 	public function map_script() {
-		$api_key = 'AIzaSyB0OwbduNqUSls8Lf5RTdyGMOVcjPHC-aE';
 		$map_src = add_query_arg( array(
-			'key'       => $api_key,
+			'key'       => Settings::get_map_api_key(),
 			'libraries' => 'places'
 		), 'https://maps.googleapis.com/maps/api/js' );
 		echo '<script src="' . $map_src . '"></script>';

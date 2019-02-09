@@ -5,6 +5,7 @@ namespace Stackonet;
 use Stackonet\Models\Device;
 use Stackonet\Models\DeviceIssue;
 use Stackonet\Models\ServiceArea;
+use Stackonet\Models\Settings;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -37,9 +38,25 @@ class Ajax {
 			// Device
 			add_action( 'wp_ajax_get_devices', [ self::$instance, 'get_devices' ] );
 			add_action( 'wp_ajax_create_device', [ self::$instance, 'create_device' ] );
+			// Settings
+			add_action( 'wp_ajax_update_repair_services_settings', [ self::$instance, 'update_settings' ] );
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Update Settings
+	 */
+	public function update_settings() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'You have no permission to view devices.', 401 );
+		}
+
+		$settings = isset( $_POST['settings'] ) ? $_POST['settings'] : [];
+		$data     = Settings::update( $settings );
+
+		wp_send_json_success( $data, 200 );
 	}
 
 	/**

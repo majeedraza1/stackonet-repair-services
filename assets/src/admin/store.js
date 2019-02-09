@@ -11,6 +11,7 @@ export default new Vuex.Store({
 		products: [],
 		issues: [],
 		devices: [],
+		settings: {},
 	},
 
 	// Commit + track state changes
@@ -29,6 +30,9 @@ export default new Vuex.Store({
 		},
 		SET_DEVICES(state, devices) {
 			state.devices = devices;
+		},
+		SET_SETTINGS(state, settings) {
+			state.settings = settings;
 		},
 	},
 

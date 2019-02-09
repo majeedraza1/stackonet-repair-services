@@ -7,19 +7,13 @@
 			<div class="animated-input" style="width: 100%;">
 			<span class="blocking-span">
 				<div>
-				<input placeholder=""
-					   v-model="addressTemp"
+				<input v-model="addressTemp"
 					   @focus="geolocate"
 					   type="text"
 					   id="address"
 					   name="address"
 					   class="inputText"
-					   autocomplete="off"
-					   role="combobox"
-					   aria-autocomplete="list"
-					   aria-expanded="false"
-					   value=""
-					   style="width: 100%;">
+					   autocomplete="off">
 				</div>
 			</span>
 				<span class="floating-label floating-label-focused">Enter exact address</span>
@@ -64,6 +58,7 @@
 				additionalAddressTemp: '',
 				instructionsTemp: '',
 				autocomplete: {},
+				addressObj: {}
 			}
 		},
 		mounted() {
@@ -76,7 +71,7 @@
 
 			// Avoid paying for data that you don't need by restricting the set of
 			// place fields that are returned to just the address components.
-			Autocomplete.setFields('address_components');
+			this.autocomplete.setFields(['address_components']);
 
 			// When the user selects an address from the drop-down, populate the
 			// address fields in the form.
@@ -104,9 +99,43 @@
 				}
 			},
 			fillInAddress() {
+				let placeData = {};
+				let componentForm = {
+					street_number: 'street_number',
+					route: 'street_address', // Street address
+					locality: 'city', // City
+					administrative_area_level_1: 'state', // State
+					country: 'country', // Country Code
+					postal_code: 'postal_code' // Post code
+				};
+
 				// Get the place details from the autocomplete object.
 				let place = this.autocomplete.getPlace();
-				console.log(place);
+				// Get each component of the address from the place details,
+				// and then fill-in the corresponding field on the form.
+				if (place.address_components) {
+					for (let i = 0; i < place.address_components.length; i++) {
+						let addressComponent = place.address_components[i];
+						let addressType = addressComponent.types[0];
+						if (componentForm[addressType]) {
+							let val = addressComponent;
+							delete addressComponent.types;
+							placeData[componentForm[addressType]] = val;
+						}
+					}
+
+					this.addressObj = placeData;
+					this.addressTemp = this.calculateFullAddress(placeData);
+				}
+			},
+			calculateFullAddress(addressObj) {
+				let address = '';
+				address += addressObj.street_number.long_name + ' ' + addressObj.street_address.long_name;
+				address += ', ' + addressObj.city.long_name;
+				address += ', ' + addressObj.state.short_name + ' ' + addressObj.postal_code.short_name;
+				address += ', ' + addressObj.country.short_name;
+
+				return address;
 			}
 		}
 	}
