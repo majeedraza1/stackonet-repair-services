@@ -11,10 +11,19 @@
 		<label class="issue-subline">Select issue(s)</label>
 		<div class="select-issue-content-container">
 
-			<template v-for="issue in multiIssues">
-				<div class="scale-on-mount scale-on-mount-active" @click="pushIssue(issue)">
-					<div class="select-issue-item" v-text="issue.title"></div>
-				</div>
+			<template v-if="'multiple' === screenCracked">
+				<template v-for="issue in multi_issues">
+					<div class="scale-on-mount scale-on-mount-active" @click="pushIssue(issue)">
+						<div class="select-issue-item" v-text="issue.title"></div>
+					</div>
+				</template>
+			</template>
+			<template v-else>
+				<template v-for="issue in no_issues">
+					<div class="scale-on-mount scale-on-mount-active" @click="pushIssue(issue)">
+						<div class="select-issue-item" v-text="issue.title"></div>
+					</div>
+				</template>
 			</template>
 
 		</div>
@@ -33,18 +42,30 @@
 		name: "deviceIssue",
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
-			this.multiIssues = window.Stackonet.services;
 		},
 		data() {
-			return {
-				noIssues: ['Battery Replacement', 'Back Glass Replacement'],
-				yesIssues: [],
-				multiIssues: [],
-			}
+			return {}
 		},
 		computed: {
 			screenCracked() {
 				return this.$store.state.screenCracked;
+			},
+			device() {
+				return this.$store.state.device;
+			},
+			no_issues() {
+				if (this.device && this.device.no_issues) {
+					return this.device.no_issues;
+				}
+
+				return [];
+			},
+			multi_issues() {
+				if (this.device && this.device.multi_issues) {
+					return this.device.multi_issues;
+				}
+
+				return [];
 			},
 			issues() {
 				return this.$store.state.issues;

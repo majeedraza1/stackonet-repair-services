@@ -6,7 +6,7 @@
 					<div class="phone-color-item-wrapper hoverable">
 						<div class="phone-color-item-color-circle" :style="{backgroundColor: color.color}"></div>
 						<div class="phone-color-item-color-title" v-text="color.title"></div>
-						<div class="phone-color-item-color-subtitle" v-text="color.sub_title"></div>
+						<div class="phone-color-item-color-subtitle" v-text="color.subtitle"></div>
 					</div>
 				</div>
 			</template>
@@ -26,9 +26,7 @@
 			}
 		},
 		mounted() {
-			let colors = window.Stackonet.deviceColors;
 			this.$store.commit('SET_LOADING_STATUS', false);
-			this.$store.commit('SET_DEVICES_COLORS', colors);
 		},
 		methods: {
 			chooseDeviceColor(color) {

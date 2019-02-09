@@ -103,7 +103,7 @@ class Device {
 
 		update_option( self::$option, $options );
 
-		return $data;
+		return self::format_item_for_response( $data );
 	}
 
 	public static function update( array $data ) {
@@ -120,7 +120,7 @@ class Device {
 
 		update_option( self::$option, $options );
 
-		return $data;
+		return self::format_item_for_response( $data );
 	}
 
 	/**

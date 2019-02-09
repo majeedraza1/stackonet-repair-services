@@ -2,6 +2,7 @@
 
 namespace Stackonet;
 
+use Stackonet\Models\Device;
 use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
 
@@ -63,38 +64,10 @@ class Frontend {
 	 * @throws \Exception
 	 */
 	public static function temp_data() {
-		$img  = STACKONET_REPAIR_SERVICES_ASSETS . '/img';
 		$data = [];
 
-		$data['devices'] = [
-			[ 'title' => 'iPhone', 'image' => $img . '/iphone.png' ],
-			[ 'title' => 'Samsung', 'image' => $img . '/samsumg.png' ],
-			[ 'title' => 'Google', 'image' => $img . '/google.png' ],
-			[ 'title' => 'LG', 'image' => $img . '/lg.png' ],
-			[ 'title' => 'iPad', 'image' => $img . '/ipad.png' ],
-			[ 'title' => 'motorola', 'image' => $img . '/motorola.svg' ],
-			[ 'title' => 'HTC', 'image' => $img . '/htc.png' ],
-			[ 'title' => 'Sony', 'image' => $img . '/sony.png' ],
-		];
-
-		$data['deviceModel'] = [
-			[ 'title' => 'X' ],
-			[ 'title' => '8 Plus' ],
-			[ 'title' => '8' ],
-			[ 'title' => '7 Plus' ],
-			[ 'title' => '7' ],
-			[ 'title' => '6s Plus' ],
-			[ 'title' => '6s' ],
-			[ 'title' => 'SE' ],
-			[ 'title' => '6 Plus' ],
-			[ 'title' => '6' ],
-		];
-
-		$data['deviceColors'] = [
-			[ 'title' => 'Midnight Black', 'sub_title' => 'Black panel', 'color' => 'rgb(51, 51, 51)' ],
-			[ 'title' => 'Orchid Gray', 'sub_title' => 'Gray panel', 'color' => 'rgb(197, 194, 215)' ],
-			[ 'title' => 'Arctic Silver', 'sub_title' => 'Silver panel', 'color' => 'rgb(176, 180, 183)' ],
-		];
+		$data['devices']     = Device::get_devices();
+		$data["serviceArea"] = ServiceArea::get_zip_codes();
 
 		$days     = [];
 		$date     = new \DateTime();
@@ -123,14 +96,6 @@ class Frontend {
 			'8pm - 9pm',
 			'9pm - 10pm',
 		];
-
-		$data['services'] = [
-			[ 'id' => 'BrokenScreen', 'title' => 'Broken Screen', 'price' => 399 ],
-			[ 'id' => 'BatteryReplacement', 'title' => 'Battery Replacement', 'price' => 89 ],
-			[ 'id' => 'BackGlassReplacement', 'title' => 'Back Glass Replacement', 'price' => 79 ],
-		];
-
-		$data["serviceArea"] = ServiceArea::get_zip_codes();
 
 		return $data;
 	}

@@ -87,17 +87,21 @@ class ServiceArea {
 	 *
 	 * @param string $id
 	 * @param array $data
+	 *
+	 * @return array
 	 */
 	public static function update( $id, array $data ) {
 		$options = self::get_option();
 		$option  = isset( $options[ $id ] ) ? $options[ $id ] : [];
 		if ( empty( $option ) ) {
-			self::create( $data );
+			return self::create( $data );
 		}
 
 		$options[ $id ] = wp_parse_args( $data, $option );
 
 		update_option( self::$option, $options );
+
+		return $options[ $id ];
 	}
 
 	/**

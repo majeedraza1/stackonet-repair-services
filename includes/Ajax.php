@@ -165,6 +165,7 @@ class Ajax {
 			wp_send_json_error( 'You have no permission to create new service area.', 401 );
 		}
 
+		$id       = isset( $_POST['id'] ) ? sanitize_text_field( $_POST['id'] ) : '';
 		$zip_code = isset( $_POST['zip_code'] ) ? sanitize_text_field( $_POST['zip_code'] ) : '';
 		$address  = isset( $_POST['address'] ) ? sanitize_text_field( $_POST['address'] ) : '';
 
@@ -172,10 +173,17 @@ class Ajax {
 			wp_send_json_error( 'Zip code is required.' );
 		}
 
-		$data = ServiceArea::create( [
-			'zip_code' => $zip_code,
-			'address'  => $address,
-		] );
+		if ( $id ) {
+			$data = ServiceArea::update( $id, [
+				'zip_code' => $zip_code,
+				'address'  => $address,
+			] );
+		} else {
+			$data = ServiceArea::create( [
+				'zip_code' => $zip_code,
+				'address'  => $address,
+			] );
+		}
 
 		wp_send_json_success( $data, 201 );
 	}

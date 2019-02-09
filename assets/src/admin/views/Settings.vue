@@ -4,9 +4,9 @@
 
 		<div>
 			<mdl-tabs :vertical="false">
-				<mdl-tab name="General" selected>General Content</mdl-tab>
+				<mdl-tab name="General">General Content</mdl-tab>
 				<mdl-tab name="Service Times">Service Times Content</mdl-tab>
-				<mdl-tab name="Integrations">
+				<mdl-tab name="Integrations" selected>
 					<h2 class="title">Google Map</h2>
 					<table class="form-table">
 						<tr>

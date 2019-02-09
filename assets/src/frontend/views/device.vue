@@ -5,7 +5,7 @@
 				<div class="scale-on-mount scale-on-mount-active" @click="chooseDeviceModel(device)">
 					<div class="phone-family-item-wrapper hoverable">
 						<div class="phone-family-image-wrapper">
-							<img :src="device.image" :alt="device.title">
+							<img :src="device.image.src" :alt="device.device_title">
 						</div>
 						<div class="phone-family-item-text-wrapper" v-text="device.title"></div>
 					</div>
@@ -34,6 +34,7 @@
 		methods: {
 			chooseDeviceModel(device) {
 				this.$store.commit('SET_DEVICE', device);
+				this.$store.commit('SET_DEVICES_MODELS', device.device_models);
 				this.$router.push('/device-model');
 			}
 		}

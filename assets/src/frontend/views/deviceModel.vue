@@ -24,13 +24,12 @@
 			}
 		},
 		mounted() {
-			let models = window.Stackonet.deviceModel;
 			this.$store.commit('SET_LOADING_STATUS', false);
-			this.$store.commit('SET_DEVICES_MODELS', models);
 		},
 		methods: {
 			chooseDeviceModel(device) {
 				this.$store.commit('SET_DEVICE_MODEL', device);
+				this.$store.commit('SET_DEVICES_COLORS', device.colors);
 				this.$router.push('/device-color');
 			}
 		}

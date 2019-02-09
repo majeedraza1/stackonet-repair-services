@@ -18,9 +18,9 @@
 					</div>
 					<div>
 						<div class="my-cart-device-section-phone-item">
-							<div v-if="device" v-text="device.title"></div>
+							<div v-if="device" v-text="device.device_title"></div>
 							<div v-if="deviceModel" v-text="deviceModel.title"></div>
-							<div v-if="hasDeviceColor">{{deviceColor.title}} - {{deviceColor.sub_title}}</div>
+							<div v-if="hasDeviceColor">{{deviceColor.title}} - {{deviceColor.subtitle}}</div>
 							<div></div>
 							<div>
 								<div class="my-cart-device-section-phone-issue-wrapper" v-for="issue in issues"
@@ -98,7 +98,7 @@
 				return this.$store.state.device;
 			},
 			hasDevice() {
-				return !!(this.device && this.device.title);
+				return !!(this.device && this.device.device_title);
 			},
 			deviceModel() {
 				return this.$store.state.deviceModel;

@@ -10,17 +10,20 @@
 		</div>
 		<div class="select-issue-content-container">
 
-			<div class="scale-on-mount scale-on-mount-active" @click="setScreenCracked('yes')">
-				<div class="screen-cracked-button-item hoverable">
-					<div class="screen-cracked-button-item-price"><b>$389</b></div>
-					<div class="screen-cracked-button-image-wrapper">
-						<svg xmlns="http://www.w3.org/2000/svg" width="30" height="53">
-							<use xlink:href="#icon-screen-broken-yes"></use>
-						</svg>
+			<template v-if="broken_screen_price">
+				<div class="scale-on-mount scale-on-mount-active" @click="setScreenCracked('yes')">
+					<div class="screen-cracked-button-item hoverable">
+						<div class="screen-cracked-button-item-price"><b>${{broken_screen_price}}</b></div>
+						<div class="screen-cracked-button-image-wrapper">
+							<svg xmlns="http://www.w3.org/2000/svg" width="30" height="53">
+								<use xlink:href="#icon-screen-broken-yes"></use>
+							</svg>
+						</div>
+						<p>Yes</p>
 					</div>
-					<p>Yes</p>
 				</div>
-			</div>
+			</template>
+
 			<div class="scale-on-mount scale-on-mount-active" @click="setScreenCracked('no')">
 				<div class="screen-cracked-button-item hoverable">
 					<div class="screen-cracked-button-image-wrapper">
@@ -55,12 +58,40 @@
 		computed: {
 			screenCracked() {
 				return this.$store.state.screenCracked;
+			},
+			device() {
+				return this.$store.state.device;
+			},
+			broken_screen_label() {
+				if (this.device && this.device.broken_screen_label) {
+					return this.device.broken_screen_label;
+				}
+
+				return '';
+			},
+			broken_screen_price() {
+				if (this.device && this.device.broken_screen_price) {
+					return this.device.broken_screen_price;
+				}
+
+				return '';
 			}
 		},
 		methods: {
 			setScreenCracked(value) {
 				this.$store.commit('SET_SCREEN_CRACKED', value);
-				this.$router.push('/select-issue');
+				if ('yes' === value) {
+					this.$store.commit('SET_ISSUE', [
+						{
+							id: 'BrokenScreen',
+							title: this.broken_screen_label,
+							price: this.broken_screen_price
+						}
+					]);
+					this.$router.push('/select-time');
+				} else {
+					this.$router.push('/select-issue');
+				}
 			}
 		}
 	}

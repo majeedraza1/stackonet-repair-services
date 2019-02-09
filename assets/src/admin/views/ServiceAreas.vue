@@ -38,6 +38,7 @@
 		data() {
 			return {
 				modalActive: false,
+				id: '',
 				zipCode: '',
 				address: '',
 				rows: [],
@@ -45,7 +46,7 @@
 					{key: 'zip_code', label: 'Zip Code'},
 					{key: 'address', label: 'Address'},
 				],
-				actions: [{key: 'edit', label: 'Edit'}],
+				actions: [{key: 'edit', label: 'Edit'}, {key: 'delete', label: 'Delete'}],
 				bulkActions: [],
 				counts: {},
 			}
@@ -70,6 +71,12 @@
 			},
 			closeModal() {
 				this.modalActive = false;
+				this.resetData();
+			},
+			resetData() {
+				this.id = '';
+				this.zipCode = '';
+				this.address = '';
 			},
 			fetchServicesAreas() {
 				let $ = window.jQuery, self = this;
@@ -99,14 +106,18 @@
 					url: ajaxurl,
 					data: {
 						action: 'create_service_area',
+						id: self.id,
 						zip_code: self.zipCode,
 						address: self.address,
 					},
 					success: function (response) {
 						if (response.data) {
 							let services_areas = self.services_areas;
-							services_areas.push(response.data);
-							self.$store.commit('SET_SERVICES_AREAS', services_areas);
+							if (!self.id) {
+								services_areas.push(response.data);
+								self.$store.commit('SET_SERVICES_AREAS', services_areas);
+							}
+							self.resetData();
 						}
 						self.$store.commit('SET_LOADING_STATUS', false);
 						self.closeModal();
@@ -119,7 +130,10 @@
 
 			onActionClick(action, row) {
 				if ('edit' === action) {
-					window.location.href = "#/" + row.id;
+					this.id = row.id;
+					this.zipCode = row.zip_code;
+					this.address = row.address;
+					this.openModal();
 				} else if ('trash' === action) {
 					if (confirm('Are you sure to move this item to trash?')) {
 						this.trashItem(row);
