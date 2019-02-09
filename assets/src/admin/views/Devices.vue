@@ -11,7 +11,11 @@
 				action-column="device_title"
 				@action:click="onActionClick"
 				@bulk:click="onBulkAction"
-		></list-table>
+		>
+			<template slot="image_object" slot-scope="data">
+				<img class="list-table-image" :src=" data.row.image.src " :alt="data.row.title">
+			</template>
+		</list-table>
 	</div>
 </template>
 
@@ -26,9 +30,9 @@
 				rows: [],
 				columns: [
 					{key: 'device_title', label: 'Title'},
-					{key: 'image', label: 'Image'},
+					{key: 'image_object', label: 'Image'},
 				],
-				actions: [{key: 'edit', label: 'Edit'}],
+				actions: [{key: 'edit', label: 'Edit'}, {key: 'delete', label: 'Delete'}],
 				bulkActions: [],
 				counts: {},
 			}
@@ -73,7 +77,7 @@
 			},
 			onActionClick(action, row) {
 				if ('edit' === action) {
-					window.location.href = "#/" + row.id;
+					this.$router.push('/device/edit/' + row.id);
 				} else if ('trash' === action) {
 					if (confirm('Are you sure to move this item to trash?')) {
 						this.trashItem(row);
@@ -108,6 +112,28 @@
 			restoreItem(item) {
 			},
 			deleteItem(item) {
+				let $ = window.jQuery, self = this;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				$.ajax({
+					method: 'POST',
+					url: ajaxurl,
+					data: {
+						action: 'delete_device',
+						id: item.id,
+						task: 'delete',
+					},
+					success: function (response) {
+						if (response.data) {
+							let devices = this.devices;
+							devices.splice(devices.indexOf(item), 1);
+							self.$store.commit('SET_DEVICES', devices);
+						}
+						self.$store.commit('SET_LOADING_STATUS', false);
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					}
+				});
 			},
 			trashItems(item) {
 			},
@@ -126,6 +152,12 @@
 			bottom: 20px;
 			right: 20px;
 			z-index: 100;
+		}
+
+		.list-table-image {
+			max-width: 64px;
+			max-height: 64px;
+			width: auto;
 		}
 	}
 </style>

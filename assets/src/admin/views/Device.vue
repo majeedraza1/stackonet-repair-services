@@ -151,7 +151,13 @@
 				<mdl-checkbox v-model="no_issues" :value="issue">{{issue.title}}</mdl-checkbox>
 			</template>
 		</mdl-modal>
-		<mdl-fab @click="saveDeviceData">+</mdl-fab>
+		<mdl-fab @click="saveDeviceData">
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+				<path fill="none" d="M0 0h24v24H0V0z"></path>
+				<path fill="white"
+					  d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm2 16H5V5h11.17L19 7.83V19zm-7-7c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zM6 6h9v4H6z"></path>
+			</svg>
+		</mdl-fab>
 	</div>
 </template>
 
@@ -169,6 +175,8 @@
 		components: {Accordion, MediaUploader, BackgroundImage, ColorPicker, mdlModal, mdlCheckbox, mdlFab},
 		data() {
 			return {
+				id: 0,
+				isEditPage: false,
 				showCrackedModel: false,
 				showNotCrackedModel: false,
 				showModel: false,
@@ -192,6 +200,9 @@
 			},
 			products() {
 				return this.$store.state.products;
+			},
+			devices() {
+				return this.$store.state.devices;
 			}
 		},
 		mounted() {
@@ -201,6 +212,11 @@
 			}
 			if (!this.products.length) {
 				this.fetchProducts();
+			}
+			if (this.$route.params.id) {
+				this.id = this.$route.params.id;
+				this.isEditPage = true;
+				this.fetchDevice(this.id);
 			}
 		},
 		methods: {
@@ -236,6 +252,7 @@
 					url: ajaxurl,
 					data: {
 						action: 'create_device',
+						id: self.id,
 						product_id: self.product_id,
 						device_title: self.device_title,
 						device_image: self.device_image.id,
@@ -248,13 +265,16 @@
 					success: function (response) {
 						self.$store.commit('SET_LOADING_STATUS', false);
 						if (response.data) {
-							self.$store.commit('SET_DEVICES', response.data);
+							if (!self.isEditPage) {
+								let devices = self.devices;
+								devices.push(response.data);
+								self.$store.commit('SET_DEVICES', devices);
+								self.$router.push('/');
+							}
 
 							self.$root.$emit('show-snackbar', {
 								message: 'Date has been saved.',
 							});
-
-							self.$router.push('/');
 						}
 					},
 					error: function () {
@@ -294,6 +314,39 @@
 					success: function (response) {
 						if (response.data) {
 							self.$store.commit('SET_PRODUCTS', response.data);
+						}
+						self.$store.commit('SET_LOADING_STATUS', false);
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					}
+				});
+			},
+			fetchDevice(device_id) {
+				let $ = window.jQuery, self = this;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				$.ajax({
+					method: 'GET',
+					url: ajaxurl,
+					data: {
+						action: 'get_device',
+						id: device_id,
+					},
+					success: function (response) {
+						if (response.data) {
+							console.log(response.data);
+							// self.$store.commit('SET_PRODUCTS', response.data);
+							let data = response.data;
+
+							self.id = data.id;
+							self.product_id = data.product_id;
+							self.device_title = data.device_title;
+							self.device_models = data.device_models;
+							self.broken_screen_label = data.broken_screen_label;
+							self.broken_screen_price = data.broken_screen_price;
+							self.multi_issues = data.multi_issues;
+							self.no_issues = data.no_issues;
+							self.device_image = data.image;
 						}
 						self.$store.commit('SET_LOADING_STATUS', false);
 					},

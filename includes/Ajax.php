@@ -37,7 +37,9 @@ class Ajax {
 			add_action( 'wp_ajax_get_woocommerce_products', [ self::$instance, 'get_woocommerce_products' ] );
 			// Device
 			add_action( 'wp_ajax_get_devices', [ self::$instance, 'get_devices' ] );
+			add_action( 'wp_ajax_get_device', [ self::$instance, 'get_device' ] );
 			add_action( 'wp_ajax_create_device', [ self::$instance, 'create_device' ] );
+			add_action( 'wp_ajax_delete_device', [ self::$instance, 'delete_device' ] );
 			// Settings
 			add_action( 'wp_ajax_update_repair_services_settings', [ self::$instance, 'update_settings' ] );
 		}
@@ -73,12 +75,32 @@ class Ajax {
 	}
 
 	/**
+	 * Get device
+	 */
+	public function get_device() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'You have no permission to view device.', 401 );
+		}
+		$id = isset( $_GET['id'] ) ? sanitize_text_field( $_GET['id'] ) : 0;
+
+		$data = Device::get_device( $id );
+
+		if ( empty( $data ) ) {
+			wp_send_json_error( 'Device not found', 404 );
+		}
+
+		wp_send_json_success( $data, 200 );
+	}
+
+	/**
 	 * Create device
 	 */
 	public function create_device() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( 'You have no permission to create new service area.', 401 );
 		}
+
+		$id = isset( $_POST['id'] ) ? $_POST['id'] : 0;
 
 		$defaults = array(
 			'product_id'          => 0,
@@ -95,9 +117,31 @@ class Ajax {
 			$data[ $key ] = isset( $_POST[ $key ] ) ? $_POST[ $key ] : '';
 		}
 
-		$response = Device::create( $data );
+		if ( ! empty( $id ) ) {
+			$data['id'] = $id;
+			$response   = Device::update( $data );
+		} else {
+			$response = Device::create( $data );
+		}
 
 		wp_send_json_success( $response, 201 );
+	}
+
+	/**
+	 * Delete device
+	 */
+	public static function delete_device() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'You have no permission to delete device.', 401 );
+		}
+
+		$id = isset( $_POST['id'] ) ? $_POST['id'] : 0;
+
+		if ( Device::delete( $id ) ) {
+			wp_send_json_success();
+		}
+
+		wp_send_json_error();
 	}
 
 	/**
