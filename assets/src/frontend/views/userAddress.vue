@@ -139,6 +139,7 @@
 
 					this.addressObj = placeData;
 					this.addressTemp = this.calculateFullAddress(placeData);
+					this.$store.commit('SET_ADDRESS_OBJECT', placeData);
 				}
 			},
 			calculateFullAddress(addressObj) {

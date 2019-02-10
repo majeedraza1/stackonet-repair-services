@@ -19,6 +19,7 @@ export default new Vuex.Store({
 		issueDescription: '',
 		date: '',
 		timeRange: '',
+		addressObject: {},
 		address: '',
 		additionalAddress: '',
 		instructions: '',
@@ -72,6 +73,9 @@ export default new Vuex.Store({
 		},
 		SET_ADDRESS(state, address) {
 			state.address = address;
+		},
+		SET_ADDRESS_OBJECT(state, addressObject) {
+			state.addressObject = addressObject;
 		},
 		SET_ADDITIONAL_ADDRESS(state, additionalAddress) {
 			state.additionalAddress = additionalAddress;

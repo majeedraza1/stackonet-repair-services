@@ -4,6 +4,11 @@ namespace Stackonet\Models;
 
 class Device {
 
+	/**
+	 * Default data
+	 *
+	 * @var array
+	 */
 	private static $default = array(
 		'id'                  => 0,
 		'product_id'          => 0,
@@ -23,11 +28,13 @@ class Device {
 	private static $option = 'repair_service_device';
 
 	/**
+	 * Prepare item for response
+	 *
 	 * @param array $item
 	 *
 	 * @return array
 	 */
-	public static function format_item_for_response( $item ) {
+	public static function prepare_item_for_response( $item ) {
 		if ( is_numeric( $item['device_image'] ) ) {
 			$image = wp_get_attachment_image_src( intval( $item['device_image'] ), 'full' );
 
@@ -40,6 +47,68 @@ class Device {
 		}
 
 		return $item;
+	}
+
+	/**
+	 * Prepare item for database
+	 *
+	 * @param array $data
+	 *
+	 * @return array
+	 */
+	public static function prepare_item_for_database( array $data ) {
+
+		$data = wp_parse_args( $data, self::$default );
+
+		$sanitize_data = [
+			'id'                  => sanitize_text_field( $data['id'] ),
+			'product_id'          => absint( $data['product_id'] ),
+			'device_title'        => sanitize_text_field( $data['device_title'] ),
+			'device_image'        => absint( $data['device_image'] ),
+			'broken_screen_label' => sanitize_text_field( $data['broken_screen_label'] ),
+			'broken_screen_price' => floatval( $data['broken_screen_price'] ),
+			'device_models'       => [],
+			'multi_issues'        => [],
+			'no_issues'           => [],
+			'status'              => sanitize_text_field( $data['status'] ),
+		];
+
+		$device_models = [];
+		$multi_issues  = [];
+		$no_issues     = [];
+
+		foreach ( $data['device_models'] as $index => $model ) {
+			$device_models[ $index ]['title'] = sanitize_text_field( $model['title'] );
+			foreach ( $model['colors'] as $color_index => $color ) {
+				$device_models[ $index ]['colors'][ $color_index ] = [
+					'color'    => sanitize_hex_color( $color['color'] ),
+					'title'    => sanitize_text_field( $color['title'] ),
+					'subtitle' => sanitize_text_field( $color['subtitle'] ),
+				];
+			}
+		}
+
+		foreach ( $data['multi_issues'] as $index => $issue ) {
+			$multi_issues[ $index ] = [
+				'id'    => sanitize_text_field( $issue['id'] ),
+				'title' => sanitize_text_field( $issue['title'] ),
+				'price' => floatval( $issue['price'] ),
+			];
+		}
+
+		foreach ( $data['no_issues'] as $index => $issue ) {
+			$no_issues[ $index ] = [
+				'id'    => sanitize_text_field( $issue['id'] ),
+				'title' => sanitize_text_field( $issue['title'] ),
+				'price' => floatval( $issue['price'] ),
+			];
+		}
+
+		$sanitize_data['device_models'] = $device_models;
+		$sanitize_data['multi_issues']  = $multi_issues;
+		$sanitize_data['no_issues']     = $no_issues;
+
+		return $sanitize_data;
 	}
 
 	/**
@@ -67,7 +136,7 @@ class Device {
 		}
 
 		foreach ( $options as $option ) {
-			$response[] = self::format_item_for_response( $option );
+			$response[] = self::prepare_item_for_response( $option );
 		}
 
 		return $response;
@@ -86,7 +155,7 @@ class Device {
 		$index     = array_search( $id, $ids );
 		$hasDevice = false !== $index;
 
-		return $hasDevice ? self::format_item_for_response( $options[ $index ] ) : [];
+		return $hasDevice ? self::prepare_item_for_response( $options[ $index ] ) : [];
 	}
 
 	/**
@@ -98,12 +167,14 @@ class Device {
 		$data       = wp_parse_args( $data, self::$default );
 		$data['id'] = uniqid();
 
-		$options   = self::get_option();
-		$options[] = $data;
+		$options = self::get_option();
+
+		$sanitize_data = self::prepare_item_for_database( $data );
+		$options[]     = $sanitize_data;
 
 		update_option( self::$option, $options );
 
-		return self::format_item_for_response( $data );
+		return self::prepare_item_for_response( $sanitize_data );
 	}
 
 	public static function update( array $data ) {
@@ -116,11 +187,13 @@ class Device {
 			return $data;
 		}
 
-		$options[ $index ] = wp_parse_args( $data, $options[ $index ] );
+		$data              = wp_parse_args( $data, $options[ $index ] );
+		$sanitize_data     = self::prepare_item_for_database( $data );
+		$options[ $index ] = $sanitize_data;
 
 		update_option( self::$option, $options );
 
-		return self::format_item_for_response( $data );
+		return self::prepare_item_for_response( $data );
 	}
 
 	/**

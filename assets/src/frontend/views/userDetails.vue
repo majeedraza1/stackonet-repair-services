@@ -115,12 +115,28 @@
 				this.$store.commit('SET_PHONE', this.phone);
 				this.$store.commit('SET_COUPON_CODE', this.couponCode);
 
-				let $ = window.jQuery, self = this;
+				let $ = window.jQuery, self = this, state = this.$store.state;
 				$.ajax({
 					method: 'POST',
 					url: window.Stackonet.ajaxurl,
 					data: {
 						action: 'confirm_appointment',
+						product_id: state.device.product_id,
+						device_id: state.device.id,
+						device_title: state.device.device_title,
+						device_model: state.deviceModel.title,
+						device_color: state.deviceColor.title,
+						issues: state.issues,
+						issue_description: state.issueDescription,
+						date: state.date,
+						time_range: state.timeRange,
+						first_name: state.firstName,
+						last_name: state.lastName,
+						phone: state.phone,
+						email: state.emailAddress,
+						address: state.addressObject,
+						instructions: state.instructions,
+						additional_address: state.additionalAddress,
 					},
 					success: function (response) {
 						self.$router.push('/thank-you');

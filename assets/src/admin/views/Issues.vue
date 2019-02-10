@@ -38,6 +38,7 @@
 		data() {
 			return {
 				modalActive: false,
+				id: '',
 				title: '',
 				price: '',
 				rows: [],
@@ -99,6 +100,7 @@
 					url: ajaxurl,
 					data: {
 						action: 'create_device_issue',
+						id: self.id,
 						title: self.title,
 						price: self.price,
 					},
@@ -121,7 +123,10 @@
 
 			onActionClick(action, row) {
 				if ('edit' === action) {
-					window.location.href = "#/" + row.id;
+					this.id = row.id;
+					this.title = row.title;
+					this.price = row.price;
+					this.openModal();
 				} else if ('trash' === action) {
 					if (confirm('Are you sure to move this item to trash?')) {
 						this.trashItem(row);

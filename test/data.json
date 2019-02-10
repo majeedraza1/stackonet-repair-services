@@ -1,0 +1,227 @@
+{
+  "loading": false,
+  "devices": [
+	{
+	  "id": "5c6033caece44",
+	  "product_id": 21,
+	  "device_title": "Iphone",
+	  "device_image": 13,
+	  "broken_screen_label": "Broken Screen",
+	  "broken_screen_price": 350,
+	  "device_models": [
+		{
+		  "title": "X",
+		  "colors": [
+			{
+			  "color": "#ededed",
+			  "title": "red",
+			  "subtitle": "red"
+			},
+			{
+			  "color": "#3d3d3d",
+			  "title": "greed",
+			  "subtitle": "greed"
+			}
+		  ]
+		}
+	  ],
+	  "multi_issues": [
+		{
+		  "id": "5c5d50a3ab497",
+		  "title": "Broken Screen",
+		  "price": 20
+		},
+		{
+		  "id": "5c5d5239e6ab3",
+		  "title": "Battery Replacement",
+		  "price": 17
+		},
+		{
+		  "id": "5c5d524d5ee6d",
+		  "title": "Back Glass Replacement",
+		  "price": 110
+		}
+	  ],
+	  "no_issues": [
+		{
+		  "id": "5c5d5239e6ab3",
+		  "title": "Battery Replacement",
+		  "price": 17
+		},
+		{
+		  "id": "5c5d524d5ee6d",
+		  "title": "Back Glass Replacement",
+		  "price": 110
+		}
+	  ],
+	  "status": "publish",
+	  "image": {
+		"id": 13,
+		"src": "http://localhost:3000/wp-content/uploads/2019/02/htc.png",
+		"width": 58,
+		"height": 106
+	  }
+	}
+  ],
+  "deviceModels": [
+	{
+	  "title": "X",
+	  "colors": [
+		{
+		  "color": "#ededed",
+		  "title": "red",
+		  "subtitle": "red"
+		},
+		{
+		  "color": "#3d3d3d",
+		  "title": "greed",
+		  "subtitle": "greed"
+		}
+	  ]
+	}
+  ],
+  "deviceColors": [
+	{
+	  "color": "#ededed",
+	  "title": "red",
+	  "subtitle": "red"
+	},
+	{
+	  "color": "#3d3d3d",
+	  "title": "greed",
+	  "subtitle": "greed"
+	}
+  ],
+  "device": {
+	"id": "5c6033caece44",
+	"product_id": 21,
+	"device_title": "Iphone",
+	"device_image": 13,
+	"broken_screen_label": "Broken Screen",
+	"broken_screen_price": 350,
+	"device_models": [
+	  {
+		"title": "X",
+		"colors": [
+		  {
+			"color": "#ededed",
+			"title": "red",
+			"subtitle": "red"
+		  },
+		  {
+			"color": "#3d3d3d",
+			"title": "greed",
+			"subtitle": "greed"
+		  }
+		]
+	  }
+	],
+	"multi_issues": [
+	  {
+		"id": "5c5d50a3ab497",
+		"title": "Broken Screen",
+		"price": 20
+	  },
+	  {
+		"id": "5c5d5239e6ab3",
+		"title": "Battery Replacement",
+		"price": 17
+	  },
+	  {
+		"id": "5c5d524d5ee6d",
+		"title": "Back Glass Replacement",
+		"price": 110
+	  }
+	],
+	"no_issues": [
+	  {
+		"id": "5c5d5239e6ab3",
+		"title": "Battery Replacement",
+		"price": 17
+	  },
+	  {
+		"id": "5c5d524d5ee6d",
+		"title": "Back Glass Replacement",
+		"price": 110
+	  }
+	],
+	"status": "publish",
+	"image": {
+	  "id": 13,
+	  "src": "http://localhost:3000/wp-content/uploads/2019/02/htc.png",
+	  "width": 58,
+	  "height": 106
+	}
+  },
+  "deviceModel": {
+	"title": "X",
+	"colors": [
+	  {
+		"color": "#ededed",
+		"title": "red",
+		"subtitle": "red"
+	  },
+	  {
+		"color": "#3d3d3d",
+		"title": "greed",
+		"subtitle": "greed"
+	  }
+	]
+  },
+  "deviceColor": {
+	"color": "#3d3d3d",
+	"title": "greed",
+	"subtitle": "greed"
+  },
+  "zipCode": "76034",
+  "screenCracked": "no",
+  "issues": [
+	{
+	  "id": "5c5d5239e6ab3",
+	  "title": "Battery Replacement",
+	  "price": 17
+	},
+	{
+	  "id": "5c5d524d5ee6d",
+	  "title": "Back Glass Replacement",
+	  "price": 110
+	}
+  ],
+  "issueDescription": "Description goes here.",
+  "date": "2019-02-11",
+  "timeRange": "10am - 11am",
+  "addressObject": {
+	"street_number": {
+	  "long_name": "1291",
+	  "short_name": "1291"
+	},
+	"street_address": {
+	  "long_name": "Santa Fe",
+	  "short_name": "Sta Fe"
+	},
+	"city": {
+	  "long_name": "Rosario",
+	  "short_name": "Rosario"
+	},
+	"state": {
+	  "long_name": "Santa Fe",
+	  "short_name": "Santa Fe"
+	},
+	"country": {
+	  "long_name": "Argentina",
+	  "short_name": "AR"
+	},
+	"postal_code": {
+	  "long_name": "S2000",
+	  "short_name": "S2000"
+	}
+  },
+  "address": "1291 Santa Fe, Rosario, Santa Fe S2000, AR",
+  "additionalAddress": "Enter exact address",
+  "instructions": "Enter exact address",
+  "firstName": "Sayful",
+  "lastName": "Islam",
+  "emailAddress": "sayful.islam001@gmail.com",
+  "phone": "+8801625944775",
+  "couponCode": ""
+}

@@ -10,6 +10,36 @@ class DeviceIssue {
 	private static $option = 'device_issues';
 
 	/**
+	 * Default data
+	 *
+	 * @var array
+	 */
+	private static $default = [
+		'id'    => '',
+		'title' => '',
+		'price' => '',
+	];
+
+	/**
+	 * Prepare item for database
+	 *
+	 * @param array $data
+	 *
+	 * @return array
+	 */
+	public static function prepare_item_for_database( array $data ) {
+		$data = wp_parse_args( $data, self::$default );
+
+		$sanitize_data = [
+			'id'    => sanitize_text_field( $data['id'] ),
+			'title' => sanitize_text_field( $data['title'] ),
+			'price' => floatval( $data['price'] ),
+		];
+
+		return $sanitize_data;
+	}
+
+	/**
 	 * Get options
 	 *
 	 * @return array
@@ -65,6 +95,8 @@ class DeviceIssue {
 			'price' => '',
 		] );
 
+		$data = self::prepare_item_for_database( $data );
+
 		$options        = self::get_option();
 		$options[ $id ] = $data;
 
@@ -78,6 +110,8 @@ class DeviceIssue {
 	 *
 	 * @param string $id
 	 * @param array $data
+	 *
+	 * @return array
 	 */
 	public static function update( $id, array $data ) {
 		$options = self::get_option();
@@ -86,9 +120,14 @@ class DeviceIssue {
 			self::create( $data );
 		}
 
-		$options[ $id ] = wp_parse_args( $data, $option );
+		$data = wp_parse_args( $data, $option );
+		$data = self::prepare_item_for_database( $data );
+
+		$options[ $id ] = $data;
 
 		update_option( self::$option, $options );
+
+		return $data;
 	}
 
 	/**

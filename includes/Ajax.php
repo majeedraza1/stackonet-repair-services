@@ -52,9 +52,93 @@ class Ajax {
 
 	/**
 	 * Confirm Appointment
+	 *
+	 * @throws \WC_Data_Exception
+	 * @throws \Exception
 	 */
 	public function confirm_appointment() {
-		wp_send_json_error( '', 200 );
+		$product_id        = isset( $_POST['product_id'] ) ? intval( $_POST['product_id'] ) : 0;
+		$device_id         = isset( $_POST['device_id'] ) ? sanitize_text_field( $_POST['device_id'] ) : '';
+		$device_title      = isset( $_POST['device_title'] ) ? sanitize_text_field( $_POST['device_title'] ) : '';
+		$device_color      = isset( $_POST['device_color'] ) ? sanitize_text_field( $_POST['device_color'] ) : '';
+		$device_model      = isset( $_POST['device_model'] ) ? sanitize_text_field( $_POST['device_model'] ) : '';
+		$issues            = isset( $_POST['issues'] ) && is_array( $_POST['issues'] ) ? $_POST['issues'] : [];
+		$issueDescription  = isset( $_POST['issue_description'] ) ? sanitize_text_field( $_POST['issue_description'] ) : '';
+		$date              = isset( $_POST['date'] ) ? sanitize_text_field( $_POST['date'] ) : '';
+		$time_range        = isset( $_POST['time_range'] ) ? sanitize_text_field( $_POST['time_range'] ) : '';
+		$first_name        = isset( $_POST['first_name'] ) ? sanitize_text_field( $_POST['first_name'] ) : '';
+		$last_name         = isset( $_POST['last_name'] ) ? sanitize_text_field( $_POST['last_name'] ) : '';
+		$phone             = isset( $_POST['phone'] ) ? sanitize_text_field( $_POST['phone'] ) : '';
+		$email             = isset( $_POST['email'] ) ? sanitize_email( $_POST['email'] ) : '';
+		$address           = isset( $_POST['address'] ) && is_array( $_POST['address'] ) ? $_POST['address'] : [];
+		$instructions      = isset( $_POST['instructions'] ) ? sanitize_text_field( $_POST['instructions'] ) : '';
+		$additionalAddress = isset( $_POST['additional_address'] ) ? sanitize_text_field( $_POST['additional_address'] ) : '';
+
+		// Now we create the order
+		$order = wc_create_order( array(
+			'status' => 'wc-processing',
+		) );
+
+		if ( ! $order instanceof \WC_Order ) {
+			wp_send_json_error( 'Fail to create order.' );
+		}
+
+		// Add Product
+		$product = wc_get_product( $product_id );
+		$item_id = $order->add_product( $product, 1, [
+			'subtotal' => 0,
+			'total'    => 0,
+		] );
+		wc_update_order_item_meta( $item_id, '_device_id', $device_id );
+		wc_update_order_item_meta( $item_id, '_device_title', $device_title );
+		wc_update_order_item_meta( $item_id, '_device_model', $device_model );
+		wc_update_order_item_meta( $item_id, '_device_color', $device_color );
+
+		// Add Issue
+		foreach ( $issues as $issue ) {
+			$item_fee = new \WC_Order_Item_Fee();
+			$item_fee->set_name( sanitize_text_field( $issue['title'] ) );
+			$item_fee->set_total( floatval( $issue['price'] ) );
+			$item_fee->set_total_tax( '0' );
+			$item_fee->set_order_id( $order->get_id() );
+			$item_fee->save();
+			$order->add_item( $item_fee );
+		}
+
+		// Set billing address
+		$order->set_address( [
+			'first_name' => $first_name,
+			'last_name'  => $last_name,
+			'company'    => '',
+			'address_1'  => $address['street_number']['short_name'] . ' ' . $address['street_address']['long_name'],
+			'address_2'  => '',
+			'city'       => $address['street_number']['long_name'],
+			'state'      => $address['street_number']['state'],
+			'postcode'   => $address['postal_code']['short_name'],
+			'country'    => $address['country']['short_name'],
+			'email'      => $email,
+			'phone'      => $phone,
+		] );
+
+		$order->set_customer_id( 0 );
+
+		if ( ! empty( $issueDescription ) ) {
+			$order->add_order_note( $issueDescription, false, true );
+		}
+
+		if ( ! empty( $instructions ) ) {
+			$order->add_order_note( $instructions, false, true );
+		}
+
+		$order->add_meta_data( '_preferred_service_date', $date );
+		$order->add_meta_data( '_preferred_service_time_range', $time_range );
+		$order->add_meta_data( '_additional_address', $additionalAddress );
+		$order->save_meta_data();
+
+		// Calculate totals and save data
+		$order->calculate_totals();
+
+		wp_send_json_success( null, 201 );
 	}
 
 	/**
@@ -219,19 +303,27 @@ class Ajax {
 			wp_send_json_error( 'You have no permission to create new device issue.', 401 );
 		}
 
+		$id    = isset( $_POST['id'] ) ? sanitize_text_field( $_POST['id'] ) : '';
 		$title = isset( $_POST['title'] ) ? sanitize_text_field( $_POST['title'] ) : '';
-		$price = isset( $_POST['price'] ) ? sanitize_text_field( $_POST['price'] ) : '';
+		$price = isset( $_POST['price'] ) ? floatval( $_POST['price'] ) : '';
 
 		if ( empty( $title ) ) {
 			wp_send_json_error( 'Issue title is required.' );
 		}
 
-		$data = DeviceIssue::create( [
-			'title' => $title,
-			'price' => $price,
-		] );
+		if ( $id ) {
+			$data = DeviceIssue::update( $id, [
+				'title' => $title,
+				'price' => $price,
+			] );
+		} else {
+			$data = DeviceIssue::create( [
+				'title' => $title,
+				'price' => $price,
+			] );
+		}
 
-		wp_send_json_success( $data, 201 );
+		wp_send_json_success( $data, $id ? 200 : 201 );
 	}
 
 	/**

@@ -100,12 +100,16 @@
 						<table class="rs-table">
 							<thead>
 							<tr>
+								<td>&nbsp;</td>
 								<td>Issue</td>
 								<td>Price</td>
 							</tr>
 							</thead>
 							<tbody>
-							<tr v-for="device_issue in no_issues" :key="device_issue.id">
+							<tr v-for="(device_issue, index) in no_issues" :key="device_issue.id">
+								<td>
+									<delete @click="removeIssue(no_issues,device_issue, index)"></delete>
+								</td>
 								<td>{{device_issue.title}}</td>
 								<td>
 									<input type="text" v-model="device_issue.price">
@@ -124,12 +128,16 @@
 						<table class="rs-table">
 							<thead>
 							<tr>
+								<td>&nbsp;</td>
 								<td>Issue</td>
 								<td>Price</td>
 							</tr>
 							</thead>
 							<tbody>
-							<tr v-for="device_issue in multi_issues" :key="device_issue.id">
+							<tr v-for="(device_issue, index) in multi_issues" :key="device_issue.id">
+								<td>
+									<delete @click="removeIssue(multi_issues, device_issue, index)"></delete>
+								</td>
 								<td>{{device_issue.title}}</td>
 								<td>
 									<input type="text" v-model="device_issue.price">
@@ -145,10 +153,16 @@
 			<template v-for="issue in issues">
 				<mdl-checkbox v-model="multi_issues" :value="issue">{{issue.title}}</mdl-checkbox>
 			</template>
+			<template slot="foot">
+				<button class="button" @click="closeModel">Ok</button>
+			</template>
 		</mdl-modal>
 		<mdl-modal :active="showNotCrackedModel" @close="closeModel" title="Issues">
 			<template v-for="issue in issues">
 				<mdl-checkbox v-model="no_issues" :value="issue">{{issue.title}}</mdl-checkbox>
+			</template>
+			<template slot="foot">
+				<button class="button" @click="closeModel">Ok</button>
 			</template>
 		</mdl-modal>
 		<mdl-fab @click="saveDeviceData">
@@ -165,6 +179,7 @@
 	import Accordion from '../../components/Accordion.vue';
 	import MediaUploader from '../../components/MediaUploader.vue';
 	import BackgroundImage from '../../components/BackgroundImage.vue';
+	import Delete from '../../components/Delete.vue';
 	import ColorPicker from '../../components/ColorPicker.vue';
 	import mdlModal from '../../material-design-lite/modal/mdlModal';
 	import mdlCheckbox from '../../material-design-lite/checkbox/mdlCheckbox';
@@ -172,7 +187,7 @@
 
 	export default {
 		name: "Device",
-		components: {Accordion, MediaUploader, BackgroundImage, ColorPicker, mdlModal, mdlCheckbox, mdlFab},
+		components: {Accordion, MediaUploader, BackgroundImage, ColorPicker, mdlModal, mdlCheckbox, mdlFab, Delete},
 		data() {
 			return {
 				id: 0,
@@ -223,6 +238,9 @@
 			closeModel() {
 				this.showModel = false;
 				this.showNotCrackedModel = false;
+			},
+			removeIssue(issues, issue, index) {
+				issues.splice(index, 2);
 			},
 			addNewDeviceModel() {
 				let data = {
