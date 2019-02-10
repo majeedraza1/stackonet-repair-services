@@ -11,7 +11,7 @@
 			<input type="email" placeholder="Type in your email" value="">
 		</div>
 		<div class="unsupported-zip-code-subtext-wrapper">
-			<p>We currently not supporting 12325. Please try again, or
+			<p>We currently not supporting {{zipCode}}. Please try again, or
 				sign<br>up to be first to know when we expand.</p>
 		</div>
 		<div class="unsupported-zip-code-button-wrapper">
@@ -25,7 +25,20 @@
 		name: "unsupportedZipCode",
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
+
+			// If no models, redirect one step back
+			if (!this.hasZipCode) {
+				this.$router.push('/zip-code');
+			}
 		},
+		computed: {
+			zipCode() {
+				return this.$store.state.zipCode;
+			},
+			hasZipCode() {
+				return !!(this.zipCode && this.zipCode.length);
+			}
+		}
 	}
 </script>
 

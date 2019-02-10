@@ -68,8 +68,19 @@
 			this.timeRanges = window.Stackonet.timeRanges;
 			this.tempDate = this.dateRanges[0];
 			this.tempTime = this.timeRanges[0];
+
+			// If no models, redirect one step back
+			if (!this.hasIssues) {
+				this.$router.push('/screen-cracked');
+			}
 		},
 		computed: {
+			issues() {
+				return this.$store.state.issues;
+			},
+			hasIssues() {
+				return !!(this.issues && this.issues.length);
+			},
 			date() {
 				return this.$store.state.date;
 			},

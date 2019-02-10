@@ -21,10 +21,18 @@
 		computed: {
 			models() {
 				return this.$store.state.deviceModels;
+			},
+			hasModels() {
+				return !!(this.models && this.models.length);
 			}
 		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
+
+			// If no models, redirect one step back
+			if (!this.hasModels) {
+				this.$router.push('/');
+			}
 		},
 		methods: {
 			chooseDeviceModel(device) {

@@ -42,9 +42,19 @@ class Ajax {
 			add_action( 'wp_ajax_delete_device', [ self::$instance, 'delete_device' ] );
 			// Settings
 			add_action( 'wp_ajax_update_repair_services_settings', [ self::$instance, 'update_settings' ] );
+			// Confirm Appointment
+			add_action( 'wp_ajax_confirm_appointment', [ self::$instance, 'confirm_appointment' ] );
+			add_action( 'wp_ajax_nopriv_confirm_appointment', [ self::$instance, 'confirm_appointment' ] );
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Confirm Appointment
+	 */
+	public function confirm_appointment() {
+		wp_send_json_error( '', 200 );
 	}
 
 	/**

@@ -42,6 +42,11 @@
 		name: "deviceIssue",
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
+
+			// If no models, redirect one step back
+			if (!this.isScreenCracked) {
+				this.$router.push('/screen-cracked');
+			}
 		},
 		data() {
 			return {}
@@ -49,6 +54,9 @@
 		computed: {
 			screenCracked() {
 				return this.$store.state.screenCracked;
+			},
+			isScreenCracked() {
+				return !!(this.screenCracked && (this.screenCracked === 'no' || this.screenCracked === 'multiple'));
 			},
 			device() {
 				return this.$store.state.device;

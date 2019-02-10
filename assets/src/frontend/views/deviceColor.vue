@@ -23,10 +23,18 @@
 		computed: {
 			colors() {
 				return this.$store.state.deviceColors;
+			},
+			hasColors() {
+				return !!(this.colors && this.colors.length);
 			}
 		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
+
+			// If no models, redirect one step back
+			if (!this.hasColors) {
+				this.$router.push('/device-model');
+			}
 		},
 		methods: {
 			chooseDeviceColor(color) {

@@ -24,8 +24,19 @@
 		mounted() {
 			this.serviceArea = window.Stackonet.serviceArea;
 			this.$store.commit('SET_LOADING_STATUS', false);
+
+			// If no models, redirect one step back
+			if (!this.hasDeviceColor) {
+				this.$router.push('/device-color');
+			}
 		},
 		computed: {
+			deviceColor() {
+				return this.$store.state.deviceColor;
+			},
+			hasDeviceColor() {
+				return !!(this.deviceColor && this.deviceColor.color);
+			},
 			zip_code() {
 				return this.$store.state.zipCode;
 			},
@@ -46,6 +57,7 @@
 					this.$store.commit('SET_ZIP_CODE', this.tempZipCode);
 					this.$router.push('/screen-cracked');
 				} else {
+					this.$store.commit('SET_ZIP_CODE', this.tempZipCode);
 					this.$router.push('/unsupported-zip-code');
 				}
 			}

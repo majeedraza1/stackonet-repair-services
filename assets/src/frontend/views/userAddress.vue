@@ -61,8 +61,21 @@
 				addressObj: {}
 			}
 		},
+		computed: {
+			date() {
+				return this.$store.state.date;
+			},
+			hasDate() {
+				return !!(this.date && this.date.length);
+			}
+		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
+
+			// If no models, redirect one step back
+			if (!this.hasDate) {
+				this.$router.push('/select-time');
+			}
 
 			let address = this.$el.querySelector('#address');
 			// Create the autocomplete object, restricting the search predictions to

@@ -54,8 +54,19 @@
 		name: "screenCracked",
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
+
+			// If no models, redirect one step back
+			if (!this.hasZipCode) {
+				this.$router.push('/zip-code');
+			}
 		},
 		computed: {
+			zipCode() {
+				return this.$store.state.zipCode;
+			},
+			hasZipCode() {
+				return !!(this.zipCode && this.zipCode.length);
+			},
 			screenCracked() {
 				return this.$store.state.screenCracked;
 			},

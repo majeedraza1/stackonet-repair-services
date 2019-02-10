@@ -54,22 +54,24 @@
 				<span class="floating-label">Phone</span>
 			</div>
 
-			<div class="upsell-special-offer-wrapper desktop-mode">
-				<div class="upsell-special-offer-title">Special offer</div>
-				<div class="upsell-special-offer-item "><span>Tempered Glass</span>
-					<button>+$10</button>
+			<!--<div class="upsell-special-offer-wrapper desktop-mode">-->
+			<!--<div class="upsell-special-offer-title">Special offer</div>-->
+			<!--<div class="upsell-special-offer-item "><span>Tempered Glass</span>-->
+			<!--<button>+$10</button>-->
+			<!--</div>-->
+			<!--</div>-->
+
+			<div class="enter-details-continue-button-wrapper desktop-mode">
+				<div class="enter-details-continue-button" @click="confirmAppointment"
+					 :disabled="canConfirmAppointment"> Confirm Appointment
 				</div>
 			</div>
 
-			<div class="enter-details-continue-button-wrapper desktop-mode">
-				<div class="enter-details-continue-button ">Confirm Appointment</div>
-			</div>
+			<!--<div class="userdetails-coupon-button">I have a coupon code</div>-->
+			<!--<div class="enter-details-continue-button-wrapper mobile-mode">-->
+			<!--<div class="enter-details-continue-button">Continue</div>-->
+			<!--</div>-->
 
-			<div class="userdetails-coupon-button">I have a coupon code</div>
-
-			<div class="enter-details-continue-button-wrapper mobile-mode">
-				<div class="enter-details-continue-button" @click="handleContinue">Continue</div>
-			</div>
 		</div>
 	</div>
 </template>
@@ -86,17 +88,45 @@
 				couponCode: '',
 			}
 		},
+		computed: {
+			address() {
+				return this.$store.state.address;
+			},
+			hasAddress() {
+				return !!(this.address && this.address.length);
+			},
+			canConfirmAppointment() {
+				return !!(this.lastName && this.email && this.phone);
+			}
+		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
+
+			// If no models, redirect one step back
+			if (!this.hasAddress) {
+				this.$router.push('/user-address');
+			}
 		},
 		methods: {
-			handleContinue() {
+			confirmAppointment() {
 				this.$store.commit('SET_FIRST_NAME', this.firstName);
 				this.$store.commit('SET_LAST_NAME', this.lastName);
 				this.$store.commit('SET_EMAIL_ADDRESS', this.email);
 				this.$store.commit('SET_PHONE', this.phone);
 				this.$store.commit('SET_COUPON_CODE', this.couponCode);
-				this.$router.push('/thank-you');
+
+				let $ = window.jQuery, self = this;
+				$.ajax({
+					method: 'POST',
+					url: window.Stackonet.ajaxurl,
+					data: {
+						action: 'confirm_appointment',
+					},
+					success: function (response) {
+						self.$router.push('/thank-you');
+					}
+				});
+
 			}
 		}
 	}

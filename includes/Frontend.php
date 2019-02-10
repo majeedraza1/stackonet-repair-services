@@ -64,7 +64,10 @@ class Frontend {
 	 * @throws \Exception
 	 */
 	public static function temp_data() {
-		$data = [];
+		$data = [
+			'ajaxurl' => admin_url( 'admin-ajax.php' ),
+			'token'   => wp_create_nonce( 'confirm_appointment' ),
+		];
 
 		$data['devices']     = Device::get_devices();
 		$data["serviceArea"] = ServiceArea::get_zip_codes();

@@ -7,10 +7,13 @@
 			</svg>
 		</div>
 		<h1>Sorry, we not supporting any more issues.</h1>
-		<div class="unsupported-zip-code-input-wrapper"><input type="email" placeholder="Type in your email" value="">
+		<div class="unsupported-zip-code-input-wrapper">
+			<input type="email" placeholder="Type in your email" value="">
 		</div>
-		<div class="unsupported-zip-code-subtext-wrapper"><p>We currently not supporting any more issues. Please try
-			again, or sign<br>up to be first to know when we expand.</p></div>
+		<div class="unsupported-zip-code-subtext-wrapper">
+			<p>We currently not supporting any more issues. Please try
+				again, or sign<br>up to be first to know when we expand.</p>
+		</div>
 		<div class="unsupported-zip-code-button-wrapper">
 			<button disabled="" class="">Notify Me</button>
 		</div>
