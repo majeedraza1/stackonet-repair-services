@@ -6,15 +6,18 @@
 		<div class="zip-code-input-wrapper">
 			<input type="tel" placeholder="Please enter zip code" v-model="tempZipCode">
 		</div>
-		<div class="zip-code-continue-wrapper" :class="{'is-active': isSubmitActive}" @click="handleSubmit">
-			<div>Continue</div>
+		<div class="zip-code-continue-wrapper">
+			<big-button @click="handleSubmit" :disabled="!isSubmitActive">Continue</big-button>
 		</div>
 	</div>
 </template>
 
 <script>
+	import BigButton from '../../components/BigButton.vue';
+
 	export default {
 		name: "zipCode",
+		components: {BigButton},
 		data() {
 			return {
 				tempZipCode: '',
@@ -106,18 +109,6 @@
 
 	.zip-code-continue-wrapper {
 		width: 520px;
-		color: #9db2bf;
-		background-color: #e1e8ec;
-		border-radius: 5px;
-		line-height: 64px;
-		text-align: center;
-		transition: all .4s ease;
-		font-size: 18px;
 		margin: 13px auto 0;
-
-		&.is-active {
-			color: #0161c7;
-			background-color: #12ffcd;
-		}
 	}
 </style>

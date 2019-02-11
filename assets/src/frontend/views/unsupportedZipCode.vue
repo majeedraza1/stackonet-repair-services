@@ -15,14 +15,17 @@
 				sign<br>up to be first to know when we expand.</p>
 		</div>
 		<div class="unsupported-zip-code-button-wrapper">
-			<button disabled="" class="">Notify Me</button>
+			<big-button :disabled="true">Notify Me</big-button>
 		</div>
 	</div>
 </template>
 
 <script>
+	import BigButton from '../../components/BigButton.vue';
+
 	export default {
 		name: "unsupportedZipCode",
+		components: {BigButton},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 
@@ -101,23 +104,7 @@
 	}
 
 	.unsupported-zip-code-button-wrapper {
-		margin: 0 auto;
-
-		button {
-			border: 0;
-			height: 64px;
-			border-radius: 4px;
-			background: #e1e8ec;
-			color: #9db2bf;
-			text-align: center;
-			font-size: 18px;
-		}
-	}
-
-	.unsupported-zip-code-button-wrapper,
-	.unsupported-zip-code-button-wrapper button {
-		max-width: 520px;
-		width: 100%;
-		height: 64px;
+		width: 520px;
+		margin: 13px auto 0;
 	}
 </style>

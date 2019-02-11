@@ -6,53 +6,11 @@
 			</div>
 		</div>
 		<div class="enter-details-content-wrapper">
-			<div class="animated-input" style="width: 100%;">
-				<span class="blocking-span">
-					<input type="text"
-						   id="firstName"
-						   name="firstName"
-						   class="inputText"
-						   placeholder=" " value=""
-						   v-model="firstName"
-						   style="width: 100%;">
-				</span>
-				<span class="floating-label">First name</span>
-			</div>
 
-			<div class="animated-input" style="width: 100%;">
-				<span class="blocking-span">
-					<input type="text"
-						   id="lastName"
-						   name="lastName"
-						   class="inputText"
-						   placeholder=" " value=""
-						   v-model="lastName"
-						   style="width: 100%;">
-				</span>
-				<span class="floating-label">Last name</span>
-			</div>
-			<div class="animated-input" style="width: 100%;">
-				<span class="blocking-span">
-					<input type="email" id="email"
-						   name="email"
-						   class="inputText"
-						   placeholder=" " value=""
-						   v-model="email"
-						   style="width: 100%;">
-				</span>
-				<span class="floating-label">Enter your email</span>
-			</div>
-			<div class="animated-input" style="width: 100%;">
-				<span class="blocking-span">
-					<input type="tel" id="phone"
-						   name="instructions"
-						   class="inputText"
-						   placeholder=" " value=""
-						   v-model="phone"
-						   style="width: 100%;">
-				</span>
-				<span class="floating-label">Phone</span>
-			</div>
+			<animated-input v-model="firstName" label="First name" helptext="This field is required."></animated-input>
+			<animated-input v-model="lastName" label="Last name" helptext="This field is required."></animated-input>
+			<animated-input v-model="email" label="Email" helptext="This field is required."></animated-input>
+			<animated-input v-model="phone" label="Phone" helptext="This field is required."></animated-input>
 
 			<!--<div class="upsell-special-offer-wrapper desktop-mode">-->
 			<!--<div class="upsell-special-offer-title">Special offer</div>-->
@@ -77,8 +35,11 @@
 </template>
 
 <script>
+	import AnimatedInput from '../../components/AnimatedInput.vue';
+
 	export default {
 		name: "userDetails",
+		components: {AnimatedInput},
 		data() {
 			return {
 				firstName: '',

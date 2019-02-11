@@ -5,61 +5,52 @@
 		</div>
 		<div class="select-address-content-wrapper">
 
-			<div class="animated-input" style="width: 100%;">
-			<span class="blocking-span">
-				<div>
-				<input v-model="addressTemp"
-					   @focus="geolocate"
-					   type="text"
-					   id="address"
-					   name="address"
-					   class="inputText"
-					   placeholder=" " value=""
-					   autocomplete="off">
-				</div>
-			</span>
-				<span class="floating-label floating-label-focused">Enter exact address</span>
-			</div>
+			<animated-input
+					id="address"
+					v-model="addressTemp"
+					@focus="geolocate"
+					label="Enter exact address"
+					helptext="Please enter valid input"
+					:has-error="hasExactAddressError"
+					:has-success="zipCode === newZipCode"
+			></animated-input>
 
-			<div class="animated-input" style="width: 100%;">
-			<span class="blocking-span">
-				<input type="text" id="additional"
-					   name="additional"
-					   class="data-hj-whitelist inputText"
-					   placeholder=" " value=""
-					   v-model="additionalAddressTemp"
-					   style="width: 100%;">
-			</span>
-				<span class="floating-label">Apt / Suite / Floor No. (optional)</span>
-			</div>
+			<animated-input
+					id="additional"
+					v-model="additionalAddressTemp"
+					label="Apt / Suite / Floor No. (optional)"
+					:has-success="!!additionalAddressTemp.length"
+			></animated-input>
 
-			<div class="animated-input" style="width: 100%;">
-			<span class="blocking-span">
-				<input type="text"
-					   id="instructions"
-					   name="instructions"
-					   class="data-hj-whitelist inputText"
-					   v-model="instructionsTemp"
-					   placeholder=" " value=""
-					   style="width: 100%;">
-			</span>
-				<span class="floating-label">Add instructions (optional)</span>
-			</div>
-			<div class="select-address-market-no-aligned">
+			<animated-input
+					id="instructions"
+					v-model="instructionsTemp"
+					label="Add instructions (optional)"
+					:has-success="!!instructionsTemp.length"
+			></animated-input>
+
+			<div class="select-address-market-no-aligned" v-if="showZipCodeError">
 				*The address you entered is not corresponding<br>
-				with zipcode 91210 entered in an early step.<br>
+				with zipcode {{zipCode}} entered in an early step.<br>
 				Please edit zipcode or change address.
 			</div>
 			<div>
-				<div class="select-address-continue-button" @click="handleContinue">Continue</div>
+				<div class="select-address-continue-button"
+					 :class="{'select-address-continue-button-active': zipCode && !showZipCodeError}"
+					 @click="handleContinue">
+					Continue
+				</div>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script>
+	import AnimatedInput from '../../components/AnimatedInput.vue';
+
 	export default {
 		name: "userAddress",
+		components: {AnimatedInput},
 		data() {
 			return {
 				addressTemp: '',
@@ -70,6 +61,28 @@
 			}
 		},
 		computed: {
+			zipCode() {
+				return this.$store.state.zipCode;
+			},
+			addressObject() {
+				return this.$store.state.addressObject;
+			},
+			newZipCode() {
+				if (typeof this.addressObject.postal_code == "undefined") {
+					return false;
+				}
+				if (typeof this.addressObject.postal_code.short_name == "undefined") {
+					return false
+				}
+
+				return this.addressObject.postal_code.short_name;
+			},
+			showZipCodeError() {
+				return (this.newZipCode && this.zipCode && this.newZipCode !== this.zipCode);
+			},
+			hasExactAddressError() {
+				return (!!this.addressTemp.length && !this.zipCode.length);
+			},
 			date() {
 				return this.$store.state.date;
 			},
@@ -82,7 +95,7 @@
 
 			// If no models, redirect one step back
 			if (!this.hasDate) {
-				// this.$router.push('/select-time');
+				this.$router.push('/select-time');
 			}
 
 			let address = this.$el.querySelector('#address');
@@ -194,57 +207,12 @@
 		transition: all .4s ease;
 		font-size: 18px;
 		margin: 13px auto 40px;
+		cursor: not-allowed;
 
 		&.select-address-continue-button-active {
 			color: #0161c7;
 			background-color: #12ffcd;
-		}
-	}
-
-	.animated-input {
-		position: relative;
-		padding: 20px 0 10px;
-		width: 100%;
-		background: #fff;
-		margin: 0 auto 20px;
-		border-radius: 6px;
-
-		.inputText {
-			box-sizing: border-box;
-			width: 100%;
-			padding-right: 50px;
-			height: 25px;
-			background: none;
-			border: none;
-			outline: none;
-			padding-left: 20px;
-		}
-
-		.floating-label,
-		.inputText {
-			font-size: 16px;
-			color: #383e42;
-		}
-
-		.inputText:focus + .floating-label,
-		.floating-label-focused {
-			top: 7px;
-			color: #bab5bc;
-			font-size: 12px;
-		}
-
-		.floating-label {
-			position: absolute;
-			pointer-events: none;
-			left: 20px;
-			top: 18px;
-			transition: all .3s ease;
-		}
-
-		> img {
-			position: absolute;
-			right: 20px;
-			bottom: 18px;
+			cursor: pointer;
 		}
 	}
 

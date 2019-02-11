@@ -1,5 +1,5 @@
 <template>
-	<div class="my-cart-wrapper" v-show="hasDevice">
+	<div class="my-cart-wrapper" :class="{'is-active':hasDevice}">
 		<div class="my-cart-content-wrapper">
 
 			<div class="my-cart-small-items-container" style="padding-top: 20px;">
