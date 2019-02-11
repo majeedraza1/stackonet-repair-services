@@ -14,14 +14,14 @@
 			<template v-if="'multiple' === screenCracked">
 				<template v-for="issue in multi_issues">
 					<div class="scale-on-mount scale-on-mount-active" @click="pushIssue(issue)">
-						<div class="select-issue-item" v-text="issue.title"></div>
+						<div :class="issueItemClass(issue)" v-text="issue.title"></div>
 					</div>
 				</template>
 			</template>
 			<template v-else>
 				<template v-for="issue in no_issues">
 					<div class="scale-on-mount scale-on-mount-active" @click="pushIssue(issue)">
-						<div class="select-issue-item" v-text="issue.title"></div>
+						<div :class="issueItemClass(issue)" v-text="issue.title"></div>
 					</div>
 				</template>
 			</template>
@@ -86,6 +86,12 @@
 			}
 		},
 		methods: {
+			issueItemClass(issue) {
+				return {
+					'select-issue-item': true,
+					'select-issue-item-selected': -1 !== this.issues.indexOf(issue),
+				}
+			},
 			updateDescription(event) {
 				this.$store.commit('SET_ISSUE_DESCRIPTION', event.target.value);
 			},

@@ -4,6 +4,7 @@
 			<div class="step-nav-wrapper"><span class="step-nav-title">Where can we meet you?</span></div>
 		</div>
 		<div class="select-address-content-wrapper">
+
 			<div class="animated-input" style="width: 100%;">
 			<span class="blocking-span">
 				<div>
@@ -13,6 +14,7 @@
 					   id="address"
 					   name="address"
 					   class="inputText"
+					   placeholder=" " value=""
 					   autocomplete="off">
 				</div>
 			</span>
@@ -41,7 +43,13 @@
 					   placeholder=" " value=""
 					   style="width: 100%;">
 			</span>
-				<span class="floating-label">Add instructions (optional)</span></div>
+				<span class="floating-label">Add instructions (optional)</span>
+			</div>
+			<div class="select-address-market-no-aligned">
+				*The address you entered is not corresponding<br>
+				with zipcode 91210 entered in an early step.<br>
+				Please edit zipcode or change address.
+			</div>
 			<div>
 				<div class="select-address-continue-button" @click="handleContinue">Continue</div>
 			</div>
@@ -74,7 +82,7 @@
 
 			// If no models, redirect one step back
 			if (!this.hasDate) {
-				this.$router.push('/select-time');
+				// this.$router.push('/select-time');
 			}
 
 			let address = this.$el.querySelector('#address');
@@ -191,5 +199,58 @@
 			color: #0161c7;
 			background-color: #12ffcd;
 		}
+	}
+
+	.animated-input {
+		position: relative;
+		padding: 20px 0 10px;
+		width: 100%;
+		background: #fff;
+		margin: 0 auto 20px;
+		border-radius: 6px;
+
+		.inputText {
+			box-sizing: border-box;
+			width: 100%;
+			padding-right: 50px;
+			height: 25px;
+			background: none;
+			border: none;
+			outline: none;
+			padding-left: 20px;
+		}
+
+		.floating-label,
+		.inputText {
+			font-size: 16px;
+			color: #383e42;
+		}
+
+		.inputText:focus + .floating-label,
+		.floating-label-focused {
+			top: 7px;
+			color: #bab5bc;
+			font-size: 12px;
+		}
+
+		.floating-label {
+			position: absolute;
+			pointer-events: none;
+			left: 20px;
+			top: 18px;
+			transition: all .3s ease;
+		}
+
+		> img {
+			position: absolute;
+			right: 20px;
+			bottom: 18px;
+		}
+	}
+
+	.select-address-market-no-aligned {
+		text-align: center;
+		font-size: 13px;
+		color: red;
 	}
 </style>
