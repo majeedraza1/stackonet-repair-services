@@ -4,9 +4,41 @@
 
 		<div>
 			<mdl-tabs :vertical="false">
-				<mdl-tab name="General">General Content</mdl-tab>
-				<mdl-tab name="Service Times">Service Times Content</mdl-tab>
-				<mdl-tab name="Integrations" selected>
+				<mdl-tab name="Service Times" selected>
+					<h2 class="title">Service Times</h2>
+					<table class="form-table">
+						<tr v-for="day in days_in_week">
+							<th scope="row">
+								<label :for="day" v-text="day"></label>
+							</th>
+							<td>
+								<span>Start time</span>
+								<input type="time" class="time-picker" v-model="settings.service_times[day].start_time">
+								<span>End time</span>
+								<input type="time" class="time-picker" v-model="settings.service_times[day].end_time">
+							</td>
+						</tr>
+					</table>
+					<h2 class="title">Public Holidays</h2>
+					<table class="form-table">
+						<tr>
+							<th scope="row">
+								<label>Public holidays list</label>
+							</th>
+							<td>
+								<button class="button" @click="addNewHoliday">Add New Holiday</button>
+								<br>
+								<template v-for="holiday in settings.holidays_list">
+									<input type="date" v-model="holiday.date" placeholder="yyyy-mm-dd">
+									<delete @click="deleteHoliday(holiday)"></delete>
+									<br>
+								</template>
+								<p class="description">Public holidays excluding past days.</p>
+							</td>
+						</tr>
+					</table>
+				</mdl-tab>
+				<mdl-tab name="Integrations">
 					<h2 class="title">Google Map</h2>
 					<table class="form-table">
 						<tr>
@@ -32,15 +64,29 @@
 <script>
 	import mdlTabs from '../../material-design-lite/tabs/mdlTabs.vue';
 	import mdlTab from '../../material-design-lite/tabs/mdlTab.vue';
+	import Delete from '../../components/Delete.vue';
 
 	export default {
 		name: "Settings",
-		components: {mdlTabs, mdlTab},
+		components: {mdlTabs, mdlTab, Delete},
 		data() {
 			return {
 				settings: {
-					google_map_key: ''
+					google_map_key: '',
+					service_times: {
+						Monday: {start_time: '', end_time: '',},
+						Tuesday: {start_time: '', end_time: '',},
+						Wednesday: {start_time: '', end_time: '',},
+						Thursday: {start_time: '', end_time: '',},
+						Friday: {start_time: '', end_time: '',},
+						Saturday: {start_time: '', end_time: '',},
+						Sunday: {start_time: '', end_time: '',},
+					},
+					holidays_list: [
+						{date: ''}
+					],
 				},
+				days_in_week: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
 			}
 		},
 		computed: {
@@ -56,6 +102,14 @@
 		methods: {
 			fetchSettings() {
 				this.settings = window.stackonetSettings.settings;
+			},
+			addNewHoliday() {
+				this.settings.holidays_list.push({date: ''});
+			},
+			deleteHoliday(holiday) {
+				if (window.confirm('Are you sure?')) {
+					this.settings.holidays_list.splice(this.settings.holidays_list.indexOf(holiday), 1);
+				}
 			},
 			saveSettings() {
 				let $ = window.jQuery, self = this;

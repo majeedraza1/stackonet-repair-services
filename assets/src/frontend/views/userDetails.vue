@@ -7,10 +7,36 @@
 		</div>
 		<div class="enter-details-content-wrapper">
 
-			<animated-input v-model="firstName" label="First name" helptext="This field is required."></animated-input>
-			<animated-input v-model="lastName" label="Last name" helptext="This field is required."></animated-input>
-			<animated-input v-model="email" label="Email" helptext="This field is required."></animated-input>
-			<animated-input v-model="phone" label="Phone" helptext="This field is required."></animated-input>
+			<animated-input
+					v-model="firstName"
+					label="First name"
+					helptext="This field is required."
+					:has-success="firstName.length > 2"
+			></animated-input>
+
+			<animated-input
+					v-model="lastName"
+					label="Last name"
+					helptext="This field is required."
+					:has-success="lastName.length > 2"
+			></animated-input>
+
+			<animated-input
+					v-model="email"
+					type="email"
+					label="Email"
+					helptext="Enter a valid email address."
+					:has-error="hasEmailError"
+					:has-success="isEmailValid"
+					@blur="emailBlurHandler"
+					@focus="emailFocusHandler"
+			></animated-input>
+
+			<animated-input
+					v-model="phone"
+					label="Phone"
+					helptext="This field is required."
+			></animated-input>
 
 			<!--<div class="upsell-special-offer-wrapper desktop-mode">-->
 			<!--<div class="upsell-special-offer-title">Special offer</div>-->
@@ -19,10 +45,10 @@
 			<!--</div>-->
 			<!--</div>-->
 
-			<div class="enter-details-continue-button-wrapper desktop-mode">
-				<div class="enter-details-continue-button" @click="confirmAppointment"
-					 :disabled="canConfirmAppointment"> Confirm Appointment
-				</div>
+			<div class="enter-details-continue-button-wrapper">
+				<big-button @click="confirmAppointment"
+							:disabled="!enabledContinueButton">Confirm Appointment
+				</big-button>
 			</div>
 
 			<!--<div class="userdetails-coupon-button">I have a coupon code</div>-->
@@ -36,10 +62,11 @@
 
 <script>
 	import AnimatedInput from '../../components/AnimatedInput.vue';
+	import BigButton from '../../components/BigButton.vue';
 
 	export default {
 		name: "userDetails",
-		components: {AnimatedInput},
+		components: {AnimatedInput, BigButton},
 		data() {
 			return {
 				firstName: '',
@@ -47,9 +74,25 @@
 				email: '',
 				phone: '',
 				couponCode: '',
+				hasEmailError: false,
 			}
 		},
 		computed: {
+			isEmailValid() {
+				return this.hasEmail && this.validateEmail(this.email);
+			},
+			hasEmail() {
+				return !!this.email.length;
+			},
+			hasPhone() {
+				return !!this.phone.length;
+			},
+			hasLastName() {
+				return !!this.lastName.length;
+			},
+			enabledContinueButton() {
+				return (this.hasEmail && this.hasPhone && this.hasLastName);
+			},
 			address() {
 				return this.$store.state.address;
 			},
@@ -70,6 +113,18 @@
 			}
 		},
 		methods: {
+			validateEmail(email) {
+				let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+				return re.test(String(email).toLowerCase());
+			},
+			emailBlurHandler() {
+				if (this.hasEmail && !this.isEmailValid) {
+					this.hasEmailError = true;
+				}
+			},
+			emailFocusHandler() {
+				this.hasEmailError = false;
+			},
 			confirmAppointment() {
 				this.$store.commit('SET_FIRST_NAME', this.firstName);
 				this.$store.commit('SET_LAST_NAME', this.lastName);

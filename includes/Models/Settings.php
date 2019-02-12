@@ -9,8 +9,23 @@ class Settings {
 	 */
 	private static $option = 'repair_services_settings';
 
-	private static $options_keys = [
+	/**
+	 * Default settings
+	 *
+	 * @var array
+	 */
+	private static $default = [
 		'google_map_key' => '',
+		'service_times'  => [
+			'Monday'    => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
+			'Tuesday'   => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
+			'Wednesday' => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
+			'Thursday'  => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
+			'Friday'    => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
+			'Saturday'  => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
+			'Sunday'    => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
+		],
+		'holidays_list'  => [ [ 'date' => '' ] ],
 	];
 
 	/**
@@ -21,7 +36,7 @@ class Settings {
 	private static function get_option() {
 		$option = get_option( self::$option );
 
-		return is_array( $option ) ? $option : [];
+		return is_array( $option ) ? wp_parse_args( $option, self::$default ) : [];
 	}
 
 	/**
@@ -54,7 +69,7 @@ class Settings {
 	 */
 	public static function update( array $data ) {
 		$_data = [];
-		foreach ( self::$options_keys as $options_key => $default ) {
+		foreach ( self::$default as $options_key => $default ) {
 			$_data[ $options_key ] = isset( $data[ $options_key ] ) ? $data[ $options_key ] : $default;
 		}
 		update_option( self::$option, $_data );
