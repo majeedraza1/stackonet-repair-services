@@ -1,8 +1,9 @@
 <template>
-	<div class="repair-services-container">
-		<router-view></router-view>
+	<div class="repair-services-container" :class="{'is-cart-active':showCart}">
+		<div class="repair-services-content">
+			<router-view></router-view>
+		</div>
 		<cart></cart>
-		<mdl-snackbar align-start></mdl-snackbar>
 		<div class="repair-services-loader" :class="{'is-active':loading}">
 			<mdl-spinner :active="loading"></mdl-spinner>
 		</div>
@@ -10,16 +11,27 @@
 </template>
 
 <script>
-	import mdlSnackbar from '../material-design-lite/snackbar/mdlSnackbar.vue';
 	import mdlSpinner from '../material-design-lite/spinner/mdlSpinner.vue';
 	import cart from './views/cart.vue';
 
 	export default {
 		name: 'App',
-		components: {mdlSnackbar, mdlSpinner, cart},
+		components: {mdlSpinner, cart},
 		computed: {
 			loading() {
 				return this.$store.state.loading;
+			},
+			showCart() {
+				return this.$store.state.showCart;
+			},
+		},
+		mounted() {
+			this.$store.commit('SET_SHOW_CART', false);
+			let body = document.querySelector('body');
+			if (this.showCart) {
+				body.classList.add('page-repair-services-cart-active');
+			} else {
+				body.classList.remove('page-repair-services-cart-active');
 			}
 		}
 	}
@@ -29,6 +41,14 @@
 	.repair-services-container {
 		background: #eff2f5;
 		position: relative;
+
+		&.is-cart-active {
+			margin-right: 355px;
+			transition: all 300ms ease-in-out;
+		}
+	}
+
+	.repair-services-content {
 	}
 
 	.repair-services-loader {

@@ -7,6 +7,7 @@ export default new Vuex.Store({
 	// Same as Vue data
 	state: {
 		loading: true,
+		showCart: true,
 		devices: [],
 		deviceModels: [],
 		deviceColors: [],
@@ -97,6 +98,9 @@ export default new Vuex.Store({
 		},
 		SET_COUPON_CODE(state, couponCode) {
 			state.couponCode = couponCode;
+		},
+		SET_SHOW_CART(state, showCart) {
+			state.showCart = showCart;
 		},
 	},
 

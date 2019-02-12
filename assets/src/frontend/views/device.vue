@@ -30,6 +30,7 @@
 			let devices = window.Stackonet.devices;
 			this.$store.commit('SET_LOADING_STATUS', false);
 			this.$store.commit('SET_DEVICES', devices);
+			this.$store.commit('SET_SHOW_CART', false);
 		},
 		methods: {
 			chooseDeviceModel(device) {

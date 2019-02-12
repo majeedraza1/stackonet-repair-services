@@ -1,5 +1,5 @@
 <template>
-	<div class="my-cart-wrapper" :class="{'is-active':hasDevice}">
+	<div class="my-cart-wrapper" :class="{'is-active':showCart}">
 		<div class="my-cart-content-wrapper">
 
 			<div class="my-cart-small-items-container" style="padding-top: 20px;">
@@ -136,6 +136,9 @@
 			phone() {
 				return this.$store.state.phone;
 			},
+			showCart() {
+				return this.$store.state.showCart;
+			},
 		},
 		methods: {
 			editDevice() {
@@ -163,11 +166,15 @@
 		width: 355px;
 		background-color: #fff;
 		box-shadow: -50px 7px 50px 0 hsla(0, 0%, 79%, .25);
-		display: flex;
+		display: none;
 		flex-direction: column;
 		transition: all .4s ease;
 		overflow: auto;
 		z-index: 9999;
+
+		&.is-active {
+			display: flex;
+		}
 	}
 
 	.my-cart-small-items-container {

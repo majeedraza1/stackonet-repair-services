@@ -62,6 +62,7 @@
 		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
+			this.$store.commit('SET_SHOW_CART', true);
 
 			// If no models, redirect one step back
 			if (!this.hasAddress) {

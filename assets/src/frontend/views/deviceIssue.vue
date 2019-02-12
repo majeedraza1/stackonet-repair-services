@@ -32,16 +32,21 @@
 			<textarea placeholder="Tell us what's wrong" v-text="issueDescription"
 					  @input="updateDescription($event)"></textarea>
 		</div>
-		<button class="select-issue-continue-wrapper" v-if="showContinueButton" @click="handleContinue">Done Editing
-		</button>
+		<div class="select-issue-continue-wrapper">
+			<big-button :disabled="!showContinueButton" @click="handleContinue">Continue</big-button>
+		</div>
 	</div>
 </template>
 
 <script>
+	import BigButton from '../../components/BigButton.vue';
+
 	export default {
 		name: "deviceIssue",
+		components: {BigButton},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
+			this.$store.commit('SET_SHOW_CART', true);
 
 			// If no models, redirect one step back
 			if (!this.isScreenCracked) {
@@ -174,8 +179,8 @@
 		textarea {
 			width: 350px;
 			box-sizing: border-box;
-			height: 120px;
-			resize: none;
+			height: auto;
+			resize: vertical;
 			padding: 15px;
 			font-size: 15px;
 			border: none;
@@ -185,15 +190,7 @@
 
 	.select-issue-continue-wrapper {
 		height: 64px;
-		border: none;
 		width: 280px;
-		text-align: center;
-		border-radius: 6px;
-		background-color: #12ffcd;
-		color: #0161c7;
-		font-size: 18px;
-		transition: all .3s;
-		display: block;
 		margin: 20px auto 50px;
 	}
 

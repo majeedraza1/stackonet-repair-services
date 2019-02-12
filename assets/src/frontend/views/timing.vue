@@ -44,16 +44,22 @@
 				</button>
 			</template>
 		</div>
-		<div class="select-time-continue-button-wrapper" @click="handleContinue">
-			<div class="select-time-continue-button select-time-continue-button-active">Continue</div>
+		<div class="select-time-continue-button-wrapper">
+			<big-button @click="handleContinue" :disabled="!isButtonActive">Continue</big-button>
 		</div>
-		<p class="select-time-additional-text">Timing is subject to technician availability. We will<br>confirm timing
-			by email and SMS.</p></div>
+		<p class="select-time-additional-text">
+			Timing is subject to technician availability. We will<br>
+			confirm timing by email and SMS.
+		</p>
+	</div>
 </template>
 
 <script>
+	import BigButton from '../../components/BigButton.vue';
+
 	export default {
 		name: "timing",
+		components: {BigButton},
 		data() {
 			return {
 				dateRanges: [],
@@ -64,6 +70,7 @@
 		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
+			this.$store.commit('SET_SHOW_CART', true);
 			this.dateRanges = window.Stackonet.dateRanges;
 			this.timeRanges = window.Stackonet.timeRanges;
 			this.tempDate = this.dateRanges[0];
@@ -87,6 +94,9 @@
 			timeRange() {
 				return this.$store.state.timeRange;
 			},
+			isButtonActive() {
+				return !!(this.tempDate.length && this.tempTime.length);
+			}
 		},
 		methods: {
 			setTimeRange(time) {
@@ -191,21 +201,9 @@
 		}
 	}
 
-	.select-time-continue-button {
+	.select-time-continue-button-wrapper {
 		width: 494px;
-		color: #a9aeb3;
-		background-color: #e1e8ec;
 		margin: 40px auto;
-		border-radius: 5px;
-		line-height: 64px;
-		text-align: center;
-		transition: all .5s ease;
-		font-size: 18px;
-
-		&-active {
-			color: #0161c7;
-			background-color: #12ffcd;
-		}
 	}
 
 	.select-time-additional-text {
