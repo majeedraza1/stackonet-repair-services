@@ -26,13 +26,14 @@
 								<label>Public holidays list</label>
 							</th>
 							<td>
-								<button class="button" @click="addNewHoliday">Add New Holiday</button>
-								<br>
 								<template v-for="holiday in settings.holidays_list">
 									<input type="date" v-model="holiday.date" placeholder="yyyy-mm-dd">
 									<delete @click="deleteHoliday(holiday)"></delete>
 									<br>
 								</template>
+								<p>
+									<button class="button" @click="addNewHoliday">Add New Holiday</button>
+								</p>
 								<p class="description">Public holidays excluding past days.</p>
 							</td>
 						</tr>

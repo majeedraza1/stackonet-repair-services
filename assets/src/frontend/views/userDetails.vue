@@ -126,6 +126,7 @@
 				this.hasEmailError = false;
 			},
 			confirmAppointment() {
+				this.$store.commit('SET_LOADING_STATUS', true);
 				this.$store.commit('SET_FIRST_NAME', this.firstName);
 				this.$store.commit('SET_LAST_NAME', this.lastName);
 				this.$store.commit('SET_EMAIL_ADDRESS', this.email);
@@ -156,7 +157,11 @@
 						additional_address: state.additionalAddress,
 					},
 					success: function (response) {
+						self.$store.commit('SET_LOADING_STATUS', false);
 						self.$router.push('/thank-you');
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
 					}
 				});
 

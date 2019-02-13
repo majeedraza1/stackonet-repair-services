@@ -37,20 +37,26 @@ class Frontend {
 	 * Load frontend scripts
 	 */
 	public function load_scripts() {
-		wp_enqueue_script( 'stackonet-repair-services-frontend' );
-		wp_enqueue_style( 'stackonet-repair-services-frontend' );
+		global $post;
+		if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'stackonet_repair_service' ) ) {
+			wp_enqueue_script( 'stackonet-repair-services-frontend' );
+			wp_enqueue_style( 'stackonet-repair-services-frontend' );
+		}
 	}
 
 	/**
 	 * display services
 	 */
 	public function repair_services() {
-		echo '<script>window.Stackonet = ' . wp_json_encode( self::temp_data() ) . '</script>';
+		echo '<script>window.Stackonet = ' . wp_json_encode( self::service_data() ) . '</script>';
 		echo '<div id="stackonet_repair_services"></div>';
 		include STACKONET_REPAIR_SERVICES_PATH . "/assets/img/frontend-icons.svg";
 		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
 	}
 
+	/**
+	 * Load google place autocomplete script
+	 */
 	public function map_script() {
 		$map_src = add_query_arg( array(
 			'key'       => Settings::get_map_api_key(),
@@ -60,10 +66,12 @@ class Frontend {
 	}
 
 	/**
+	 * Get service data
+	 *
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function temp_data() {
+	public static function service_data() {
 		$data = [
 			'ajaxurl' => admin_url( 'admin-ajax.php' ),
 			'token'   => wp_create_nonce( 'confirm_appointment' ),
@@ -71,34 +79,8 @@ class Frontend {
 
 		$data['devices']     = Device::get_devices();
 		$data["serviceArea"] = ServiceArea::get_zip_codes();
-
-		$days     = [];
-		$date     = new \DateTime();
-		$timezone = get_option( 'timezone_string' );
-		if ( in_array( $timezone, \DateTimeZone::listIdentifiers() ) ) {
-			$date->setTimezone( new \DateTimeZone( $timezone ) );
-		}
-		$period = new \DatePeriod( $date, new \DateInterval( 'P1D' ), 9 );
-		foreach ( $period as $day ) {
-			$days[] = $day->format( 'Y-m-d' );
-		}
-
-		$data['dateRanges'] = $days;
-		$data['timeRanges'] = [
-			'9am - 10am',
-			'10am - 11am',
-			'11am - 12pm',
-			'12pm - 1pm',
-			'1pm - 2pm',
-			'2pm - 3pm',
-			'3pm - 4pm',
-			'4pm - 5pm',
-			'5pm - 6pm',
-			'6pm - 7pm',
-			'7pm - 8pm',
-			'8pm - 9pm',
-			'9pm - 10pm',
-		];
+		$data['dateRanges']  = Settings::get_service_dates_ranges();
+		$data['timeRanges']  = Settings::get_service_times_ranges();
 
 		return $data;
 	}

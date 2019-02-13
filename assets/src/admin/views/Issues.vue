@@ -46,7 +46,7 @@
 					{key: 'title', label: 'Issue'},
 					{key: 'price', label: 'Default Price'},
 				],
-				actions: [{key: 'edit', label: 'Edit'}],
+				actions: [{key: 'edit', label: 'Edit'}, {key: 'delete', label: 'Delete'}],
 				bulkActions: [],
 				counts: {},
 			}
@@ -107,8 +107,10 @@
 					success: function (response) {
 						if (response.data) {
 							let issues = self.issues;
-							issues.push(response.data);
-							self.$store.commit('SET_ISSUES', issues);
+							if (!self.id) {
+								issues.push(response.data);
+								self.$store.commit('SET_ISSUES', issues);
+							}
 						}
 						self.title = '';
 						self.price = '';

@@ -52,6 +52,70 @@ class Settings {
 	}
 
 	/**
+	 * @return array|mixed
+	 * @throws \Exception
+	 */
+	public static function get_service_dates_ranges() {
+		$key     = 'holidays_list';
+		$options = self::get_option();
+
+		$holidays = ! empty( $options[ $key ] ) ? $options[ $key ] : [];
+		$off_days = array_filter( wp_list_pluck( $holidays, 'date' ) );
+
+		$days     = [];
+		$date     = new \DateTime();
+		$timezone = get_option( 'timezone_string' );
+		if ( in_array( $timezone, \DateTimeZone::listIdentifiers() ) ) {
+			$date->setTimezone( new \DateTimeZone( $timezone ) );
+		}
+		/** @var \DateTime[] $period */
+		$period = new \DatePeriod( $date, new \DateInterval( 'P1D' ), new \DateTime( '+ 10 days' ) );
+		foreach ( $period as $day ) {
+			$_date  = $day->format( 'Y-m-d' );
+			$days[] = [
+				'date'    => $_date,
+				'day'     => $day->format( 'l' ),
+				'holiday' => in_array( $_date, $off_days ),
+			];
+		}
+
+		return $days;
+	}
+
+	/**
+	 * Get service times
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function get_service_times_ranges() {
+		$key     = 'service_times';
+		$options = self::get_option();
+
+		$service_times = ! empty( $options[ $key ] ) ? $options[ $key ] : [];
+		$_times        = [];
+		foreach ( $service_times as $day_name => $service_time ) {
+			$start = date( 'Y-m-d', time() ) . ' ' . $service_time['start_time'];
+			$end   = date( 'Y-m-d', time() ) . ' ' . $service_time['end_time'];
+
+			$date1 = new \DateTime( $start );
+			$date2 = new \DateTime( $end );
+
+			$interval = new \DateInterval( 'PT1H' );
+			/** @var \DateTime[] $period */
+			$period = new \DatePeriod( $date1, $interval, $date2 );
+
+			foreach ( $period as $day ) {
+				$_h1 = $day->format( 'ha' );
+				$day->modify( '+ 1 hour' );
+				$_times[ $day_name ][] = sprintf( '%s - %s', $_h1, $day->format( 'ha' ) );
+			}
+		}
+
+		return $_times;
+	}
+
+	/**
 	 * Get settings
 	 *
 	 * @return array

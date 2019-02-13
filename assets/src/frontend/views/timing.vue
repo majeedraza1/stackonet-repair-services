@@ -15,14 +15,16 @@
 						<template v-for="(_date, index) in dateRanges">
 							<template v-if="index === 0">
 								<div class="select-time-day-item-wrapper" @click="updateDate(_date)">
-									<div class="select-time-day-item" :class="{'day-active': tempDate === _date }">
+									<div class="select-time-day-item"
+										 :class="{'day-active': tempDate.date === _date.date }">
 										<div class="select-time-weekday">Today</div>
 									</div>
 								</div>
 							</template>
 							<template v-else>
 								<div class="select-time-day-item-wrapper" @click="updateDate(_date)">
-									<div class="select-time-day-item" :class="{'day-active': tempDate === _date }">
+									<div class="select-time-day-item"
+										 :class="{'day-active': tempDate.date === _date.date }">
 										<div class="">
 											<div class="select-time-weekday" v-html="getDayFromDate(_date)"></div>
 											<div class="select-time-day-in-number" v-html="getDateNumber(_date)"></div>
@@ -37,11 +39,15 @@
 		</div>
 
 		<div class="select-time-time-picker-wrapper">
-			<template v-for="times in timeRanges">
-				<button class="time-content-box hoverable" :class="{'time-content-box-active': tempTime === times}"
-						@click="setTimeRange(times)">
-					<div v-text="times"></div>
-				</button>
+			<template v-for="(times, dayName) in timeRanges">
+				<template v-if="dayName === tempDate.day">
+					<button v-for="time in times"
+							class="time-content-box hoverable"
+							:class="{'time-content-box-active': tempTime === time}"
+							@click="setTimeRange(time)">
+						<div v-text="time"></div>
+					</button>
+				</template>
 			</template>
 		</div>
 		<div class="select-time-continue-button-wrapper">
@@ -74,7 +80,7 @@
 			this.dateRanges = window.Stackonet.dateRanges;
 			this.timeRanges = window.Stackonet.timeRanges;
 			this.tempDate = this.dateRanges[0];
-			this.tempTime = this.timeRanges[0];
+			this.tempTime = this.timeRanges[this.tempDate.day][0];
 
 			// If no models, redirect one step back
 			if (!this.hasIssues) {
@@ -95,7 +101,7 @@
 				return this.$store.state.timeRange;
 			},
 			isButtonActive() {
-				return !!(this.tempDate.length && this.tempTime.length);
+				return !!(this.tempDate && this.tempDate.date && this.tempTime.length);
 			}
 		},
 		methods: {
@@ -107,17 +113,17 @@
 			},
 			getDayFromDate(time) {
 				let days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-				let date = new Date(time);
+				let date = new Date(time.date);
 				return days[date.getDay()];
 			},
 			getDateNumber(time) {
-				let date2 = new Date(time);
+				let date2 = new Date(time.date);
 				let dateNumber = date2.getDate();
 
 				return dateNumber.length === 1 ? '0' + dateNumber : dateNumber;
 			},
 			handleContinue() {
-				this.$store.commit('SET_DATE', this.tempDate);
+				this.$store.commit('SET_DATE', this.tempDate.date);
 				this.$store.commit('SET_TIME_RANGE', this.tempTime);
 				this.$router.push('/user-address');
 			}
