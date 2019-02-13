@@ -30,9 +30,11 @@ class Ajax {
 			// Service Area
 			add_action( 'wp_ajax_get_services_areas', [ self::$instance, 'get_services_areas' ] );
 			add_action( 'wp_ajax_create_service_area', [ self::$instance, 'create_service_area' ] );
+			add_action( 'wp_ajax_delete_service_area', [ self::$instance, 'delete_service_area' ] );
 			// Device Issue
 			add_action( 'wp_ajax_get_device_issues', [ self::$instance, 'get_device_issues' ] );
 			add_action( 'wp_ajax_create_device_issue', [ self::$instance, 'create_device_issue' ] );
+			add_action( 'wp_ajax_delete_device_issue', [ self::$instance, 'delete_device_issue' ] );
 			// Projects
 			add_action( 'wp_ajax_get_woocommerce_products', [ self::$instance, 'get_woocommerce_products' ] );
 			// Device
@@ -219,6 +221,34 @@ class Ajax {
 		}
 
 		wp_send_json_success( $response, 201 );
+	}
+
+	public static function delete_device_issue() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'You have no permission to delete device issue.', 401 );
+		}
+
+		$id = isset( $_POST['id'] ) ? sanitize_text_field( $_POST['id'] ) : 0;
+
+		if ( DeviceIssue::delete( $id ) ) {
+			wp_send_json_success();
+		}
+
+		wp_send_json_error();
+	}
+
+	public static function delete_service_area() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'You have no permission to delete service area.', 401 );
+		}
+
+		$id = isset( $_POST['id'] ) ? sanitize_text_field( $_POST['id'] ) : 0;
+
+		if ( ServiceArea::delete( $id ) ) {
+			wp_send_json_success();
+		}
+
+		wp_send_json_error();
 	}
 
 	/**

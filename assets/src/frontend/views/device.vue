@@ -87,7 +87,7 @@
 			border-color: transparent;
 			border-image: initial;
 
-			&:hover {
+			&:not(.time-content-box-active):not(:disabled):hover {
 				color: rgb(1, 97, 199);
 				border-width: 2px;
 				border-style: solid;

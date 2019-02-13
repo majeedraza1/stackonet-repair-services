@@ -107,7 +107,12 @@
 					success: function (response) {
 						if (response.data) {
 							let issues = self.issues;
-							if (!self.id) {
+							if (self.id) {
+								let result = issues.filter(obj => {
+									return obj.id === self.id
+								});
+								issues.splice(issues.indexOf(result), 1, response.data);
+							} else {
 								issues.push(response.data);
 								self.$store.commit('SET_ISSUES', issues);
 							}
@@ -163,6 +168,28 @@
 			restoreItem(item) {
 			},
 			deleteItem(item) {
+				let $ = window.jQuery, self = this;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				$.ajax({
+					method: 'POST',
+					url: ajaxurl,
+					data: {
+						action: 'delete_device_issue',
+						id: item.id,
+						task: 'delete',
+					},
+					success: function (response) {
+						if (response.data) {
+							let issues = self.issues;
+							issues.splice(issues.indexOf(item), 1);
+							self.$store.commit('SET_ISSUES', issues);
+						}
+						self.$store.commit('SET_LOADING_STATUS', false);
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					}
+				});
 			},
 			trashItems(item) {
 			},

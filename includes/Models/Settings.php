@@ -25,7 +25,7 @@ class Settings {
 			'Saturday'  => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 			'Sunday'    => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 		],
-		'holidays_list'  => [ [ 'date' => '' ] ],
+		'holidays_list'  => [ [ 'date' => '', 'note' => '' ] ],
 	];
 
 	/**
@@ -71,11 +71,16 @@ class Settings {
 		/** @var \DateTime[] $period */
 		$period = new \DatePeriod( $date, new \DateInterval( 'P1D' ), new \DateTime( '+ 10 days' ) );
 		foreach ( $period as $day ) {
-			$_date  = $day->format( 'Y-m-d' );
+			$_date      = $day->format( 'Y-m-d' );
+			$is_holiday = in_array( $_date, $off_days );
+			$index      = array_search( $_date, $off_days );
+			$has_note   = $is_holiday && ! empty( $holidays[ $index ]['note'] );
+
 			$days[] = [
 				'date'    => $_date,
 				'day'     => $day->format( 'l' ),
-				'holiday' => in_array( $_date, $off_days ),
+				'holiday' => $is_holiday,
+				'note'    => $has_note ? wp_strip_all_tags( $holidays[ $index ]['note'] ) : '',
 			];
 		}
 

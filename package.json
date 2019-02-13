@@ -1,12 +1,7 @@
 {
-	"name": "wp-plugin-boilerplate",
+	"name": "stackonet-repair-services",
 	"version": "1.0.0",
-	"description": "A foundation for WordPress Plugin Development that aims to provide a clear and consistent guide for building your plugins.",
-	"keywords": [
-		"wordpress",
-		"wordpress-plugin",
-		"wordpress-plugin-boilerplate"
-	],
+	"description": "A WordPress plugin for repair home services.",
 	"author": {
 		"name": "Sayful Islam",
 		"email": "sayful.islam001@gmail.com",
@@ -15,12 +10,12 @@
 	"license": "GPL-3.0-only",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/sayful1/wp-plugin-boilerplate.git"
+		"url": "https://github.com/sayful1/stackonet-repair-services.git"
 	},
 	"bugs": {
-		"url": "https://github.com/sayful1/wp-plugin-boilerplate/issues"
+		"url": "https://github.com/sayful1/stackonet-repair-services/issues"
 	},
-	"homepage": "https://github.com/sayful1/wp-plugin-boilerplate#readme",
+	"homepage": "https://github.com/sayful1/stackonet-repair-services#readme",
 	"scripts": {
 		"dev": "webpack --mode=development --progress --colors --watch --hide-modules",
 		"dev-build": "webpack --mode=development",

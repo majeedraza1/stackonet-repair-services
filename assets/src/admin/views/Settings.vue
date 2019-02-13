@@ -27,8 +27,10 @@
 							</th>
 							<td>
 								<template v-for="holiday in settings.holidays_list">
-									<input type="date" v-model="holiday.date" placeholder="yyyy-mm-dd">
 									<delete @click="deleteHoliday(holiday)"></delete>
+									<input type="date" v-model="holiday.date" placeholder="yyyy-mm-dd">
+									<label>Optional Note</label>
+									<input type="text" class="regular-text" v-model="holiday.note">
 									<br>
 								</template>
 								<p>
@@ -84,7 +86,7 @@
 						Sunday: {start_time: '', end_time: '',},
 					},
 					holidays_list: [
-						{date: ''}
+						{date: '', note: ''}
 					],
 				},
 				days_in_week: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],

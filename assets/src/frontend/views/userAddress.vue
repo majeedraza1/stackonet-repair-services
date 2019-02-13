@@ -35,11 +35,7 @@
 				Please edit zipcode or change address.
 			</div>
 			<div>
-				<div class="select-address-continue-button"
-					 :class="{'select-address-continue-button-active': zipCode && !showZipCodeError}"
-					 @click="handleContinue">
-					Continue
-				</div>
+				<big-button :disabled="!canContinue" @click="handleContinue">Continue</big-button>
 			</div>
 		</div>
 	</div>
@@ -47,10 +43,11 @@
 
 <script>
 	import AnimatedInput from '../../components/AnimatedInput.vue';
+	import BigButton from '../../components/BigButton.vue';
 
 	export default {
 		name: "userAddress",
-		components: {AnimatedInput},
+		components: {AnimatedInput, BigButton},
 		data() {
 			return {
 				addressTemp: '',
@@ -88,6 +85,9 @@
 			},
 			hasDate() {
 				return !!(this.date && this.date.length);
+			},
+			canContinue() {
+				return !!(this.newZipCode && !this.showZipCodeError);
 			}
 		},
 		mounted() {

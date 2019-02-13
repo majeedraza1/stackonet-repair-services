@@ -78,7 +78,13 @@ class Device {
 		$no_issues     = [];
 
 		foreach ( $data['device_models'] as $index => $model ) {
+
+			$price = ! empty( $model['broken_screen_price'] ) ? floatval( $model['broken_screen_price'] ) : '';
+
 			$device_models[ $index ]['title'] = sanitize_text_field( $model['title'] );
+
+			$device_models[ $index ]['broken_screen_price'] = $price;
+
 			foreach ( $model['colors'] as $color_index => $color ) {
 				$device_models[ $index ]['colors'][ $color_index ] = [
 					'color'    => sanitize_hex_color( $color['color'] ),

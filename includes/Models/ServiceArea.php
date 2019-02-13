@@ -114,8 +114,11 @@ class ServiceArea {
 
 		if ( isset( $options[ $id ] ) ) {
 			unset( $options[ $id ] );
+			update_option( self::$option, $options );
+
+			return true;
 		}
 
-		update_option( self::$option, $options );
+		return false;
 	}
 }

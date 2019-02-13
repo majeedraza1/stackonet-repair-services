@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Stackonet Toolkit for Phone Repairs ASAP
- * Plugin URI: https://github.com/sayful1/stackonet-repair-home-searvices
+ * Plugin URI: https://github.com/sayful1/stackonet-repair-services
  * Description: Stackonet Toolkit for Phone Repairs ASAP
  * Version: 1.0.0
  * Author: Stackonet Services Private Limited

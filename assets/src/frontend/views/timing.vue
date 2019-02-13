@@ -38,10 +38,13 @@
 			</div>
 		</div>
 
+		<div v-if="tempDate.note" v-html="tempDate.note" class="holiday-note"></div>
+
 		<div class="select-time-time-picker-wrapper">
 			<template v-for="(times, dayName) in timeRanges">
 				<template v-if="dayName === tempDate.day">
 					<button v-for="time in times"
+							:disabled="isHoliday"
 							class="time-content-box hoverable"
 							:class="{'time-content-box-active': tempTime === time}"
 							@click="setTimeRange(time)">
@@ -70,7 +73,11 @@
 			return {
 				dateRanges: [],
 				timeRanges: [],
-				tempDate: '',
+				tempDate: {
+					date: '',
+					day: '',
+					holiday: false,
+				},
 				tempTime: '',
 			}
 		},
@@ -100,8 +107,11 @@
 			timeRange() {
 				return this.$store.state.timeRange;
 			},
+			isHoliday() {
+				return !!(this.tempDate.holiday);
+			},
 			isButtonActive() {
-				return !!(this.tempDate && this.tempDate.date && this.tempTime.length);
+				return !!(this.tempDate && this.tempDate.date && this.tempTime.length && !this.isHoliday);
 			}
 		},
 		methods: {
@@ -195,9 +205,14 @@
 		border: 2px solid transparent;
 		outline: none;
 
-		&-active {
+		&-active:not(:disabled) {
 			background: #0161c7;
 			color: #fff;
+		}
+
+		&:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
 		}
 
 		div {
@@ -220,5 +235,13 @@
 		text-align: center;
 		padding: 0 10px;
 		box-sizing: border-box;
+	}
+
+	.holiday-note {
+		color: #3d4248;
+		font-size: 22px;
+		flex: 1 1;
+		margin: 30px auto -20px;
+		text-align: center;
 	}
 </style>

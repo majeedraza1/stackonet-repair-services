@@ -74,6 +74,9 @@
 			device() {
 				return this.$store.state.device;
 			},
+			deviceModel() {
+				return this.$store.state.deviceModel;
+			},
 			broken_screen_label() {
 				if (this.device && this.device.broken_screen_label) {
 					return this.device.broken_screen_label;
@@ -82,6 +85,9 @@
 				return '';
 			},
 			broken_screen_price() {
+				if (this.deviceModel && this.deviceModel.broken_screen_price) {
+					return this.deviceModel.broken_screen_price;
+				}
 				if (this.device && this.device.broken_screen_price) {
 					return this.device.broken_screen_price;
 				}

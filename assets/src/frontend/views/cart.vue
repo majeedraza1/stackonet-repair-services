@@ -2,7 +2,7 @@
 	<div class="my-cart-wrapper" :class="{'is-active':showCart}">
 		<div class="my-cart-content-wrapper">
 
-			<div class="my-cart-small-items-container" style="padding-top: 20px;">
+			<div class="my-cart-small-items-container" style="padding-top: 20px;" v-if="showPhoneRepairSection">
 				<div class="my-cart-small-items-wrapper my-cart-small-items-wrapper-colored">
 					<div class="cart-title-container">
 						<svg width="20px" height="20px" xmlns="http://www.w3.org/2000/svg">
@@ -40,7 +40,7 @@
 				</div>
 			</div>
 
-			<div class="my-cart-small-items-container">
+			<div class="my-cart-small-items-container" v-if="showDateTimeSection">
 				<div class="my-cart-small-items-wrapper my-cart-small-items-wrapper-colored">
 					<div class="cart-title-container">
 						<svg width="20px" height="20px" xmlns="http://www.w3.org/2000/svg">
@@ -58,7 +58,7 @@
 				</div>
 			</div>
 
-			<div class="my-cart-small-items-container">
+			<div class="my-cart-small-items-container" v-if="showLocationSection">
 				<div class="my-cart-small-items-wrapper my-cart-small-items-wrapper-colored">
 					<div class="cart-title-container">
 						<svg width="20px" height="20px" version="1.1" xmlns="http://www.w3.org/2000/svg">
@@ -70,7 +70,7 @@
 				</div>
 			</div>
 
-			<div class="my-cart-small-items-container">
+			<div class="my-cart-small-items-container" v-if="showContactDetailsSection">
 				<div class="my-cart-small-items-wrapper my-cart-small-items-wrapper-colored">
 					<div class="cart-title-container">
 						<svg width="20px" height="20px" version="1.1" xmlns="http://www.w3.org/2000/svg">
@@ -139,6 +139,24 @@
 			showCart() {
 				return this.$store.state.showCart;
 			},
+			addressObject() {
+				return this.$store.state.addressObject;
+			},
+			hasAddress() {
+				return !!(this.address && this.address.length);
+			},
+			showPhoneRepairSection() {
+				return this.showCart;
+			},
+			showDateTimeSection() {
+				return this.totalPrice;
+			},
+			showLocationSection() {
+				return !!this.addressObject;
+			},
+			showContactDetailsSection() {
+				return this.hasAddress;
+			}
 		},
 		methods: {
 			editDevice() {

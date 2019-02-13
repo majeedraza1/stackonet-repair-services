@@ -134,14 +134,19 @@ class DeviceIssue {
 	 * Delete option by id
 	 *
 	 * @param string $id
+	 *
+	 * @return bool
 	 */
 	public static function delete( $id ) {
 		$options = self::get_option();
 
 		if ( isset( $options[ $id ] ) ) {
 			unset( $options[ $id ] );
+			update_option( self::$option, $options );
+
+			return true;
 		}
 
-		update_option( self::$option, $options );
+		return false;
 	}
 }

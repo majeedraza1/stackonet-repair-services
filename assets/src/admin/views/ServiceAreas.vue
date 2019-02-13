@@ -113,7 +113,12 @@
 					success: function (response) {
 						if (response.data) {
 							let services_areas = self.services_areas;
-							if (!self.id) {
+							if (self.id) {
+								let result = services_areas.filter(obj => {
+									return obj.id === self.id
+								});
+								services_areas.splice(services_areas.indexOf(result), 1, response.data);
+							} else {
 								services_areas.push(response.data);
 								self.$store.commit('SET_SERVICES_AREAS', services_areas);
 							}
@@ -168,6 +173,28 @@
 			restoreItem(item) {
 			},
 			deleteItem(item) {
+				let $ = window.jQuery, self = this;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				$.ajax({
+					method: 'POST',
+					url: ajaxurl,
+					data: {
+						action: 'delete_service_area',
+						id: item.id,
+						task: 'delete',
+					},
+					success: function (response) {
+						if (response.data) {
+							let services_areas = self.services_areas;
+							services_areas.splice(services_areas.indexOf(item), 1);
+							self.$store.commit('SET_SERVICES_AREAS', services_areas);
+						}
+						self.$store.commit('SET_LOADING_STATUS', false);
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					}
+				});
 			},
 			trashItems(item) {
 			},

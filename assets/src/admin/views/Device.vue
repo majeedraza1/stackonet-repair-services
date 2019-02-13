@@ -38,8 +38,15 @@
 				<accordion :title="model.title" :active="false">
 					<div class="columns">
 						<div class="column is-3">
-							<strong>Model Name</strong>
-							<input type="text" class="widefat" v-model="model.title">
+							<p>
+								<strong>Model Name</strong>
+								<input type="text" class="widefat" v-model="model.title">
+							</p>
+							<p>
+								<strong>Screen Broken Price</strong>
+								<small>(If provided, this will overwrite device issue value.)</small>
+								<input type="number" class="widefat" v-model="model.broken_screen_price">
+							</p>
 						</div>
 						<div class="column is-9">
 							<strong>Colors</strong>
@@ -245,6 +252,7 @@
 			addNewDeviceModel() {
 				let data = {
 					title: 'Undefined',
+					broken_screen_price: '',
 					colors: [],
 				};
 

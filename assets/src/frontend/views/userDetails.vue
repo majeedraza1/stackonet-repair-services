@@ -91,7 +91,7 @@
 				return !!this.lastName.length;
 			},
 			enabledContinueButton() {
-				return (this.hasEmail && this.hasPhone && this.hasLastName);
+				return (this.isEmailValid && this.hasPhone && this.hasLastName);
 			},
 			address() {
 				return this.$store.state.address;
