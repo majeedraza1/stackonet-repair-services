@@ -82,6 +82,8 @@ final class Stackonet_Repair_Services {
 
 			// Load plugin textdomain
 			add_action( 'plugins_loaded', array( self::$instance, 'load_plugin_textdomain' ) );
+
+			add_filter( 'woocommerce_email_classes', array( self::$instance, 'email_classes' ) );
 		}
 
 		return self::$instance;
@@ -164,6 +166,19 @@ final class Stackonet_Repair_Services {
 
 	public function activation() {
 
+	}
+
+	/**
+	 * Add a custom email to the list of emails WooCommerce should load
+	 *
+	 * @param array $email_classes available email classes
+	 *
+	 * @return array filtered available email classes
+	 */
+	public function email_classes( $email_classes ) {
+		$email_classes['NewDeviceRepairsOrderEmail'] = new \Stackonet\NewDeviceRepairsOrderEmail();
+
+		return $email_classes;
 	}
 
 	/**

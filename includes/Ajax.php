@@ -115,7 +115,7 @@ class Ajax {
 			'address_1'  => $address['street_number']['short_name'] . ' ' . $address['street_address']['long_name'],
 			'address_2'  => '',
 			'city'       => $address['street_number']['long_name'],
-			'state'      => $address['street_number']['state'],
+			'state'      => $address['state']['short_name'],
 			'postcode'   => $address['postal_code']['short_name'],
 			'country'    => $address['country']['short_name'],
 			'email'      => $email,
@@ -139,6 +139,14 @@ class Ajax {
 
 		// Calculate totals and save data
 		$order->calculate_totals();
+
+		/**
+		 * Send Mail
+		 *
+		 * @var NewDeviceRepairsOrderEmail $email
+		 */
+		$email = WC()->mailer()->emails['NewDeviceRepairsOrderEmail'];
+		$email->trigger( $order->get_id(), $order );
 
 		wp_send_json_success( null, 201 );
 	}
