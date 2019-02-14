@@ -47,6 +47,7 @@
 
 <style lang="scss">
 	.phone-model-item-wrapper {
+		cursor: pointer;
 		height: 75px;
 		width: 175px;
 		margin: 20px;

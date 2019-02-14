@@ -54,7 +54,7 @@
 		display: flex;
 		flex-direction: column;
 		padding: 0 50px;
-		overflow: scroll;
+		overflow: hidden;
 	}
 
 	.unsupported-zip-code-image-wrapper {
