@@ -18,10 +18,13 @@
 											<tr>
 												<td align="center" width="600" height="48"
 												    style="background:#0065d1;padding-top:12px;padding-bottom:12px">
-													<a href="https://puls.com" target="_blank">
-														<img
-															src="https://s3-us-west-2.amazonaws.com/puls.com/email/pulslogo.png"
-															alt="logo" width="64" height="48"></a>
+													<a href="<?php echo home_url(); ?>" target="_blank">
+														<?php
+														if ( $img = get_option( 'woocommerce_email_header_image' ) ) {
+															echo '<img src="' . esc_url( $img ) . '" alt="' . get_bloginfo( 'name', 'display' ) . '" />';
+														}
+														?>
+													</a>
 												</td>
 											</tr>
 											</tbody>
@@ -30,8 +33,9 @@
 								</tr>
 								<tr>
 									<td align="center" style="padding-top:25px;padding-bottom:15px">
-										<img src="https://s3-us-west-2.amazonaws.com/puls.com/email/confirmed_sign.png"
-										     height="80" width="80" style="border-width:0" alt="checkArrow.png">
+										<img
+											src="<?php echo STACKONET_REPAIR_SERVICES_ASSETS . '/img/confirmed_sign.png'; ?>"
+											height="80" width="80" style="border-width:0" alt="checkArrow.png">
 									</td>
 								</tr>
 								<tr>
@@ -42,7 +46,7 @@
 											<tr>
 												<td align="center" style="padding-bottom:20px">
 <span style="font-size:18px;font-family:'Helvetica';font-weight:500">
-Thank you for requesting an appointment with Puls!
+Thank you for requesting an appointment with <?php echo get_option( 'blogname' ); ?>!
 </span>
 												</td>
 											</tr>
@@ -115,9 +119,7 @@ Cost
 													</p>
 													<p style="font-size:12pt;font-family:'Helvetica';color:#9b9b9b;line-height:20px;margin:0;font-weight:lighter">
 														Parts and service come with a 90-day guarantee. Your credit
-														card
-														will be charged
-														when the appointment is complete.
+														card will be charged when the appointment is complete.
 													</p>
 												</td>
 											</tr>
@@ -192,7 +194,7 @@ What happens next?
 											<tr>
 												<td align="left" style="padding-bottom:10px">
 <span style="padding:0;color:#000000;font-size:15px;font-weight:300;line-height:23px;text-align:left">
-- Puls will match you with the best technician in your area
+- <?php echo get_option( 'blogname' ); ?> will match you with the best technician in your area
 </span>
 												</td>
 											</tr>
@@ -221,8 +223,7 @@ What happens next?
 											<tbody>
 											<tr>
 												<td align="center">
-<span style="font-size:18px;color:#000000">Any
-questions or concerns? </span>
+													<span style="font-size:18px;color:#000000">Any questions or concerns? </span>
 												</td>
 											</tr>
 											<tr>
@@ -257,69 +258,6 @@ questions or concerns? </span>
 										<table cellpadding="0" cellspacing="0" align="center" bgcolor="#F6F6F6"
 										       width="100%"
 										       style="border-spacing:0;font-family:sans-serif;color:#333333">
-											<tbody>
-											<tr>
-												<td width="100%" align="center" style="padding-top:20px">
-													<table
-														style="border-spacing:0;font-family:sans-serif;color:#333333">
-														<tbody>
-														<tr>
-															<td width="50%" align="center">
-																<table
-																	style="border-spacing:0;font-family:sans-serif;color:#333333">
-																	<tbody>
-																	<tr>
-																		<td style="padding-top:15px;padding-bottom:15px;padding-right:5px;padding-left:15px">
-																			<a href="https://www.facebook.com/pulsdotcom/"
-																			   title="Facebook" target="_blank">
-																				<img
-																					src="https://s3-us-west-2.amazonaws.com/puls.com/email/facebookicon.png"
-																					alt="Facebook" title="Facebook"
-																					height="32"
-																					style="border-width:0">
-																			</a>
-																		</td>
-																		<td style="padding-top:15px;padding-bottom:15px;padding-right:5px;padding-left:15px">
-																			<a href="https://twitter.com/pulscom"
-																			   title="Twitter" target="_blank">
-																				<img
-																					src="https://s3-us-west-2.amazonaws.com/puls.com/email/twittericon.png"
-																					alt="Twitter" title="Twitter"
-																					height="32"
-																					style="border-width:0">
-																			</a>
-																		</td>
-																		<td style="padding-top:15px;padding-bottom:15px;padding-right:5px;padding-left:15px">
-																			<a href="https://www.youtube.com/channel/UCpXjcgaFLHsfrYSSFoi0vLw"
-																			   title="Instagram" target="_blank">
-																				<img
-																					src="https://s3-us-west-2.amazonaws.com/puls.com/email/youtubeicon.png"
-																					alt="Instagram"
-																					title="Instagram"
-																					height="32"
-																					style="border-width:0">
-																			</a>
-																		</td>
-																		<td style="padding-top:15px;padding-bottom:15px;padding-right:5px;padding-left:15px">
-																			<a href="https://www.instagram.com/pulscom/"
-																			   title="Instagram" target="_blank">
-																				<img
-																					src="https://s3-us-west-2.amazonaws.com/puls.com/email/instagramicon.png"
-																					alt="Instagram"
-																					title="Instagram"
-																					height="32"
-																					style="border-width:0">
-																			</a>
-																		</td>
-																	</tr>
-																	</tbody>
-																</table>
-															</td>
-														</tr>
-														</tbody>
-													</table>
-												</td>
-											</tr>
 											<tr>
 												<td width="100%" bgcolor="#F6F6F6" align="center">
 													<table
@@ -332,8 +270,10 @@ questions or concerns? </span>
 														</tr>
 														<tr>
 															<td align="center">
-<span style="color:#9b9b9b;font-size:14px;padding-top:5px">
-<a href="https://maps.google.com/?q=444+Spear+Street,+San+Francisco,+CA,+United+States+Ste:+210&amp;entry=gmail&amp;source=g">444 Spear Street, San Francisco, CA, United States Ste: 210</a></span>
+																<span
+																	style="color:#9b9b9b;font-size:14px;padding-top:5px">
+																	444 Spear Street, San Francisco, CA, United States Ste: 210
+																</span>
 																<br>
 															</td>
 														</tr>
@@ -341,10 +281,8 @@ questions or concerns? </span>
 															<td align="center"
 															    style="padding-top:10px;padding-bottom:20px">
 <span style="color:#9b9b9b;font-size:14px">
-<a href="http://puls.com/privacy-policy" style="color:#9b9b9b!important" target="_blank"
-   data-saferedirecturl="https://www.google.com/url?hl=en&amp;q=http://puls.com/privacy-policy&amp;source=gmail&amp;ust=1550206643456000&amp;usg=AFQjCNFD2ldYVdWfPGJOT92PRSLZYYK0Vw">Privacy Policy</a> | <a
-		href="http://puls.com/terms" style="color:#9b9b9b!important" target="_blank"
-		data-saferedirecturl="https://www.google.com/url?hl=en&amp;q=http://puls.com/terms&amp;source=gmail&amp;ust=1550206643456000&amp;usg=AFQjCNGNLwg-RHdCQXD44YgmQoASHPRpzQ">Terms and&nbsp;Conditions</a>
+<a href="#" style="color:#9b9b9b!important" target="_blank">Privacy Policy</a> |
+	<a href="#" style="color:#9b9b9b!important" target="_blank">Terms and&nbsp;Conditions</a>
 </span>
 															</td>
 														</tr>
@@ -352,7 +290,6 @@ questions or concerns? </span>
 													</table>
 												</td>
 											</tr>
-											</tbody>
 										</table>
 									</td>
 								</tr>

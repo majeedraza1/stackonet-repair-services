@@ -47,9 +47,29 @@ class Ajax {
 			// Confirm Appointment
 			add_action( 'wp_ajax_confirm_appointment', [ self::$instance, 'confirm_appointment' ] );
 			add_action( 'wp_ajax_nopriv_confirm_appointment', [ self::$instance, 'confirm_appointment' ] );
+			// Subscript to Email list
+			add_action( 'wp_ajax_subscribe_email', [ self::$instance, 'subscribe_email' ] );
+			add_action( 'wp_ajax_nopriv_subscribe_email', [ self::$instance, 'subscribe_email' ] );
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Subscribe to email
+	 */
+	public function subscribe_email() {
+		$email        = isset( $_POST['email'] ) ? sanitize_email( $_POST['email'] ) : '';
+		$zip_code     = isset( $_POST['zip_code'] ) ? sanitize_text_field( $_POST['zip_code'] ) : '';
+		$device_title = isset( $_POST['device_title'] ) ? sanitize_text_field( $_POST['device_title'] ) : '';
+		$device_model = isset( $_POST['device_model'] ) ? sanitize_text_field( $_POST['device_model'] ) : '';
+		$device_color = isset( $_POST['device_color'] ) ? sanitize_text_field( $_POST['device_color'] ) : '';
+
+		if ( ! is_email( $email ) ) {
+			wp_send_json_error( null, 422 );
+		}
+
+		wp_send_json_success();
 	}
 
 	/**

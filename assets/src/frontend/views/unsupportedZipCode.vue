@@ -8,14 +8,14 @@
 		</div>
 		<h1>Sorry, your location is not within our service area</h1>
 		<div class="unsupported-zip-code-input-wrapper">
-			<input type="email" placeholder="Type in your email" value="">
+			<input type="email" placeholder="Type in your email" v-model="email" autocomplete="email">
 		</div>
 		<div class="unsupported-zip-code-subtext-wrapper">
 			<p>We currently not supporting {{zipCode}}. Please try again, or
 				sign<br>up to be first to know when we expand.</p>
 		</div>
 		<div class="unsupported-zip-code-button-wrapper">
-			<big-button :disabled="true">Notify Me</big-button>
+			<big-button :disabled="!isValidEmail" @click="handleNotifyMe">Notify Me</big-button>
 		</div>
 	</div>
 </template>
@@ -26,21 +26,69 @@
 	export default {
 		name: "unsupportedZipCode",
 		components: {BigButton},
+		data() {
+			return {
+				email: '',
+			}
+		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 			this.$store.commit('SET_SHOW_CART', false);
 
 			// If no models, redirect one step back
 			if (!this.hasZipCode) {
-				this.$router.push('/zip-code');
+				// this.$router.push('/zip-code');
 			}
 		},
 		computed: {
 			zipCode() {
 				return this.$store.state.zipCode;
 			},
+			device() {
+				return this.$store.state.device;
+			},
+			deviceModel() {
+				return this.$store.state.deviceModel;
+			},
+			deviceColor() {
+				return this.$store.state.deviceColor;
+			},
 			hasZipCode() {
 				return !!(this.zipCode && this.zipCode.length);
+			},
+			isValidEmail() {
+				return !!(this.email.length && this.validateEmail(this.email));
+			}
+		},
+		methods: {
+			validateEmail(email) {
+				let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+				return re.test(String(email).toLowerCase());
+			},
+			handleNotifyMe() {
+				let self = this, $ = window.jQuery;
+
+				self.$store.commit('SET_LOADING_STATUS', false);
+
+				$.ajax({
+					method: 'POST',
+					url: window.Stackonet.ajaxurl,
+					data: {
+						action: 'subscribe_email',
+						email: self.email,
+						zip_code: self.zipCode,
+						device_title: self.device.device_title,
+						device_model: self.deviceModel.title,
+						device_color: self.deviceColor.title,
+					},
+					success: function (response) {
+						self.$store.commit('SET_LOADING_STATUS', false);
+						self.$router.push('/');
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					}
+				});
 			}
 		}
 	}
