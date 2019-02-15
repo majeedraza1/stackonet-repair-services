@@ -4,7 +4,42 @@
 
 		<div>
 			<mdl-tabs :vertical="false">
-				<mdl-tab name="Service Times" selected>
+				<mdl-tab name="General Settings" selected>
+					<h2 class="title">General Settings</h2>
+					<table class="form-table">
+						<tr>
+							<th scope="row">
+								<label for="support_email">Support Email</label>
+							</th>
+							<td>
+								<input id="support_email" type="email" class="regular-text"
+									   v-model="settings.support_email">
+								<p class="description">Support email will use in email.</p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">
+								<label for="support_phone">Support Phone</label>
+							</th>
+							<td>
+								<input id="support_phone" type="tel" class="regular-text"
+									   v-model="settings.support_phone">
+								<p class="description">Support phone will use in email.</p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">
+								<label for="business_address">Business Address</label>
+							</th>
+							<td>
+								<textarea id="business_address" cols="2" class="regular-text"
+										  v-model="settings.business_address"></textarea>
+								<p class="description">Business address will use in email.</p>
+							</td>
+						</tr>
+					</table>
+				</mdl-tab>
+				<mdl-tab name="Service Times">
 					<h2 class="title">Service Times</h2>
 					<table class="form-table">
 						<tr v-for="day in days_in_week">
@@ -75,6 +110,9 @@
 		data() {
 			return {
 				settings: {
+					support_phone: '',
+					support_email: '',
+					business_address: '',
 					google_map_key: '',
 					service_times: {
 						Monday: {start_time: '', end_time: '',},

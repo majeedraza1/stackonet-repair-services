@@ -8,6 +8,7 @@ export default new Vuex.Store({
 	state: {
 		loading: true,
 		services_areas: [],
+		requested_areas: [],
 		products: [],
 		issues: [],
 		devices: [],
@@ -21,6 +22,9 @@ export default new Vuex.Store({
 		},
 		SET_SERVICES_AREAS(state, services_areas) {
 			state.services_areas = services_areas;
+		},
+		SET_REQUESTED_AREAS(state, requested_areas) {
+			state.requested_areas = requested_areas;
 		},
 		SET_ISSUES(state, issues) {
 			state.issues = issues;

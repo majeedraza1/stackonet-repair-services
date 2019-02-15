@@ -48,17 +48,32 @@ class Ajax {
 			add_action( 'wp_ajax_confirm_appointment', [ self::$instance, 'confirm_appointment' ] );
 			add_action( 'wp_ajax_nopriv_confirm_appointment', [ self::$instance, 'confirm_appointment' ] );
 			// Subscript to Email list
-			add_action( 'wp_ajax_subscribe_email', [ self::$instance, 'subscribe_email' ] );
-			add_action( 'wp_ajax_nopriv_subscribe_email', [ self::$instance, 'subscribe_email' ] );
+			add_action( 'wp_ajax_create_request_areas', [ self::$instance, 'create_request_areas' ] );
+			add_action( 'wp_ajax_nopriv_create_request_areas', [ self::$instance, 'create_request_areas' ] );
+			add_action( 'wp_ajax_get_request_areas', [ self::$instance, 'get_request_areas' ] );
 		}
 
 		return self::$instance;
 	}
 
 	/**
+	 * Get request areas
+	 */
+	public function get_request_areas() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'You have no permission to view request areas.', 401 );
+		}
+
+		$request = new UnsupportedArea();
+		$data    = $request->all();
+
+		wp_send_json_success( $data, 200 );
+	}
+
+	/**
 	 * Subscribe to email
 	 */
-	public function subscribe_email() {
+	public function create_request_areas() {
 		$email        = isset( $_POST['email'] ) ? sanitize_email( $_POST['email'] ) : '';
 		$zip_code     = isset( $_POST['zip_code'] ) ? sanitize_text_field( $_POST['zip_code'] ) : '';
 		$device_title = isset( $_POST['device_title'] ) ? sanitize_text_field( $_POST['device_title'] ) : '';
@@ -68,6 +83,17 @@ class Ajax {
 		if ( ! is_email( $email ) ) {
 			wp_send_json_error( null, 422 );
 		}
+
+		$data = array(
+			'email'        => $email,
+			'zip_code'     => $zip_code,
+			'device_title' => $device_title,
+			'device_model' => $device_model,
+			'device_color' => $device_color,
+		);
+
+		$request = new UnsupportedArea();
+		$request->insert( $data );
 
 		wp_send_json_success();
 	}

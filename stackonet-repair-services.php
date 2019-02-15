@@ -165,7 +165,9 @@ final class Stackonet_Repair_Services {
 	}
 
 	public function activation() {
-
+		$area = new \Stackonet\UnsupportedArea();
+		$area->create_table();
+		// \Stackonet\UnsupportedArea::create_table();
 	}
 
 	/**

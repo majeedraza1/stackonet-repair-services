@@ -15,8 +15,11 @@ class Settings {
 	 * @var array
 	 */
 	private static $default = [
-		'google_map_key' => '',
-		'service_times'  => [
+		'support_phone'    => '',
+		'support_email'    => '',
+		'business_address' => '',
+		'google_map_key'   => '',
+		'service_times'    => [
 			'Monday'    => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 			'Tuesday'   => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 			'Wednesday' => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
@@ -25,7 +28,7 @@ class Settings {
 			'Saturday'  => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 			'Sunday'    => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 		],
-		'holidays_list'  => [ [ 'date' => '', 'note' => '' ] ],
+		'holidays_list'    => [ [ 'date' => '', 'note' => '' ] ],
 	];
 
 	/**

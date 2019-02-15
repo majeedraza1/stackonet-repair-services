@@ -220,36 +220,37 @@ What happens next?
 									<td align="center" style="padding-bottom:20px;padding-top:20px">
 										<table width="100%"
 										       style="border-spacing:0!important;font-family:sans-serif;color:#333333">
-											<tbody>
 											<tr>
 												<td align="center">
 													<span style="font-size:18px;color:#000000">Any questions or concerns? </span>
 												</td>
 											</tr>
-											<tr>
-												<td align="center">
-													<p style="font-size:24px;margin-top:10px;margin-bottom:10px;font-family:'Helvetica';color:#0161c7">
-														(855) 256-3709
-													</p>
-												</td>
-											</tr>
-											<tr>
-												<td align="center">
-													<table
-														style="border-spacing:0!important;font-family:sans-serif;color:#333333">
-														<tbody>
-														<tr>
-															<td style="font-size:12pt">
-																<span><a href="mailto:support@puls.com"
-																         style="color:#0161c7;text-decoration:none"
-																         target="_blank">Email us</a></span>
-															</td>
-														</tr>
-														</tbody>
-													</table>
-												</td>
-											</tr>
-											</tbody>
+											<?php if ( ! empty( $settings['support_phone'] ) ) { ?>
+												<tr>
+													<td align="center">
+														<p style="font-size:24px;margin-top:10px;margin-bottom:10px;font-family:'Helvetica';color:#0161c7">
+															<?php echo esc_html( $settings['support_phone'] ); ?>
+														</p>
+													</td>
+												</tr>
+											<?php } ?>
+											<?php if ( ! empty( $settings['support_email'] ) ) { ?>
+												<tr>
+													<td align="center">
+														<table
+															style="border-spacing:0!important;font-family:sans-serif;color:#333333">
+															<tr>
+																<td style="font-size:12pt">
+																<span><a
+																		href="mailto:<?php echo esc_attr( $settings['support_email'] ); ?>"
+																		style="color:#0161c7;text-decoration:none"
+																		target="_blank">Email us</a></span>
+																</td>
+															</tr>
+														</table>
+													</td>
+												</tr>
+											<?php } ?>
 										</table>
 									</td>
 								</tr>
@@ -265,14 +266,15 @@ What happens next?
 														<tbody>
 														<tr>
 															<td align="center">
-																<span style="color:#9b9b9b;font-size:14px">© 2019 Puls Technologies Inc | All Rights Reserved.</span>
+																<span
+																	style="color:#9b9b9b;font-size:14px">© 2019 <?php echo get_bloginfo( 'name', 'display' ) ?> | All Rights Reserved.</span>
 															</td>
 														</tr>
 														<tr>
 															<td align="center">
 																<span
 																	style="color:#9b9b9b;font-size:14px;padding-top:5px">
-																	444 Spear Street, San Francisco, CA, United States Ste: 210
+																	<?php echo esc_html( $settings['business_address'] ); ?>
 																</span>
 																<br>
 															</td>

@@ -74,7 +74,7 @@
 					method: 'POST',
 					url: window.Stackonet.ajaxurl,
 					data: {
-						action: 'subscribe_email',
+						action: 'create_request_areas',
 						email: self.email,
 						zip_code: self.zipCode,
 						device_title: self.device.device_title,

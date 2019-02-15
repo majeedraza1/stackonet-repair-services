@@ -3,6 +3,7 @@
 namespace Stackonet;
 
 use Stackonet\Models\Device;
+use Stackonet\Models\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -115,6 +116,8 @@ class NewDeviceRepairsOrderEmail extends \WC_Email {
 		} elseif ( ! empty( $fname ) ) {
 			$name = $fname;
 		}
+
+		$settings = Settings::get_settings();
 
 		include STACKONET_REPAIR_SERVICES_PATH . '/templates/emails/new-repair-order.php';
 
