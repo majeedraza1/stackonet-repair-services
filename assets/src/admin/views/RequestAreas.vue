@@ -26,9 +26,11 @@
 				columns: [
 					{key: 'zip_code', label: 'Zip Code'},
 					{key: 'email', label: 'Email'},
+					{key: 'user_ip', label: 'User IP'},
 					{key: 'device_title', label: 'Device'},
 					{key: 'device_model', label: 'Device Model'},
 					{key: 'device_color', label: 'Device Color'},
+					{key: 'created_at', label: 'Date & Time'},
 				],
 				counts: {},
 				actions: [],

@@ -283,8 +283,13 @@ What happens next?
 															<td align="center"
 															    style="padding-top:10px;padding-bottom:20px">
 <span style="color:#9b9b9b;font-size:14px">
-<a href="#" style="color:#9b9b9b!important" target="_blank">Privacy Policy</a> |
-	<a href="#" style="color:#9b9b9b!important" target="_blank">Terms and&nbsp;Conditions</a>
+	<?php if ( ! empty( $privacy_url ) ) { ?>
+		<a href="<?php echo esc_url( $privacy_url ); ?>" style="color:#9b9b9b!important"
+		   target="_blank">Privacy Policy</a>
+	<?php } ?>
+	<?php if ( ! empty( $terms_url ) ) { ?>
+		| <a href="<?php echo esc_url( $terms_url ); ?>" style="color:#9b9b9b!important" target="_blank">Terms and&nbsp;Conditions</a>
+	<?php } ?>
 </span>
 															</td>
 														</tr>

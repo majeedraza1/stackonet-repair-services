@@ -37,7 +37,7 @@
 
 			// If no models, redirect one step back
 			if (!this.hasZipCode) {
-				// this.$router.push('/zip-code');
+				this.$router.push('/zip-code');
 			}
 		},
 		computed: {
@@ -83,7 +83,7 @@
 					},
 					success: function (response) {
 						self.$store.commit('SET_LOADING_STATUS', false);
-						self.$router.push('/');
+						self.$router.push('/thankyou');
 					},
 					error: function () {
 						self.$store.commit('SET_LOADING_STATUS', false);

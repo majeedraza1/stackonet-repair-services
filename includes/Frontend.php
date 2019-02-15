@@ -73,8 +73,10 @@ class Frontend {
 	 */
 	public static function service_data() {
 		$data = [
-			'ajaxurl' => admin_url( 'admin-ajax.php' ),
-			'token'   => wp_create_nonce( 'confirm_appointment' ),
+			'ajaxurl'  => admin_url( 'admin-ajax.php' ),
+			'site_url' => site_url(),
+			'home_url' => home_url(),
+			'token'    => wp_create_nonce( 'confirm_appointment' ),
 		];
 
 		$data['devices']     = Device::get_devices();

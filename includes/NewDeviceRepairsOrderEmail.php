@@ -119,6 +119,13 @@ class NewDeviceRepairsOrderEmail extends \WC_Email {
 
 		$settings = Settings::get_settings();
 
+		$privacy_url   = get_privacy_policy_url();
+		$terms_url     = '';
+		$terms_page_id = wc_terms_and_conditions_page_id();
+		if ( ! empty( $terms_page_id ) && get_post_status( $terms_page_id ) === 'publish' ) {
+			$terms_url = (string) get_permalink( $terms_page_id );
+		}
+
 		include STACKONET_REPAIR_SERVICES_PATH . '/templates/emails/new-repair-order.php';
 
 		return ob_get_clean();
