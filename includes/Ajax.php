@@ -74,17 +74,16 @@ class Ajax {
 	 * Subscribe to email
 	 */
 	public function create_request_areas() {
+		$id           = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
 		$email        = isset( $_POST['email'] ) ? sanitize_email( $_POST['email'] ) : '';
 		$zip_code     = isset( $_POST['zip_code'] ) ? sanitize_text_field( $_POST['zip_code'] ) : '';
 		$device_title = isset( $_POST['device_title'] ) ? sanitize_text_field( $_POST['device_title'] ) : '';
 		$device_model = isset( $_POST['device_model'] ) ? sanitize_text_field( $_POST['device_model'] ) : '';
 		$device_color = isset( $_POST['device_color'] ) ? sanitize_text_field( $_POST['device_color'] ) : '';
 
-		if ( ! is_email( $email ) ) {
-			wp_send_json_error( null, 422 );
-		}
-
+		$area = new UnsupportedArea();
 		$data = array(
+			'id'           => $id,
 			'email'        => $email,
 			'zip_code'     => $zip_code,
 			'device_title' => $device_title,
@@ -92,10 +91,15 @@ class Ajax {
 			'device_color' => $device_color,
 		);
 
-		$request = new UnsupportedArea();
-		$request->insert( $data );
+		if ( ! is_email( $email ) ) {
+			$id = $area->insert( $data );
+			wp_send_json_success( [ 'id' => $id ], 201 );
+		} else {
+			$area->update( $data );
+			wp_send_json_success( [ 'updated' => true ], 201 );
+		}
 
-		wp_send_json_success();
+		wp_send_json_error( null, 500 );
 	}
 
 	/**

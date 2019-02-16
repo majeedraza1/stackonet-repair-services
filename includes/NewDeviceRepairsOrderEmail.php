@@ -126,7 +126,7 @@ class NewDeviceRepairsOrderEmail extends \WC_Email {
 			$terms_url = (string) get_permalink( $terms_page_id );
 		}
 
-		include STACKONET_REPAIR_SERVICES_PATH . '/templates/emails/new-repair-order.php';
+		include STACKONET_REPAIR_SERVICES_PATH . '/templates/emails/new-repair-order2.php';
 
 		return ob_get_clean();
 	}

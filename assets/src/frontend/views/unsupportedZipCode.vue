@@ -6,13 +6,13 @@
 				<use xlink:href="#unsupported-zip-code-phone"></use>
 			</svg>
 		</div>
-		<h1>Sorry, your location is not within our service area</h1>
+		<h1>Sorry, we currently do not offer this service in {{zipCode}}</h1>
+		<div class="unsupported-zip-code-subtext-wrapper">
+			<p>We will let you know a soon as this service is available in your area!</p>
+			<p>Enter your email below:</p>
+		</div>
 		<div class="unsupported-zip-code-input-wrapper">
 			<input type="email" placeholder="Type in your email" v-model="email" autocomplete="email">
-		</div>
-		<div class="unsupported-zip-code-subtext-wrapper">
-			<p>We currently not supporting {{zipCode}}. Please try again, or
-				sign<br>up to be first to know when we expand.</p>
 		</div>
 		<div class="unsupported-zip-code-button-wrapper">
 			<big-button :disabled="!isValidEmail" @click="handleNotifyMe">Notify Me</big-button>
@@ -38,11 +38,16 @@
 			// If no models, redirect one step back
 			if (!this.hasZipCode) {
 				this.$router.push('/zip-code');
+			} else {
+				this.saveInitialData();
 			}
 		},
 		computed: {
 			zipCode() {
 				return this.$store.state.zipCode;
+			},
+			areaRequestId() {
+				return this.$store.state.areaRequestId;
 			},
 			device() {
 				return this.$store.state.device;
@@ -65,16 +70,35 @@
 				let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 				return re.test(String(email).toLowerCase());
 			},
+			saveInitialData() {
+				let self = this, $ = window.jQuery;
+				$.ajax({
+					method: 'POST',
+					url: window.Stackonet.ajaxurl,
+					data: {
+						action: 'create_request_areas',
+						zip_code: self.zipCode,
+						device_title: self.device.device_title,
+						device_model: self.deviceModel.title,
+						device_color: self.deviceColor.title,
+					},
+					success: function (response) {
+						if (response.data.id) {
+							self.$store.commit('SET_AREA_REQUEST_ID', response.data.id);
+						}
+					}
+				});
+			},
 			handleNotifyMe() {
 				let self = this, $ = window.jQuery;
-
-				self.$store.commit('SET_LOADING_STATUS', false);
+				self.$store.commit('SET_LOADING_STATUS', true);
 
 				$.ajax({
 					method: 'POST',
 					url: window.Stackonet.ajaxurl,
 					data: {
 						action: 'create_request_areas',
+						id: self.areaRequestId,
 						email: self.email,
 						zip_code: self.zipCode,
 						device_title: self.device.device_title,

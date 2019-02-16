@@ -35,6 +35,26 @@ class UnsupportedArea implements \JsonSerializable {
 	);
 
 	/**
+	 * Message data format
+	 *
+	 * @var array
+	 */
+	private static $format = [
+		'%d',
+		'%d',
+		'%s',
+		'%s',
+		'%s',
+		'%s',
+		'%s',
+		'%s',
+		'%s',
+		'%s',
+		'%s',
+		'%s',
+	];
+
+	/**
 	 * @var \wpdb
 	 */
 	private $db;
@@ -164,6 +184,28 @@ class UnsupportedArea implements \JsonSerializable {
 	}
 
 	/**
+	 * Get entry by entry ID
+	 *
+	 * @param int $id
+	 *
+	 * @return self|false
+	 */
+	public function findById( $id ) {
+		$table_name = self::$table;
+
+		$items = $this->db->get_row(
+			$this->db->prepare( "SELECT * FROM {$table_name} WHERE id = %d", $id ),
+			ARRAY_A
+		);
+
+		if ( ! $items ) {
+			return false;
+		}
+
+		return new self( $items );
+	}
+
+	/**
 	 * Insert a row into a entries table with meta values.
 	 *
 	 * @param array $data Form data in $key => 'value' format
@@ -186,6 +228,33 @@ class UnsupportedArea implements \JsonSerializable {
 		$insert_id = $this->db->insert_id;
 
 		return $insert_id;
+	}
+
+	public function update( array $data, $id = 0 ) {
+		$now = current_time( 'mysql' );
+
+		if ( ! $id ) {
+			$id = isset( $data['id'] ) ? intval( $data['id'] ) : 0;
+		}
+
+		$entry = $this->findById( $id );
+		if ( ! $entry instanceof self ) {
+			return false;
+		}
+
+		$_data = [];
+		foreach ( self::$default as $key => $default ) {
+			$_data[ $key ] = isset( $data[ $key ] ) ? $data[ $key ] : $entry->get( $key );
+		}
+
+		$_data['id']         = $id;
+		$_data['created_at'] = $entry->get( 'created_at' );
+
+		if ( $this->db->update( self::$table, $data, [ 'id' => $id ] ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

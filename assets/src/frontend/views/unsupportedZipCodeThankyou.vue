@@ -8,10 +8,7 @@
 			<h1 class="h1-headline">Thank you!</h1>
 		</div>
 		<div class="theme-dark centered">
-			<p class="body-text-big">
-				We've received your request.<br>
-				When we extend our service to this area, we will inform you.
-			</p>
+			<p class="body-text-big">We will notify you soon.</p>
 		</div>
 		<div class="thank-you-button-wrapper">
 			<big-button @click="BackToHome">Back to home</big-button>

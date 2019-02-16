@@ -15,6 +15,7 @@ export default new Vuex.Store({
 		deviceModel: {},
 		deviceColor: {},
 		zipCode: '',
+		areaRequestId: 0,
 		screenCracked: '',
 		issues: [],
 		issueDescription: '',
@@ -35,6 +36,9 @@ export default new Vuex.Store({
 	mutations: {
 		SET_LOADING_STATUS(state, loading) {
 			state.loading = loading;
+		},
+		SET_AREA_REQUEST_ID(state, areaRequestId) {
+			state.areaRequestId = areaRequestId;
 		},
 		SET_DEVICE(state, device) {
 			state.device = device;
