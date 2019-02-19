@@ -171,6 +171,7 @@
 	.scale-on-mount-active {
 		opacity: 1;
 		transform: scale(1);
+		cursor: pointer;
 	}
 
 	.screen-cracked-button-item {
@@ -192,13 +193,19 @@
 		left: -15px;
 		line-height: 40px;
 		height: 40px;
-		width: 40px;
-		border-radius: 50%;
+		min-width: 40px;
+		border-radius: 10px;
 		background: #0161c7;
 		font-size: 13px;
 		text-align: center;
 		color: #fff;
 		border: 2px solid #12ffcd;
+
+		b {
+			display: block;
+			padding-left: 3px;
+			padding-right: 3px;
+		}
 	}
 
 	.screen-cracked-button-image-wrapper {
