@@ -6,6 +6,7 @@ use Stackonet\Models\Device;
 use Stackonet\Models\DeviceIssue;
 use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
+use Stackonet\Models\Testimonial;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -51,9 +52,51 @@ class Ajax {
 			add_action( 'wp_ajax_create_request_areas', [ self::$instance, 'create_request_areas' ] );
 			add_action( 'wp_ajax_nopriv_create_request_areas', [ self::$instance, 'create_request_areas' ] );
 			add_action( 'wp_ajax_get_request_areas', [ self::$instance, 'get_request_areas' ] );
+			// Testimonial
+			add_action( 'wp_ajax_get_client_testimonials', [ self::$instance, 'get_client_testimonials' ] );
+			add_action( 'wp_ajax_create_client_testimonial', [ self::$instance, 'create_client_testimonial' ] );
+
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Get client testimonial
+	 */
+	public function get_client_testimonials() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'You have no permission to view devices.', 401 );
+		}
+
+		$testimonial = new Testimonial();
+		$data        = $testimonial->find();
+
+		wp_send_json_success( $data, 200 );
+	}
+
+	/**
+	 * Create client testimonial
+	 */
+	public function create_client_testimonial() {
+		$name        = isset( $_POST['name'] ) ? sanitize_text_field( $_POST['name'] ) : '';
+		$email       = isset( $_POST['email'] ) ? sanitize_email( $_POST['email'] ) : '';
+		$phone       = isset( $_POST['phone'] ) ? sanitize_text_field( $_POST['phone'] ) : '';
+		$description = isset( $_POST['description'] ) ? wp_strip_all_tags( $_POST['description'] ) : '';
+		$rating      = isset( $_POST['rating'] ) ? absint( $_POST['rating'] ) : '';
+
+		$testimonial = new Testimonial();
+		$id          = $testimonial->create( [
+			'name'        => $name,
+			'email'       => $email,
+			'phone'       => $phone,
+			'description' => $description,
+			'rating'      => $rating,
+		] );
+
+		$_testimonial = $testimonial->find_by_id( $id );
+
+		wp_send_json_success( $_testimonial, 201 );
 	}
 
 	/**

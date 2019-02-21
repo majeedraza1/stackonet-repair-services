@@ -27,6 +27,7 @@ class Frontend {
 			self::$instance = new self();
 
 			add_shortcode( 'stackonet_repair_service', [ self::$instance, 'repair_services' ] );
+			add_shortcode( 'stackonet_testimonial_form', [ self::$instance, 'testimonial_form' ] );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
 		}
 
@@ -37,21 +38,43 @@ class Frontend {
 	 * Load frontend scripts
 	 */
 	public function load_scripts() {
-		global $post;
-		if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'stackonet_repair_service' ) ) {
+		if ( $this->should_load_scripts() ) {
 			wp_enqueue_script( 'stackonet-repair-services-frontend' );
 			wp_enqueue_style( 'stackonet-repair-services-frontend' );
+
+			wp_localize_script( 'stackonet-repair-services-frontend', 'Stackonet', self::service_data() );
 		}
+	}
+
+	public function should_load_scripts() {
+		global $post;
+		if ( ! $post instanceof \WP_Post ) {
+			return false;
+		}
+
+		if ( has_shortcode( $post->post_content, 'stackonet_repair_service' ) ) {
+			return true;
+		}
+
+		if ( has_shortcode( $post->post_content, 'stackonet_testimonial_form' ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
 	 * display services
 	 */
 	public function repair_services() {
-		echo '<script>window.Stackonet = ' . wp_json_encode( self::service_data() ) . '</script>';
+//		echo '<script>window.Stackonet = ' . wp_json_encode( self::service_data() ) . '</script>';
 		echo '<div id="stackonet_repair_services"></div>';
 		include STACKONET_REPAIR_SERVICES_PATH . "/assets/img/frontend-icons.svg";
 		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
+	}
+
+	public function testimonial_form() {
+		echo '<div id="stackonet_testimonial_form"></div>';
 	}
 
 	/**

@@ -46,6 +46,7 @@ class Admin {
 			[ 'title' => __( 'Service Areas', 'vue-wp-starter' ), 'slug' => '#/areas' ],
 			[ 'title' => __( 'Issues', 'vue-wp-starter' ), 'slug' => '#/issues' ],
 			[ 'title' => __( 'Requested Areas', 'vue-wp-starter' ), 'slug' => '#/requested-areas' ],
+			[ 'title' => __( 'Testimonials', 'vue-wp-starter' ), 'slug' => '#/testimonial' ],
 			[ 'title' => __( 'Settings', 'vue-wp-starter' ), 'slug' => '#/settings' ],
 		];
 

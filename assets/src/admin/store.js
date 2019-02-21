@@ -12,6 +12,7 @@ export default new Vuex.Store({
 		products: [],
 		issues: [],
 		devices: [],
+		testimonials: [],
 		settings: {},
 	},
 
@@ -22,6 +23,9 @@ export default new Vuex.Store({
 		},
 		SET_SERVICES_AREAS(state, services_areas) {
 			state.services_areas = services_areas;
+		},
+		SET_TESTIMONIALS(state, testimonials) {
+			state.testimonials = testimonials;
 		},
 		SET_REQUESTED_AREAS(state, requested_areas) {
 			state.requested_areas = requested_areas;
@@ -61,7 +65,26 @@ export default new Vuex.Store({
 					context.commit('SET_LOADING_STATUS', false);
 				}
 			});
-		}
+		},
+		fetch_testimonials(context) {
+			context.commit('SET_LOADING_STATUS', true);
+			window.jQuery.ajax({
+				method: 'GET',
+				url: ajaxurl,
+				data: {
+					action: 'get_client_testimonials',
+				},
+				success: function (response) {
+					if (response.data) {
+						context.commit('SET_TESTIMONIALS', response.data);
+					}
+					context.commit('SET_LOADING_STATUS', false);
+				},
+				error: function () {
+					context.commit('SET_LOADING_STATUS', false);
+				}
+			});
+		},
 	},
 
 	// Save as Vue computed property

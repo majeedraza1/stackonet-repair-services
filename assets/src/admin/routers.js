@@ -6,6 +6,7 @@ import ServiceAreas from './views/ServiceAreas.vue';
 import Settings from './views/Settings.vue';
 import Issues from './views/Issues.vue';
 import RequestAreas from './views/RequestAreas.vue';
+import Testimonial from './views/Testimonial.vue';
 
 Vue.use(VueRouter);
 
@@ -16,7 +17,8 @@ const routes = [
 	{path: '/areas', name: 'service-areas', component: ServiceAreas},
 	{path: '/requested-areas', name: 'requested-areas', component: RequestAreas},
 	{path: '/issues', name: 'issues', component: Issues},
-	{path: '/settings', name: 'settings', component: Settings}
+	{path: '/settings', name: 'settings', component: Settings},
+	{path: '/testimonial', name: 'Testimonial', component: Testimonial},
 ];
 
 export default new VueRouter({

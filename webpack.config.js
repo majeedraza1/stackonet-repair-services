@@ -14,6 +14,7 @@ let entryPoints = {
 		'./assets/scss/admin.scss'
 	],
 	frontend: [
+		'./assets/src/frontend/testimonial.js',
 		'./assets/src/frontend/main.js',
 		'./assets/scss/frontend.scss'
 	],
