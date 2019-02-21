@@ -33,9 +33,9 @@ module.exports = (env, argv) => ({
 	"entry": entryPoints,
 	"output": {
 		"path": path.resolve(__dirname, 'assets/js'),
-		"filename": argv.mode === 'production' ? '[name].min.js' : '[name].js'
+		"filename": '[name].js'
 	},
-	"devtool": argv.mode === 'production' ? false : 'source-map',
+	"devtool": argv.mode === 'production' ? false : 'eval-source-map',
 	"module": {
 		"rules": [
 			{

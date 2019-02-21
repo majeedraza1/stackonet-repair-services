@@ -77,15 +77,14 @@ class Assets {
 	 * @return array
 	 */
 	public function get_scripts() {
-		$prefix  = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 		$scripts = [
 			'stackonet-repair-services-frontend' => [
-				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/frontend' . $prefix . '.js',
+				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/frontend.js',
 				'deps'      => [ 'jquery' ],
 				'in_footer' => true
 			],
 			'stackonet-repair-services-admin'    => [
-				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/admin' . $prefix . '.js',
+				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/admin.js',
 				'deps'      => [ 'jquery', 'wp-color-picker' ],
 				'in_footer' => true
 			]

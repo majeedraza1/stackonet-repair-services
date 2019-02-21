@@ -3,12 +3,14 @@
 		<div class="step-nav-page-wrapper">
 			<div class="step-nav-wrapper"><span class="step-nav-title">What's your zip code?</span></div>
 		</div>
-		<div class="zip-code-input-wrapper">
-			<input type="tel" placeholder="Please enter zip code" v-model="tempZipCode">
-		</div>
-		<div class="zip-code-continue-wrapper">
-			<big-button @click="handleSubmit" :disabled="!isSubmitActive">Continue</big-button>
-		</div>
+		<form action="#" @submit.prevent="handleSubmit">
+			<div class="zip-code-input-wrapper">
+				<input type="tel" placeholder="Please enter zip code" v-model="tempZipCode">
+			</div>
+			<div class="zip-code-continue-wrapper">
+				<big-button @click="handleSubmit" :disabled="!isSubmitActive">Continue</big-button>
+			</div>
+		</form>
 	</div>
 </template>
 

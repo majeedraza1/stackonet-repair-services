@@ -4,39 +4,42 @@
 			<div class="step-nav-wrapper"><span class="step-nav-title">Where can we meet you?</span></div>
 		</div>
 		<div class="select-address-content-wrapper">
+			<form action="#" autocomplete="off">
 
-			<animated-input
-					id="address"
-					v-model="addressTemp"
-					@focus="geolocate"
-					label="Enter exact address"
-					helptext="Please enter valid input"
-					:has-error="hasExactAddressError"
-					:has-success="zipCode === newZipCode"
-			></animated-input>
+				<animated-input
+						id="address"
+						v-model="addressTemp"
+						@focus="geolocate"
+						label="Enter exact address"
+						helptext="Please enter valid input"
+						autocomplete="not-valid-address"
+						:has-error="hasExactAddressError"
+						:has-success="zipCode === newZipCode"
+				></animated-input>
 
-			<animated-input
-					id="additional"
-					v-model="additionalAddressTemp"
-					label="Apt / Suite / Floor No. (optional)"
-					:has-success="!!additionalAddressTemp.length"
-			></animated-input>
+				<animated-input
+						id="additional"
+						v-model="additionalAddressTemp"
+						label="Apt / Suite / Floor No. (optional)"
+						:has-success="!!additionalAddressTemp.length"
+				></animated-input>
 
-			<animated-input
-					id="instructions"
-					v-model="instructionsTemp"
-					label="Add instructions (optional)"
-					:has-success="!!instructionsTemp.length"
-			></animated-input>
+				<animated-input
+						id="instructions"
+						v-model="instructionsTemp"
+						label="Add instructions (optional)"
+						:has-success="!!instructionsTemp.length"
+				></animated-input>
 
-			<div class="select-address-market-no-aligned" v-if="showZipCodeError">
-				*The address you entered is not corresponding<br>
-				with zipcode {{zipCode}} entered in an early step.<br>
-				Please edit zipcode or change address.
-			</div>
-			<div>
-				<big-button :disabled="!canContinue" @click="handleContinue">Continue</big-button>
-			</div>
+				<div class="select-address-market-no-aligned" v-if="showZipCodeError">
+					*The address you entered is not corresponding<br>
+					with zipcode {{zipCode}} entered in an early step.<br>
+					Please edit zipcode or change address.
+				</div>
+				<div>
+					<big-button :disabled="!canContinue" @click="handleContinue">Continue</big-button>
+				</div>
+			</form>
 		</div>
 	</div>
 </template>
@@ -100,6 +103,9 @@
 			}
 
 			let address = this.$el.querySelector('#address');
+			address.addEventListener('focus', function () {
+				address.setAttribute('autocomplete', 'noop-' + Date.now());
+			});
 			// Create the autocomplete object, restricting the search predictions to
 			// geographical location types.
 			this.autocomplete = new google.maps.places.Autocomplete(address, {types: ['geocode']});
