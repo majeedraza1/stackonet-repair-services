@@ -110,6 +110,7 @@
 		background: #fff;
 		margin: 0 auto 20px;
 		border-radius: 6px;
+		border: 1px solid #eff2f5;
 
 		.mdl-textfield__input {
 			box-sizing: border-box;

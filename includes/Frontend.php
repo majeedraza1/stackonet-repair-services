@@ -5,6 +5,7 @@ namespace Stackonet;
 use Stackonet\Models\Device;
 use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
+use Stackonet\Models\Testimonial;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -28,6 +29,7 @@ class Frontend {
 
 			add_shortcode( 'stackonet_repair_service', [ self::$instance, 'repair_services' ] );
 			add_shortcode( 'stackonet_testimonial_form', [ self::$instance, 'testimonial_form' ] );
+			add_shortcode( 'stackonet_client_testimonial', [ self::$instance, 'client_testimonial' ] );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
 		}
 
@@ -60,6 +62,10 @@ class Frontend {
 			return true;
 		}
 
+		if ( has_shortcode( $post->post_content, 'stackonet_client_testimonial' ) ) {
+			return true;
+		}
+
 		return false;
 	}
 
@@ -73,6 +79,46 @@ class Frontend {
 		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
 	}
 
+	/**
+	 * Client Testimonial
+	 */
+	public function client_testimonial() {
+		$testimonial = new Testimonial();
+		/** @var Testimonial[] $testimonials */
+		$testimonials = $testimonial->find();
+
+		echo '<div class="client-testimonial">';
+		foreach ( $testimonials as $testimonial ) { ?>
+			<div class="client-testimonial-item">
+				<div class="demo-card-wide mdl-card mdl-shadow--2dp">
+					<div class="mdl-card__supporting-text">
+						<div class="client-testimonial-description">
+							<?php echo esc_html( $testimonial->get( 'description' ) ) ?>
+						</div>
+					</div>
+					<div class="mdl-card__actions mdl-card--border">
+						<div class="client-name">
+							<?php echo esc_html( $testimonial->get( 'name' ) ); ?>
+						</div>
+						<div class="mdl-layout-spacer"></div>
+						<div class="star-rating">
+							<?php
+							for ( $i = 1; $i <= 5; $i ++ ) {
+								$class = ( $testimonial->get( 'rating' ) >= $i ) ? 'star-rating__star is-selected' : 'star-rating__star';
+								echo '<label class="' . esc_attr( $class ) . '">★</label>';
+							}
+							?>
+						</div>
+					</div>
+				</div>
+			</div>
+		<?php }
+		echo '</div>';
+	}
+
+	/**
+	 * Testimonial form
+	 */
 	public function testimonial_form() {
 		echo '<div id="stackonet_testimonial_form"></div>';
 	}

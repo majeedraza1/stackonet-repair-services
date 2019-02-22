@@ -3,6 +3,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
+const autoprefixer = require('autoprefixer');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 const config = require('./config.json');
@@ -60,10 +61,29 @@ module.exports = (env, argv) => ({
 					"style-loader",
 					MiniCssExtractPlugin.loader,
 					"css-loader",
-					"postcss-loader",
-					"sass-loader"
+					{
+						loader: "postcss-loader",
+						options: {
+							plugins: () => [autoprefixer()],
+						},
+					},
+					{
+						loader: "sass-loader",
+						options: {
+							includePaths: ['./node_modules'],
+						},
+					}
 				]
-			}
+			},
+			{
+				test: /\.(png|je?pg|gif|svg|eot|ttf|woff|woff2)$/,
+				use: [
+					{
+						loader: 'file-loader',
+						options: {},
+					},
+				],
+			},
 		]
 	},
 	optimization: {
@@ -74,8 +94,13 @@ module.exports = (env, argv) => ({
 	},
 	resolve: {
 		alias: {
-			'vue$': 'vue/dist/vue.esm.js'
+			'vue$': 'vue/dist/vue.esm.js',
+			'@': path.resolve('./assets/src/'),
 		},
+		modules: [
+			path.resolve('./node_modules'),
+			path.resolve(path.join(__dirname, 'assets/src/')),
+		],
 		extensions: ['*', '.js', '.vue', '.json']
 	},
 	"plugins": plugins
