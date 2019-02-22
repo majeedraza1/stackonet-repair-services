@@ -74,7 +74,7 @@
 			vertical-align: middle;
 			line-height: 1;
 			font-size: 1.5em;
-			color: #ABABAB;
+			color: rgba(#000, 0.19);
 			transition: color .2s ease-out;
 
 			&:hover {

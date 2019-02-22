@@ -1,12 +1,51 @@
 @import "../src/material-design-lite/card/card";
 @import "../src/material-design-lite/shadow/shadow";
 
+// Star Rating
+.star-rating__star.is-selected {
+  &:nth-child(1) {
+	color: #faa63a;
+  }
+
+  &:nth-child(2) {
+	color: #f9a439;
+  }
+
+  &:nth-child(3) {
+	color: #f79536;
+  }
+
+  &:nth-child(4) {
+	color: #f68d34;
+  }
+
+  &:nth-child(5) {
+	color: #f58733;
+  }
+}
+
 // Testimonial
 .client-testimonial {
   display: flex;
   flex-wrap: wrap;
 
+  &-description {
+	font-size: 16px;
+	line-height: 1.6;
+  }
+
   &-item {
 	padding: 1rem;
+  }
+
+  .mdl-card {
+	justify-content: space-between;
+  }
+
+  .mdl-card__actions {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
   }
 }
