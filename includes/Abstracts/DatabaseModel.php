@@ -134,6 +134,8 @@ class DatabaseModel implements ArrayAccess, JsonSerializable {
 		$offset   = isset( $args['offset'] ) ? intval( $args['offset'] ) : 0;
 		$per_page = isset( $args['per_page'] ) ? intval( $args['per_page'] ) : 20;
 		$trash    = isset( $args['trash'] ) ? $args['trash'] : false;
+		$status   = isset( $args['status'] ) ? $args['status'] : null;
+		$status   = in_array( $status, [ 'accept', 'reject' ] ) ? $status : 'any';
 		$trash    = in_array( $trash, array( 'yes', 'on', '1', 1, true, 'true' ), true );
 
 		global $wpdb;
@@ -145,6 +147,10 @@ class DatabaseModel implements ArrayAccess, JsonSerializable {
 			$query .= " AND deleted_at IS NOT NULL";
 		} else {
 			$query .= " AND deleted_at IS NULL";
+		}
+
+		if ( 'any' != $status ) {
+			$query .= $wpdb->prepare( " AND status = %s", $status );
 		}
 
 		$query .= " ORDER BY {$orderby} {$order}";

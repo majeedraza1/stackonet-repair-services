@@ -2,6 +2,7 @@
 
 namespace Stackonet;
 
+use Stackonet\Abstracts\DatabaseModel;
 use Stackonet\Models\Device;
 use Stackonet\Models\DeviceIssue;
 use Stackonet\Models\ServiceArea;
@@ -88,14 +89,21 @@ class Ajax {
 		$testimonial = new Testimonial();
 		$data        = $testimonial->find_by_id( $id );
 
-		if ( ! $data instanceof Testimonial ) {
+		if ( ! $data instanceof DatabaseModel ) {
 			wp_send_json_error( 'Testimonial not found', 404 );
 		}
 
-		$testimonial->update( [
-			'id'     => $testimonial->get( 'id' ),
+
+		$response = $testimonial->update( [
+			'id'     => $data->get( 'id' ),
 			'status' => $status,
 		] );
+
+		if ( $response ) {
+			wp_send_json_success( 'Testimonial has been updated', 200 );
+		}
+
+		wp_send_json_error( null, 500 );
 	}
 
 	/**

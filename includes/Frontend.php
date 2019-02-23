@@ -85,7 +85,7 @@ class Frontend {
 	public function client_testimonial() {
 		$testimonial = new Testimonial();
 		/** @var Testimonial[] $testimonials */
-		$testimonials = $testimonial->find();
+		$testimonials = $testimonial->find( [ 'status' => 'accept' ] );
 		?>
 		<div class="fp-tns-slider-outer">
 			<div class="fp-tns-slider-controls">
