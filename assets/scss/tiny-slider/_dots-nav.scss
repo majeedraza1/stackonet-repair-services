@@ -1,0 +1,81 @@
+.fp-tns-slider-outer {
+	margin-bottom: 3rem;
+
+	.tns-nav {
+		bottom: -20px;
+		display: flex;
+		margin-top: 10px;
+		position: absolute;
+		text-align: center;
+		width: 100%;
+
+		> button {
+			display: inline-block;
+			zoom: 1;
+			width: 0.75rem;
+			height: 0.75rem;
+			margin: 0 5px 0 0;
+			padding: 0;
+			transition: opacity 200ms ease;
+			border: 0 none;
+			background-color: rgba(#000, 0.4);
+
+			&.tns-nav-active {
+				background-color: rgba(#000, 0.8);
+			}
+
+			&:hover,
+			&:focus,
+			&:active {
+				outline: none;
+			}
+
+			&:last-child {
+				margin-right: 0;
+			}
+		}
+	}
+
+	// Dots positions
+	&.dots-center {
+		.tns-nav {
+			justify-content: center;
+		}
+	}
+
+	&.dots-left {
+		.tns-nav {
+			justify-content: flex-start;
+		}
+	}
+
+	&.dots-right {
+		.tns-nav {
+			justify-content: flex-end;
+
+			> button {
+				margin: 0 0 0 5px;
+			}
+		}
+	}
+
+	// Dots visibility
+	&.dots-visible-hover {
+		.tns-nav {
+			opacity: 0;
+		}
+
+		&:hover .tns-nav {
+			opacity: 1;
+		}
+	}
+
+	// Dots shape
+	&.dots-circle {
+		.tns-nav {
+			> button {
+				border-radius: 9999px;
+			}
+		}
+	}
+}

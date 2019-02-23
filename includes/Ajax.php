@@ -54,7 +54,9 @@ class Ajax {
 			add_action( 'wp_ajax_get_request_areas', [ self::$instance, 'get_request_areas' ] );
 			// Testimonial
 			add_action( 'wp_ajax_get_client_testimonials', [ self::$instance, 'get_client_testimonials' ] );
+			add_action( 'wp_ajax_accept_reject_testimonial', [ self::$instance, 'accept_reject_testimonial' ] );
 			add_action( 'wp_ajax_create_client_testimonial', [ self::$instance, 'create_client_testimonial' ] );
+			add_action( 'wp_ajax_nopriv_create_client_testimonial', [ self::$instance, 'create_client_testimonial' ] );
 
 		}
 
@@ -75,6 +77,27 @@ class Ajax {
 		wp_send_json_success( $data, 200 );
 	}
 
+	public static function accept_reject_testimonial() {
+		$id     = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+		$status = isset( $_POST['status'] ) ? sanitize_text_field( $_POST['status'] ) : null;
+
+		if ( ! in_array( $status, [ 'accept', 'reject' ] ) ) {
+			wp_send_json_error( 'Invalid status.', 422 );
+		}
+
+		$testimonial = new Testimonial();
+		$data        = $testimonial->find_by_id( $id );
+
+		if ( ! $data instanceof Testimonial ) {
+			wp_send_json_error( 'Testimonial not found', 404 );
+		}
+
+		$testimonial->update( [
+			'id'     => $testimonial->get( 'id' ),
+			'status' => $status,
+		] );
+	}
+
 	/**
 	 * Create client testimonial
 	 */
@@ -82,8 +105,31 @@ class Ajax {
 		$name        = isset( $_POST['name'] ) ? sanitize_text_field( $_POST['name'] ) : '';
 		$email       = isset( $_POST['email'] ) ? sanitize_email( $_POST['email'] ) : '';
 		$phone       = isset( $_POST['phone'] ) ? sanitize_text_field( $_POST['phone'] ) : '';
+		$rating      = isset( $_POST['rating'] ) ? absint( $_POST['rating'] ) : 0;
 		$description = isset( $_POST['description'] ) ? wp_strip_all_tags( $_POST['description'] ) : '';
-		$rating      = isset( $_POST['rating'] ) ? absint( $_POST['rating'] ) : '';
+		$description = stripslashes( $description );
+
+		$error = new \WP_Error();
+
+		if ( $rating < 1 ) {
+			$error->add( 'rating', 'Choose rating from 1 to 5.' );
+		}
+
+		if ( empty( $name ) ) {
+			$error->add( 'full_name', 'Name is required.' );
+		}
+
+		if ( empty( $email ) ) {
+			$error->add( 'email', 'Email is required.' );
+		}
+
+		if ( empty( $description ) ) {
+			$error->add( 'description', 'Description is required.' );
+		}
+
+		if ( $error->has_errors() ) {
+			wp_send_json_error( $error->errors, 422 );
+		}
 
 		$testimonial = new Testimonial();
 		$id          = $testimonial->create( [

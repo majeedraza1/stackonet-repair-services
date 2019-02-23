@@ -1,7 +1,19 @@
 <template>
 	<div :class="rootClasses">
 		<div class="mdl-textfield__control">
-			<input :type="type"
+			<textarea
+					v-if="isTextarea"
+					:id="id"
+					:value="value"
+					:required="required"
+					:disabled="disabled"
+					placeholder=""
+					class="mdl-textfield__textarea"
+					@input="handleInputEvent($event)"
+					@focus="handleFocusEvent($event)"
+					@blur="handleBlurEvent($event)"
+			></textarea>
+			<input v-else :type="type"
 				   :id="id"
 				   :value="value"
 				   :required="required"
@@ -49,7 +61,7 @@
 		props: {
 			type: {
 				type: String, default: 'text', validator: function (value) {
-					return (['text', 'email', 'search', 'password', 'tel', 'url', 'number'].indexOf(value) !== -1)
+					return (['text', 'email', 'search', 'password', 'tel', 'url', 'number', 'textarea'].indexOf(value) !== -1)
 				},
 			},
 			id: {type: String},
@@ -84,6 +96,9 @@
 				}
 
 				return this.label;
+			},
+			isTextarea() {
+				return (this.type === 'textarea');
 			}
 		},
 		methods: {
@@ -110,9 +125,10 @@
 		background: #fff;
 		margin: 0 auto 20px;
 		border-radius: 6px;
-		border: 1px solid #eff2f5;
+		border: 1px solid rgba(#000, 0.2);
 
-		.mdl-textfield__input {
+		.mdl-textfield__input,
+		.mdl-textfield__textarea {
 			box-sizing: border-box;
 			height: 25px;
 			background: none;
@@ -123,6 +139,10 @@
 			font-size: 16px;
 			color: #383e42;
 			width: 100%;
+		}
+
+		.mdl-textfield__textarea {
+			height: auto;
 		}
 
 		.mdl-textfield__label {

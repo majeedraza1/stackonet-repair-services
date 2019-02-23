@@ -42,6 +42,7 @@
 		"webpack-cli": "^3.2.1"
 	},
 	"dependencies": {
+		"tiny-slider": "^2.9.1",
 		"vue": "^2.5.22",
 		"vue-mdc-adapter": "^0.18.2",
 		"vue-router": "^3.0.2",
