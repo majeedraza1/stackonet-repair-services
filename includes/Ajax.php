@@ -135,7 +135,7 @@ class Ajax {
 			$error->add( 'description', 'Description is required.' );
 		}
 
-		if ( $error->has_errors() ) {
+		if ( ! empty( $error->errors ) ) {
 			wp_send_json_error( $error->errors, 422 );
 		}
 

@@ -41,7 +41,7 @@
 				<star-rating v-model="rating"></star-rating>
 				<span class="rating-error" v-if="!!(errors.rating && errors.rating.length)">Choose a rating</span>
 			</div>
-			<big-button @click="handleSubmit">Submit</big-button>
+			<big-button>Submit</big-button>
 		</form>
 		<mdl-modal :active="openModel" type="box" @close="closeModel">
 			<div class="mdl-box mdl-shadow--2dp">
