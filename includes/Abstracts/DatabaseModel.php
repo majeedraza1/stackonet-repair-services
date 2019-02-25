@@ -2,12 +2,17 @@
 
 namespace Stackonet\Abstracts;
 
-use ArrayAccess;
-use JsonSerializable;
+use Stackonet\Interfaces\DataStoreInterface;
 
 defined( 'ABSPATH' ) || exit;
 
-class DatabaseModel implements ArrayAccess, JsonSerializable {
+/**
+ * Class Model
+ * A thin layer using wpdb database class form rapid development
+ * @package App\Database
+ */
+abstract class DatabaseModel extends AbstractModel implements DataStoreInterface {
+
 	/**
 	 * The table associated with the model.
 	 *
@@ -16,16 +21,12 @@ class DatabaseModel implements ArrayAccess, JsonSerializable {
 	protected $table;
 
 	/**
-	 * @var array
-	 */
-	protected $data = [];
-
-	/**
-	 * Default data
+	 * The type of the primary key
+	 * '%s' for string and '%d' for integer
 	 *
-	 * @var array
+	 * @var string
 	 */
-	protected $default_data = [];
+	protected $primaryKeyType = '%d';
 
 	/**
 	 * Data format
@@ -53,118 +54,38 @@ class DatabaseModel implements ArrayAccess, JsonSerializable {
 	 */
 	public function __construct( $data = [] ) {
 		if ( $data ) {
-			$this->data = $data;
+			$this->data = $this->read( $data );
 		}
 	}
 
 	/**
-	 * @return string
-	 */
-	public function __toString() {
-		return json_encode( $this->to_array() );
-	}
-
-	/**
+	 * Find multiple records from database
 	 *
-	 * @return array
-	 */
-	public function to_array() {
-		return $this->data;
-	}
-
-	/**
-	 * Does this collection have a given key?
-	 *
-	 * @param string $key The data key
-	 *
-	 * @return bool
-	 */
-	public function has( $key ) {
-		return isset( $this->data[ $key ] );
-	}
-
-	/**
-	 * Set collection item
-	 *
-	 * @param string $key The data key
-	 * @param mixed $value The data value
-	 */
-	public function set( $key, $value ) {
-		$this->data[ $key ] = $value;
-	}
-
-	/**
-	 * Get collection item for key
-	 *
-	 * @param string $key The data key
-	 * @param mixed $default The default value to return if data key does not exist
-	 *
-	 * @return mixed The key's value, or the default value
-	 */
-	public function get( $key, $default = null ) {
-		return $this->has( $key ) ? $this->data[ $key ] : $default;
-	}
-
-	/**
-	 * Remove item from collection
-	 *
-	 * @param string $key The data key
-	 */
-	public function remove( $key ) {
-		if ( $this->has( $key ) ) {
-			unset( $this->data[ $key ] );
-		}
-	}
-
-	/**
-	 * Remove all items from collection
-	 */
-	public function clear() {
-		$this->data = array();
-	}
-
-	/**
 	 * @param array $args
 	 *
 	 * @return array
 	 */
 	public function find( $args = [] ) {
-		$orderby  = isset( $args['orderby'] ) ? esc_sql( $args['orderby'] ) : 'id';
-		$order    = isset( $args['order'] ) ? esc_sql( $args['order'] ) : 'DESC';
-		$offset   = isset( $args['offset'] ) ? intval( $args['offset'] ) : 0;
-		$per_page = isset( $args['per_page'] ) ? intval( $args['per_page'] ) : 20;
-		$trash    = isset( $args['trash'] ) ? $args['trash'] : false;
-		$status   = isset( $args['status'] ) ? $args['status'] : null;
-		$status   = in_array( $status, [ 'accept', 'reject' ] ) ? $status : 'any';
-		$trash    = in_array( $trash, array( 'yes', 'on', '1', 1, true, 'true' ), true );
+		$per_page     = isset( $args['per_page'] ) ? absint( $args['per_page'] ) : $this->perPage;
+		$paged        = isset( $args['paged'] ) ? absint( $args['paged'] ) : 1;
+		$current_page = $paged < 1 ? 1 : $paged;
+		$offset       = ( $current_page - 1 ) * $per_page;
+		$orderby      = $this->primaryKey;
+		if ( isset( $args['orderby'] ) && in_array( $args['orderby'], array_keys( $this->default_data ) ) ) {
+			$orderby = $args['orderby'];
+		}
+		$order = isset( $args['order'] ) && 'ASC' == $args['order'] ? 'ASC' : 'DESC';
 
 		global $wpdb;
 		$table = $wpdb->prefix . $this->table;
 
 		$query = "SELECT * FROM {$table} WHERE 1=1";
 
-		if ( $trash ) {
-			$query .= " AND deleted_at IS NOT NULL";
-		} else {
-			$query .= " AND deleted_at IS NULL";
-		}
+		$query   .= " ORDER BY {$orderby} {$order}";
+		$query   .= $wpdb->prepare( " LIMIT %d OFFSET %d", $per_page, $offset );
+		$results = $wpdb->get_results( $query, ARRAY_A );
 
-		if ( 'any' != $status ) {
-			$query .= $wpdb->prepare( " AND status = %s", $status );
-		}
-
-		$query .= " ORDER BY {$orderby} {$order}";
-		$query .= sprintf( " LIMIT %d OFFSET %d", $per_page, $offset );
-		$items = $wpdb->get_results( $query, ARRAY_A );
-
-		$data = [];
-		if ( $items ) {
-			foreach ( $items as $item ) {
-				$data[] = new self( $item );
-			}
-		}
-
-		return $data;
+		return $results;
 	}
 
 	/**
@@ -172,19 +93,16 @@ class DatabaseModel implements ArrayAccess, JsonSerializable {
 	 *
 	 * @param int $id
 	 *
-	 * @return self|bool
+	 * @return array
 	 */
 	public function find_by_id( $id ) {
 		global $wpdb;
 		$table = $wpdb->prefix . $this->table;
 
-		$sql  = $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $id );
-		$item = $wpdb->get_row( $sql, ARRAY_A );
-		if ( $item ) {
-			return new self( $item );
-		}
+		$sql  = "SELECT * FROM {$table} WHERE {$this->primaryKey} = {$this->primaryKeyType}";
+		$item = $wpdb->get_row( $wpdb->prepare( $sql, $id ), ARRAY_A );
 
-		return false;
+		return $item;
 	}
 
 	/**
@@ -197,20 +115,47 @@ class DatabaseModel implements ArrayAccess, JsonSerializable {
 	public function create( array $data ) {
 		global $wpdb;
 		$table = $wpdb->prefix . $this->table;
-		$now   = current_time( 'mysql' );
 
 		$_data = [];
 		foreach ( $this->default_data as $key => $default ) {
 			$_data[ $key ] = isset( $data[ $key ] ) ? $data[ $key ] : $default;
 		}
-		unset( $_data['id'] );
 
-		$_data['created_at'] = $now;
-		$_data['updated_at'] = $now;
+		if ( isset( $_data[ $this->primaryKey ] ) ) {
+			unset( $_data[ $this->primaryKey ] );
+		}
 
 		$wpdb->insert( $table, $_data );
 
 		return $wpdb->insert_id;
+	}
+
+	/**
+	 * Method to read a record.
+	 *
+	 * @param mixed $data
+	 *
+	 * @return array
+	 */
+	public function read( $data ) {
+		if ( is_array( $data ) ) {
+			$item = [];
+			foreach ( $this->default_data as $key => $default ) {
+				$item[ $key ] = isset( $data[ $key ] ) ? $data[ $key ] : $default;
+			}
+
+			return $item;
+		}
+
+		if ( is_numeric( $data ) ) {
+			$data = $this->find_by_id( $data );
+		}
+
+		if ( $data instanceof self ) {
+			return $data->data;
+		}
+
+		return $this->default_data;
 	}
 
 	/**
@@ -223,7 +168,7 @@ class DatabaseModel implements ArrayAccess, JsonSerializable {
 	public function update( array $data ) {
 		global $wpdb;
 		$table = $wpdb->prefix . $this->table;
-		$id    = isset( $data['id'] ) ? intval( $data['id'] ) : 0;
+		$id    = isset( $data[ $this->primaryKey ] ) ? intval( $data[ $this->primaryKey ] ) : 0;
 
 		$item = $this->find_by_id( $id );
 		if ( ! $item instanceof self ) {
@@ -234,13 +179,9 @@ class DatabaseModel implements ArrayAccess, JsonSerializable {
 		foreach ( $this->default_data as $key => $default ) {
 			$_data[ $key ] = isset( $data[ $key ] ) ? $data[ $key ] : $item->get( $key );
 		}
+		$_data[ $this->primaryKey ] = $id;
 
-		$_data['id']         = $id;
-		$_data['created_at'] = $item->get( 'created_at' );
-		$_data['updated_at'] = current_time( 'mysql' );
-		$_data['deleted_at'] = null;
-
-		if ( $wpdb->update( $table, $_data, [ 'id' => $id ], $this->data_format, '%d' ) ) {
+		if ( $wpdb->update( $table, $_data, [ $this->primaryKey => $id ], $this->data_format, $this->primaryKeyType ) ) {
 			return true;
 		}
 
@@ -263,63 +204,22 @@ class DatabaseModel implements ArrayAccess, JsonSerializable {
 			return false;
 		}
 
-		return ( false !== $wpdb->delete( $table, [ 'id' => intval( $id ) ], '%d' ) );
+		return ( false !== $wpdb->delete( $table, [ $this->primaryKey => $id ], $this->primaryKeyType ) );
 	}
 
 	/**
-	 * Whether a offset exists
+	 * Count total records from the database
 	 *
-	 * @param mixed $offset An offset to check for.
-	 *
-	 * @return boolean true on success or false on failure.
+	 * @return array
 	 */
-	public function offsetExists( $offset ) {
-		return $this->has( $offset );
-	}
+	abstract public function count_records();
 
 	/**
-	 * Offset to retrieve
-	 *
-	 * @param mixed $offset The offset to retrieve.
-	 *
-	 * @return mixed Can return all value types.
-	 */
-	public function offsetGet( $offset ) {
-		return $this->get( $offset );
-	}
-
-	/**
-	 * Offset to set
-	 *
-	 * @param mixed $offset The offset to assign the value to.
-	 * @param mixed $value The value to set.
+	 * Create database table
 	 *
 	 * @return void
 	 */
-	public function offsetSet( $offset, $value ) {
-		$this->set( $offset, $value );
-	}
-
-	/**
-	 * Offset to unset
-	 *
-	 * @param mixed $offset The offset to unset.
-	 *
-	 * @return void
-	 */
-	public function offsetUnset( $offset ) {
-		$this->remove( $offset );
-	}
-
-	/**
-	 * Specify data which should be serialized to JSON
-	 *
-	 * @return mixed data which can be serialized by json_encode
-	 * which is a value of any type other than a resource.
-	 */
-	public function jsonSerialize() {
-		return $this->to_array();
-	}
+	abstract public function create_table();
 
 	/**
 	 * Handle dynamic static method calls into the method.

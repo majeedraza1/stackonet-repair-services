@@ -34,7 +34,7 @@ final class Stackonet_Repair_Services {
 	 *
 	 * @var string
 	 */
-	private $version = '1.0.0-rc1';
+	private $version = '1.0.0-rc2';
 
 	/**
 	 * Holds various class instances
@@ -156,7 +156,8 @@ final class Stackonet_Repair_Services {
 		}
 
 		if ( $this->is_request( 'frontend' ) ) {
-			$this->container['frontend'] = Stackonet\Frontend::init();
+			$this->container['frontend']         = Stackonet\Frontend::init();
+			$this->container['rest-testimonial'] = Stackonet\REST\TestimonialController::init();
 		}
 
 		if ( $this->is_request( 'ajax' ) ) {
@@ -165,7 +166,7 @@ final class Stackonet_Repair_Services {
 	}
 
 	public function activation() {
-		$area = new \Stackonet\UnsupportedArea();
+		$area = new \Stackonet\Models\UnsupportedArea();
 		$area->create_table();
 		$testimonial = new \Stackonet\Models\Testimonial();
 		$testimonial->create_table();

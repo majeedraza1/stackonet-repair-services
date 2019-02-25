@@ -2,12 +2,12 @@
 
 namespace Stackonet;
 
-use Stackonet\Abstracts\DatabaseModel;
 use Stackonet\Models\Device;
 use Stackonet\Models\DeviceIssue;
 use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
 use Stackonet\Models\Testimonial;
+use Stackonet\Models\UnsupportedArea;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -89,7 +89,7 @@ class Ajax {
 		$testimonial = new Testimonial();
 		$data        = $testimonial->find_by_id( $id );
 
-		if ( ! $data instanceof DatabaseModel ) {
+		if ( ! $data instanceof Testimonial ) {
 			wp_send_json_error( 'Testimonial not found', 404 );
 		}
 
@@ -139,8 +139,7 @@ class Ajax {
 			wp_send_json_error( $error->errors, 422 );
 		}
 
-		$testimonial = new Testimonial();
-		$id          = $testimonial->create( [
+		$id = ( new Testimonial() )->create( [
 			'name'        => $name,
 			'email'       => $email,
 			'phone'       => $phone,
@@ -148,7 +147,7 @@ class Ajax {
 			'rating'      => $rating,
 		] );
 
-		$_testimonial = $testimonial->find_by_id( $id );
+		$_testimonial = ( new Testimonial() )->find_by_id( $id );
 
 		wp_send_json_success( $_testimonial, 201 );
 	}

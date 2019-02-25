@@ -1,6 +1,6 @@
 <?php
 
-namespace Stackonet;
+namespace Stackonet\Models;
 
 
 class UnsupportedArea implements \JsonSerializable {

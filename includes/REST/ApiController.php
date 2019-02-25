@@ -14,11 +14,12 @@ class ApiController extends \WP_REST_Controller {
 	protected $statusCode = 200;
 
 	/**
-	 * The description for the HTTP status.
+	 * The namespace of this controller's route.
 	 *
+	 * @since 4.7.0
 	 * @var string
 	 */
-	private $description;
+	protected $namespace = 'stackonet/v1';
 
 	/**
 	 * MYSQL data format
