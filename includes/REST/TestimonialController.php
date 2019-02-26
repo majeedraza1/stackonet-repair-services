@@ -2,8 +2,9 @@
 
 namespace Stackonet\REST;
 
-
 use Stackonet\Models\Testimonial;
+
+defined( 'ABSPATH' ) || exit;
 
 class TestimonialController extends ApiController {
 
@@ -183,6 +184,12 @@ class TestimonialController extends ApiController {
 	 * @return \WP_Error|\WP_REST_Response
 	 */
 	public function trash_items( $request ) {
+		$ids = (array) $request->get_param( 'ids' );
+		$ids = array_map( 'intval', $ids );
+		foreach ( $ids as $id ) {
+			( new Testimonial() )->trash( $id );
+		}
+
 		return $this->respondOK();
 	}
 
@@ -194,6 +201,12 @@ class TestimonialController extends ApiController {
 	 * @return \WP_Error|\WP_REST_Response
 	 */
 	public function restore_items( $request ) {
+		$ids = (array) $request->get_param( 'ids' );
+		$ids = array_map( 'intval', $ids );
+		foreach ( $ids as $id ) {
+			( new Testimonial() )->restore( $id );
+		}
+
 		return $this->respondOK();
 	}
 
@@ -205,6 +218,12 @@ class TestimonialController extends ApiController {
 	 * @return \WP_Error|\WP_REST_Response
 	 */
 	public function delete_items( $request ) {
+		$ids = (array) $request->get_param( 'ids' );
+		$ids = array_map( 'intval', $ids );
+		foreach ( $ids as $id ) {
+			( new Testimonial() )->delete( $id );
+		}
+
 		return $this->respondOK();
 	}
 }

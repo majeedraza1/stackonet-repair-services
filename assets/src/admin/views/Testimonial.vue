@@ -227,27 +227,72 @@
 					}
 				}
 			},
-			trash_items(ids) {
-				console.log('trash_items', ids);
+			trash_items(action, ids) {
+				let self = this, $ = window.jQuery;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				$.ajax({
+					method: "DELETE",
+					url: stackonetSettings.root + '/testimonials/batch/trash',
+					data: {ids: ids},
+					success: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+						self.get_items();
+						action = '-1';
+						ids = [];
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					}
+				});
 			},
-			restore_items(ids) {
-				console.log('restore_items', ids);
+			restore_items(action, ids) {
+				let self = this, $ = window.jQuery;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				$.ajax({
+					method: "DELETE",
+					url: stackonetSettings.root + '/testimonials/batch/restore',
+					data: {ids: ids},
+					success: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+						self.get_items();
+						action = '-1';
+						ids = [];
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					}
+				});
 			},
-			delete_items(ids) {
-				console.log('delete_items', ids);
+			delete_items(action, ids) {
+				let self = this, $ = window.jQuery;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				$.ajax({
+					method: "DELETE",
+					url: stackonetSettings.root + '/testimonials/batch/delete',
+					data: {ids: ids},
+					success: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+						self.get_items();
+						action = '-1';
+						ids = [];
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					}
+				});
 			},
 			onBulkAction(action, items) {
 				if ('trash' === action) {
 					if (confirm('Are you sure to trash all selected items?')) {
-						this.trash_items(items);
+						this.trash_items(action, items);
 					}
 				} else if ('delete' === action) {
 					if (confirm('Are you sure to delete all selected items permanently?')) {
-						this.delete_items(items);
+						this.delete_items(action, items);
 					}
 				} else if ('restore' === action) {
 					if (confirm('Are you sure to restore all selected items?')) {
-						this.restore_items(items);
+						this.restore_items(action, items);
 					}
 				}
 			},
