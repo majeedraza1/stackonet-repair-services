@@ -15,7 +15,7 @@
 				:statuses="statuses"
 				:show-search="false"
 				@action:click="onActionClick"
-				@bulk:click="onBulkAction"
+				@bulk:apply="onBulkAction"
 				@status:change="changeStatus"
 				@pagination="paginate"
 		></wp-list-table>
@@ -227,15 +227,27 @@
 					}
 				}
 			},
+			trash_items(ids) {
+				console.log('trash_items', ids);
+			},
+			restore_items(ids) {
+				console.log('restore_items', ids);
+			},
+			delete_items(ids) {
+				console.log('delete_items', ids);
+			},
 			onBulkAction(action, items) {
 				if ('trash' === action) {
 					if (confirm('Are you sure to trash all selected items?')) {
+						this.trash_items(items);
 					}
 				} else if ('delete' === action) {
 					if (confirm('Are you sure to delete all selected items permanently?')) {
+						this.delete_items(items);
 					}
 				} else if ('restore' === action) {
 					if (confirm('Are you sure to restore all selected items?')) {
+						this.restore_items(items);
 					}
 				}
 			},

@@ -7,8 +7,18 @@ use Stackonet\Models\Testimonial;
 
 class TestimonialController extends ApiController {
 
+	/**
+	 * The instance of the class
+	 *
+	 * @var self
+	 */
 	private static $instance;
 
+	/**
+	 * Only one instance of the class can be loaded.
+	 *
+	 * @return self
+	 */
 	public static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self;
@@ -23,32 +33,35 @@ class TestimonialController extends ApiController {
 	 * Registers the routes for the objects of the controller.
 	 */
 	public function register_routes() {
-		register_rest_route( $this->namespace, '/testimonials', array(
-			array(
+		register_rest_route( $this->namespace, '/testimonials', [
+			[
 				'methods'  => \WP_REST_Server::READABLE,
-				'callback' => array( $this, 'get_items' ),
+				'callback' => [ $this, 'get_items' ],
 				'args'     => $this->get_collection_params(),
-			),
-			array(
-				'methods'  => \WP_REST_Server::CREATABLE,
-				'callback' => array( $this, 'create_item' ),
-			),
-		) );
+			],
+			[ 'methods' => \WP_REST_Server::CREATABLE, 'callback' => [ $this, 'create_item' ], ],
+		] );
 
-		register_rest_route( $this->namespace, '/testimonials/(?P<id>\d+)', array(
-			array(
-				'methods'  => \WP_REST_Server::READABLE,
-				'callback' => array( $this, 'get_item' ),
-			),
-			array(
-				'methods'  => \WP_REST_Server::EDITABLE,
-				'callback' => array( $this, 'update_item' ),
-			),
-			array(
-				'methods'  => \WP_REST_Server::DELETABLE,
-				'callback' => array( $this, 'delete_item' ),
-			),
-		) );
+		register_rest_route( $this->namespace, '/testimonials/batch/trash', [
+			'methods'  => \WP_REST_Server::DELETABLE,
+			'callback' => [ $this, 'trash_items' ],
+		] );
+
+		register_rest_route( $this->namespace, '/testimonials/batch/restore', [
+			'methods'  => \WP_REST_Server::DELETABLE,
+			'callback' => [ $this, 'restore_items' ],
+		] );
+
+		register_rest_route( $this->namespace, '/testimonials/batch/delete', [
+			'methods'  => \WP_REST_Server::DELETABLE,
+			'callback' => [ $this, 'delete_items' ],
+		] );
+
+		register_rest_route( $this->namespace, '/testimonials/(?P<id>\d+)', [
+			[ 'methods' => \WP_REST_Server::READABLE, 'callback' => [ $this, 'get_item' ], ],
+			[ 'methods' => \WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_item' ], ],
+			[ 'methods' => \WP_REST_Server::DELETABLE, 'callback' => [ $this, 'delete_item' ], ],
+		] );
 	}
 
 	/**
@@ -160,5 +173,38 @@ class TestimonialController extends ApiController {
 		}
 
 		return $this->respondInternalServerError();
+	}
+
+	/**
+	 * Trash a collection of items.
+	 *
+	 * @param \WP_REST_Request $request Full data about the request.
+	 *
+	 * @return \WP_Error|\WP_REST_Response
+	 */
+	public function trash_items( $request ) {
+		return $this->respondOK();
+	}
+
+	/**
+	 * Restore a collection of items.
+	 *
+	 * @param \WP_REST_Request $request Full data about the request.
+	 *
+	 * @return \WP_Error|\WP_REST_Response
+	 */
+	public function restore_items( $request ) {
+		return $this->respondOK();
+	}
+
+	/**
+	 * Delete a collection of items.
+	 *
+	 * @param \WP_REST_Request $request Full data about the request.
+	 *
+	 * @return \WP_Error|\WP_REST_Response
+	 */
+	public function delete_items( $request ) {
+		return $this->respondOK();
 	}
 }
