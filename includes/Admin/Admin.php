@@ -74,7 +74,7 @@ class Admin {
 		wp_enqueue_style( 'stackonet-repair-services-admin' );
 		wp_enqueue_script( 'stackonet-repair-services-admin' );
 		wp_localize_script( 'stackonet-repair-services-admin', 'stackonetSettings', array(
-			'root'     => esc_url_raw( rest_url( 'repair-service/v1' ) ),
+			'root'     => esc_url_raw( rest_url( 'stackonet/v1' ) ),
 			'nonce'    => wp_create_nonce( 'wp_rest' ),
 			'settings' => Settings::get_settings(),
 		) );

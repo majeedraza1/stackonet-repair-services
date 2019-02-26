@@ -13,6 +13,7 @@ export default new Vuex.Store({
 		issues: [],
 		devices: [],
 		testimonials: [],
+		testimonialsCounts: {},
 		settings: {},
 	},
 
@@ -26,6 +27,9 @@ export default new Vuex.Store({
 		},
 		SET_TESTIMONIALS(state, testimonials) {
 			state.testimonials = testimonials;
+		},
+		SET_TESTIMONIALS_COUNTS(state, testimonialsCounts) {
+			state.testimonialsCounts = testimonialsCounts;
 		},
 		SET_REQUESTED_AREAS(state, requested_areas) {
 			state.requested_areas = requested_areas;
@@ -73,6 +77,7 @@ export default new Vuex.Store({
 				url: ajaxurl,
 				data: {
 					action: 'get_client_testimonials',
+					per_page: 1,
 				},
 				success: function (response) {
 					if (response.data) {

@@ -18,12 +18,6 @@
 		},
 		methods: {
 			handleClickEvent(status) {
-				this.statuses.forEach(element => {
-					element.active = false;
-				});
-
-				status.active = true;
-
 				this.$emit('change', status);
 			}
 		}

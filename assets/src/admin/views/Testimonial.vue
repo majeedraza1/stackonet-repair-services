@@ -2,16 +2,24 @@
 	<div class="client-testimonials">
 		<h1 class="wp-heading-inline">Testimonials</h1>
 		<div class="clear"></div>
-		<list-table
+		<wp-list-table
+				:loading="loading"
 				:columns="columns"
 				:rows="testimonials"
 				:actions="actions"
 				:bulk-actions="bulkActions"
 				action-column="name"
+				:current-page="currentPage"
+				:per-page="perPage"
+				:total-items="totalItems"
+				:statuses="statuses"
+				:show-search="false"
 				@action:click="onActionClick"
 				@bulk:click="onBulkAction"
-		></list-table>
-		<mdl-modal :active="openModel" @close="openModel = false">
+				@status:change="changeStatus"
+				@pagination="paginate"
+		></wp-list-table>
+		<mdl-modal :active="openModel" @close="openModel = false" title="Testimonial">
 			<div class="mdl-box">
 				<list-item label="Name">{{activeTestimonial.name}}</list-item>
 				<list-item label="Email">{{activeTestimonial.email}}</list-item>
@@ -25,15 +33,17 @@
 				<list-item label="Description">{{activeTestimonial.description}}</list-item>
 			</div>
 			<div slot="foot">
-				<mdl-button type="raised" color="primary" @click="accept(activeTestimonial)">Accept</mdl-button>
-				<mdl-button type="raised" color="accent" @click="reject(activeTestimonial)">Reject</mdl-button>
+				<mdl-button type="raised" color="primary" @click="updateStatus(activeTestimonial, 'accept')">Accept
+				</mdl-button>
+				<mdl-button type="raised" color="accent" @click="updateStatus(activeTestimonial, 'reject')">Reject
+				</mdl-button>
 			</div>
 		</mdl-modal>
 	</div>
 </template>
 
 <script>
-	import ListTable from '../../components/ListTable';
+	import wpListTable from '../../wp/wpListTable';
 	import ListItem from '../../components/ListItem';
 	import mdlModal from '../../material-design-lite/modal/mdlModal';
 	import mdlButton from '../../material-design-lite/button/mdlButton';
@@ -41,10 +51,17 @@
 
 	export default {
 		name: "Testimonial",
-		components: {ListTable, mdlModal, ListItem, mdlButton},
+		components: {wpListTable, mdlModal, ListItem, mdlButton},
 		data() {
 			return {
-				rows: [],
+				default_statuses: [
+					{key: 'all', label: 'All', count: 0, active: true},
+					{key: 'accept', label: 'Accepted', count: 0, active: false},
+					{key: 'reject', label: 'Rejected', count: 0, active: false},
+					{key: 'pending', label: 'Pending', count: 0, active: false},
+					{key: 'trash', label: 'Trash', count: 0, active: false},
+				],
+				activeStatus: 'all',
 				columns: [
 					{key: 'name', label: 'Client Name'},
 					{key: 'email', label: 'Email'},
@@ -52,8 +69,8 @@
 					{key: 'rating', label: 'Rating'},
 					{key: 'status', label: 'Status'},
 				],
-				actions: [{key: 'edit', label: 'Edit'}, {key: 'delete', label: 'Delete'}],
-				bulkActions: [],
+				currentPage: 1,
+				perPage: 20,
 				counts: {},
 				index: -1,
 				activeTestimonial: {
@@ -69,15 +86,128 @@
 			}
 		},
 		computed: {
-			...mapState(['loading', 'testimonials'])
+			...mapState(['loading', 'testimonials', 'testimonialsCounts']),
+			statuses() {
+				let _status = [], self = this;
+				this.default_statuses.forEach(status => {
+					status.count = self.testimonialsCounts[status.key];
+					_status.push(status);
+				});
+
+				return _status;
+			},
+			activeStatus_() {
+				let active = {};
+				this.statuses.forEach(status => {
+					if (status.active === true) {
+						active = status;
+					}
+				});
+
+				return active;
+			},
+			totalItems() {
+				return this.testimonialsCounts[this.activeStatus_.key];
+			},
+			actions() {
+				if (this.activeStatus === 'trash') {
+					return [{key: 'restore', label: 'Restore'}, {key: 'delete', label: 'Delete Permanently'}];
+				} else {
+					return [{key: 'edit', label: 'Edit'}, {key: 'trash', label: 'Trash'}]
+				}
+			},
+			bulkActions() {
+				if (this.activeStatus === 'trash') {
+					return [{key: 'restore', label: 'Restore'}, {key: 'delete', label: 'Delete Permanently'}];
+				} else {
+					return [{key: 'trash', label: 'Move to Trash'}];
+				}
+			},
 		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 			if (!this.testimonials.length) {
-				this.$store.dispatch('fetch_testimonials');
+				this.get_items();
 			}
 		},
 		methods: {
+			get_items() {
+				let self = this;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				window.jQuery.ajax({
+					method: 'GET',
+					url: stackonetSettings.root + '/testimonials',
+					data: {
+						action: 'get_client_testimonials',
+						per_page: self.perPage,
+						page: self.currentPage,
+						status: self.activeStatus,
+					},
+					success: function (response) {
+						if (response.data) {
+							self.$store.commit('SET_TESTIMONIALS', response.data.items);
+							self.$store.commit('SET_TESTIMONIALS_COUNTS', response.data.counts);
+						}
+						self.$store.commit('SET_LOADING_STATUS', false);
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					}
+				});
+			},
+			changeStatus(status) {
+				this.currentPage = 1;
+				this.activeStatus = status.key;
+
+				this.default_statuses.forEach(element => {
+					element.active = false;
+				});
+
+				status.active = true;
+
+				this.get_items();
+			},
+			paginate(page) {
+				this.currentPage = page;
+				this.get_items();
+			},
+			update_item(id, data) {
+				let self = this, $ = window.jQuery;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				$.ajax({
+					method: "PUT",
+					url: stackonetSettings.root + '/testimonials/' + id,
+					data: data,
+					success: function () {
+						self.get_items();
+						self.$store.commit('SET_LOADING_STATUS', false);
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					}
+				});
+			},
+			trash_item(item) {
+				this.update_item(item.id, {status: 'trash'});
+			},
+			restore_item(item) {
+				this.update_item(item.id, {status: 'restore'});
+			},
+			delete_item(item) {
+				let self = this, $ = window.jQuery;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				$.ajax({
+					method: "DELETE",
+					url: stackonetSettings.root + '/testimonials/' + item.id,
+					success: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+						self.get_items();
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					}
+				});
+			},
 			onActionClick(action, row) {
 				if ('edit' === action) {
 					this.activeTestimonial = row;
@@ -85,12 +215,15 @@
 					this.openModel = true;
 				} else if ('trash' === action) {
 					if (confirm('Are you sure to move this item to trash?')) {
+						this.trash_item(row);
 					}
 				} else if ('restore' === action) {
 					if (confirm('Are you sure to restore this item?')) {
+						this.restore_item(row);
 					}
 				} else if ('delete' === action) {
 					if (confirm('Are you sure to delete this item permanently?')) {
+						this.delete_item(row);
 					}
 				}
 			},
@@ -106,14 +239,9 @@
 					}
 				}
 			},
-			accept(testimonial) {
-				this.updateStatus(testimonial, 'accept');
-			},
-			reject(testimonial) {
-				this.updateStatus(testimonial, 'reject');
-			},
 			updateStatus(testimonial, status) {
 				let self = this, $ = window.jQuery;
+				self.$store.commit('SET_LOADING_STATUS', true);
 				$.ajax({
 					method: "POST",
 					url: ajaxurl,
@@ -122,14 +250,17 @@
 						id: testimonial.id,
 						status: status,
 					},
-					success: function (response) {
+					success: function () {
 						self.openModel = false;
 						testimonial.status = status;
 						self.testimonials[self.index] = testimonial;
 						self.activeTestimonial = {};
 						self.index = -1;
+						self.get_items();
+						self.$store.commit('SET_LOADING_STATUS', false);
 					},
-					error: function (data) {
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
 					}
 				});
 			}

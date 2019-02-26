@@ -25,7 +25,7 @@ class Testimonial extends DatabaseModel {
 		'phone'       => '',
 		'description' => '',
 		'rating'      => '',
-		'status'      => '',
+		'status'      => 'pending',
 		'created_at'  => '',
 		'updated_at'  => '',
 		'deleted_at'  => null,
@@ -69,27 +69,34 @@ class Testimonial extends DatabaseModel {
 	 * @return array
 	 */
 	public function find( $args = [] ) {
-		$orderby  = isset( $args['orderby'] ) ? esc_sql( $args['orderby'] ) : 'id';
-		$order    = isset( $args['order'] ) ? esc_sql( $args['order'] ) : 'DESC';
-		$offset   = isset( $args['offset'] ) ? intval( $args['offset'] ) : 0;
-		$per_page = isset( $args['per_page'] ) ? intval( $args['per_page'] ) : 20;
-		$trash    = isset( $args['trash'] ) ? $args['trash'] : false;
-		$status   = isset( $args['status'] ) ? $args['status'] : null;
-		$status   = in_array( $status, [ 'accept', 'reject' ] ) ? $status : 'any';
-		$trash    = in_array( $trash, array( 'yes', 'on', '1', 1, true, 'true' ), true );
+		$per_page     = isset( $args['per_page'] ) ? absint( $args['per_page'] ) : $this->perPage;
+		$paged        = isset( $args['paged'] ) ? absint( $args['paged'] ) : 1;
+		$current_page = $paged < 1 ? 1 : $paged;
+		$offset       = ( $current_page - 1 ) * $per_page;
+		$orderby      = $this->primaryKey;
+		if ( isset( $args['orderby'] ) && in_array( $args['orderby'], array_keys( $this->default_data ) ) ) {
+			$orderby = $args['orderby'];
+		}
+		$order = isset( $args['order'] ) && 'ASC' == $args['order'] ? 'ASC' : 'DESC';
+
+		$trash = isset( $args['trash'] ) ? $args['trash'] : false;
+		$trash = in_array( $trash, array( 'yes', 'on', '1', 1, true, 'true' ), true );
+
+		$status = isset( $args['status'] ) ? $args['status'] : null;
+		$status = in_array( $status, [ 'accept', 'reject', 'pending', 'trash' ] ) ? $status : 'all';
 
 		global $wpdb;
 		$table = $wpdb->prefix . $this->table;
 
 		$query = "SELECT * FROM {$table} WHERE 1=1";
 
-		if ( $trash ) {
+		if ( 'trash' == $status ) {
 			$query .= " AND deleted_at IS NOT NULL";
 		} else {
 			$query .= " AND deleted_at IS NULL";
 		}
 
-		if ( 'any' != $status ) {
+		if ( ! in_array( $status, [ 'all', 'trash' ] ) ) {
 			$query .= $wpdb->prepare( " AND status = %s", $status );
 		}
 
@@ -115,11 +122,7 @@ class Testimonial extends DatabaseModel {
 	 * @return self|bool
 	 */
 	public function find_by_id( $id ) {
-		global $wpdb;
-		$table = $wpdb->prefix . $this->table;
-
-		$sql  = $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $id );
-		$item = $wpdb->get_row( $sql, ARRAY_A );
+		$item = parent::find_by_id( $id );
 		if ( $item ) {
 			return new self( $item );
 		}
@@ -178,7 +181,7 @@ class Testimonial extends DatabaseModel {
 		$_data['id']         = $id;
 		$_data['created_at'] = $item->get( 'created_at' );
 		$_data['updated_at'] = current_time( 'mysql' );
-		$_data['deleted_at'] = null;
+		$_data['deleted_at'] = isset( $data['deleted_at'] ) ? $data['deleted_at'] : null;
 
 		if ( $wpdb->update( $table, $_data, [ 'id' => $id ], $this->data_format, '%d' ) ) {
 			return true;
@@ -195,6 +198,9 @@ class Testimonial extends DatabaseModel {
 	 * @return bool
 	 */
 	public function delete( $id = 0 ) {
+		if ( ! $id ) {
+			$id = $this->get( 'id' );
+		}
 		global $wpdb;
 		$table = $wpdb->prefix . $this->table;
 
@@ -207,11 +213,68 @@ class Testimonial extends DatabaseModel {
 	}
 
 	/**
+	 * Trash data
+	 *
+	 * @param int $id
+	 *
+	 * @return bool
+	 */
+	public function trash( $id = 0 ) {
+		if ( ! $id ) {
+			$id = $this->get( 'id' );
+		}
+
+		return $this->update( [
+			'id'         => $id,
+			'deleted_at' => current_time( 'mysql' ),
+		] );
+	}
+
+	/**
+	 * Restore data
+	 *
+	 * @param int $id
+	 *
+	 * @return bool
+	 */
+	public function restore( $id = 0 ) {
+		if ( ! $id ) {
+			$id = $this->get( 'id' );
+		}
+
+		return $this->update( [
+			'id'         => $id,
+			'deleted_at' => null,
+		] );
+	}
+
+	/**
 	 * Count total records from the database
 	 *
 	 * @return array
 	 */
 	public function count_records() {
-		return [];
+		global $wpdb;
+		$table  = $wpdb->prefix . $this->table;
+		$counts = [ 'accept' => 0, 'reject' => 0, 'pending' => 0, 'trash' => 0 ];
+
+		$query   = "SELECT status, COUNT( status ) AS num_posts FROM {$table}";
+		$query   .= ' WHERE deleted_at IS NULL GROUP BY status';
+		$results = $wpdb->get_results( $query, ARRAY_A );
+
+		$query2   = "SELECT COUNT( deleted_at ) AS num_posts FROM {$table}";
+		$query2   .= ' WHERE deleted_at IS NOT NULL GROUP BY deleted_at';
+		$results2 = $wpdb->get_row( $query2, ARRAY_A );
+
+		$counts['trash'] = isset( $results2['num_posts'] ) ? intval( $results2['num_posts'] ) : 0;
+
+
+		foreach ( $results as $row ) {
+			$counts[ $row['status'] ] = intval( $row['num_posts'] );
+		}
+
+		$counts['all'] = ( $counts['accept'] + $counts['reject'] + $counts['pending'] );
+
+		return $counts;
 	}
 }

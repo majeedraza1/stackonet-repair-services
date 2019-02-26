@@ -7,8 +7,8 @@
 			</div>
 		</div>
 
-		<wp-status-list :statuses="statuses"></wp-status-list>
-		<wp-search :id="searchKey"></wp-search>
+		<wp-status-list :statuses="statuses" @change="changeStatus"></wp-status-list>
+		<wp-search v-if="showSearch" :id="searchKey"></wp-search>
 
 		<div class="tablenav top">
 			<wp-bulk-actions :actions="bulkActions" :active="!!checkedItems.length" v-model="bulkLocal"
@@ -112,6 +112,7 @@
 			bulkActions: {type: Array, required: false, default: () => []},
 			statuses: {type: Array, required: false, default: () => []},
 			index: {type: String, default: 'id'},
+			showSearch: {type: Boolean, default: true},
 			searchKey: {type: String, default: 'search_items'},
 			actionColumn: {type: String, default: 'title'},
 			showCb: {type: Boolean, default: true},
@@ -169,7 +170,7 @@
 
 				set: function (value) {
 					let selected = [],
-						self = this;
+							self = this;
 
 					if (value) {
 						this.rows.forEach(function (item) {
@@ -240,6 +241,10 @@
 				let order = this.sortOrder === 'asc' ? 'desc' : 'asc';
 
 				this.$emit('sort', column, order);
+			},
+
+			changeStatus(status) {
+				this.$emit('status:change', status);
 			}
 		}
 	}
