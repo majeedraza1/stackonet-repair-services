@@ -87,7 +87,7 @@ class Frontend {
 		/** @var Testimonial[] $testimonials */
 		$testimonials = $testimonial->find( [ 'status' => 'accept' ] );
 		?>
-		<div class="fp-tns-slider-outer">
+		<div class="fp-tns-slider-outer arrows-visible-hover">
 			<div class="fp-tns-slider-controls">
 	            <span class="prev" data-controls="prev">
 	                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 32 32">

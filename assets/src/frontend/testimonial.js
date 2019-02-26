@@ -31,6 +31,7 @@ if (sliderOuter) {
 		responsive: {
 			600: {items: 2},
 			900: {items: 3},
+			1200: {items: 4},
 		}
 	});
 }
