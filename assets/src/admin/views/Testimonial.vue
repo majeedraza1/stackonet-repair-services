@@ -138,7 +138,6 @@
 					method: 'GET',
 					url: stackonetSettings.root + '/testimonials',
 					data: {
-						action: 'get_client_testimonials',
 						per_page: self.perPage,
 						page: self.currentPage,
 						status: self.activeStatus,

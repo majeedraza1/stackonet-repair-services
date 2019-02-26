@@ -160,10 +160,10 @@ class Ajax {
 			wp_send_json_error( 'You have no permission to view request areas.', 401 );
 		}
 
-		$request = new UnsupportedArea();
-		$data    = $request->all();
+		$items  = ( new UnsupportedArea() )->find();
+		$counts = ( new UnsupportedArea() )->count_records();
 
-		wp_send_json_success( $data, 200 );
+		wp_send_json_success( [ 'items' => $items, 'counts' => $counts ], 200 );
 	}
 
 	/**
@@ -188,7 +188,7 @@ class Ajax {
 		);
 
 		if ( ! is_email( $email ) ) {
-			$id = $area->insert( $data );
+			$id = $area->create( $data );
 			wp_send_json_success( [ 'id' => $id ], 201 );
 		} else {
 			$area->update( $data );

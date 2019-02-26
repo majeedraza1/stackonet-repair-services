@@ -2,8 +2,12 @@
 
 namespace Stackonet\Models;
 
+use Stackonet\Abstracts\DatabaseModel;
+use Stackonet\Interfaces\DataStoreInterface;
 
-class UnsupportedArea implements \JsonSerializable {
+defined( 'ABSPATH' ) || exit;
+
+class UnsupportedArea extends DatabaseModel implements DataStoreInterface {
 
 	const TABLE_NAME = 'unsupported_areas';
 
@@ -12,14 +16,14 @@ class UnsupportedArea implements \JsonSerializable {
 	 *
 	 * @var string
 	 */
-	private static $table;
+	protected $table = 'unsupported_areas';
 
 	/**
 	 * Default Data
 	 *
 	 * @var array
 	 */
-	private static $default = array(
+	protected $default_data = array(
 		'id'           => 0,
 		'user_id'      => 0,
 		'user_ip'      => '127.0.0.1',
@@ -39,115 +43,14 @@ class UnsupportedArea implements \JsonSerializable {
 	 *
 	 * @var array
 	 */
-	private static $format = [
-		'%d',
-		'%d',
-		'%s',
-		'%s',
-		'%s',
-		'%s',
-		'%s',
-		'%s',
-		'%s',
-		'%s',
-		'%s',
-		'%s',
-	];
+	protected $data_format = [ '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', ];
 
 	/**
-	 * @var \wpdb
-	 */
-	private $db;
-
-	/**
+	 * Available status for the model
+	 *
 	 * @var array
 	 */
-	private $entry = array();
-
-	/**
-	 * UnsupportedArea constructor.
-	 *
-	 * @param array $data
-	 */
-	public function __construct( $data = array() ) {
-		global $wpdb;
-		$this->db    = $wpdb;
-		self::$table = $wpdb->prefix . self::TABLE_NAME;
-
-		if ( ! empty( $data ) ) {
-			$this->entry = $data;
-		}
-	}
-
-	/**
-	 * Does this entry have a given key?
-	 *
-	 * @param string $key The data key
-	 *
-	 * @return bool
-	 */
-	public function has( $key ) {
-		return isset( $this->entry[ $key ] );
-	}
-
-	/**
-	 * Set collection item
-	 *
-	 * @param string $key The data key
-	 * @param mixed $value The data value
-	 */
-	public function set( $key, $value ) {
-		if ( is_null( $key ) ) {
-			$this->entry[] = $value;
-		} else {
-			$this->entry[ $key ] = $value;
-		}
-	}
-
-	/**
-	 * Get entry item for key
-	 *
-	 * @param string $key The data key
-	 * @param mixed $default The default value to return if data key does not exist
-	 *
-	 * @return mixed The key's value, or the default value
-	 */
-	public function get( $key, $default = null ) {
-		return $this->has( $key ) ? $this->entry[ $key ] : $default;
-	}
-
-	/**
-	 * Remove item from collection
-	 *
-	 * @param string $key The data key
-	 */
-	public function remove( $key ) {
-		if ( $this->has( $key ) ) {
-			unset( $this->entry[ $key ] );
-		}
-	}
-
-	/**
-	 * Get array representation of the class
-	 *
-	 * @return array
-	 */
-	public function to_array() {
-		return array(
-			'id'           => $this->get( 'id' ),
-			'user_id'      => $this->get( 'user_id' ),
-			'user_ip'      => $this->get( 'user_ip' ),
-			'user_agent'   => $this->get( 'user_agent' ),
-			'email'        => $this->get( 'email' ),
-			'zip_code'     => $this->get( 'zip_code' ),
-			'device_title' => $this->get( 'device_title' ),
-			'device_model' => $this->get( 'device_model' ),
-			'device_color' => $this->get( 'device_color' ),
-			'status'       => $this->get( 'status', 'unread' ),
-			'created_at'   => $this->get( 'created_at' ),
-			'deleted_at'   => $this->get( 'deleted_at' ),
-		);
-	}
+	protected $available_status = [ 'all', 'unread', 'read', 'trash' ];
 
 	/**
 	 * Find entries
@@ -157,30 +60,46 @@ class UnsupportedArea implements \JsonSerializable {
 	 * @return array
 	 */
 	public function find( $args = array() ) {
-		$table_name = self::$table;
+		$per_page     = isset( $args['per_page'] ) ? absint( $args['per_page'] ) : $this->perPage;
+		$paged        = isset( $args['paged'] ) ? absint( $args['paged'] ) : 1;
+		$current_page = $paged < 1 ? 1 : $paged;
+		$offset       = ( $current_page - 1 ) * $per_page;
+		$orderby      = $this->primaryKey;
+		if ( isset( $args['orderby'] ) && in_array( $args['orderby'], array_keys( $this->default_data ) ) ) {
+			$orderby = $args['orderby'];
+		}
+		$order = isset( $args['order'] ) && 'ASC' == $args['order'] ? 'ASC' : 'DESC';
 
-		$orderby  = isset( $args['orderby'] ) ? $args['orderby'] : 'created_at';
-		$order    = isset( $args['order'] ) ? $args['order'] : 'desc';
-		$offset   = isset( $args['offset'] ) ? intval( $args['offset'] ) : 0;
-		$per_page = isset( $args['per_page'] ) ? intval( $args['per_page'] ) : 100;
-		$sql      = "SELECT * FROM {$table_name}";
-		$sql      .= " ORDER BY {$orderby} {$order}";
-		$sql      .= " LIMIT $per_page OFFSET $offset";
-		$items    = $this->db->get_results( $sql, ARRAY_A );
-		if ( ! $items ) {
-			return array();
+		$status = isset( $args['status'] ) ? $args['status'] : null;
+		$status = in_array( $status, $this->available_status ) ? $status : 'all';
+
+		global $wpdb;
+		$table = $wpdb->prefix . $this->table;
+
+		$query = "SELECT * FROM {$table} WHERE 1=1";
+
+		if ( 'trash' == $status ) {
+			$query .= " AND deleted_at IS NOT NULL";
+		} else {
+			$query .= " AND deleted_at IS NULL";
 		}
 
+		if ( ! in_array( $status, [ 'all', 'trash' ] ) ) {
+			$query .= $wpdb->prepare( " AND status = %s", $status );
+		}
+
+		$query .= " ORDER BY {$orderby} {$order}";
+		$query .= sprintf( " LIMIT %d OFFSET %d", $per_page, $offset );
+		$items = $wpdb->get_results( $query, ARRAY_A );
+
 		$data = [];
-		foreach ( $items as $item ) {
-			$data[] = new self( $item );
+		if ( $items ) {
+			foreach ( $items as $item ) {
+				$data[] = new self( $item );
+			}
 		}
 
 		return $data;
-	}
-
-	public function all( array $args = array() ) {
-		return $this->find();
 	}
 
 	/**
@@ -190,13 +109,8 @@ class UnsupportedArea implements \JsonSerializable {
 	 *
 	 * @return self|false
 	 */
-	public function findById( $id ) {
-		$table_name = self::$table;
-
-		$items = $this->db->get_row(
-			$this->db->prepare( "SELECT * FROM {$table_name} WHERE id = %d", $id ),
-			ARRAY_A
-		);
+	public function find_by_id( $id ) {
+		$items = parent::find_by_id( $id );
 
 		if ( ! $items ) {
 			return false;
@@ -213,48 +127,134 @@ class UnsupportedArea implements \JsonSerializable {
 	 *
 	 * @return int last insert id
 	 */
-	public function insert( array $data ) {
-		$current_time = current_time( 'mysql' );
-		$data         = wp_parse_args( $data, self::$default );
-
+	public function create( array $data ) {
 		$data['user_id']    = get_current_user_id();
 		$data['user_ip']    = self::get_remote_ip();
 		$data['user_agent'] = self::get_user_agent();
-		$data['created_at'] = $current_time;
+		$data['created_at'] = current_time( 'mysql' );
 
-		unset( $data['id'] );
-
-		$this->db->insert( self::$table, $data );
-		$insert_id = $this->db->insert_id;
-
-		return $insert_id;
+		return parent::create( $data );
 	}
 
-	public function update( array $data, $id = 0 ) {
-		$now = current_time( 'mysql' );
+	/**
+	 * Update data
+	 *
+	 * @param array $data
+	 *
+	 * @return bool
+	 */
+	public function update( array $data ) {
+		global $wpdb;
+		$table = $wpdb->prefix . $this->table;
+		$id    = isset( $data[ $this->primaryKey ] ) ? intval( $data[ $this->primaryKey ] ) : 0;
 
-		if ( ! $id ) {
-			$id = isset( $data['id'] ) ? intval( $data['id'] ) : 0;
-		}
-
-		$entry = $this->findById( $id );
-		if ( ! $entry instanceof self ) {
+		$item = $this->find_by_id( $id );
+		if ( ! $item instanceof self ) {
 			return false;
 		}
 
 		$_data = [];
-		foreach ( self::$default as $key => $default ) {
-			$_data[ $key ] = isset( $data[ $key ] ) ? $data[ $key ] : $entry->get( $key );
+		foreach ( $this->default_data as $key => $default ) {
+			$_data[ $key ] = isset( $data[ $key ] ) ? $data[ $key ] : $item->get( $key );
 		}
 
-		$_data['id']         = $id;
-		$_data['created_at'] = $entry->get( 'created_at' );
+		$_data[ $this->primaryKey ] = $id;
+		$_data['created_at']        = $item->get( 'created_at' );
+		$_data['deleted_at']        = isset( $data['deleted_at'] ) ? $data['deleted_at'] : null;
 
-		if ( $this->db->update( self::$table, $data, [ 'id' => $id ] ) ) {
+		if ( $wpdb->update( $table, $_data, [ $this->primaryKey => $id ], $this->data_format, $this->primaryKeyType ) ) {
 			return true;
 		}
 
 		return false;
+	}
+
+	/**
+	 * Delete data
+	 *
+	 * @param int $id
+	 *
+	 * @return bool
+	 */
+	public function delete( $id = 0 ) {
+		if ( ! $id ) {
+			$id = $this->get( 'id' );
+		}
+		global $wpdb;
+		$table = $wpdb->prefix . $this->table;
+
+		$item = $this->find_by_id( $id );
+		if ( ! $item instanceof self ) {
+			return false;
+		}
+
+		return ( false !== $wpdb->delete( $table, [ 'id' => intval( $id ) ], '%d' ) );
+	}
+
+	/**
+	 * Trash data
+	 *
+	 * @param int $id
+	 *
+	 * @return bool
+	 */
+	public function trash( $id = 0 ) {
+		if ( ! $id ) {
+			$id = $this->get( 'id' );
+		}
+
+		return $this->update( [
+			'id'         => $id,
+			'deleted_at' => current_time( 'mysql' ),
+		] );
+	}
+
+	/**
+	 * Restore data
+	 *
+	 * @param int $id
+	 *
+	 * @return bool
+	 */
+	public function restore( $id = 0 ) {
+		if ( ! $id ) {
+			$id = $this->get( 'id' );
+		}
+
+		return $this->update( [
+			'id'         => $id,
+			'deleted_at' => null,
+		] );
+	}
+
+	/**
+	 * Count total records from the database
+	 *
+	 * @return array
+	 */
+	public function count_records() {
+		global $wpdb;
+		$table  = $wpdb->prefix . $this->table;
+		$counts = array_fill_keys( $this->available_status, 0 );
+
+		$query   = "SELECT status, COUNT( status ) AS num_posts FROM {$table}";
+		$query   .= ' WHERE deleted_at IS NULL GROUP BY status';
+		$results = $wpdb->get_results( $query, ARRAY_A );
+
+		$query2   = "SELECT COUNT( deleted_at ) AS num_posts FROM {$table}";
+		$query2   .= ' WHERE deleted_at IS NOT NULL GROUP BY deleted_at';
+		$results2 = $wpdb->get_row( $query2, ARRAY_A );
+
+		$counts['trash'] = isset( $results2['num_posts'] ) ? intval( $results2['num_posts'] ) : 0;
+
+
+		foreach ( $results as $row ) {
+			$counts[ $row['status'] ] = intval( $row['num_posts'] );
+		}
+
+		$counts['all'] = ( $counts['read'] + $counts['unread'] );
+
+		return $counts;
 	}
 
 	/**
@@ -322,16 +322,5 @@ class UnsupportedArea implements \JsonSerializable {
 		}
 
 		return '';
-	}
-
-	/**
-	 * Specify data which should be serialized to JSON
-	 * @link https://php.net/manual/en/jsonserializable.jsonserialize.php
-	 * @return mixed data which can be serialized by <b>json_encode</b>,
-	 * which is a value of any type other than a resource.
-	 * @since 5.4.0
-	 */
-	public function jsonSerialize() {
-		return $this->to_array();
 	}
 }

@@ -1,28 +1,41 @@
 <template>
 	<div class="repair-services-issues-list">
-		<h1 class="wp-heading-inline">Issues</h1>
-		<a href="" class="page-title-action" @click.prevent="openModal">Add New</a>
+		<h1 class="wp-heading-inline">Request Area</h1>
 		<div class="clear"></div>
-		<list-table
+		<wp-list-table
+				:loading="loading"
 				:columns="columns"
 				:rows="requested_areas"
 				:actions="actions"
 				:bulk-actions="bulkActions"
 				action-column="zip_code"
+				:current-page="currentPage"
+				:per-page="perPage"
+				:total-items="totalItems"
 				@action:click="onActionClick"
-				@bulk:click="onBulkAction"
-		></list-table>
+				@bulk:apply="onBulkAction"
+				:statuses="statuses"
+				:show-search="false"
+		></wp-list-table>
 	</div>
 </template>
 
 <script>
-	import ListTable from '../../components/ListTable';
+	import {mapState} from 'vuex';
+	import wpListTable from '../../wp/wpListTable';
 
 	export default {
 		name: "RequestAreas",
-		components: {ListTable},
+		components: {wpListTable},
 		data() {
 			return {
+				default_statuses: [
+					{key: 'all', label: 'All', count: 0, active: true},
+					{key: 'read', label: 'Read', count: 0, active: false},
+					{key: 'unread', label: 'Unread', count: 0, active: false},
+					{key: 'trash', label: 'Trash', count: 0, active: false},
+				],
+				activeStatus: 'all',
 				columns: [
 					{key: 'zip_code', label: 'Zip Code'},
 					{key: 'email', label: 'Email'},
@@ -32,27 +45,58 @@
 					{key: 'device_color', label: 'Device Color'},
 					{key: 'created_at', label: 'Date & Time'},
 				],
+				currentPage: 1,
+				perPage: 20,
 				counts: {},
-				actions: [],
-				bulkActions: [],
 			}
 		},
 		computed: {
-			loading() {
-				return this.$store.state.loading;
+			...mapState(['loading', 'requested_areas', 'requested_areas_counts']),
+			statuses() {
+				let _status = [], self = this;
+				this.default_statuses.forEach(status => {
+					status.count = self.requested_areas_counts[status.key];
+					_status.push(status);
+				});
+
+				return _status;
 			},
-			requested_areas() {
-				return this.$store.state.requested_areas;
+			activeStatus_() {
+				let active = {};
+				this.statuses.forEach(status => {
+					if (status.active === true) {
+						active = status;
+					}
+				});
+
+				return active;
+			},
+			totalItems() {
+				return this.requested_areas_counts[this.activeStatus_.key];
+			},
+			actions() {
+				if (this.activeStatus === 'trash') {
+					return [{key: 'restore', label: 'Restore'}, {key: 'delete', label: 'Delete Permanently'}];
+				} else {
+					return [{key: 'trash', label: 'Trash'}]
+				}
+			},
+			bulkActions() {
+				if (this.activeStatus === 'trash') {
+					return [{key: 'restore', label: 'Restore'}, {key: 'delete', label: 'Delete Permanently'}];
+				} else {
+					return [{key: 'trash', label: 'Move to Trash'}];
+				}
 			},
 		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 			if (!this.requested_areas.length) {
-				this.fetchAreas();
+				this.get_items();
 			}
 		},
 		methods: {
-			fetchAreas() {
+			get_items() {
 				let $ = window.jQuery, self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
 				$.ajax({
@@ -60,10 +104,14 @@
 					url: ajaxurl,
 					data: {
 						action: 'get_request_areas',
+						per_page: self.perPage,
+						page: self.currentPage,
+						status: self.activeStatus,
 					},
 					success: function (response) {
 						if (response.data) {
-							self.$store.commit('SET_REQUESTED_AREAS', response.data);
+							self.$store.commit('SET_REQUESTED_AREAS', response.data.items);
+							self.$store.commit('SET_REQUESTED_AREAS_COUNTS', response.data.counts);
 						}
 						self.$store.commit('SET_LOADING_STATUS', false);
 					},

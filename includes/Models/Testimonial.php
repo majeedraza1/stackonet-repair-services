@@ -39,6 +39,13 @@ class Testimonial extends DatabaseModel {
 	protected $data_format = [ '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', ];
 
 	/**
+	 * Available status for the model
+	 *
+	 * @var array
+	 */
+	protected $available_status = [ 'all', 'accept', 'reject', 'pending', 'trash' ];
+
+	/**
 	 * Create table
 	 */
 	public function create_table() {
@@ -79,11 +86,8 @@ class Testimonial extends DatabaseModel {
 		}
 		$order = isset( $args['order'] ) && 'ASC' == $args['order'] ? 'ASC' : 'DESC';
 
-		$trash = isset( $args['trash'] ) ? $args['trash'] : false;
-		$trash = in_array( $trash, array( 'yes', 'on', '1', 1, true, 'true' ), true );
-
 		$status = isset( $args['status'] ) ? $args['status'] : null;
-		$status = in_array( $status, [ 'accept', 'reject', 'pending', 'trash' ] ) ? $status : 'all';
+		$status = in_array( $status, $this->available_status ) ? $status : 'all';
 
 		global $wpdb;
 		$table = $wpdb->prefix . $this->table;
