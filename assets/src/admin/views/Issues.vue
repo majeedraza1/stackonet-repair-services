@@ -3,7 +3,7 @@
 		<h1 class="wp-heading-inline">Issues</h1>
 		<a href="" class="page-title-action" @click.prevent="openModal">Add New</a>
 		<div class="clear"></div>
-		<list-table
+		<wp-list-table
 				:columns="columns"
 				:rows="issues"
 				:actions="actions"
@@ -11,7 +11,11 @@
 				action-column="title"
 				@action:click="onActionClick"
 				@bulk:click="onBulkAction"
-		></list-table>
+				:show-search="false"
+				:show-cb="false"
+				:total-items="totalItems"
+				:per-page="totalItems"
+		></wp-list-table>
 		<mdl-modal :active="modalActive" @close="closeModal" title="Add New Area">
 			<p class="">
 				<label for="title">Issue Title</label><br>
@@ -29,12 +33,13 @@
 </template>
 
 <script>
-	import ListTable from '../../components/ListTable';
+	import wpListTable from '../../wp/wpListTable';
 	import mdlModal from '../../material-design-lite/modal/mdlModal.vue';
+	import {mapState} from 'vuex';
 
 	export default {
 		name: "Issues",
-		components: {ListTable, mdlModal},
+		components: {wpListTable, mdlModal},
 		data() {
 			return {
 				modalActive: false,
@@ -52,12 +57,10 @@
 			}
 		},
 		computed: {
-			loading() {
-				return this.$store.state.loading;
+			...mapState(['loading', 'issues']),
+			totalItems() {
+				return this.issues.length;
 			},
-			issues() {
-				return this.$store.state.issues;
-			}
 		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);

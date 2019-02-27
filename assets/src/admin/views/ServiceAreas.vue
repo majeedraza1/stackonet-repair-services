@@ -3,7 +3,7 @@
 		<h1 class="wp-heading-inline">Service Areas</h1>
 		<a href="" class="page-title-action" @click.prevent="openModal">Add New</a>
 		<div class="clear"></div>
-		<list-table
+		<wp-list-table
 				:columns="columns"
 				:rows="services_areas"
 				:actions="actions"
@@ -11,7 +11,11 @@
 				action-column="zip_code"
 				@action:click="onActionClick"
 				@bulk:click="onBulkAction"
-		></list-table>
+				:show-cb="false"
+				:show-search="false"
+				:total-items="totalItems"
+				:per-page="totalItems"
+		></wp-list-table>
 		<mdl-modal :active="modalActive" @close="closeModal" title="Add New Area">
 			<p class="">
 				<label for="zipCode">Zip Code</label><br>
@@ -29,12 +33,13 @@
 </template>
 
 <script>
-	import ListTable from '../../components/ListTable';
+	import wpListTable from '../../wp/wpListTable';
 	import mdlModal from '../../material-design-lite/modal/mdlModal.vue';
+	import {mapState} from 'vuex';
 
 	export default {
 		name: "ServiceAreas",
-		components: {ListTable, mdlModal},
+		components: {wpListTable, mdlModal},
 		data() {
 			return {
 				modalActive: false,
@@ -52,12 +57,10 @@
 			}
 		},
 		computed: {
-			loading() {
-				return this.$store.state.loading;
+			...mapState(['loading', 'services_areas']),
+			totalItems() {
+				return this.services_areas.length;
 			},
-			services_areas() {
-				return this.$store.state.services_areas;
-			}
 		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);

@@ -3,7 +3,7 @@
 		<h1 class="wp-heading-inline">Devices</h1>
 		<a href="" class="page-title-action" @click.prevent="addNewDevice">Add New</a>
 		<div class="clear"></div>
-		<list-table
+		<wp-list-table
 				:columns="columns"
 				:rows="devices"
 				:actions="actions"
@@ -11,20 +11,25 @@
 				action-column="device_title"
 				@action:click="onActionClick"
 				@bulk:click="onBulkAction"
+				:total-items="totalItems"
+				:per-page="totalItems"
+				:show-search="false"
+				:show-cb="false"
 		>
 			<template slot="image_object" slot-scope="data">
 				<img class="list-table-image" :src=" data.row.image.src " :alt="data.row.title">
 			</template>
-		</list-table>
+		</wp-list-table>
 	</div>
 </template>
 
 <script>
-	import ListTable from '../../components/ListTable';
+	import wpListTable from '../../wp/wpListTable';
+	import {mapState} from 'vuex';
 
 	export default {
 		name: "Devices",
-		components: {ListTable},
+		components: {wpListTable},
 		data() {
 			return {
 				rows: [],
@@ -38,12 +43,10 @@
 			}
 		},
 		computed: {
-			loading() {
-				return this.$store.state.loading;
+			...mapState(['loading', 'devices']),
+			totalItems() {
+				return this.devices.length;
 			},
-			devices() {
-				return this.$store.state.devices;
-			}
 		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);

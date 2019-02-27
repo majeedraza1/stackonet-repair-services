@@ -156,8 +156,9 @@ final class Stackonet_Repair_Services {
 		}
 
 		if ( $this->is_request( 'frontend' ) ) {
-			$this->container['frontend']         = Stackonet\Frontend::init();
-			$this->container['rest-testimonial'] = Stackonet\REST\TestimonialController::init();
+			$this->container['frontend']              = Stackonet\Frontend::init();
+			$this->container['rest-testimonial']      = Stackonet\REST\TestimonialController::init();
+			$this->container['rest-unsupported-area'] = Stackonet\REST\UnsupportedAreaController::init();
 		}
 
 		if ( $this->is_request( 'ajax' ) ) {
@@ -170,7 +171,6 @@ final class Stackonet_Repair_Services {
 		$area->create_table();
 		$testimonial = new \Stackonet\Models\Testimonial();
 		$testimonial->create_table();
-		// \Stackonet\UnsupportedArea::create_table();
 	}
 
 	/**

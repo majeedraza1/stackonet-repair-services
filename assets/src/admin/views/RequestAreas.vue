@@ -12,10 +12,12 @@
 				:current-page="currentPage"
 				:per-page="perPage"
 				:total-items="totalItems"
-				@action:click="onActionClick"
-				@bulk:apply="onBulkAction"
 				:statuses="statuses"
 				:show-search="false"
+				@action:click="onActionClick"
+				@bulk:apply="onBulkAction"
+				@status:change="changeStatus"
+				@pagination="paginate"
 		></wp-list-table>
 	</div>
 </template>
@@ -48,6 +50,7 @@
 				currentPage: 1,
 				perPage: 20,
 				counts: {},
+				index: -1,
 			}
 		},
 		computed: {
@@ -101,9 +104,8 @@
 				self.$store.commit('SET_LOADING_STATUS', true);
 				$.ajax({
 					method: 'GET',
-					url: ajaxurl,
+					url: stackonetSettings.root + '/unsupported_areas',
 					data: {
-						action: 'get_request_areas',
 						per_page: self.perPage,
 						page: self.currentPage,
 						status: self.activeStatus,
@@ -114,6 +116,59 @@
 							self.$store.commit('SET_REQUESTED_AREAS_COUNTS', response.data.counts);
 						}
 						self.$store.commit('SET_LOADING_STATUS', false);
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					}
+				});
+			},
+			changeStatus(status) {
+				this.currentPage = 1;
+				this.activeStatus = status.key;
+
+				this.default_statuses.forEach(element => {
+					element.active = false;
+				});
+
+				status.active = true;
+
+				this.get_items();
+			},
+			paginate(page) {
+				this.currentPage = page;
+				this.get_items();
+			},
+			update_item(id, data) {
+				let self = this, $ = window.jQuery;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				$.ajax({
+					method: "PUT",
+					url: stackonetSettings.root + '/unsupported_areas/' + id,
+					data: data,
+					success: function () {
+						self.get_items();
+						self.$store.commit('SET_LOADING_STATUS', false);
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					}
+				});
+			},
+			trash_item(item) {
+				this.update_item(item.id, {status: 'trash'});
+			},
+			restore_item(item) {
+				this.update_item(item.id, {status: 'restore'});
+			},
+			delete_item(item) {
+				let self = this, $ = window.jQuery;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				$.ajax({
+					method: "DELETE",
+					url: stackonetSettings.root + '/unsupported_areas/' + item.id,
+					success: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+						self.get_items();
 					},
 					error: function () {
 						self.$store.commit('SET_LOADING_STATUS', false);
@@ -151,18 +206,79 @@
 				}
 			},
 			trashItem(item) {
+				this.update_item(item.id, {status: 'trash'});
 			},
 			restoreItem(item) {
+				this.update_item(item.id, {status: 'restore'});
 			},
 			deleteItem(item) {
-				let $ = window.jQuery, self = this;
-				// self.$store.commit('SET_LOADING_STATUS', true);
+				let self = this, $ = window.jQuery;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				$.ajax({
+					method: "DELETE",
+					url: stackonetSettings.root + '/unsupported_areas/' + item.id,
+					success: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+						self.get_items();
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					}
+				});
 			},
-			trashItems(item) {
+			trashItems(ids) {
+				let self = this, $ = window.jQuery;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				$.ajax({
+					method: "DELETE",
+					url: stackonetSettings.root + '/unsupported_areas/batch/trash',
+					data: {ids: ids},
+					success: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+						self.get_items();
+						action = '-1';
+						ids = [];
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					}
+				});
 			},
-			deleteItems(item) {
+			deleteItems(ids) {
+				let self = this, $ = window.jQuery;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				$.ajax({
+					method: "DELETE",
+					url: stackonetSettings.root + '/unsupported_areas/batch/delete',
+					data: {ids: ids},
+					success: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+						self.get_items();
+						action = '-1';
+						ids = [];
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					}
+				});
 			},
-			restoreItems(item) {
+			restoreItems(ids) {
+				let self = this, $ = window.jQuery;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				$.ajax({
+					method: "DELETE",
+					url: stackonetSettings.root + '/unsupported_areas/batch/restore',
+					data: {ids: ids},
+					success: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+						self.get_items();
+						action = '-1';
+						ids = [];
+					},
+					error: function () {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					}
+				});
 			},
 		}
 	}
