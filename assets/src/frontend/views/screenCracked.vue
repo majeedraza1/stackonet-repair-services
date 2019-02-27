@@ -5,7 +5,7 @@
 		</div>
 		<div class="info-box-wrapper">
 			<div class="info-box-inner-wrapper">
-				<span>Parts and labor come with a </span><span><b>lifetime guarantee.</b></span>
+				<span><b>Lifetime warranty</b></span><span> on all parts and labor</span>
 			</div>
 		</div>
 		<div class="select-issue-content-container">
@@ -131,6 +131,7 @@
 		flex: 1 1;
 		text-align: center;
 		font-size: 22px;
+		font-weight: bold;
 		color: #3d4248;
 	}
 

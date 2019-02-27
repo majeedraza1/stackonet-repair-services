@@ -1,5 +1,15 @@
 <template>
 	<div class="device-list">
+		<div class="step-nav-page-wrapper">
+			<div class="step-nav-wrapper">
+				<span class="step-nav-title">Which device would you like repaired?</span>
+			</div>
+		</div>
+		<div class="info-box-wrapper">
+			<div class="info-box-inner-wrapper">
+				Home, Office or even a Massage. We come to you and fix your phone right on the spot!
+			</div>
+		</div>
 		<div class="select-device-content-container">
 			<template v-for="device in devices">
 				<div class="scale-on-mount scale-on-mount-active" @click="chooseDeviceModel(device)">
@@ -7,7 +17,7 @@
 						<div class="phone-family-image-wrapper">
 							<img :src="device.image.src" :alt="device.device_title">
 						</div>
-						<div class="phone-family-item-text-wrapper" v-text="device.title"></div>
+						<div class="phone-family-item-text-wrapper" v-text="device.device_title"></div>
 					</div>
 				</div>
 			</template>
@@ -115,5 +125,6 @@
 	.phone-family-item-text-wrapper {
 		line-height: 60px;
 		text-align: center;
+		font-weight: bold;
 	}
 </style>

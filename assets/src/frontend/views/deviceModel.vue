@@ -1,7 +1,15 @@
 <template>
 	<div class="device-model-list">
+		<div class="step-nav-page-wrapper">
+			<div class="step-nav-wrapper">
+				<span class="step-nav-title">Which Model is your {{device.device_title}} device?</span>
+			</div>
+		</div>
+		<div class="info-box-wrapper">
+			<div class="info-box-inner-wrapper">Pay once the job is complete!</div>
+		</div>
 		<div class="select-device-content-container">
-			<template v-for="device in models">
+			<template v-for="device in deviceModels">
 				<div class="scale-on-mount scale-on-mount-active" @click="chooseDeviceModel(device)">
 					<div class="phone-model-item-wrapper hoverable">
 						<div v-text="device.title"></div>
@@ -13,17 +21,17 @@
 </template>
 
 <script>
+	import {mapState} from 'vuex';
+
 	export default {
 		name: "deviceModel",
 		data() {
 			return {}
 		},
 		computed: {
-			models() {
-				return this.$store.state.deviceModels;
-			},
+			...mapState(['deviceModels', 'device']),
 			hasModels() {
-				return !!(this.models && this.models.length);
+				return !!(this.deviceModels && this.deviceModels.length);
 			}
 		},
 		mounted() {

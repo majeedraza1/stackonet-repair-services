@@ -1,7 +1,15 @@
 <template>
 	<div class="device-colors-list">
+		<div class="step-nav-page-wrapper">
+			<div class="step-nav-wrapper">
+				<span class="step-nav-title">What Color is your device?</span>
+			</div>
+		</div>
+		<div class="info-box-wrapper">
+			<div class="info-box-inner-wrapper">Amazing Service Affordable Prices</div>
+		</div>
 		<div class="select-color-content-container">
-			<template v-for="color in colors">
+			<template v-for="color in deviceColors">
 				<div class="scale-on-mount scale-on-mount-active" @click="chooseDeviceColor(color)">
 					<div class="phone-color-item-wrapper hoverable">
 						<div class="phone-color-item-color-circle" :style="{backgroundColor: color.color}"></div>
@@ -15,17 +23,17 @@
 </template>
 
 <script>
+	import {mapState} from 'vuex';
+
 	export default {
 		name: "deviceColor",
 		data() {
 			return {}
 		},
 		computed: {
-			colors() {
-				return this.$store.state.deviceColors;
-			},
+			...mapState(['deviceColors']),
 			hasColors() {
-				return !!(this.colors && this.colors.length);
+				return !!(this.deviceColors && this.deviceColors.length);
 			}
 		},
 		mounted() {

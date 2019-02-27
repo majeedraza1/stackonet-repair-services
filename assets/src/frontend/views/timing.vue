@@ -2,7 +2,13 @@
 	<div class="select-time-wrapper">
 		<div class="step-nav-page-wrapper">
 			<div class="step-nav-wrapper">
-				<span class="step-nav-title">What's your preferred timing?</span>
+				<span class="step-nav-title">What time do you prefer?</span>
+			</div>
+		</div>
+		<div class="info-box-wrapper">
+			<div class="info-box-inner-wrapper">
+				<span>We do our best to deliver amazing service at affordable prices to everyone. If we are unable to meet you at your desired time, we will deduct $5 and include a free tempered glass with the repair!</span>
+				<span>We will confirm timing by email and SMS</span>
 			</div>
 		</div>
 		<div>
