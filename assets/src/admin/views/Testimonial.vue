@@ -32,6 +32,10 @@
 				</template>
 				<list-item label="Description">{{activeTestimonial.description}}</list-item>
 			</div>
+			<div>
+				<h4>Client Image</h4>
+				<background-image v-model="client_image"></background-image>
+			</div>
 			<div slot="foot">
 				<mdl-button type="raised" color="primary" @click="updateStatus(activeTestimonial, 'accept')">Accept
 				</mdl-button>
@@ -45,15 +49,17 @@
 <script>
 	import wpListTable from '../../wp/wpListTable';
 	import ListItem from '../../components/ListItem';
+	import BackgroundImage from '../../components/BackgroundImage';
 	import mdlModal from '../../material-design-lite/modal/mdlModal';
 	import mdlButton from '../../material-design-lite/button/mdlButton';
 	import {mapState} from 'vuex';
 
 	export default {
 		name: "Testimonial",
-		components: {wpListTable, mdlModal, ListItem, mdlButton},
+		components: {wpListTable, mdlModal, ListItem, mdlButton, BackgroundImage},
 		data() {
 			return {
+				client_image: {},
 				default_statuses: [
 					{key: 'all', label: 'All', count: 0, active: true},
 					{key: 'accept', label: 'Accepted', count: 0, active: false},

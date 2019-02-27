@@ -68,6 +68,9 @@ class Testimonial extends DatabaseModel {
             ) $collate;";
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $table_schema );
+
+		$sql = "ALTER TABLE `{$table_name}` ADD `image_id` BIGINT(20) NULL DEFAULT NULL AFTER `status`;";
+		dbDelta( $sql );
 	}
 
 	/**

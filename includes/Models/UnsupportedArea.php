@@ -263,7 +263,7 @@ class UnsupportedArea extends DatabaseModel implements DataStoreInterface {
 	public function create_table() {
 		global $wpdb;
 
-		$table_name = self::$table;
+		$table_name = $wpdb->prefix . $this->table;
 		$collate    = $wpdb->get_charset_collate();
 
 		$table_schema = "CREATE TABLE IF NOT EXISTS {$table_name} (
