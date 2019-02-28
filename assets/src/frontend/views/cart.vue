@@ -5,10 +5,10 @@
 			<div class="my-cart-small-items-container" style="padding-top: 20px;" v-if="showPhoneRepairSection">
 				<div class="my-cart-small-items-wrapper my-cart-small-items-wrapper-colored">
 					<div class="cart-title-container">
-						<svg width="20px" height="20px" xmlns="http://www.w3.org/2000/svg">
-							<use xlink:href="#icon-phone"></use>
-						</svg>
-						<span class="time-title">Phone Repair</span>
+						<div class="cart-title-left">
+							<img :src="icons.phone" alt="Icon phone" width="20" height="20">
+							<span class="time-title">Phone Repair</span>
+						</div>
 						<div class="my-cart-small-items-edit" v-if="totalPrice" @click="editDevice">
 							<svg width="12px" height="11px" xmlns="http://www.w3.org/2000/svg">
 								<use xlink:href="#icon-pen"></use>
@@ -43,10 +43,10 @@
 			<div class="my-cart-small-items-container" v-if="showDateTimeSection">
 				<div class="my-cart-small-items-wrapper my-cart-small-items-wrapper-colored">
 					<div class="cart-title-container">
-						<svg width="20px" height="20px" xmlns="http://www.w3.org/2000/svg">
-							<use xlink:href="#icon-clock"></use>
-						</svg>
-						<span class="time-title">Time</span>
+						<div class="cart-title-left">
+							<img :src="icons.clock" alt="Icon clock" width="20" height="20">
+							<span class="time-title">Time</span>
+						</div>
 						<div class="my-cart-small-items-edit" v-if="date" @click="editTime">
 							<svg width="12px" height="11px" version="1.1" xmlns="http://www.w3.org/2000/svg">
 								<use xlink:href="#icon-pen"></use>
@@ -61,10 +61,10 @@
 			<div class="my-cart-small-items-container" v-if="showLocationSection">
 				<div class="my-cart-small-items-wrapper my-cart-small-items-wrapper-colored">
 					<div class="cart-title-container">
-						<svg width="20px" height="20px" version="1.1" xmlns="http://www.w3.org/2000/svg">
-							<use xlink:href="#icon-map"></use>
-						</svg>
-						<span class="time-title">Location</span>
+						<div class="cart-title-left">
+							<img :src="icons.map" alt="Icon map" width="20" height="20">
+							<span class="time-title">Location</span>
+						</div>
 					</div>
 					<div class="my-cart-small-items-text" v-html="address"></div>
 				</div>
@@ -73,10 +73,10 @@
 			<div class="my-cart-small-items-container" v-if="showContactDetailsSection">
 				<div class="my-cart-small-items-wrapper my-cart-small-items-wrapper-colored">
 					<div class="cart-title-container">
-						<svg width="20px" height="20px" version="1.1" xmlns="http://www.w3.org/2000/svg">
-							<use xlink:href="#icon-contact"></use>
-						</svg>
-						<span class="time-title">Contact Details</span>
+						<div class="cart-title-left">
+							<img :src="icons.contact" alt="Icon contact" width="20" height="20">
+							<span class="time-title">Contact Details</span>
+						</div>
 					</div>
 					<div class="my-cart-small-items-text">
 						<div v-text="firstName"></div>
@@ -91,56 +91,24 @@
 </template>
 
 <script>
+	import {mapState} from 'vuex';
+
 	export default {
 		name: "cart",
 		computed: {
-			device() {
-				return this.$store.state.device;
+			...mapState(['device', 'deviceModel', 'deviceColor', 'issues', 'date', 'timeRange', 'address',
+				'firstName', 'lastName', 'emailAddress', 'phone', 'showCart', 'addressObject']),
+			icons() {
+				return window.Stackonet.icons;
 			},
 			hasDevice() {
 				return !!(this.device && this.device.device_title);
 			},
-			deviceModel() {
-				return this.$store.state.deviceModel;
-			},
-			deviceColor() {
-				return this.$store.state.deviceColor;
-			},
 			hasDeviceColor() {
 				return !!(this.deviceColor && this.deviceColor.title);
 			},
-			issues() {
-				return this.$store.state.issues;
-			},
 			totalPrice() {
 				return this.issues.reduce((prev, next) => prev + next.price, 0);
-			},
-			date() {
-				return this.$store.state.date;
-			},
-			timeRange() {
-				return this.$store.state.timeRange;
-			},
-			address() {
-				return this.$store.state.address;
-			},
-			firstName() {
-				return this.$store.state.firstName;
-			},
-			lastName() {
-				return this.$store.state.lastName;
-			},
-			emailAddress() {
-				return this.$store.state.emailAddress;
-			},
-			phone() {
-				return this.$store.state.phone;
-			},
-			showCart() {
-				return this.$store.state.showCart;
-			},
-			addressObject() {
-				return this.$store.state.addressObject;
 			},
 			hasAddress() {
 				return !!(this.address && this.address.length);
@@ -253,5 +221,15 @@
 
 	.float-right-price {
 		float: right;
+	}
+
+	.cart-title-container {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+
+		.cart-title-left {
+			display: inline-flex;
+		}
 	}
 </style>

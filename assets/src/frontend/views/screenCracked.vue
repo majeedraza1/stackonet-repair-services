@@ -15,9 +15,7 @@
 					<div class="screen-cracked-button-item hoverable">
 						<div class="screen-cracked-button-item-price"><b>${{broken_screen_price}}</b></div>
 						<div class="screen-cracked-button-image-wrapper">
-							<svg xmlns="http://www.w3.org/2000/svg" width="30" height="53">
-								<use xlink:href="#icon-screen-broken-yes"></use>
-							</svg>
+							<img :src="icons.screenBrokenYes" alt="Screen Broken" width="30" height="53">
 						</div>
 						<p>Yes</p>
 					</div>
@@ -27,9 +25,7 @@
 			<div class="scale-on-mount scale-on-mount-active" @click="setScreenCracked('no')">
 				<div class="screen-cracked-button-item hoverable">
 					<div class="screen-cracked-button-image-wrapper">
-						<svg xmlns="http://www.w3.org/2000/svg" width="30" height="53">
-							<use xlink:href="#icon-screen-broken-no"></use>
-						</svg>
+						<img :src="icons.screenBrokenNo" alt="Screen Not Broken" width="30" height="53">
 					</div>
 					<p>No</p>
 				</div>
@@ -37,9 +33,7 @@
 			<div class="scale-on-mount scale-on-mount-active" @click="setScreenCracked('multiple')">
 				<div class="screen-cracked-button-item hoverable">
 					<div class="screen-cracked-button-image-wrapper">
-						<svg xmlns="http://www.w3.org/2000/svg" width="66" height="47">
-							<use xlink:href="#icon-screen-multi-issue"></use>
-						</svg>
+						<img :src="icons.screenMultiIssue" alt="Screen Multiple Issues" width="30" height="53">
 					</div>
 					<p>Multiple</p>
 					<p>Issues</p>
@@ -62,6 +56,9 @@
 			}
 		},
 		computed: {
+			icons() {
+				return window.Stackonet.icons;
+			},
 			zipCode() {
 				return this.$store.state.zipCode;
 			},

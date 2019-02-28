@@ -170,6 +170,20 @@ class Frontend {
 		$data['dateRanges']  = Settings::get_service_dates_ranges();
 		$data['timeRanges']  = Settings::get_service_times_ranges();
 
+		$data['icons'] = [
+			'check'            => STACKONET_REPAIR_SERVICES_ASSETS . '/img/icon-check.png',
+			'checkCircle'      => STACKONET_REPAIR_SERVICES_ASSETS . '/img/icon-check-circle.png',
+			'clock'            => STACKONET_REPAIR_SERVICES_ASSETS . '/img/icon-clock.png',
+			'contact'          => STACKONET_REPAIR_SERVICES_ASSETS . '/img/icon-contact.png',
+			'envelope'         => STACKONET_REPAIR_SERVICES_ASSETS . '/img/icon-envelope.png',
+			'map'              => STACKONET_REPAIR_SERVICES_ASSETS . '/img/icon-map.png',
+			'phone'            => STACKONET_REPAIR_SERVICES_ASSETS . '/img/icon-phone.png',
+			'screenBrokenNo'   => STACKONET_REPAIR_SERVICES_ASSETS . '/img/icon-screen-broken-no.png',
+			'screenBrokenYes'  => STACKONET_REPAIR_SERVICES_ASSETS . '/img/icon-screen-broken-yes.png',
+			'screenMultiIssue' => STACKONET_REPAIR_SERVICES_ASSETS . '/img/icon-screen-multi-issue.png',
+			'unsupportedIssue' => STACKONET_REPAIR_SERVICES_ASSETS . '/img/icon-unsupported-issue.png',
+		];
+
 		return $data;
 	}
 }

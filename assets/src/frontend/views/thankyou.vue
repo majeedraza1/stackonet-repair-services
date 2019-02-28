@@ -1,9 +1,6 @@
 <template>
 	<div class="thank-you-content">
-		<svg class="thank-you-check" width="55" height="55" version="1.1" xmlns="http://www.w3.org/2000/svg"
-			 xmlns:xlink="http://www.w3.org/1999/xlink">
-			<use xlink:href="#icon-success"></use>
-		</svg>
+		<img class="thank-you-check" :src="icons.checkCircle" alt="Check Circle" width="55" height="55">
 		<div class="title-wrapper theme-dark centered small">
 			<h1 class="h1-headline">Thank you!</h1>
 		</div>
@@ -13,19 +10,13 @@
 		<div class="thank-you-rows-wrapper">
 			<div class="section-item-container">
 				<div class="section-item-img">
-					<svg width="28px" height="18px" version="1.1" xmlns="http://www.w3.org/2000/svg"
-						 xmlns:xlink="http://www.w3.org/1999/xlink">
-						<use xlink:href="#icon-envelope"></use>
-					</svg>
+					<img :src="icons.envelope" alt="envelope" width="25">
 				</div>
 				<div class="section-item-text">You will recieve a confirmation email and SMS with all the details.</div>
 			</div>
 			<div class="section-item-container">
 				<div class="section-item-img">
-					<svg width="23px" height="15px" version="1.1" xmlns="http://www.w3.org/2000/svg"
-						 xmlns:xlink="http://www.w3.org/1999/xlink">
-						<use xlink:href="#icon-check"></use>
-					</svg>
+					<img :src="icons.check" alt="check" width="25">
 				</div>
 				<div class="section-item-text">We’re selecting the best technician in your area and will confirm your
 					appointment soon.
@@ -33,10 +24,7 @@
 			</div>
 			<div class="section-item-container">
 				<div class="section-item-img">
-					<svg width="19px" height="26px" version="1.1" xmlns="http://www.w3.org/2000/svg"
-						 xmlns:xlink="http://www.w3.org/1999/xlink">
-						<use xlink:href="#icon-location"></use>
-					</svg>
+					<img :src="icons.map" alt="map" width="25">
 				</div>
 				<div class="section-item-text">Once we assign a technician, we will provide the technician's name and
 					arrival time by email and SMS.
@@ -49,6 +37,11 @@
 <script>
 	export default {
 		name: "thankyou",
+		computed: {
+			icons() {
+				return window.Stackonet.icons;
+			},
+		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 			this.$store.commit('SET_SHOW_CART', false);
