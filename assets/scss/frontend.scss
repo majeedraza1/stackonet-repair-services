@@ -30,9 +30,33 @@
 	display: flex;
 	flex-wrap: nowrap;
 
+	&-avatar {
+		align-items: center;
+		display: flex;
+		height: 92px;
+		justify-content: center;
+
+		&-image {
+			box-sizing: border-box;
+			background: #f1f1f1;
+			border: 2px solid #f58733;
+			border-radius: 40px;
+			height: 72px;
+			margin: 1rem;
+			width: 72px;
+
+			img {
+				border: 1px solid #fff;
+				border-radius: 36px;
+				margin: 0 !important;
+			}
+		}
+	}
+
 	&-description {
 		font-size: 16px;
 		line-height: 1.6;
+		text-align: justify;
 	}
 
 	&-item {

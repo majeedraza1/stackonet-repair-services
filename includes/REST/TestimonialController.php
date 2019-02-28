@@ -74,7 +74,7 @@ class TestimonialController extends ApiController {
 	 */
 	public function get_items( $request ) {
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return $this->respondForbidden();
+			// return $this->respondForbidden();
 		}
 
 		$per_page = $request->get_param( 'per_page' );

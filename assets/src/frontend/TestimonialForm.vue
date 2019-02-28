@@ -60,7 +60,7 @@
 	import mdlButton from '../material-design-lite/button/mdlButton';
 
 	export default {
-		name: "Testimonial",
+		name: "TestimonialForm",
 		components: {AnimatedInput, StarRating, BigButton, mdlModal, mdlButton},
 		data() {
 			return {

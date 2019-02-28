@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import Testimonial from './Testimonial.vue'
+import TestimonialForm from './TestimonialForm.vue'
 import {tns} from 'tiny-slider/src/tiny-slider';
 
 if (document.querySelector('#stackonet_testimonial_form')) {
@@ -8,7 +8,7 @@ if (document.querySelector('#stackonet_testimonial_form')) {
 
 	new Vue({
 		el: '#stackonet_testimonial_form',
-		render: h => h(Testimonial)
+		render: h => h(TestimonialForm)
 	});
 }
 

@@ -6,7 +6,7 @@
 				<div class="my-cart-small-items-wrapper my-cart-small-items-wrapper-colored">
 					<div class="cart-title-container">
 						<div class="cart-title-left">
-							<img :src="icons.phone" alt="Icon phone" width="20" height="20">
+							<img :src="icons.phone" alt="Icon phone" style="width: 20px;height: 40px;">
 							<span class="time-title">Phone Repair</span>
 						</div>
 						<div class="my-cart-small-items-edit" v-if="totalPrice" @click="editDevice">
@@ -44,7 +44,7 @@
 				<div class="my-cart-small-items-wrapper my-cart-small-items-wrapper-colored">
 					<div class="cart-title-container">
 						<div class="cart-title-left">
-							<img :src="icons.clock" alt="Icon clock" width="20" height="20">
+							<img :src="icons.clock" alt="Icon clock" style="width: 20px;height: 20px;">
 							<span class="time-title">Time</span>
 						</div>
 						<div class="my-cart-small-items-edit" v-if="date" @click="editTime">
@@ -62,7 +62,7 @@
 				<div class="my-cart-small-items-wrapper my-cart-small-items-wrapper-colored">
 					<div class="cart-title-container">
 						<div class="cart-title-left">
-							<img :src="icons.map" alt="Icon map" width="20" height="20">
+							<img :src="icons.map" alt="Icon map" style="width: 20px;height: 20px;">
 							<span class="time-title">Location</span>
 						</div>
 					</div>
@@ -74,7 +74,7 @@
 				<div class="my-cart-small-items-wrapper my-cart-small-items-wrapper-colored">
 					<div class="cart-title-container">
 						<div class="cart-title-left">
-							<img :src="icons.contact" alt="Icon contact" width="20" height="20">
+							<img :src="icons.contact" alt="Icon contact" style="width: 20px;height: 20px;">
 							<span class="time-title">Contact Details</span>
 						</div>
 					</div>
@@ -120,7 +120,7 @@
 				return this.totalPrice;
 			},
 			showLocationSection() {
-				return !!this.addressObject;
+				return !!(this.addressObject && this.address);
 			},
 			showContactDetailsSection() {
 				return this.hasAddress;
@@ -230,6 +230,10 @@
 
 		.cart-title-left {
 			display: inline-flex;
+		}
+
+		img {
+			height: initial;
 		}
 	}
 </style>

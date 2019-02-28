@@ -30,6 +30,7 @@ export default new Vuex.Store({
 		emailAddress: '',
 		phone: '',
 		couponCode: '',
+		testimonials: [],
 	},
 
 	// Commit + track state changes
@@ -106,10 +107,31 @@ export default new Vuex.Store({
 		SET_SHOW_CART(state, showCart) {
 			state.showCart = showCart;
 		},
+		SET_TESTIMONIALS(state, testimonials) {
+			state.testimonials = testimonials;
+		},
 	},
 
 	// Same as Vue methods
-	actions: {},
+	actions: {
+		fetchAcceptedTestimonial(context) {
+			context.commit('SET_LOADING_STATUS', true);
+			window.jQuery.ajax({
+				method: 'GET',
+				url: window.Stackonet.rest_root + '/testimonials',
+				data: {status: 'accept', per_page: 50,},
+				success: function (response) {
+					if (response.data) {
+						context.commit('SET_TESTIMONIALS', response.data.items);
+					}
+					context.commit('SET_LOADING_STATUS', false);
+				},
+				error: function () {
+					context.commit('SET_LOADING_STATUS', false);
+				}
+			});
+		}
+	},
 
 	// Save as Vue computed property
 	getters: {},

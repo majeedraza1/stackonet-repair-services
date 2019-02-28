@@ -1,25 +1,33 @@
 <template>
-	<div class="zip-code-wrapper">
-		<div class="step-nav-page-wrapper">
-			<div class="step-nav-wrapper"><span class="step-nav-title">What's your zip code?</span></div>
+	<div>
+		<div class="zip-code-wrapper">
+			<div class="step-nav-page-wrapper">
+				<div class="step-nav-wrapper"><span class="step-nav-title">What's your zip code?</span></div>
+			</div>
+			<form action="#" @submit.prevent="handleSubmit">
+				<div class="zip-code-input-wrapper">
+					<input type="tel" placeholder="Please enter zip code" v-model="tempZipCode">
+				</div>
+				<div class="zip-code-continue-wrapper">
+					<big-button @click="handleSubmit" :disabled="!isSubmitActive">Continue</big-button>
+				</div>
+			</form>
 		</div>
-		<form action="#" @submit.prevent="handleSubmit">
-			<div class="zip-code-input-wrapper">
-				<input type="tel" placeholder="Please enter zip code" v-model="tempZipCode">
-			</div>
-			<div class="zip-code-continue-wrapper">
-				<big-button @click="handleSubmit" :disabled="!isSubmitActive">Continue</big-button>
-			</div>
-		</form>
+
+		<div class="testimonial-carousel-wrapper">
+			<testimonial-carousel :items="testimonials"></testimonial-carousel>
+		</div>
 	</div>
 </template>
 
 <script>
 	import BigButton from '../../components/BigButton.vue';
+	import TestimonialCarousel from '../TestimonialCarousel';
+	import {mapState} from 'vuex';
 
 	export default {
 		name: "zipCode",
-		components: {BigButton},
+		components: {BigButton, TestimonialCarousel},
 		data() {
 			return {
 				tempZipCode: '',
@@ -34,19 +42,21 @@
 			if (!this.hasDeviceColor) {
 				this.$router.push('/device-color');
 			}
+
+			if (!this.isTestimonials) {
+				this.$store.dispatch('fetchAcceptedTestimonial');
+			}
 		},
 		computed: {
-			deviceColor() {
-				return this.$store.state.deviceColor;
-			},
+			...mapState(['deviceColor', 'zipCode', 'testimonials']),
 			hasDeviceColor() {
 				return !!(this.deviceColor && this.deviceColor.color);
 			},
-			zip_code() {
-				return this.$store.state.zipCode;
-			},
 			isSubmitActive() {
 				return this.tempZipCode && this.tempZipCode.length >= 3;
+			},
+			isTestimonials() {
+				return this.testimonials && this.testimonials.length >= 1;
 			},
 			isValidArea() {
 				let value = parseInt(this.tempZipCode);
@@ -74,6 +84,10 @@
 	.zip-code-wrapper {
 		width: 100%;
 		padding: 0 10px 30px;
+	}
+
+	.testimonial-carousel-wrapper {
+		margin: 3rem auto;
 	}
 
 	.step-nav-wrapper {

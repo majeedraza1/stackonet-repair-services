@@ -106,6 +106,16 @@ class Frontend {
 				<?php foreach ( $testimonials as $testimonial ) { ?>
 					<div class="client-testimonial-item item">
 						<div class="demo-card-wide mdl-card mdl-shadow--2dp">
+							<div class="client-testimonial-avatar">
+								<div class="client-testimonial-avatar-image">
+									<?php
+									if ( ! empty( $testimonial->get( 'image_id' ) ) ) {
+										$image = wp_get_attachment_image_src( $testimonial->get( 'image_id' ), 'thumbnail' );
+										echo '<img src="' . esc_url( $image[0] ) . '">';
+									}
+									?>
+								</div>
+							</div>
 							<div class="mdl-card__supporting-text">
 								<div class="client-testimonial-description">
 									<?php echo esc_html( $testimonial->get( 'description' ) ) ?>
@@ -159,10 +169,12 @@ class Frontend {
 	 */
 	public static function service_data() {
 		$data = [
-			'ajaxurl'  => admin_url( 'admin-ajax.php' ),
-			'site_url' => site_url(),
-			'home_url' => home_url(),
-			'token'    => wp_create_nonce( 'confirm_appointment' ),
+			'ajaxurl'    => admin_url( 'admin-ajax.php' ),
+			'site_url'   => site_url(),
+			'home_url'   => home_url(),
+			'token'      => wp_create_nonce( 'confirm_appointment' ),
+			'rest_root'  => esc_url_raw( rest_url( 'stackonet/v1' ) ),
+			'rest_nonce' => wp_create_nonce( 'wp_rest' ),
 		];
 
 		$data['devices']     = Device::get_devices();
