@@ -47,9 +47,14 @@
 	}
 
 	.mdl-card__actions {
+		border-top: none;
 		display: flex;
-		flex-direction: column;
-		justify-content: center;
+		flex-direction: row;
+		justify-content: space-between;
 		align-items: center;
+
+		.star-rating {
+			min-width: 9em;
+		}
 	}
 }

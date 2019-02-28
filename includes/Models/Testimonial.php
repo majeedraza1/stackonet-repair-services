@@ -24,8 +24,9 @@ class Testimonial extends DatabaseModel {
 		'email'       => '',
 		'phone'       => '',
 		'description' => '',
-		'rating'      => '',
+		'rating'      => 0,
 		'status'      => 'pending',
+		'image_id'    => 0,
 		'created_at'  => '',
 		'updated_at'  => '',
 		'deleted_at'  => null,
@@ -36,7 +37,7 @@ class Testimonial extends DatabaseModel {
 	 *
 	 * @var array
 	 */
-	protected $data_format = [ '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', ];
+	protected $data_format = [ '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%d', '%s', '%s', '%s' ];
 
 	/**
 	 * Available status for the model
@@ -44,6 +45,28 @@ class Testimonial extends DatabaseModel {
 	 * @var array
 	 */
 	protected $available_status = [ 'all', 'accept', 'reject', 'pending', 'trash' ];
+
+	public function to_array() {
+		$data = parent::to_array();
+
+		$data['id']       = intval( $this->get( 'id' ) );
+		$data['rating']   = intval( $this->get( 'rating' ) );
+		$data['image_id'] = intval( $this->get( 'image_id' ) );
+
+		if ( $data['image_id'] ) {
+			$image = wp_get_attachment_image_src( $data['image_id'], 'full' );
+			if ( isset( $image[0] ) && filter_var( $image[0], FILTER_VALIDATE_URL ) ) {
+				$data['image'] = [
+					'id'     => $data['image_id'],
+					'src'    => $image[0],
+					'width'  => $image[1],
+					'height' => $image[2]
+				];
+			}
+		}
+
+		return $data;
+	}
 
 	/**
 	 * Create table

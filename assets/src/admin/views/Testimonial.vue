@@ -19,7 +19,7 @@
 				@status:change="changeStatus"
 				@pagination="paginate"
 		></wp-list-table>
-		<mdl-modal :active="openModel" @close="openModel = false" title="Testimonial">
+		<mdl-modal :active="openModel" @close="closeModal" title="Testimonial">
 			<div class="mdl-box">
 				<list-item label="Name">{{activeTestimonial.name}}</list-item>
 				<list-item label="Email">{{activeTestimonial.email}}</list-item>
@@ -34,7 +34,7 @@
 			</div>
 			<div>
 				<h4>Client Image</h4>
-				<background-image v-model="client_image"></background-image>
+				<background-image :value="client_image" @input="changeClientImage"></background-image>
 			</div>
 			<div slot="foot">
 				<mdl-button type="raised" color="primary" @click="updateStatus(activeTestimonial, 'accept')">Accept
@@ -137,6 +137,16 @@
 			}
 		},
 		methods: {
+			closeModal() {
+				this.activeTestimonial = {};
+				this.client_image = {};
+				this.index = -1;
+				this.openModel = false;
+			},
+			changeClientImage(image) {
+				this.client_image = image;
+				this.update_item(this.activeTestimonial.id, {image_id: image.id ? image.id : 0});
+			},
 			get_items() {
 				let self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
@@ -216,6 +226,9 @@
 			onActionClick(action, row) {
 				if ('edit' === action) {
 					this.activeTestimonial = row;
+					if (row.image) {
+						this.client_image = row.image;
+					}
 					this.index = this.testimonials.indexOf(row);
 					this.openModel = true;
 				} else if ('trash' === action) {
@@ -313,12 +326,11 @@
 						status: status,
 					},
 					success: function () {
-						self.openModel = false;
 						testimonial.status = status;
 						self.testimonials[self.index] = testimonial;
-						self.activeTestimonial = {};
 						self.index = -1;
 						self.get_items();
+						self.closeModal();
 						self.$store.commit('SET_LOADING_STATUS', false);
 					},
 					error: function () {

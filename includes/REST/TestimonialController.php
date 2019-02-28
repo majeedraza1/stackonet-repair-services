@@ -132,20 +132,25 @@ class TestimonialController extends ApiController {
 		$params = $request->get_params();
 
 		// Handle Trash Request
-		if ( 'trash' == $params['status'] ) {
+		if ( isset( $params['status'] ) && 'trash' == $params['status'] ) {
 			$testimonial->trash();
 
 			return $this->respondOK();
 		}
 
 		// Handle Restore Request
-		if ( 'restore' == $params['status'] ) {
+		if ( isset( $params['status'] ) && 'restore' == $params['status'] ) {
 			$testimonial->restore();
 
 			return $this->respondOK();
 		}
 
-		return $this->respondOK( $params );
+		$status = ( new Testimonial() )->update( $params );
+		if ( $status ) {
+			return $this->respondOK( $params );
+		}
+
+		return $this->respondInternalServerError();
 	}
 
 	/**
