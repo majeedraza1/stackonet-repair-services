@@ -7,7 +7,7 @@
 					<div class="cart-title-container">
 						<div class="cart-title-left">
 							<img :src="icons.phone" alt="Icon phone" style="width: 20px;height: 40px;">
-							<span class="time-title">Phone Repair</span>
+							<span class="cart-title">Phone Repair</span>
 						</div>
 						<div class="my-cart-small-items-edit" v-if="totalPrice" @click="editDevice">
 							<svg width="12px" height="11px" xmlns="http://www.w3.org/2000/svg">
@@ -45,7 +45,7 @@
 					<div class="cart-title-container">
 						<div class="cart-title-left">
 							<img :src="icons.clock" alt="Icon clock" style="width: 20px;height: 20px;">
-							<span class="time-title">Time</span>
+							<span class="cart-title">Time</span>
 						</div>
 						<div class="my-cart-small-items-edit" v-if="date" @click="editTime">
 							<svg width="12px" height="11px" version="1.1" xmlns="http://www.w3.org/2000/svg">
@@ -63,7 +63,7 @@
 					<div class="cart-title-container">
 						<div class="cart-title-left">
 							<img :src="icons.map" alt="Icon map" style="width: 20px;height: 20px;">
-							<span class="time-title">Location</span>
+							<span class="cart-title">Location</span>
 						</div>
 					</div>
 					<div class="my-cart-small-items-text" v-html="address"></div>
@@ -75,7 +75,7 @@
 					<div class="cart-title-container">
 						<div class="cart-title-left">
 							<img :src="icons.contact" alt="Icon contact" style="width: 20px;height: 20px;">
-							<span class="time-title">Contact Details</span>
+							<span class="cart-title">Contact Details</span>
 						</div>
 					</div>
 					<div class="my-cart-small-items-text">
@@ -182,6 +182,12 @@
 			font-size: 19px;
 			line-height: 21px;
 		}
+	}
+
+	.cart-title {
+		margin-left: 1rem;
+		font-size: 20px;
+		line-height: 1.2;
 	}
 
 	.my-cart-small-items-edit {

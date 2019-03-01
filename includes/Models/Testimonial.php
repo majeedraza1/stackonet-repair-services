@@ -84,6 +84,7 @@ class Testimonial extends DatabaseModel {
                 `description` LONGTEXT DEFAULT NULL,
                 `rating` int(1) unsigned DEFAULT NULL,
                 `status` varchar(20) DEFAULT NULL,
+                `image_id` bigint(20) DEFAULT NULL,
                 `created_at` datetime DEFAULT NULL,
                 `updated_at` datetime DEFAULT NULL,
                 `deleted_at` datetime DEFAULT NULL,
@@ -91,9 +92,6 @@ class Testimonial extends DatabaseModel {
             ) $collate;";
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $table_schema );
-
-		$sql = "ALTER TABLE `{$table_name}` ADD `image_id` BIGINT(20) NULL DEFAULT NULL AFTER `status`;";
-		dbDelta( $sql );
 	}
 
 	/**

@@ -70,6 +70,12 @@
 		height: 100%;
 	}
 
+	.mdl-card__supporting-text {
+		width: 100%;
+		padding: 1rem;
+		overflow: hidden;
+	}
+
 	.mdl-card__actions {
 		border-top: none;
 		display: flex;

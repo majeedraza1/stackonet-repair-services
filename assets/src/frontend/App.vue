@@ -13,17 +13,13 @@
 <script>
 	import mdlSpinner from '../material-design-lite/spinner/mdlSpinner.vue';
 	import cart from './views/cart.vue';
+	import {mapState} from 'vuex';
 
 	export default {
 		name: 'App',
 		components: {mdlSpinner, cart},
 		computed: {
-			loading() {
-				return this.$store.state.loading;
-			},
-			showCart() {
-				return this.$store.state.showCart;
-			},
+			...mapState(['loading', 'showCart']),
 		},
 		mounted() {
 			this.$store.commit('SET_SHOW_CART', false);

@@ -17,14 +17,14 @@
 		<div class="client-testimonial fp-tns-slider">
 			<div class="client-testimonial-item item" v-for="item in items" :key="item.id">
 				<div class="demo-card-wide mdl-card mdl-shadow--2dp">
-					<div class="client-testimonial-avatar">
-						<div class="client-testimonial-avatar-image">
-							<template v-if="item.image">
-								<img :src="item.image.src" alt="">
-							</template>
-						</div>
-					</div>
 					<div class="mdl-card__supporting-text">
+						<div class="client-testimonial-avatar">
+							<div class="client-testimonial-avatar-image">
+								<template v-if="item.image">
+									<img :src="item.image.src" alt="">
+								</template>
+							</div>
+						</div>
 						<div class="client-testimonial-description" v-html="item.description"></div>
 					</div>
 					<div class="mdl-card__actions mdl-card--border">

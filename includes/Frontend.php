@@ -106,17 +106,17 @@ class Frontend {
 				<?php foreach ( $testimonials as $testimonial ) { ?>
 					<div class="client-testimonial-item item">
 						<div class="demo-card-wide mdl-card mdl-shadow--2dp">
-							<div class="client-testimonial-avatar">
-								<div class="client-testimonial-avatar-image">
-									<?php
-									if ( ! empty( $testimonial->get( 'image_id' ) ) ) {
-										$image = wp_get_attachment_image_src( $testimonial->get( 'image_id' ), 'thumbnail' );
-										echo '<img src="' . esc_url( $image[0] ) . '">';
-									}
-									?>
-								</div>
-							</div>
 							<div class="mdl-card__supporting-text">
+								<div class="client-testimonial-avatar">
+									<div class="client-testimonial-avatar-image">
+										<?php
+										if ( ! empty( $testimonial->get( 'image_id' ) ) ) {
+											$image = wp_get_attachment_image_src( $testimonial->get( 'image_id' ), 'thumbnail' );
+											echo '<img src="' . esc_url( $image[0] ) . '">';
+										}
+										?>
+									</div>
+								</div>
 								<div class="client-testimonial-description">
 									<?php echo esc_html( $testimonial->get( 'description' ) ) ?>
 								</div>
