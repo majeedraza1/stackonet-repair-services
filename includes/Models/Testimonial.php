@@ -54,7 +54,7 @@ class Testimonial extends DatabaseModel {
 		$data['image_id'] = intval( $this->get( 'image_id' ) );
 
 		if ( $data['image_id'] ) {
-			$image = wp_get_attachment_image_src( $data['image_id'], 'full' );
+			$image = wp_get_attachment_image_src( $data['image_id'], 'thumbnail' );
 			if ( isset( $image[0] ) && filter_var( $image[0], FILTER_VALIDATE_URL ) ) {
 				$data['image'] = [
 					'id'     => $data['image_id'],
