@@ -51,6 +51,12 @@
 
 <style lang="scss">
 	.thank-you-content {
+		padding: 1rem;
+
+		.h1-headline {
+			text-align: center;
+		}
+
 		.thank-you-check {
 			display: block;
 			text-align: center;

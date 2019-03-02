@@ -154,6 +154,7 @@
 		margin-left: auto;
 		margin-right: auto;
 		max-width: 500px;
+		justify-content: center;
 	}
 
 	.select-time-day-item-wrapper {
@@ -193,18 +194,20 @@
 	.select-time-time-picker-wrapper {
 		overflow: auto;
 		margin: 50px auto 0;
-		width: 840px;
+		max-width: 840px;
+		justify-content: center;
+		display: flex;
+		flex-wrap: wrap;
 	}
 
 	.time-content-box {
 		float: left;
 		box-sizing: border-box;
-		height: 50px;
 		width: 158px;
 		margin: 5px;
-		line-height: 46px;
 		border-radius: 4px;
 		background: #fff;
+		color: #444;
 		transition: all .5s ease;
 		text-align: center;
 		cursor: pointer;
@@ -229,7 +232,6 @@
 	}
 
 	.select-time-continue-button-wrapper {
-		width: 494px;
 		margin: 40px auto;
 	}
 

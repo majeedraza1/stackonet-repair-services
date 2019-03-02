@@ -36,7 +36,7 @@
 			border-width: 0;
 			cursor: pointer;
 			border-radius: 5px;
-			line-height: 64px;
+			line-height: 1.2;
 			text-align: center;
 			transition: all .4s ease;
 			font-size: 18px;

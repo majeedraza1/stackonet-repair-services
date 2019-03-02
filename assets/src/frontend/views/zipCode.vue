@@ -104,14 +104,12 @@
 	}
 
 	.zip-code-input-wrapper {
-		width: 520px;
 		margin: 0 auto 10px;
 		border-radius: 6px;
 
-		input {
+		input[type=tel] {
 			font-size: 20px;
-			width: 520px;
-			height: 64px;
+			line-height: 1.5;
 			background: none;
 			border: none;
 			outline: none;
@@ -124,7 +122,6 @@
 	}
 
 	.zip-code-continue-wrapper {
-		width: 520px;
 		margin: 13px auto 0;
 	}
 </style>
