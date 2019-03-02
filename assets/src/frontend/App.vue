@@ -1,5 +1,5 @@
 <template>
-	<div class="repair-services-container" :class="{'is-cart-active':showCart}">
+	<div class="repair-services-container" :class="containerClasses">
 		<div class="repair-services-content">
 			<router-view></router-view>
 		</div>
@@ -18,16 +18,48 @@
 	export default {
 		name: 'App',
 		components: {mdlSpinner, cart},
+		data() {
+			return {
+				windowWidth: 0,
+				toggleCart: false
+			}
+		},
 		computed: {
 			...mapState(['loading', 'showCart']),
+			containerClasses() {
+				return {
+					'is-cart-active': this.showCart,
+					'is-small-screen': this.isSmallScreen,
+				}
+			},
+			isSmallScreen() {
+				return !!(this.windowWidth < 1025);
+			},
 		},
 		mounted() {
-			this.$store.commit('SET_SHOW_CART', false);
+			let self = this;
+
+			self.$store.commit('SET_SHOW_CART', false);
 			let body = document.querySelector('body');
-			if (this.showCart) {
+			if (self.showCart) {
 				body.classList.add('page-repair-services-cart-active');
 			} else {
 				body.classList.remove('page-repair-services-cart-active');
+			}
+
+			self.windowWidth = window.innerWidth;
+			window.addEventListener('resize', () => {
+				self.windowWidth = window.innerWidth;
+			});
+			window.addEventListener('orientationchange', () => {
+				self.windowWidth = window.innerWidth;
+			});
+
+			let icon = document.querySelector('.my-cart-toggle-icon');
+			if (icon) {
+				icon.addEventListener('click', () => {
+					self.$store.commit('SET_SHOW_CART', !self.showCart);
+				});
 			}
 		}
 	}

@@ -1,8 +1,10 @@
 <template>
 	<div class="my-cart-wrapper" :class="{'is-active':showCart}">
+		<div class="my-cart-toggle-icon">
+			<i class="icon-basket"></i>
+		</div>
 		<div class="my-cart-content-wrapper">
-
-			<div class="my-cart-small-items-container" style="padding-top: 20px;" v-if="showPhoneRepairSection">
+			<div class="my-cart-small-items-container" style="padding-top: 20px;" v-show="showPhoneRepairSection">
 				<div class="my-cart-small-items-wrapper my-cart-small-items-wrapper-colored">
 					<div class="cart-title-container">
 						<div class="cart-title-left">
@@ -40,7 +42,7 @@
 				</div>
 			</div>
 
-			<div class="my-cart-small-items-container" v-if="showDateTimeSection">
+			<div class="my-cart-small-items-container" v-show="showDateTimeSection">
 				<div class="my-cart-small-items-wrapper my-cart-small-items-wrapper-colored">
 					<div class="cart-title-container">
 						<div class="cart-title-left">
@@ -114,7 +116,7 @@
 				return !!(this.address && this.address.length);
 			},
 			showPhoneRepairSection() {
-				return this.showCart;
+				return this.device;
 			},
 			showDateTimeSection() {
 				return this.totalPrice;
@@ -145,22 +147,40 @@
 <style lang="scss">
 	.my-cart-wrapper {
 		position: fixed;
-		top: 104px;
 		right: 0;
-		height: calc(100% - 104px);
+		top: 68px;
+		height: calc(100% - 68px);
 		box-sizing: border-box;
 		width: 355px;
 		background-color: #fff;
-		box-shadow: -50px 7px 50px 0 hsla(0, 0%, 79%, .25);
+		box-shadow: -5px 2px 5px 0 rgba(#c9c9c9, 0.25);
 		display: none;
 		flex-direction: column;
 		transition: all .4s ease;
-		overflow: auto;
 		z-index: 9999;
+
+		.admin-bar & {
+			top: 100px;
+			height: calc(100% - 100px);
+		}
 
 		&.is-active {
 			display: flex;
 		}
+	}
+
+	.my-cart-toggle-icon {
+		display: block;
+		position: absolute;
+		left: -48px;
+		top: 30px;
+		background: #fff;
+		font-size: 20px;
+		padding: 5px;
+		width: 48px;
+		height: 48px;
+		text-align: center;
+		box-shadow: -3px 1px 3px 0 rgba(#c9c9c9, 0.25);
 	}
 
 	.my-cart-small-items-container {

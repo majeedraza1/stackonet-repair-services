@@ -180,7 +180,7 @@
 		background: #fff;
 		text-align: center;
 		display: inline-block;
-		margin: 0 15px;
+		margin: 15px;
 		border-radius: 6px;
 		padding-top: 15px;
 	}
