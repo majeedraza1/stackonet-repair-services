@@ -28,13 +28,23 @@
 			...mapState(['loading', 'showCart']),
 			containerClasses() {
 				return {
-					'is-cart-active': this.showCart,
+					'is-cart-active': this.isLargeScreenActive || this.isSmallScreenActive,
 					'is-small-screen': this.isSmallScreen,
+					'is-small-screen-active': this.isSmallScreenActive,
 				}
+			},
+			isLargeScreen() {
+				return !this.isSmallScreen;
 			},
 			isSmallScreen() {
 				return !!(this.windowWidth < 1025);
 			},
+			isSmallScreenActive() {
+				return (this.isSmallScreen && this.toggleCart);
+			},
+			isLargeScreenActive() {
+				return (this.isLargeScreen && this.showCart);
+			}
 		},
 		mounted() {
 			let self = this;
@@ -58,7 +68,8 @@
 			let icon = document.querySelector('.my-cart-toggle-icon');
 			if (icon) {
 				icon.addEventListener('click', () => {
-					self.$store.commit('SET_SHOW_CART', !self.showCart);
+					// self.$store.commit('SET_SHOW_CART', !self.showCart);
+					self.toggleCart = !self.toggleCart;
 				});
 			}
 		}
@@ -69,10 +80,10 @@
 	.repair-services-container {
 		background: #eff2f5;
 		position: relative;
+		transition: all 300ms ease-in-out;
 
-		&.is-cart-active {
+		&.is-cart-active:not(.is-small-screen) {
 			margin-right: 355px;
-			transition: all 300ms ease-in-out;
 		}
 	}
 

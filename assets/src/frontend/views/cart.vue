@@ -147,14 +147,13 @@
 <style lang="scss">
 	.my-cart-wrapper {
 		position: fixed;
-		right: 0;
+		right: -355px;
 		top: 68px;
 		height: calc(100% - 68px);
 		box-sizing: border-box;
 		width: 355px;
 		background-color: #fff;
 		box-shadow: -5px 2px 5px 0 rgba(#c9c9c9, 0.25);
-		display: none;
 		flex-direction: column;
 		transition: all .4s ease;
 		z-index: 9999;
@@ -164,13 +163,14 @@
 			height: calc(100% - 100px);
 		}
 
-		&.is-active {
+		.is-cart-active & {
 			display: flex;
+			right: 0;
 		}
 	}
 
 	.my-cart-toggle-icon {
-		display: block;
+		display: none;
 		position: absolute;
 		left: -48px;
 		top: 30px;
@@ -181,6 +181,10 @@
 		height: 48px;
 		text-align: center;
 		box-shadow: -3px 1px 3px 0 rgba(#c9c9c9, 0.25);
+
+		.is-small-screen & {
+			display: block;
+		}
 	}
 
 	.my-cart-small-items-container {
