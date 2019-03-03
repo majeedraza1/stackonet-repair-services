@@ -57,8 +57,8 @@
 	.phone-model-item-wrapper {
 		cursor: pointer;
 		height: 75px;
-		width: 175px;
-		margin: 20px;
+		min-width: 160px;
+		margin: 15px;
 		border-radius: 4px;
 		background-color: #fff;
 		text-align: center;

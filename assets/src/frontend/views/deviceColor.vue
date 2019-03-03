@@ -77,11 +77,11 @@
 
 	.phone-color-item-wrapper {
 		cursor: pointer;
-		min-width: 170px;
+		min-width: 160px;
 		height: 120px;
 		background: #fff;
 		color: #333333;
-		margin: 10px;
+		margin: 15px;
 		border-radius: 5px;
 		display: flex;
 		flex-direction: column;

@@ -74,6 +74,7 @@
 	}
 
 	.repair-services-content {
+		margin: 15px;
 	}
 
 	.repair-services-loader {

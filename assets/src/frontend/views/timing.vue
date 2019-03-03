@@ -158,7 +158,7 @@
 	}
 
 	.select-time-day-item-wrapper {
-		padding: 12px;
+		padding: 15px;
 	}
 
 	.select-time-day-item {
@@ -204,7 +204,8 @@
 		float: left;
 		box-sizing: border-box;
 		width: 158px;
-		margin: 5px;
+		margin: 15px;
+		padding: 1em;
 		border-radius: 4px;
 		background: #fff;
 		color: #444;
