@@ -153,7 +153,7 @@
 		flex-wrap: wrap;
 		margin-left: auto;
 		margin-right: auto;
-		max-width: 500px;
+		max-width: 600px;
 		justify-content: center;
 	}
 

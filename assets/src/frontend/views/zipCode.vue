@@ -4,7 +4,7 @@
 			<div class="step-nav-page-wrapper">
 				<div class="step-nav-wrapper"><span class="step-nav-title">What's your zip code?</span></div>
 			</div>
-			<form action="#" @submit.prevent="handleSubmit">
+			<form action="#" class="zip-code-form-wrapper" @submit.prevent="handleSubmit">
 				<div class="zip-code-input-wrapper">
 					<input type="tel" placeholder="Please enter zip code" v-model="tempZipCode">
 				</div>
@@ -103,6 +103,12 @@
 		color: #3d4248;
 	}
 
+	.zip-code-form-wrapper {
+		max-width: 600px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
 	.zip-code-input-wrapper {
 		margin: 0 auto 10px;
 		border-radius: 6px;
@@ -113,11 +119,12 @@
 			background: none;
 			border: none;
 			outline: none;
-			padding-left: 20px;
+			padding: 0.5em 1em;
 			color: #383e42;
 			background: #fff;
 			border-radius: 6px;
 			box-sizing: border-box;
+			width: 100%;
 		}
 	}
 

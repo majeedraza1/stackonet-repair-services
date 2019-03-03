@@ -45,6 +45,14 @@
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 			this.$store.commit('SET_SHOW_CART', false);
+			this.$store.commit('SET_DEVICE', []);
+			this.$store.commit('SET_DEVICES_MODELS', []);
+			this.$store.commit('SET_DEVICES_COLORS', []);
+			this.$store.commit('SET_DEVICE_MODEL', {});
+			this.$store.commit('SET_DEVICE_COLOR', {});
+			this.$store.commit('SET_ZIP_CODE', '');
+			this.$store.commit('SET_SCREEN_CRACKED', '');
+			this.$store.commit('SET_ISSUE', []);
 		},
 	}
 </script>
