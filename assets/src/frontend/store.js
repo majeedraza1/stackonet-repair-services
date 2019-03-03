@@ -8,6 +8,7 @@ export default new Vuex.Store({
 	state: {
 		loading: true,
 		showCart: true,
+		toggleCart: false,
 		devices: [],
 		deviceModels: [],
 		deviceColors: [],
@@ -31,6 +32,7 @@ export default new Vuex.Store({
 		phone: '',
 		couponCode: '',
 		testimonials: [],
+		windowWidth: 0,
 	},
 
 	// Commit + track state changes
@@ -110,6 +112,12 @@ export default new Vuex.Store({
 		SET_TESTIMONIALS(state, testimonials) {
 			state.testimonials = testimonials;
 		},
+		SET_TOGGLE_CART(state, toggleCart) {
+			state.toggleCart = toggleCart;
+		},
+		SET_WINDOW_WIDTH(state, windowWidth) {
+			state.windowWidth = windowWidth;
+		},
 	},
 
 	// Same as Vue methods
@@ -134,5 +142,18 @@ export default new Vuex.Store({
 	},
 
 	// Save as Vue computed property
-	getters: {},
+	getters: {
+		isLargeScreen(state, getters) {
+			return !getters.isSmallScreen;
+		},
+		isLargeScreenActive(state, getters) {
+			return (getters.isLargeScreen && state.showCart);
+		},
+		isSmallScreen(state) {
+			return !!(state.windowWidth < 1025);
+		},
+		isSmallScreenActive(state, getters) {
+			return (getters.isSmallScreen && state.toggleCart);
+		},
+	},
 });

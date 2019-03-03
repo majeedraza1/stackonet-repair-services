@@ -14,36 +14,23 @@
 	import mdlSpinner from '../material-design-lite/spinner/mdlSpinner.vue';
 	import cart from './views/cart.vue';
 	import {mapState} from 'vuex';
+	import {mapGetters} from 'vuex';
 
 	export default {
 		name: 'App',
 		components: {mdlSpinner, cart},
 		data() {
-			return {
-				windowWidth: 0,
-				toggleCart: false
-			}
+			return {}
 		},
 		computed: {
-			...mapState(['loading', 'showCart']),
+			...mapState(['loading', 'showCart', 'windowWidth', 'toggleCart']),
+			...mapGetters(['isLargeScreen', 'isSmallScreen', 'isSmallScreenActive', 'isLargeScreenActive']),
 			containerClasses() {
 				return {
 					'is-cart-active': this.isLargeScreenActive || this.isSmallScreenActive,
 					'is-small-screen': this.isSmallScreen,
 					'is-small-screen-active': this.isSmallScreenActive,
 				}
-			},
-			isLargeScreen() {
-				return !this.isSmallScreen;
-			},
-			isSmallScreen() {
-				return !!(this.windowWidth < 1025);
-			},
-			isSmallScreenActive() {
-				return (this.isSmallScreen && this.toggleCart);
-			},
-			isLargeScreenActive() {
-				return (this.isLargeScreen && this.showCart);
 			}
 		},
 		mounted() {
@@ -57,19 +44,18 @@
 				body.classList.remove('page-repair-services-cart-active');
 			}
 
-			self.windowWidth = window.innerWidth;
+			self.$store.commit('SET_WINDOW_WIDTH', window.innerWidth);
 			window.addEventListener('resize', () => {
-				self.windowWidth = window.innerWidth;
+				self.$store.commit('SET_WINDOW_WIDTH', window.innerWidth);
 			});
 			window.addEventListener('orientationchange', () => {
-				self.windowWidth = window.innerWidth;
+				self.$store.commit('SET_WINDOW_WIDTH', window.innerWidth);
 			});
 
 			let icon = document.querySelector('.my-cart-toggle-icon');
 			if (icon) {
 				icon.addEventListener('click', () => {
-					// self.$store.commit('SET_SHOW_CART', !self.showCart);
-					self.toggleCart = !self.toggleCart;
+					self.$store.commit('SET_TOGGLE_CART', !self.toggleCart);
 				});
 			}
 		}
