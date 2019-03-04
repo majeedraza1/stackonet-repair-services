@@ -75,8 +75,8 @@
 	}
 
 	.phone-family-item-wrapper {
-		height: 150px;
-		width: 150px;
+		height: 140px;
+		width: 140px;
 		background-color: rgb(255, 255, 255);
 		display: flex;
 		flex-direction: column;

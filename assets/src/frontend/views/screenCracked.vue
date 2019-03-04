@@ -44,6 +44,8 @@
 </template>
 
 <script>
+	import {mapState} from 'vuex';
+
 	export default {
 		name: "screenCracked",
 		mounted() {
@@ -56,23 +58,12 @@
 			}
 		},
 		computed: {
+			...mapState(['zipCode', 'device', 'screenCracked', 'deviceModel']),
 			icons() {
 				return window.Stackonet.icons;
 			},
-			zipCode() {
-				return this.$store.state.zipCode;
-			},
 			hasZipCode() {
 				return !!(this.zipCode && this.zipCode.length);
-			},
-			screenCracked() {
-				return this.$store.state.screenCracked;
-			},
-			device() {
-				return this.$store.state.device;
-			},
-			deviceModel() {
-				return this.$store.state.deviceModel;
 			},
 			broken_screen_label() {
 				if (this.device && this.device.broken_screen_label) {
@@ -175,8 +166,8 @@
 	.screen-cracked-button-item {
 		position: relative;
 		box-sizing: border-box;
-		width: 160px;
-		height: 160px;
+		width: 140px;
+		height: 140px;
 		background: #fff;
 		text-align: center;
 		display: inline-block;

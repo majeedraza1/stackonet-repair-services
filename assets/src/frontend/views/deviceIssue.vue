@@ -40,6 +40,7 @@
 
 <script>
 	import BigButton from '../../components/BigButton.vue';
+	import {mapState} from 'vuex';
 
 	export default {
 		name: "deviceIssue",
@@ -57,14 +58,9 @@
 			return {}
 		},
 		computed: {
-			screenCracked() {
-				return this.$store.state.screenCracked;
-			},
+			...mapState(['screenCracked', 'device', 'issues', 'issueDescription']),
 			isScreenCracked() {
 				return !!(this.screenCracked && (this.screenCracked === 'no' || this.screenCracked === 'multiple'));
-			},
-			device() {
-				return this.$store.state.device;
 			},
 			no_issues() {
 				if (this.device && this.device.no_issues) {
@@ -79,12 +75,6 @@
 				}
 
 				return [];
-			},
-			issues() {
-				return this.$store.state.issues;
-			},
-			issueDescription() {
-				return this.$store.state.issueDescription;
 			},
 			showContinueButton() {
 				return (this.issues && this.issues.length);

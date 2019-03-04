@@ -71,6 +71,7 @@
 
 <script>
 	import BigButton from '../../components/BigButton.vue';
+	import {mapState} from 'vuex';
 
 	export default {
 		name: "timing",
@@ -101,17 +102,9 @@
 			}
 		},
 		computed: {
-			issues() {
-				return this.$store.state.issues;
-			},
+			...mapState(['issues', 'date', 'timeRange']),
 			hasIssues() {
 				return !!(this.issues && this.issues.length);
-			},
-			date() {
-				return this.$store.state.date;
-			},
-			timeRange() {
-				return this.$store.state.timeRange;
 			},
 			isHoliday() {
 				return !!(this.tempDate.holiday);
@@ -203,7 +196,7 @@
 	.time-content-box {
 		float: left;
 		box-sizing: border-box;
-		width: 158px;
+		width: 140px;
 		margin: 15px;
 		padding: 1em;
 		border-radius: 4px;

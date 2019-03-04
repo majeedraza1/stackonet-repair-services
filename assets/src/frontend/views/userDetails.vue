@@ -50,12 +50,6 @@
 							:disabled="!enabledContinueButton">Confirm Appointment
 				</big-button>
 			</div>
-
-			<!--<div class="userdetails-coupon-button">I have a coupon code</div>-->
-			<!--<div class="enter-details-continue-button-wrapper mobile-mode">-->
-			<!--<div class="enter-details-continue-button">Continue</div>-->
-			<!--</div>-->
-
 		</div>
 	</div>
 </template>

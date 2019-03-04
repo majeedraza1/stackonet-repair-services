@@ -142,8 +142,7 @@
 	}
 
 	.unsupported-zip-code-input-wrapper {
-		margin: 0 auto;
-		margin-bottom: 30px;
+		margin: 0 auto 30px;
 	}
 
 	.unsupported-zip-code-input-wrapper,

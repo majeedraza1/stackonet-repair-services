@@ -77,7 +77,7 @@
 
 	.phone-color-item-wrapper {
 		cursor: pointer;
-		min-width: 160px;
+		min-width: 140px;
 		height: 120px;
 		background: #fff;
 		color: #333333;
