@@ -28,6 +28,7 @@ class Frontend {
 			self::$instance = new self();
 
 			add_shortcode( 'stackonet_repair_service', [ self::$instance, 'repair_services' ] );
+			add_shortcode( 'stackonet_repair_service_pricing', [ self::$instance, 'repair_services_pricing' ] );
 			add_shortcode( 'stackonet_testimonial_form', [ self::$instance, 'testimonial_form' ] );
 			add_shortcode( 'stackonet_client_testimonial', [ self::$instance, 'client_testimonial' ] );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
@@ -66,6 +67,10 @@ class Frontend {
 			return true;
 		}
 
+		if ( has_shortcode( $post->post_content, 'stackonet_repair_service_pricing' ) ) {
+			return true;
+		}
+
 		return false;
 	}
 
@@ -73,10 +78,13 @@ class Frontend {
 	 * display services
 	 */
 	public function repair_services() {
-//		echo '<script>window.Stackonet = ' . wp_json_encode( self::service_data() ) . '</script>';
 		echo '<div id="stackonet_repair_services"></div>';
 		include STACKONET_REPAIR_SERVICES_PATH . "/assets/img/frontend-icons.svg";
 		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
+	}
+
+	public function repair_services_pricing() {
+		echo '<div id="stackonet_repair_services_pricing">Pricing</div>';
 	}
 
 	/**
