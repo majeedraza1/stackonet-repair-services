@@ -141,6 +141,12 @@
 </script>
 
 <style lang="scss">
+	.select-time-wrapper {
+		max-width: 850px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
 	.select-time-day-selector-wrapper {
 		display: flex;
 		flex-wrap: wrap;
@@ -198,7 +204,7 @@
 		box-sizing: border-box;
 		width: 140px;
 		margin: 15px;
-		padding: 1em;
+		padding: 10px;
 		border-radius: 4px;
 		background: #fff;
 		color: #444;

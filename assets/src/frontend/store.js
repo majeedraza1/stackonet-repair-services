@@ -33,6 +33,7 @@ export default new Vuex.Store({
 		couponCode: '',
 		testimonials: [],
 		windowWidth: 0,
+		isThankYouPage: false,
 	},
 
 	// Commit + track state changes
@@ -118,6 +119,9 @@ export default new Vuex.Store({
 		SET_WINDOW_WIDTH(state, windowWidth) {
 			state.windowWidth = windowWidth;
 		},
+		IS_THANK_YOU_PAGE(state, isThankYouPage) {
+			state.isThankYouPage = isThankYouPage;
+		},
 	},
 
 	// Same as Vue methods
@@ -149,11 +153,28 @@ export default new Vuex.Store({
 		isLargeScreenActive(state, getters) {
 			return (getters.isLargeScreen && state.showCart);
 		},
-		isSmallScreen(state) {
+		isSmallScreen(state, getters) {
+			if (getters.is_iPhone) {
+				return true;
+			}
 			return !!(state.windowWidth < 1025);
 		},
 		isSmallScreenActive(state, getters) {
 			return (getters.isSmallScreen && state.toggleCart);
 		},
+		is_iPhone() {
+			if (window.Stackonet.is_iphone) {
+				return true;
+			}
+			return !!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
+		},
+		containerClasses(state, getters) {
+			return {
+				'is-cart-active': getters.isLargeScreenActive || getters.isSmallScreenActive,
+				'is-small-screen': getters.isSmallScreen,
+				'is-small-screen-active': getters.isSmallScreenActive,
+				'is-thank-you-page': state.isThankYouPage,
+			}
+		}
 	},
 });

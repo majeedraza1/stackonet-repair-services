@@ -37,6 +37,7 @@
 		mounted() {
 			this.serviceArea = window.Stackonet.serviceArea;
 			this.$store.commit('SET_LOADING_STATUS', false);
+			this.$store.commit('IS_THANK_YOU_PAGE', true);
 
 			// If no models, redirect one step back
 			if (!this.hasDeviceColor) {

@@ -136,7 +136,7 @@
 		padding: 5px 15px;
 		color: #0161c7;
 		font-size: 16px;
-		line-height: 20px;
+		line-height: 1.6;
 		border-radius: 15px;
 		box-shadow: 0 1px 0 0 #12ffcd;
 		margin-bottom: 20px;

@@ -176,6 +176,8 @@ class Frontend {
 	 * @throws \Exception
 	 */
 	public static function service_data() {
+		global $is_iphone;
+
 		$data = [
 			'ajaxurl'    => admin_url( 'admin-ajax.php' ),
 			'site_url'   => site_url(),
@@ -183,6 +185,7 @@ class Frontend {
 			'token'      => wp_create_nonce( 'confirm_appointment' ),
 			'rest_root'  => esc_url_raw( rest_url( 'stackonet/v1' ) ),
 			'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+			'is_iphone'  => $is_iphone,
 		];
 
 		$data['devices']     = Device::get_devices();

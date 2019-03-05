@@ -1,2 +1,2 @@
-# stackonet-repair-home-searvices
+# Stackonet Toolkit for Phone Repairs ASAP
 A WordPress plugin for repair home services.

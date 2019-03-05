@@ -24,14 +24,7 @@
 		},
 		computed: {
 			...mapState(['loading', 'showCart', 'windowWidth', 'toggleCart']),
-			...mapGetters(['isLargeScreen', 'isSmallScreen', 'isSmallScreenActive', 'isLargeScreenActive']),
-			containerClasses() {
-				return {
-					'is-cart-active': this.isLargeScreenActive || this.isSmallScreenActive,
-					'is-small-screen': this.isSmallScreen,
-					'is-small-screen-active': this.isSmallScreenActive,
-				}
-			}
+			...mapGetters(['isLargeScreen', 'isSmallScreen', 'isSmallScreenActive', 'isLargeScreenActive', 'containerClasses'])
 		},
 		mounted() {
 			let self = this;

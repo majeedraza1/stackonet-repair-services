@@ -1,5 +1,5 @@
 <template>
-	<div class="mdl-spinner mdl-js-spinner" :class="getClass"></div>
+	<div class="mdl-spinner mdl-js-spinner is-upgraded" :class="getClass"></div>
 </template>
 
 <script>
