@@ -25,9 +25,91 @@ class Admin {
 			self::$instance = new self();
 
 			add_action( 'admin_menu', [ self::$instance, 'add_menu' ] );
+
+			// Add decoration product data on Checkout(after), Email and Order Detail Page
+			add_action( 'woocommerce_order_item_meta_start', [ self::$instance, 'order_item_meta_start' ], 10, 3 );
+
+			// Add decoration product data on WC Order at admin
+			add_filter( 'woocommerce_hidden_order_itemmeta', [ self::$instance, 'hide_order_item_meta_fields' ] );
+			add_action( 'woocommerce_after_order_itemmeta', [ self::$instance, 'show_order_item_meta_fields' ], 10, 3 );
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Add decoration and custom data to product item on
+	 * Checkout, Email and Order Detail
+	 *
+	 * @param  int $item_id
+	 * @param  \WC_Order_Item_Product $item
+	 * @param  array $order
+	 *
+	 * @return void
+	 */
+	public function order_item_meta_start( $item_id, $item, $order ) {
+		$device_title = $item->get_meta( '_device_title', true );
+		$device_model = $item->get_meta( '_device_model', true );
+		$device_color = $item->get_meta( '_device_color', true );
+		$meta_data    = [
+			// [ 'key' => 'Device', 'value' => $device_title ],
+			[ 'key' => 'Model', 'value' => $device_model ],
+			[ 'key' => 'Color', 'value' => $device_color ],
+		];
+
+		echo '<ul class="wc-item-meta">';
+		foreach ( $meta_data as $meta ) {
+			echo '<li><strong class="wc-item-meta-label">' . $meta['key'] . ': </strong>' . $meta['value'] . '</li>';
+		}
+		echo '</ul>';
+	}
+
+	/**
+	 * Hide order item meta fields
+	 *
+	 * @param array $fields
+	 *
+	 * @return array
+	 */
+	public function hide_order_item_meta_fields( $fields ) {
+		$fields[] = '_device_id';
+		$fields[] = '_device_title';
+		$fields[] = '_device_model';
+		$fields[] = '_device_color';
+
+		return $fields;
+	}
+
+	/**
+	 * Show on admin order item meta
+	 *
+	 * @param int $item_id
+	 * @param \WC_Order_Item $item
+	 * @param \WC_Product $product
+	 */
+	public function show_order_item_meta_fields( $item_id, $item, $product ) {
+		$device_title = $item->get_meta( '_device_title', true );
+		$device_model = $item->get_meta( '_device_model', true );
+		$device_color = $item->get_meta( '_device_color', true );
+
+		$meta_data = [
+			// [ 'key' => 'Device', 'value' => $device_title ],
+			[ 'key' => 'Model', 'value' => $device_model ],
+			[ 'key' => 'Color', 'value' => $device_color ],
+		];
+		?>
+		<div class="view">
+			<table cellspacing="0" class="display_meta">
+				<?php
+				foreach ( $meta_data as $meta ) : ?>
+					<tr>
+						<th><?php echo wp_kses_post( $meta['key'] ); ?>:</th>
+						<td><?php echo wp_kses_post( force_balance_tags( $meta['value'] ) ); ?></td>
+					</tr>
+				<?php endforeach; ?>
+			</table>
+		</div>
+		<?php
 	}
 
 	/**

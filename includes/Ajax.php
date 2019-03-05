@@ -223,13 +223,8 @@ class Ajax {
 		$additionalAddress = isset( $_POST['additional_address'] ) ? sanitize_text_field( $_POST['additional_address'] ) : '';
 
 		// Now we create the order
-		$order = wc_create_order( array(
-			'status' => 'wc-processing',
-		) );
-
-		if ( ! $order instanceof \WC_Order ) {
-			wp_send_json_error( 'Fail to create order.' );
-		}
+		$order = new \WC_Order();
+		$order->set_status( 'processing' );
 
 		// Add Product
 		$product = wc_get_product( $product_id );
@@ -242,6 +237,7 @@ class Ajax {
 		wc_update_order_item_meta( $item_id, '_device_model', $device_model );
 		wc_update_order_item_meta( $item_id, '_device_color', $device_color );
 
+		$total_amount = 0;
 		// Add Issue
 		foreach ( $issues as $issue ) {
 			$item_fee = new \WC_Order_Item_Fee();
@@ -251,6 +247,7 @@ class Ajax {
 			$item_fee->set_order_id( $order->get_id() );
 			$item_fee->save();
 			$order->add_item( $item_fee );
+			$total_amount += floatval( $issue['price'] );
 		}
 
 		// Set billing address
@@ -284,7 +281,8 @@ class Ajax {
 		$order->save_meta_data();
 
 		// Calculate totals and save data
-		$order->calculate_totals();
+		$order->set_total( $total_amount );
+		$order->save();
 
 		/**
 		 * Send Mail
