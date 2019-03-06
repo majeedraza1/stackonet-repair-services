@@ -12,8 +12,33 @@
 
 		<div class="phone-services-container">
 			<div class="device-issue-container">
-				<div class="device-issue-item"><div class="device-label">Choose device</div><div class="device-issue-input">iPhone<img class="arrow-toggle" src="https://d7gh5vrfihrl.cloudfront.net/website/arrow.svg"></div><div class="device-item-container"><div class="device-item">iPhone</div><div class="device-item">iPad</div><div class="device-item">Google</div><div class="device-item">Motorola</div></div></div>
-				<div class="device-issue-item"><div><div class="device-label">Choose issue</div><div class="device-issue-input"><img class="arrow-toggle" src="https://d7gh5vrfihrl.cloudfront.net/website/arrow.svg"></div><div class="multiple-issues">LCD install</div></div><div class="issue-item-container"><div class="device-item"><span class="selected-issue"> + <!-- -->LCD install</span></div></div></div>
+				<pricing-accordion></pricing-accordion>
+				<pricing-accordion multiple></pricing-accordion>
+
+				<div class="device-issue-item">
+					<div class="device-label">Choose device</div>
+					<div class="device-issue-input">iPhone<img class="arrow-toggle"
+															   src="https://d7gh5vrfihrl.cloudfront.net/website/arrow.svg">
+					</div>
+					<div class="device-item-container">
+						<div class="device-item">iPhone</div>
+						<div class="device-item">iPad</div>
+						<div class="device-item">Google</div>
+						<div class="device-item">Motorola</div>
+					</div>
+				</div>
+				<div class="device-issue-item">
+					<div>
+						<div class="device-label">Choose issue</div>
+						<div class="device-issue-input"><img class="arrow-toggle"
+															 src="https://d7gh5vrfihrl.cloudfront.net/website/arrow.svg">
+						</div>
+						<div class="multiple-issues">LCD install</div>
+					</div>
+					<div class="issue-item-container">
+						<div class="device-item"><span class="selected-issue"> + <!-- -->LCD install</span></div>
+					</div>
+				</div>
 			</div>
 
 			<div class="price-container">
@@ -51,10 +76,11 @@
 
 <script>
 	import BigButton from '../../components/BigButton';
+	import PricingAccordion from '../../components/PricingAccordion';
 
 	export default {
 		name: "Pricing",
-		components: {BigButton},
+		components: {BigButton, PricingAccordion},
 		computed: {
 			icons() {
 				return window.Stackonet.icons;
