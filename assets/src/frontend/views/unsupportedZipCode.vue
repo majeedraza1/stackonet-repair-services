@@ -1,10 +1,7 @@
 <template>
 	<div class="unsupported-zip-code-wrapper">
 		<div class="unsupported-zip-code-image-wrapper">
-			<svg width="108px" height="85px" version="1.1" xmlns="http://www.w3.org/2000/svg"
-				 xmlns:xlink="http://www.w3.org/1999/xlink">
-				<use xlink:href="#unsupported-zip-code-phone"></use>
-			</svg>
+			<img :src="icons.unsupportedIssue" alt="Unsupported Zip" width="65" height="125">
 		</div>
 		<h1>Sorry, we currently do not offer this service in {{zipCode}}</h1>
 		<div class="unsupported-zip-code-subtext-wrapper">
@@ -22,6 +19,7 @@
 
 <script>
 	import BigButton from '../../components/BigButton.vue';
+	import {mapState} from 'vuex';
 
 	export default {
 		name: "unsupportedZipCode",
@@ -44,20 +42,9 @@
 			}
 		},
 		computed: {
-			zipCode() {
-				return this.$store.state.zipCode;
-			},
-			areaRequestId() {
-				return this.$store.state.areaRequestId;
-			},
-			device() {
-				return this.$store.state.device;
-			},
-			deviceModel() {
-				return this.$store.state.deviceModel;
-			},
-			deviceColor() {
-				return this.$store.state.deviceColor;
+			...mapState(['zipCode', 'areaRequestId', 'device', 'deviceModel', 'deviceColor']),
+			icons() {
+				return window.Stackonet.icons;
 			},
 			hasZipCode() {
 				return !!(this.zipCode && this.zipCode.length);
@@ -126,7 +113,7 @@
 		background: #eff2f5;
 		display: flex;
 		flex-direction: column;
-		padding: 0 50px;
+		padding: 0;
 		overflow: hidden;
 	}
 
@@ -157,7 +144,6 @@
 		border-radius: 6px;
 		background-color: #fff;
 		border: 0;
-		-webkit-box-sizing: border-box;
 		box-sizing: border-box;
 		padding-left: 20px;
 		color: #383e42;
@@ -177,7 +163,8 @@
 	}
 
 	.unsupported-zip-code-button-wrapper {
-		width: 520px;
+		max-width: 540px;
 		margin: 13px auto 0;
+		width: 100%;
 	}
 </style>
