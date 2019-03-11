@@ -12,38 +12,35 @@
 
 		<div class="phone-services-container">
 			<div class="device-issue-container">
-				<pricing-accordion></pricing-accordion>
-				<pricing-accordion multiple></pricing-accordion>
-
-				<div class="device-issue-item">
-					<div class="device-label">Choose device</div>
-					<div class="device-issue-input">iPhone<img class="arrow-toggle"
-															   src="https://d7gh5vrfihrl.cloudfront.net/website/arrow.svg">
-					</div>
+				<pricing-accordion label="Choose device" :selected-issue="device.device_title">
 					<div class="device-item-container">
-						<div class="device-item">iPhone</div>
-						<div class="device-item">iPad</div>
-						<div class="device-item">Google</div>
-						<div class="device-item">Motorola</div>
+						<div class="device-item"
+							 v-for="_device in devices"
+							 @click="chooseDevice(_device)"
+							 v-html="_device.device_title"
+						></div>
 					</div>
-				</div>
-				<div class="device-issue-item">
-					<div>
-						<div class="device-label">Choose issue</div>
-						<div class="device-issue-input"><img class="arrow-toggle"
-															 src="https://d7gh5vrfihrl.cloudfront.net/website/arrow.svg">
-						</div>
-						<div class="multiple-issues">LCD install</div>
+				</pricing-accordion>
+				<pricing-accordion label="Select your model" :selected-issue="deviceModel.title">
+					<div class="device-item-container">
+						<div class="device-item"
+							 v-for="_model in deviceModels"
+							 @click="chooseModel(_model)"
+							 v-html="_model.title"
+						></div>
 					</div>
-					<div class="issue-item-container">
-						<div class="device-item"><span class="selected-issue"> + <!-- -->LCD install</span></div>
+				</pricing-accordion>
+				<pricing-accordion label="Choose issue (pick up to 3)" multiple :selected-issues="selectedIssueNames">
+					<div class="device-item"
+						 v-for="_issue in _issues"
+						 @click="chooseIssue(_issue)"><span :class="issueClass(_issue)">+ {{_issue.title}}</span>
 					</div>
-				</div>
+				</pricing-accordion>
 			</div>
 
 			<div class="price-container">
 				<div>Our price:</div>
-				<span>$109</span>
+				<span>${{totalPrice}}</span>
 			</div>
 		</div>
 
@@ -77,19 +74,96 @@
 <script>
 	import BigButton from '../../components/BigButton';
 	import PricingAccordion from '../../components/PricingAccordion';
+	import {mapState} from 'vuex';
 
 	export default {
 		name: "Pricing",
 		components: {BigButton, PricingAccordion},
+		data() {
+			return {
+				selectedIssues: [],
+			}
+		},
 		computed: {
+			...mapState(['devices', 'device', 'deviceModels', 'deviceModel', 'issues']),
 			icons() {
 				return window.Stackonet.icons;
 			},
+			issue_count() {
+				return this.selectedIssues.length;
+			},
+			can_add_issue() {
+				return this.issue_count < 3;
+			},
+			_issues() {
+				let brokenPrice = this.deviceModel.broken_screen_price;
+				return this.issues.map(issue => {
+					if (issue.title === 'Broken Screen') {
+						issue.price = brokenPrice;
+					}
+
+					return issue;
+				});
+			},
+			totalPrice() {
+				return this.selectedIssues.reduce((prev, next) => prev + next.price, 0);
+			},
+			selectedIssueNames() {
+				let names = this.selectedIssues.map(issue => issue.title);
+				return names.join(', ');
+			}
 		},
+		mounted() {
+			this.$store.commit('SET_DEVICES', window.Stackonet.devices);
+			this.defaultDevice();
+		},
+		methods: {
+			defaultDevice() {
+				let device = this.devices[0];
+				this.$store.commit('SET_DEVICE', device);
+				this.$store.commit('SET_DEVICES_MODELS', device.device_models);
+				this.$store.commit('SET_DEVICE_MODEL', device.device_models[0]);
+				this.$store.commit('SET_ISSUE', device.multi_issues);
+			},
+			chooseDevice(device) {
+				this.$store.commit('SET_DEVICE', device);
+				this.$store.commit('SET_DEVICES_MODELS', device.device_models);
+				this.$store.commit('SET_DEVICE_MODEL', device.device_models[0]);
+				this.$store.commit('SET_ISSUE', device.multi_issues);
+			},
+			chooseModel(model) {
+				this.$store.commit('SET_DEVICE_MODEL', model);
+			},
+			chooseIssue(issue) {
+				let issues = this.selectedIssues, index = issues.indexOf(issue);
+				if (-1 === index) {
+					if (this.can_add_issue) {
+						issues.push(issue);
+					}
+				} else {
+					issues.splice(index, 1);
+				}
+
+				this.selectedIssues = issues;
+			},
+			issueClass(issue) {
+				let issues = this.selectedIssues,
+						index = issues.indexOf(issue),
+						isSelected = -1 !== index;
+				return {
+					'selected-issue': isSelected,
+					'disabled-issue': !isSelected && !this.can_add_issue,
+				}
+			},
+		}
 	}
 </script>
 
 <style lang="scss">
+	.pricing-accordion__panel.is-panel-opened {
+		padding: 0;
+	}
+
 	.stackonet-pricing-section {
 		border-bottom: 2px solid #d8d8d8;
 		display: flex;
@@ -220,6 +294,28 @@
 						padding: 0 0 0 5px;
 						transition: all .1s linear;
 					}
+				}
+			}
+		}
+
+		.device-item-container {
+			transition: max-height .3s ease-in;
+			max-height: 500px;
+
+			.device-item {
+				padding: 1rem;
+
+				&:hover {
+					background: #eee;
+					cursor: pointer;
+				}
+
+				.selected-issue {
+					color: #f58730;
+				}
+
+				.disabled-issue {
+					color: #ccc;
 				}
 			}
 		}

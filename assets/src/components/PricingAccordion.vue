@@ -4,10 +4,14 @@
 			 @click="isActive = !isActive">
 			<div class="pricing-accordion__title">
 				<div class="pricing-accordion__sub-title">
-					<div class="pricing-accordion__label">Choose device</div>
-					<div v-if="!multiple" class="pricing-accordion__issue">iPhone</div>
+					<div class="pricing-accordion__label">{{label}}</div>
+					<div v-if="!multiple" class="pricing-accordion__issue">
+						<slot name="issue">{{selectedIssue}}</slot>
+					</div>
 				</div>
-				<div v-if="multiple" class="pricing-accordion__issues">LCD install, Screen Broken</div>
+				<div v-if="multiple" class="pricing-accordion__issues">
+					<slot name="issues">{{selectedIssues}}</slot>
+				</div>
 			</div>
 
 			<span class="pricing-accordion__icon">
@@ -20,12 +24,7 @@
 			</span>
 		</div>
 		<div class="device-item-container pricing-accordion__panel" :class="{'is-panel-opened':isActive}">
-			<slot>
-				<div class="device-item">iPhone</div>
-				<div class="device-item">iPad</div>
-				<div class="device-item">Google</div>
-				<div class="device-item">Motorola</div>
-			</slot>
+			<slot></slot>
 		</div>
 	</div>
 </template>
@@ -34,6 +33,9 @@
 	export default {
 		name: "PricingAccordion",
 		props: {
+			label: {type: String, require: true},
+			selectedIssue: {type: String},
+			selectedIssues: {type: String},
 			multiple: {type: Boolean, default: false}
 		},
 		data() {
