@@ -1,7 +1,6 @@
 <template>
-	<div class="pricing-accordion device-issue-item" :class="{'is-opened':isActive}">
-		<div class="pricing-accordion__heading" :class="{'is-heading-opened':isActive}"
-			 @click="isActive = !isActive">
+	<div class="pricing-accordion device-issue-item" :class="{'is-opened':active}">
+		<div class="pricing-accordion__heading" :class="{'is-heading-opened':active}" @click="toggle">
 			<div class="pricing-accordion__title">
 				<div class="pricing-accordion__sub-title">
 					<div class="pricing-accordion__label">{{label}}</div>
@@ -18,12 +17,12 @@
 				<svg class="pricing-accordion__arrow" width="24px" height="24px" viewBox="0 0 24 24"
 					 xmlns="http://www.w3.org/2000/svg">
 					<g><path fill="none" d="M0,0h24v24H0V0z"></path></g>
-					<g v-if="isActive"><path d="M12,8l-6,6l1.41,1.41L12,10.83l4.59,4.58L18,14L12,8z"></path></g>
+					<g v-if="active"><path d="M12,8l-6,6l1.41,1.41L12,10.83l4.59,4.58L18,14L12,8z"></path></g>
 					<g v-else><path d="M7.41,8.59L12,13.17l4.59-4.58L18,10l-6,6l-6-6L7.41,8.59z"></path></g>
 				</svg>
 			</span>
 		</div>
-		<div class="device-item-container pricing-accordion__panel" :class="{'is-panel-opened':isActive}">
+		<div class="device-item-container pricing-accordion__panel" :class="{'is-panel-opened':active}">
 			<slot></slot>
 		</div>
 	</div>
@@ -39,13 +38,10 @@
 			multiple: {type: Boolean, default: false},
 			active: {type: Boolean, default: false}
 		},
-		data() {
-			return {
-				isActive: true,
+		methods: {
+			toggle() {
+				this.$emit('toggle');
 			}
-		},
-		mounted() {
-			this.isActive = this.active;
 		}
 	}
 </script>

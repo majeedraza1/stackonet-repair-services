@@ -1,19 +1,23 @@
 <template>
 	<div class="stackonet-pricing-section">
-		<div class="title-wrapper">
-			<h2 class="pricing-title">SmartPhone and Tablet Repair Prices</h2>
-			<div class="pricing-subtitle">
-				<p>Select your device and issue for an ASAP Quote!</p>
-			</div>
-		</div>
-		<div class="img-wrapper">
-			<img src="https://d7gh5vrfihrl.cloudfront.net/website/pricing/phone_pricing.svg">
-		</div>
+		<!--<div class="title-wrapper">-->
+		<!--<h2 class="pricing-title">SmartPhone and Tablet Repair Prices</h2>-->
+		<!--<div class="pricing-subtitle">-->
+		<!--<p>Select your device and issue for an ASAP Quote!</p>-->
+		<!--</div>-->
+		<!--</div>-->
+		<!--<div class="img-wrapper">-->
+		<!--<img src="https://d7gh5vrfihrl.cloudfront.net/website/pricing/phone_pricing.svg">-->
+		<!--</div>-->
 
 		<div class="phone-services-container">
 			<div class="device-issue-container">
-				<pricing-accordion label="Choose device" :selected-issue="device.device_title"
-								   :active="activeDeviceAccordion">
+				<pricing-accordion
+						label="Choose device"
+						:selected-issue="device.device_title"
+						:active="activeDeviceAccordion"
+						@toggle="activeDeviceAccordion = !activeDeviceAccordion"
+				>
 					<div class="device-item-container">
 						<div class="device-item"
 							 v-for="_device in devices"
@@ -22,8 +26,12 @@
 						></div>
 					</div>
 				</pricing-accordion>
-				<pricing-accordion label="Select your model" :selected-issue="deviceModel.title"
-								   :active="activeModelAccordion">
+				<pricing-accordion
+						label="Select your model"
+						:selected-issue="deviceModel.title"
+						:active="activeModelAccordion"
+						@toggle="activeModelAccordion = !activeModelAccordion"
+				>
 					<div class="device-item-container">
 						<div class="device-item"
 							 v-for="_model in deviceModels"
@@ -32,8 +40,13 @@
 						></div>
 					</div>
 				</pricing-accordion>
-				<pricing-accordion label="Choose issue (pick up to 3)" multiple :selected-issues="selectedIssueNames"
-								   :active="activeIssuesAccordion">
+				<pricing-accordion
+						label="Choose issue (pick up to 3)"
+						multiple
+						:selected-issues="selectedIssueNames"
+						:active="activeIssuesAccordion"
+						@toggle="activeIssuesAccordion = !activeIssuesAccordion"
+				>
 					<div class="device-item"
 						 v-for="_issue in _issues"
 						 @click="chooseIssue(_issue)"><span :class="issueClass(_issue)">+ {{_issue.title}}</span>
@@ -113,7 +126,8 @@
 				});
 			},
 			totalPrice() {
-				return this.selectedIssues.reduce((prev, next) => prev + next.price, 0);
+				let num = this.selectedIssues.reduce((prev, next) => prev + next.price, 0);
+				return this.round(num, 2);
 			},
 			selectedIssueNames() {
 				let names = this.selectedIssues.map(issue => issue.title);
@@ -134,31 +148,29 @@
 			}
 		},
 		methods: {
+			round(value, decimals) {
+				return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+			},
 			defaultDevice() {
 				let device = this.devices[0];
 				this.$store.commit('SET_DEVICE', device);
 				this.$store.commit('SET_DEVICES_MODELS', device.device_models);
 				this.$store.commit('SET_DEVICE_MODEL', device.device_models[0]);
 				this.$store.commit('SET_ISSUE', device.multi_issues);
-				if (device.multi_issues.length) {
-					this.chooseIssue(device.multi_issues[0]);
-				} else {
-					this.selectedIssues = [];
-				}
+				this.selectedIssues = [];
 			},
 			chooseDevice(device) {
 				this.$store.commit('SET_DEVICE', device);
 				this.$store.commit('SET_DEVICES_MODELS', device.device_models);
 				this.$store.commit('SET_DEVICE_MODEL', device.device_models[0]);
 				this.$store.commit('SET_ISSUE', device.multi_issues);
-				if (device.multi_issues.length) {
-					this.chooseIssue(device.multi_issues[0]);
-				} else {
-					this.selectedIssues = [];
-				}
+				this.activeDeviceAccordion = false;
+				this.selectedIssues = [];
 			},
 			chooseModel(model) {
 				this.$store.commit('SET_DEVICE_MODEL', model);
+				this.activeModelAccordion = false;
+				this.selectedIssues = [];
 			},
 			chooseIssue(issue) {
 				let issues = this.selectedIssues, index = issues.indexOf(issue);
