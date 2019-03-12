@@ -27,7 +27,7 @@
 			...mapGetters(['isLargeScreen', 'isSmallScreen', 'isSmallScreenActive', 'isLargeScreenActive', 'containerClasses'])
 		},
 		mounted() {
-			let self = this;
+			let self = this, $ = window.jQuery;
 
 			let uri = window.location.href.split('?');
 			if (uri.length === 2) {
@@ -81,6 +81,16 @@
 				icon.addEventListener('click', () => {
 					self.$store.commit('SET_TOGGLE_CART', !self.toggleCart);
 				});
+			}
+
+			// Find group
+			let group = $(this.$el).closest('.stackonet_repair_services_container');
+			if (group) {
+				group = group.data('group');
+				if (group) {
+					group = group.split(',');
+					self.$store.commit('SET_GROUP', group);
+				}
 			}
 		}
 	}

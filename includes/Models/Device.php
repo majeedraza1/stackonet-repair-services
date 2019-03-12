@@ -12,6 +12,7 @@ class Device {
 	private static $default = array(
 		'id'                  => 0,
 		'product_id'          => 0,
+		'device_group'        => 'default',
 		'device_title'        => '',
 		'device_image'        => '',
 		'broken_screen_label' => '',
@@ -63,6 +64,7 @@ class Device {
 		$sanitize_data = [
 			'id'                  => sanitize_text_field( $data['id'] ),
 			'product_id'          => absint( $data['product_id'] ),
+			'device_group'        => sanitize_text_field( $data['device_group'] ),
 			'device_title'        => sanitize_text_field( $data['device_title'] ),
 			'device_image'        => absint( $data['device_image'] ),
 			'broken_screen_label' => sanitize_text_field( $data['broken_screen_label'] ),

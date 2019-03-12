@@ -9,6 +9,7 @@ export default new Vuex.Store({
 		loading: true,
 		showCart: true,
 		toggleCart: false,
+		group: [],
 		devices: [],
 		deviceModels: [],
 		deviceColors: [],
@@ -43,6 +44,9 @@ export default new Vuex.Store({
 		},
 		SET_AREA_REQUEST_ID(state, areaRequestId) {
 			state.areaRequestId = areaRequestId;
+		},
+		SET_GROUP(state, group) {
+			state.group = group;
 		},
 		SET_DEVICE(state, device) {
 			state.device = device;

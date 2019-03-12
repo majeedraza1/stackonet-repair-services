@@ -353,6 +353,7 @@ class Ajax {
 		$defaults = array(
 			'product_id'          => 0,
 			'device_title'        => '',
+			'device_group'        => '',
 			'device_image'        => '',
 			'broken_screen_label' => '',
 			'broken_screen_price' => '',

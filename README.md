@@ -5,7 +5,7 @@ A WordPress plugin for repair home services.
 
 Shortcode | Attributes | Description
 ------------ | ---- | -------------
-stackonet_repair_service | Not Available | Shortcode to show devices list.
+stackonet_repair_service | group | Shortcode to show devices list. Attribute group can be a string or csv for multiple group.
 stackonet_testimonial_form | Not Available | Shortcode to show testimonial form for user data submission.
 stackonet_client_testimonial | Not Available | Shortcode to display client testimonaial.
 stackonet_repair_service_pricing | page_id | Shortcode to display pricing page. page_id to redirect after clicking on call to action button.

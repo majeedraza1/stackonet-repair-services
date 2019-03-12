@@ -76,9 +76,17 @@ class Frontend {
 
 	/**
 	 * display services
+	 *
+	 * @param array $atts
 	 */
-	public function repair_services() {
+	public function repair_services( $atts ) {
+		$atts = shortcode_atts( array(
+			'group' => '',
+		), $atts, 'stackonet_repair_service' );
+
+		echo '<div class="stackonet_repair_services_container" data-group="' . esc_attr( $atts['group'] ) . '">';
 		echo '<div id="stackonet_repair_services"></div>';
+		echo '</div>';
 		include STACKONET_REPAIR_SERVICES_PATH . "/assets/img/frontend-icons.svg";
 		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
 	}

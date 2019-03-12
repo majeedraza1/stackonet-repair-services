@@ -11,7 +11,7 @@
 			</div>
 		</div>
 		<div class="select-device-content-container">
-			<template v-for="device in devices">
+			<template v-for="device in _devices">
 				<div class="scale-on-mount scale-on-mount-active" @click="chooseDeviceModel(device)">
 					<div class="phone-family-item-wrapper hoverable">
 						<div class="phone-family-image-wrapper">
@@ -26,14 +26,23 @@
 </template>
 
 <script>
+	import {mapState} from 'vuex';
+
 	export default {
 		name: "device",
 		data() {
 			return {}
 		},
 		computed: {
-			devices() {
-				return this.$store.state.devices;
+			...mapState(['devices', 'group']),
+			_devices() {
+				let self = this;
+				if (self.group.length < 1) {
+					return self.devices;
+				}
+				return self.devices.filter(device => {
+					return -1 !== self.group.indexOf(device.device_group);
+				});
 			}
 		},
 		mounted() {

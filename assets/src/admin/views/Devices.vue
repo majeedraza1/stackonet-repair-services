@@ -35,6 +35,7 @@
 				rows: [],
 				columns: [
 					{key: 'device_title', label: 'Title'},
+					{key: 'device_group', label: 'Group'},
 					{key: 'image_object', label: 'Image'},
 				],
 				actions: [{key: 'edit', label: 'Edit'}, {key: 'delete', label: 'Delete'}],

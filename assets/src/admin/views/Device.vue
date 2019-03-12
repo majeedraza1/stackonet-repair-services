@@ -21,6 +21,14 @@
 					</td>
 				</tr>
 				<tr>
+					<th scope="row"><label for="device_group">Device Group</label></th>
+					<td>
+						<input name="device_group" type="text" id="device_group" class="regular-text"
+							   v-model="device_group">
+						<p class="description">Device group use to group similar device. Only user a-z,0-9 characters.</p>
+					</td>
+				</tr>
+				<tr>
 					<th scope="row"><label>Brand Image</label></th>
 					<td>
 						<div style="max-width: 25em;">
@@ -210,6 +218,7 @@
 				multi_issues: [],
 				product_id: '-1',
 				broken_screen_label: 'Broken Screen',
+				device_group: 'default',
 				broken_screen_price: '',
 			}
 		},
@@ -280,6 +289,7 @@
 						action: 'create_device',
 						id: self.id,
 						product_id: self.product_id,
+						device_group: self.device_group,
 						device_title: self.device_title,
 						device_image: self.device_image.id,
 						device_models: self.device_models,
@@ -373,6 +383,7 @@
 							self.multi_issues = data.multi_issues;
 							self.no_issues = data.no_issues;
 							self.device_image = data.image;
+							self.device_group = data.device_group;
 						}
 						self.$store.commit('SET_LOADING_STATUS', false);
 					},
