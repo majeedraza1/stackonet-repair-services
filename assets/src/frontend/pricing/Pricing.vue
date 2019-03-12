@@ -12,7 +12,8 @@
 
 		<div class="phone-services-container">
 			<div class="device-issue-container">
-				<pricing-accordion label="Choose device" :selected-issue="device.device_title">
+				<pricing-accordion label="Choose device" :selected-issue="device.device_title"
+								   :active="activeDeviceAccordion">
 					<div class="device-item-container">
 						<div class="device-item"
 							 v-for="_device in devices"
@@ -21,7 +22,8 @@
 						></div>
 					</div>
 				</pricing-accordion>
-				<pricing-accordion label="Select your model" :selected-issue="deviceModel.title">
+				<pricing-accordion label="Select your model" :selected-issue="deviceModel.title"
+								   :active="activeModelAccordion">
 					<div class="device-item-container">
 						<div class="device-item"
 							 v-for="_model in deviceModels"
@@ -30,7 +32,8 @@
 						></div>
 					</div>
 				</pricing-accordion>
-				<pricing-accordion label="Choose issue (pick up to 3)" multiple :selected-issues="selectedIssueNames">
+				<pricing-accordion label="Choose issue (pick up to 3)" multiple :selected-issues="selectedIssueNames"
+								   :active="activeIssuesAccordion">
 					<div class="device-item"
 						 v-for="_issue in _issues"
 						 @click="chooseIssue(_issue)"><span :class="issueClass(_issue)">+ {{_issue.title}}</span>
@@ -45,7 +48,7 @@
 		</div>
 
 		<div class="button-wrapper">
-			<big-button>Repair My Device</big-button>
+			<big-button @click="goToRepairPage">Repair My Device</big-button>
 		</div>
 
 		<div class="service-includes-container">
@@ -82,6 +85,10 @@
 		data() {
 			return {
 				selectedIssues: [],
+				activeDeviceAccordion: false,
+				activeModelAccordion: false,
+				activeIssuesAccordion: false,
+				cta_url: '',
 			}
 		},
 		computed: {
@@ -116,6 +123,15 @@
 		mounted() {
 			this.$store.commit('SET_DEVICES', window.Stackonet.devices);
 			this.defaultDevice();
+
+			let $ = window.jQuery;
+			let container = $(this.$el).closest('.stackonet_pricing_container');
+			if (container) {
+				let cta_url = container.data('cta_url');
+				if (cta_url) {
+					this.cta_url = cta_url;
+				}
+			}
 		},
 		methods: {
 			defaultDevice() {
@@ -124,12 +140,22 @@
 				this.$store.commit('SET_DEVICES_MODELS', device.device_models);
 				this.$store.commit('SET_DEVICE_MODEL', device.device_models[0]);
 				this.$store.commit('SET_ISSUE', device.multi_issues);
+				if (device.multi_issues.length) {
+					this.chooseIssue(device.multi_issues[0]);
+				} else {
+					this.selectedIssues = [];
+				}
 			},
 			chooseDevice(device) {
 				this.$store.commit('SET_DEVICE', device);
 				this.$store.commit('SET_DEVICES_MODELS', device.device_models);
 				this.$store.commit('SET_DEVICE_MODEL', device.device_models[0]);
 				this.$store.commit('SET_ISSUE', device.multi_issues);
+				if (device.multi_issues.length) {
+					this.chooseIssue(device.multi_issues[0]);
+				} else {
+					this.selectedIssues = [];
+				}
 			},
 			chooseModel(model) {
 				this.$store.commit('SET_DEVICE_MODEL', model);
@@ -155,6 +181,11 @@
 					'disabled-issue': !isSelected && !this.can_add_issue,
 				}
 			},
+			goToRepairPage() {
+				let url = this.cta_url, device_id = this.device.id, device_model = this.deviceModel.title;
+				let tUrl = `${url}#/?device=${device_id}&model=${device_model}`;
+				window.location.href = tUrl;
+			}
 		}
 	}
 </script>

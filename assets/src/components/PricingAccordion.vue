@@ -36,12 +36,16 @@
 			label: {type: String, require: true},
 			selectedIssue: {type: String},
 			selectedIssues: {type: String},
-			multiple: {type: Boolean, default: false}
+			multiple: {type: Boolean, default: false},
+			active: {type: Boolean, default: false}
 		},
 		data() {
 			return {
 				isActive: true,
 			}
+		},
+		mounted() {
+			this.isActive = this.active;
 		}
 	}
 </script>

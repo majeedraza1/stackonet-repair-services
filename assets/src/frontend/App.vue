@@ -23,11 +23,42 @@
 			return {}
 		},
 		computed: {
-			...mapState(['loading', 'showCart', 'windowWidth', 'toggleCart']),
+			...mapState(['loading', 'showCart', 'windowWidth', 'toggleCart', 'devices']),
 			...mapGetters(['isLargeScreen', 'isSmallScreen', 'isSmallScreenActive', 'isLargeScreenActive', 'containerClasses'])
 		},
 		mounted() {
 			let self = this;
+
+			let uri = window.location.href.split('?');
+			if (uri.length === 2) {
+				let vars = uri[1].split('&');
+				let getVars = {};
+				vars.forEach(function (v) {
+					let tmp = v.split('=');
+					if (tmp.length === 2)
+						getVars[tmp[0]] = tmp[1];
+				});
+
+				if (getVars.device && getVars.model) {
+					let device = this.devices.find(device => {
+						return device.id === decodeURIComponent(getVars.device);
+					});
+
+					if (device) {
+						let model = device.device_models.find(model => {
+							return model.title === decodeURIComponent(getVars.model);
+						});
+
+						if (model) {
+							this.$store.commit('SET_DEVICE', device);
+							this.$store.commit('SET_DEVICES_MODELS', device.device_models);
+							this.$store.commit('SET_DEVICE_MODEL', model);
+							this.$store.commit('SET_DEVICES_COLORS', model.colors);
+							this.$router.push('/device-color');
+						}
+					}
+				}
+			}
 
 			self.$store.commit('SET_SHOW_CART', false);
 			let body = document.querySelector('body');

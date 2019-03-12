@@ -83,8 +83,22 @@ class Frontend {
 		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
 	}
 
-	public function repair_services_pricing() {
-		echo '<div id="stackonet_repair_services_pricing">Pricing</div>';
+	/**
+	 * Service pricing page
+	 *
+	 * @param array $atts
+	 */
+	public function repair_services_pricing( $atts ) {
+		$atts = shortcode_atts( array(
+			'page_id' => 0,
+		), $atts, 'stackonet_repair_service_pricing' );
+
+		$cta_url = '';
+		if ( ! empty( $atts['page_id'] ) ) {
+			$cta_url = get_permalink( $atts['page_id'] );
+		}
+
+		echo '<div class="stackonet_pricing_container" data-cta_url="' . esc_attr( $cta_url ) . '"><div id="stackonet_repair_services_pricing"></div></div>';
 	}
 
 	/**
