@@ -224,7 +224,6 @@ class Ajax {
 
 		// Now we create the order
 		$order = new \WC_Order();
-		$order->set_status( 'processing' );
 
 		// Add Product
 		$product = wc_get_product( $product_id );
@@ -237,7 +236,8 @@ class Ajax {
 		wc_update_order_item_meta( $item_id, '_device_model', $device_model );
 		wc_update_order_item_meta( $item_id, '_device_color', $device_color );
 
-		$total_amount = 0;
+		$device_issues = [];
+		$total_amount  = 0;
 		// Add Issue
 		foreach ( $issues as $issue ) {
 			$item_fee = new \WC_Order_Item_Fee();
@@ -248,6 +248,8 @@ class Ajax {
 			$item_fee->save();
 			$order->add_item( $item_fee );
 			$total_amount += floatval( $issue['price'] );
+
+			$device_issues[] = sanitize_text_field( $issue['title'] );
 		}
 
 		// Set billing address
@@ -278,10 +280,19 @@ class Ajax {
 		$order->add_meta_data( '_preferred_service_date', $date );
 		$order->add_meta_data( '_preferred_service_time_range', $time_range );
 		$order->add_meta_data( '_additional_address', $additionalAddress );
+
+		// Add device data for SMS
+		$order->add_meta_data( '_device_id', $device_id );
+		$order->add_meta_data( '_device_title', $device_title );
+		$order->add_meta_data( '_device_model', $device_model );
+		$order->add_meta_data( '_device_color', $device_color );
+		$order->add_meta_data( '_device_issues', $device_issues );
+
 		$order->save_meta_data();
 
 		// Calculate totals and save data
 		$order->set_total( $total_amount );
+		$order->set_status( 'processing' );
 		$order->save();
 
 		/**
@@ -291,6 +302,8 @@ class Ajax {
 		 */
 		$email = WC()->mailer()->emails['NewDeviceRepairsOrderEmail'];
 		$email->trigger( $order->get_id(), $order );
+
+		do_action( 'stackonet_order_created', $order );
 
 		wp_send_json_success( null, 201 );
 	}

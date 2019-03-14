@@ -150,6 +150,7 @@ final class Stackonet_Repair_Services {
 	public function init_classes() {
 
 		$this->container['assets'] = Stackonet\Assets::init();
+		$this->container['twilio'] = Stackonet\Integrations\Twilio::init();
 
 		if ( $this->is_request( 'admin' ) ) {
 			$this->container['admin'] = Stackonet\Admin\Admin::init();
