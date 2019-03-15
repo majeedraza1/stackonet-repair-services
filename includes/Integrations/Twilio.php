@@ -78,16 +78,18 @@ class Twilio {
 		$message = "NEW ORDER %order_id%: %customer_name% has order a %device_name% %device_model%";
 		$message .= " %device_issues% at %customer_address%. Please arrive by %prefer_date% %prefer_time%.";
 
-		$to      = get_option( 'admin_email' );
+		$numbers = [ '+15613776341', '+15613776340' ];
 		$message = $this->variable_replace( $message, $order );
 
 
-		try {
-			$response = wc_twilio_sms()->get_api()->send( $to, $message );
-		} catch ( \Exception $e ) {
-			// Set status to error message
-			$status = $e->getMessage();
-			Logger::log( $status );
+		foreach ( $numbers as $to ) {
+			try {
+				$response = wc_twilio_sms()->get_api()->send( $to, $message );
+			} catch ( \Exception $e ) {
+				// Set status to error message
+				$status = $e->getMessage();
+				Logger::log( $status );
+			}
 		}
 	}
 

@@ -295,14 +295,6 @@ class Ajax {
 		$order->set_status( 'processing' );
 		$order->save();
 
-		/**
-		 * Send Mail
-		 *
-		 * @var NewDeviceRepairsOrderEmail $email
-		 */
-		$email = WC()->mailer()->emails['NewDeviceRepairsOrderEmail'];
-		$email->trigger( $order->get_id(), $order );
-
 		do_action( 'stackonet_order_created', $order );
 
 		wp_send_json_success( null, 201 );
