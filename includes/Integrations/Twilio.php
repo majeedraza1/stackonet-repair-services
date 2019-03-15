@@ -77,10 +77,13 @@ class Twilio {
 	public function send_sms_to_admin( $order ) {
 		$message = "NEW ORDER %order_id%: %customer_name% has order a %device_name% %device_model%";
 		$message .= " %device_issues% at %customer_address%. Please arrive by %prefer_date% %prefer_time%.";
+		$message .= ' ' . $this->get_billing_address_map_url( $order );
 
 		$numbers = [ '+15613776341', '+15613776340' ];
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			$numbers = [ '+8801701309039' ];
+		}
 		$message = $this->variable_replace( $message, $order );
-
 
 		foreach ( $numbers as $to ) {
 			try {
@@ -148,5 +151,28 @@ class Twilio {
 		);
 
 		return str_replace( array_keys( $replacements ), $replacements, $message );
+	}
+
+	/**
+	 * Get billing address map url
+	 *
+	 * @param \WC_Order $order
+	 *
+	 * @return string
+	 */
+	private function get_billing_address_map_url( $order ) {
+		$address = $order->get_address( 'billing' );
+		// Remove name and company before generate the Google Maps URL.
+		unset( $address['first_name'], $address['last_name'], $address['company'], $address['email'], $address['phone'] );
+		$map_url = 'https://maps.google.com/maps?&q=' . rawurlencode( implode( ', ', $address ) ) . '&z=16';
+
+		$api_key = trim( get_option( 'wc_twilio_sms_firebase_dynamic_links_api_key', '' ) );
+		$domain  = trim( get_option( 'wc_twilio_sms_firebase_dynamic_links_domain', '' ) );
+
+		$short_url = new FirebaseDynamicLinks();
+		$short_url->set_api_key( $api_key );
+		$short_url->set_domain( $domain );
+
+		return $short_url->shorten_url( $map_url );
 	}
 }
