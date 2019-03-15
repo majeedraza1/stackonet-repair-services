@@ -302,6 +302,8 @@
 		}
 
 		.device-issue-container {
+			width: 100%;
+
 			.device-issue-item {
 				display: block;
 				max-width: 430px;
