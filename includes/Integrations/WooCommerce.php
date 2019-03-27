@@ -27,7 +27,7 @@ class WooCommerce {
 			add_action( 'woocommerce_email_order_details', [ self::$instance, 'add_extra_data' ], 10, 2 );
 			add_action( 'woocommerce_email_customer_details', [ self::$instance, 'add_customer_extra_data' ], 99, 2 );
 
-			// add_filter( 'woocommerce_email_classes', array( self::$instance, 'email_classes' ) );
+			add_filter( 'woocommerce_email_classes', array( self::$instance, 'email_classes' ) );
 		}
 
 		return self::$instance;
@@ -105,7 +105,9 @@ class WooCommerce {
 	 * @return array filtered available email classes
 	 */
 	public function email_classes( $email_classes ) {
-		$email_classes['NewDeviceRepairsOrderEmail'] = new \Stackonet\NewDeviceRepairsOrderEmail();
+		// $email_classes['NewDeviceRepairsOrderEmail'] = new \Stackonet\NewDeviceRepairsOrderEmail();
+		$email_classes['admin_reschedule_order']    = new \Stackonet\RescheduleAdminEmail();
+		$email_classes['customer_reschedule_order'] = new \Stackonet\RescheduleCustomerEmail();
 
 		return $email_classes;
 	}

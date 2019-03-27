@@ -16,6 +16,13 @@ class Twilio {
 	protected static $instance;
 
 	/**
+	 * Admin hone numbers
+	 *
+	 * @var array
+	 */
+	private $admin_numbers = [ '+15613776341', '+15613776340' ];
+
+	/**
 	 * Ensures only one instance of the class is loaded or can be loaded.
 	 *
 	 * @return self
@@ -24,10 +31,28 @@ class Twilio {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
+			self::$instance->init_dev_data();
+
 			add_action( 'stackonet_order_created', [ self::$instance, 'send_sms' ] );
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Twilio constructor.
+	 */
+	public function __construct() {
+		$this->init_dev_data();
+	}
+
+	/**
+	 * Initiate development data
+	 */
+	public function init_dev_data() {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			$this->admin_numbers = [ '+8801701309039' ];
+		}
 	}
 
 	/**
@@ -79,13 +104,71 @@ class Twilio {
 		$message .= " %device_issues% at %customer_address%. Please arrive by %prefer_date% %prefer_time%.";
 		$message .= ' ' . $this->get_billing_address_map_url( $order );
 
-		$numbers = [ '+15613776341', '+15613776340' ];
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			$numbers = [ '+8801701309039' ];
-		}
 		$message = $this->variable_replace( $message, $order );
 
-		foreach ( $numbers as $to ) {
+		foreach ( $this->admin_numbers as $to ) {
+			try {
+				$response = wc_twilio_sms()->get_api()->send( $to, $message );
+			} catch ( \Exception $e ) {
+				// Set status to error message
+				$status = $e->getMessage();
+				Logger::log( $status );
+			}
+		}
+	}
+
+	/**
+	 * Send re-schedule mail
+	 *
+	 * @param \WC_Order $order
+	 */
+	public function send_reschedule_mail( $order ) {
+		$this->send_reschedule_mail_to_customer( $order );
+		$this->send_reschedule_mail_to_admin( $order );
+	}
+
+	/**
+	 * Send Re-Schedule mail to customer
+	 *
+	 * @param \WC_Order $order
+	 */
+	public function send_reschedule_mail_to_customer( $order ) {
+		$message = "Thank You for your  %device_name% %device_model% service order at %prefer_date% %prefer_time%!";
+		$message .= " For any questions, If you need to reschedule please Click here";
+		$message .= ' ' . $this->get_billing_address_map_url( $order );
+		$message .= " or please text or call 561-377-6341.";
+
+		$to      = $order->get_billing_phone();
+		$message = $this->variable_replace( $message, $order );
+
+		try {
+			$billing_country = $order->get_meta( 'billing_country', true );
+			$response        = wc_twilio_sms()->get_api()->send( $to, $message, $billing_country );
+		} catch ( \Exception $e ) {
+			// Set status to error message
+			$status = $e->getMessage();
+			Logger::log( $status );
+		}
+	}
+
+	/**
+	 * Send Re-Schedule mail to admin
+	 *
+	 * @param \WC_Order $order
+	 */
+	public function send_reschedule_mail_to_admin( $order ) {
+		$_date     = get_post_meta( $order->get_id(), '_reschedule_date_time', true );
+		$_date     = is_array( $_date ) ? $_date : [];
+		$last_date = end( $_date );
+
+		$message = "NEW APPOINTMENT CHANGES %order_id%: %customer_name% has rescheduled a appointment ";
+		$message .= "%device_issues% at %customer_address%. Please arrive by ";
+		$message .= sprintf( "%s %s. ", $last_date['date'], $last_date['time'] );
+		$message .= $this->get_billing_address_map_url( $order );
+
+		$message = $this->variable_replace( $message, $order );
+
+		foreach ( $this->admin_numbers as $to ) {
 			try {
 				$response = wc_twilio_sms()->get_api()->send( $to, $message );
 			} catch ( \Exception $e ) {

@@ -152,7 +152,8 @@ final class Stackonet_Repair_Services {
 		$this->container['woocommerce'] = Stackonet\Integrations\WooCommerce::init();
 
 		if ( $this->is_request( 'admin' ) ) {
-			$this->container['admin'] = Stackonet\Admin\Admin::init();
+			$this->container['reschedule-date-time'] = Stackonet\Admin\RescheduleDateTime::init();
+			$this->container['admin']                = Stackonet\Admin\Admin::init();
 		}
 
 		if ( $this->is_request( 'frontend' ) ) {
