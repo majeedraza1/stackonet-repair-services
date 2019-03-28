@@ -2,6 +2,8 @@
 
 namespace Stackonet;
 
+use Stackonet\Integrations\FirebaseDynamicLinks;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -82,15 +84,32 @@ class RescheduleAdminEmail extends \WC_Email {
 	public function get_content_html() {
 		ob_start();
 		/** @var \WC_Order $order */
-		$order = $this->object;
+		$order           = $this->object;
+		$order_id        = $order->get_id();
+		$customer_name   = $order->get_formatted_billing_full_name();
+		$billing_address = $order->get_formatted_billing_address();
+		$device_title    = $order->get_meta( '_device_title', true );
+		$device_model    = $order->get_meta( '_device_model', true );
+		$device_issues   = $order->get_meta( '_device_issues', true );
+		$device_issues   = is_array( $device_issues ) ? implode( ', ', $device_issues ) : $device_issues;
+
+		$_date     = get_post_meta( $order->get_id(), '_reschedule_date_time', true );
+		$_date     = is_array( $_date ) ? $_date : [];
+		$last_date = end( $_date );
+
+		$map_url = $this->get_billing_address_map_url( $order );
 
 		/**
 		 * @hooked WC_Emails::email_header() Output the email header
 		 */
 		do_action( 'woocommerce_email_header', $this->get_heading(), $this );
 
-		echo "NEW APPOINTMENT CHANGES [order id]: [Customer name] has ";
-		echo "rescheduled a appointment [Device][issue] at [address]. Please arrive by [time]. [Map Link]";
+		echo '<p>';
+		echo sprintf( "NEW APPOINTMENT CHANGES %s: %s has ", $order_id, $customer_name );
+		echo sprintf( "rescheduled a appointment %s %s %s at %s. ",
+			$device_title, $device_model, $device_issues, $billing_address );
+		echo sprintf( "Please arrive by %s %s. %s", $last_date['date'], $last_date['time'], $map_url );
+		echo '</p>';
 
 		/**
 		 * @hooked WC_Emails::email_footer() Output the email footer
@@ -98,5 +117,28 @@ class RescheduleAdminEmail extends \WC_Email {
 		do_action( 'woocommerce_email_footer', $this );
 
 		return ob_get_clean();
+	}
+
+	/**
+	 * Get billing address map url
+	 *
+	 * @param \WC_Order $order
+	 *
+	 * @return string
+	 */
+	private function get_billing_address_map_url( $order ) {
+		$address = $order->get_address( 'billing' );
+		// Remove name and company before generate the Google Maps URL.
+		unset( $address['first_name'], $address['last_name'], $address['company'], $address['email'], $address['phone'] );
+		$map_url = 'https://maps.google.com/maps?&q=' . rawurlencode( implode( ', ', $address ) ) . '&z=16';
+
+		$api_key = trim( get_option( 'wc_twilio_sms_firebase_dynamic_links_api_key', '' ) );
+		$domain  = trim( get_option( 'wc_twilio_sms_firebase_dynamic_links_domain', '' ) );
+
+		$short_url = new FirebaseDynamicLinks();
+		$short_url->set_api_key( $api_key );
+		$short_url->set_domain( $domain );
+
+		return $short_url->shorten_url( $map_url );
 	}
 }

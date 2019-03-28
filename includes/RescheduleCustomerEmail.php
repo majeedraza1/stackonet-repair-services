@@ -89,8 +89,15 @@ class RescheduleCustomerEmail extends \WC_Email {
 	 */
 	public function get_content_html() {
 		ob_start();
+
 		/** @var \WC_Order $order */
-		$order = $this->object;
+		$order         = $this->object;
+		$order_id      = $order->get_id();
+		$customer_name = $order->get_formatted_billing_full_name();
+
+		$_date     = get_post_meta( $order->get_id(), '_reschedule_date_time', true );
+		$_date     = is_array( $_date ) ? $_date : [];
+		$last_date = end( $_date );
 
 		/**
 		 * @hooked WC_Emails::email_header() Output the email header
@@ -98,9 +105,9 @@ class RescheduleCustomerEmail extends \WC_Email {
 		do_action( 'woocommerce_email_header', $this->get_heading(), $this );
 
 		echo '<p>';
-		echo "Thank you [Name] Your Appointment has been rescheduled. ";
-		echo "We will be arriving at your place by [Date] [Time]. ";
-		echo "If you wish to reschedule appointment Click Here. (Link)";
+		echo sprintf( "Thank you %s Your Appointment has been rescheduled. ", $customer_name );
+		echo sprintf( "We will be arriving at your place by %s %s. ", $last_date['date'], $last_date['time'] );
+		echo "If you wish to reschedule appointment Click Here. (Re-Schedule Link)";
 		echo '</p>';
 
 		/**

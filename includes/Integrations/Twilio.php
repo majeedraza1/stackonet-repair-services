@@ -135,7 +135,7 @@ class Twilio {
 	public function send_reschedule_mail_to_customer( $order ) {
 		$message = "Thank You for your  %device_name% %device_model% service order at %prefer_date% %prefer_time%!";
 		$message .= " For any questions, If you need to reschedule please Click here";
-		$message .= ' ' . $this->get_billing_address_map_url( $order );
+		$message .= ' (Re-Schedule Link)';
 		$message .= " or please text or call 561-377-6341.";
 
 		$to      = $order->get_billing_phone();
