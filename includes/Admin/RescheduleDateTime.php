@@ -18,7 +18,15 @@ class RescheduleDateTime {
 	 * @var self
 	 */
 	protected static $instance;
+
+	/**
+	 * @var string
+	 */
 	private static $timezone_string;
+
+	/**
+	 * @var int
+	 */
 	private static $gmt_offset;
 
 	/**

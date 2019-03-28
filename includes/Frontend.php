@@ -31,6 +31,7 @@ class Frontend {
 			add_shortcode( 'stackonet_repair_service_pricing', [ self::$instance, 'repair_services_pricing' ] );
 			add_shortcode( 'stackonet_testimonial_form', [ self::$instance, 'testimonial_form' ] );
 			add_shortcode( 'stackonet_client_testimonial', [ self::$instance, 'client_testimonial' ] );
+			add_shortcode( 'stackonet_reschedule_order', [ self::$instance, 'reschedule_order' ] );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
 		}
 
@@ -71,7 +72,34 @@ class Frontend {
 			return true;
 		}
 
+		if ( has_shortcode( $post->post_content, 'stackonet_reschedule_order' ) ) {
+			return true;
+		}
+
 		return false;
+	}
+
+	/**
+	 * Show reschedule order frontend
+	 */
+	public function reschedule_order() {
+		$order_id = isset( $_GET['order_id'] ) ? intval( $_GET['order_id'] ) : 0;
+		$token    = isset( $_GET['token'] ) ? wp_strip_all_tags( $_GET['token'] ) : '';
+
+		if ( empty( $order_id ) || empty( $token ) ) {
+			return '<p>Link expired.</p>';
+		}
+
+		$order = wc_get_order( $order_id );
+		if ( ! $order instanceof \WC_Order ) {
+			return '<p>Link expired.</p>';
+		}
+
+		if ( $token != $order->get_meta( '_reschedule_hash', true ) ) {
+			return '<p>Link expired.</p>';
+		}
+
+		var_dump( $order );
 	}
 
 	/**

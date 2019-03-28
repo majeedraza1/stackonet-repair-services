@@ -37,6 +37,16 @@
 								<p class="description">Business address will use in email.</p>
 							</td>
 						</tr>
+						<tr>
+							<th scope="row">
+								<label for="reschedule_page_id">Re-Schedule Page</label>
+							</th>
+							<td>
+								<input type="text" id="reschedule_page_id" class="regular-text"
+									   v-model="settings.reschedule_page_id"/>
+								<p class="description">Reschedule page.</p>
+							</td>
+						</tr>
 					</table>
 				</mdl-tab>
 				<mdl-tab name="Service Times">
@@ -113,6 +123,7 @@
 					support_phone: '',
 					support_email: '',
 					business_address: '',
+					reschedule_page_id: '',
 					google_map_key: '',
 					service_times: {
 						Monday: {start_time: '', end_time: '',},

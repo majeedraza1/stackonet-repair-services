@@ -15,11 +15,12 @@ class Settings {
 	 * @var array
 	 */
 	private static $default = [
-		'support_phone'    => '',
-		'support_email'    => '',
-		'business_address' => '',
-		'google_map_key'   => '',
-		'service_times'    => [
+		'support_phone'      => '',
+		'support_email'      => '',
+		'business_address'   => '',
+		'reschedule_page_id' => '',
+		'google_map_key'     => '',
+		'service_times'      => [
 			'Monday'    => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 			'Tuesday'   => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 			'Wednesday' => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
@@ -28,7 +29,7 @@ class Settings {
 			'Saturday'  => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 			'Sunday'    => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 		],
-		'holidays_list'    => [ [ 'date' => '', 'note' => '' ] ],
+		'holidays_list'      => [ [ 'date' => '', 'note' => '' ] ],
 	];
 
 	/**
@@ -52,6 +53,18 @@ class Settings {
 		$map_key = 'google_map_key';
 
 		return ! empty( $options[ $map_key ] ) ? wp_strip_all_tags( $options[ $map_key ] ) : '';
+	}
+
+	/**
+	 * Get reschedule page id
+	 *
+	 * @return string
+	 */
+	public static function get_reschedule_page_id() {
+		$options = self::get_option();
+		$key     = 'reschedule_page_id';
+
+		return ! empty( $options[ $key ] ) ? wp_strip_all_tags( $options[ $key ] ) : '';
 	}
 
 	/**

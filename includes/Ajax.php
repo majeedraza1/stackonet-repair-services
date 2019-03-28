@@ -288,6 +288,9 @@ class Ajax {
 		$order->add_meta_data( '_device_color', $device_color );
 		$order->add_meta_data( '_device_issues', $device_issues );
 
+		// Add unique id for reschedule
+		$order->add_meta_data( '_reschedule_hash', bin2hex( random_bytes( 20 ) ) );
+
 		$order->save_meta_data();
 
 		// Calculate totals and save data

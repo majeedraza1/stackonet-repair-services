@@ -2,6 +2,8 @@
 
 namespace Stackonet;
 
+use Stackonet\Supports\Utils;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -84,8 +86,9 @@ class RescheduleCustomerEmail extends \WC_Email {
 	/**
 	 * get_content_html function.
 	 *
-	 * @since 0.1
 	 * @return string
+	 *
+	 * @throws \Exception
 	 */
 	public function get_content_html() {
 		ob_start();
@@ -95,9 +98,10 @@ class RescheduleCustomerEmail extends \WC_Email {
 		$order_id      = $order->get_id();
 		$customer_name = $order->get_formatted_billing_full_name();
 
-		$_date     = get_post_meta( $order->get_id(), '_reschedule_date_time', true );
-		$_date     = is_array( $_date ) ? $_date : [];
-		$last_date = end( $_date );
+		$_date          = get_post_meta( $order->get_id(), '_reschedule_date_time', true );
+		$_date          = is_array( $_date ) ? $_date : [];
+		$last_date      = end( $_date );
+		$reschedule_url = Utils::get_reschedule_url( $order );
 
 		/**
 		 * @hooked WC_Emails::email_header() Output the email header
@@ -107,7 +111,8 @@ class RescheduleCustomerEmail extends \WC_Email {
 		echo '<p>';
 		echo sprintf( "Thank you %s Your Appointment has been rescheduled. ", $customer_name );
 		echo sprintf( "We will be arriving at your place by %s %s. ", $last_date['date'], $last_date['time'] );
-		echo "If you wish to reschedule appointment Click Here. (Re-Schedule Link)";
+		echo "If you wish to reschedule appointment Click Here ";
+		echo '<a href="' . $reschedule_url . '">' . $reschedule_url . '</a>';
 		echo '</p>';
 
 		/**

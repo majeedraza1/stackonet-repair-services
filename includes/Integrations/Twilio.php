@@ -3,6 +3,7 @@
 namespace Stackonet\Integrations;
 
 use Stackonet\Supports\Logger;
+use Stackonet\Supports\Utils;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -121,6 +122,8 @@ class Twilio {
 	 * Send re-schedule mail
 	 *
 	 * @param \WC_Order $order
+	 *
+	 * @throws \Exception
 	 */
 	public function send_reschedule_mail( $order ) {
 		$this->send_reschedule_mail_to_customer( $order );
@@ -131,11 +134,12 @@ class Twilio {
 	 * Send Re-Schedule mail to customer
 	 *
 	 * @param \WC_Order $order
+	 *
+	 * @throws \Exception
 	 */
 	public function send_reschedule_mail_to_customer( $order ) {
 		$message = "Thank You for your  %device_name% %device_model% service order at %prefer_date% %prefer_time%!";
-		$message .= " For any questions, If you need to reschedule please Click here";
-		$message .= ' (Re-Schedule Link)';
+		$message .= " For any questions, If you need to reschedule please Click here %reschedule_url%";
 		$message .= " or please text or call 561-377-6341.";
 
 		$to      = $order->get_billing_phone();
@@ -155,6 +159,8 @@ class Twilio {
 	 * Send Re-Schedule mail to admin
 	 *
 	 * @param \WC_Order $order
+	 *
+	 * @throws \Exception
 	 */
 	public function send_reschedule_mail_to_admin( $order ) {
 		$_date     = get_post_meta( $order->get_id(), '_reschedule_date_time', true );
@@ -185,6 +191,7 @@ class Twilio {
 	 * @param \WC_Order $order
 	 *
 	 * @return string
+	 * @throws \Exception
 	 */
 	public function variable_replace( $message, $order ) {
 		$preferred_date = $order->get_meta( '_preferred_service_date', true );
@@ -222,6 +229,8 @@ class Twilio {
 			$customer_address .= ' ' . $postcode;
 		}
 
+		$reschedule_url = Utils::get_reschedule_url( $order );
+
 		$replacements = array(
 			'%order_id%'         => $order->get_id(),
 			'%prefer_date%'      => $preferred_date,
@@ -231,6 +240,7 @@ class Twilio {
 			'%customer_name%'    => $display_name,
 			'%device_issues%'    => $device_issues,
 			'%customer_address%' => $customer_address,
+			'%reschedule_url%'   => $reschedule_url,
 		);
 
 		return str_replace( array_keys( $replacements ), $replacements, $message );

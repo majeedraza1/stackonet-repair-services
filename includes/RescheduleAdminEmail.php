@@ -2,7 +2,7 @@
 
 namespace Stackonet;
 
-use Stackonet\Integrations\FirebaseDynamicLinks;
+use Stackonet\Supports\Utils;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -132,13 +132,6 @@ class RescheduleAdminEmail extends \WC_Email {
 		unset( $address['first_name'], $address['last_name'], $address['company'], $address['email'], $address['phone'] );
 		$map_url = 'https://maps.google.com/maps?&q=' . rawurlencode( implode( ', ', $address ) ) . '&z=16';
 
-		$api_key = trim( get_option( 'wc_twilio_sms_firebase_dynamic_links_api_key', '' ) );
-		$domain  = trim( get_option( 'wc_twilio_sms_firebase_dynamic_links_domain', '' ) );
-
-		$short_url = new FirebaseDynamicLinks();
-		$short_url->set_api_key( $api_key );
-		$short_url->set_domain( $domain );
-
-		return $short_url->shorten_url( $map_url );
+		return Utils::shorten_url( $map_url );
 	}
 }

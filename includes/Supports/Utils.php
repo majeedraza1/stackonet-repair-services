@@ -2,6 +2,9 @@
 
 namespace Stackonet\Supports;
 
+use Stackonet\Integrations\FirebaseDynamicLinks;
+use Stackonet\Models\Settings;
+
 defined( 'ABSPATH' ) || exit;
 
 class Utils {
@@ -40,5 +43,54 @@ class Utils {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Shorten URL
+	 *
+	 * @param string $url
+	 *
+	 * @return string
+	 */
+	public static function shorten_url( $url ) {
+		$api_key = trim( get_option( 'wc_twilio_sms_firebase_dynamic_links_api_key', '' ) );
+		$domain  = trim( get_option( 'wc_twilio_sms_firebase_dynamic_links_domain', '' ) );
+
+		$short_url = new FirebaseDynamicLinks();
+		$short_url->set_api_key( $api_key );
+		$short_url->set_domain( $domain );
+
+		return $short_url->shorten_url( $url );
+	}
+
+	/**
+	 * Get reschedule url
+	 *
+	 * @param \WC_Order $order
+	 *
+	 * @return string
+	 * @throws \Exception
+	 */
+	public static function get_reschedule_url( $order ) {
+		$reschedule_page_id = Settings::get_reschedule_page_id();
+		$_reschedule_hash   = $order->get_meta( '_reschedule_hash', true );
+
+		if ( ! is_numeric( $reschedule_page_id ) ) {
+			return '';
+		}
+
+		$link = get_permalink( $reschedule_page_id );
+		if ( ! $link ) {
+			return '';
+		}
+
+		if ( empty( $_reschedule_hash ) ) {
+			$_reschedule_hash = bin2hex( random_bytes( 20 ) );
+			update_post_meta( $order->get_id(), '_reschedule_hash', $_reschedule_hash );
+		}
+
+		$url = add_query_arg( [ 'order_id' => $order->get_id(), 'token' => $_reschedule_hash, ], $link );
+
+		return self::shorten_url( $url );
 	}
 }
