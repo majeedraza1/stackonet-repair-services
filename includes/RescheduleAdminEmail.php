@@ -65,6 +65,8 @@ class RescheduleAdminEmail extends \WC_Email {
 			return;
 		}
 
+		$this->recipient = get_option( 'admin_email' );
+
 		// send the email
 		$this->send(
 			$this->get_recipient(),
@@ -78,8 +80,8 @@ class RescheduleAdminEmail extends \WC_Email {
 	/**
 	 * get_content_html function.
 	 *
-	 * @since 0.1
 	 * @return string
+	 * @since 0.1
 	 */
 	public function get_content_html() {
 		ob_start();
@@ -108,7 +110,8 @@ class RescheduleAdminEmail extends \WC_Email {
 		echo sprintf( "NEW APPOINTMENT CHANGES %s: %s has ", $order_id, $customer_name );
 		echo sprintf( "rescheduled a appointment %s %s %s at %s. ",
 			$device_title, $device_model, $device_issues, $billing_address );
-		echo sprintf( "Please arrive by %s %s. %s", $last_date['date'], $last_date['time'], $map_url );
+		echo sprintf( "Please arrive by %s %s. ", $last_date['date'], $last_date['time'] );
+		echo '<a href="' . $map_url . '">' . $map_url . '</a>';
 		echo '</p>';
 
 		/**

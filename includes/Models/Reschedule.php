@@ -3,23 +3,52 @@
 namespace Stackonet\Models;
 
 use Exception;
+use Stackonet\Abstracts\BackgroundProcess;
 use Stackonet\Integrations\Twilio;
 use Stackonet\RescheduleAdminEmail;
 use Stackonet\RescheduleCustomerEmail;
+use Stackonet\Supports\Logger;
 use WC_Order;
 
-class Reschedule {
+class Reschedule extends BackgroundProcess {
+
+	/**
+	 * Action
+	 *
+	 * @var string
+	 * @access protected
+	 */
+	protected $action = 'reschedule_background_process';
+
+	/**
+	 * Task
+	 *
+	 * Override this method to perform any actions required on each
+	 * queue item. Return the modified item for further processing
+	 * in the next pass through. Or, return false to remove the
+	 * item from the queue.
+	 *
+	 * @param mixed $item Queue item to iterate over.
+	 *
+	 * @return mixed
+	 * @throws Exception
+	 */
+	protected function task( $item ) {
+		$order = wc_get_order( $item['order_id'] );
+		self::process( $order );
+		Logger::log( $item );
+
+		return false;
+	}
 
 	/**
 	 * Process a reschedule
 	 *
 	 * @param WC_Order $order
-	 * @param array $data
 	 *
 	 * @throws Exception
 	 */
-	public static function process( WC_Order $order, array $data ) {
-		self::update_service_date( $order, $data );
+	public static function process( WC_Order $order ) {
 		self::send_sms_to_customer( $order );
 		self::send_sms_to_admin( $order );
 		self::send_mail_to_admin( $order );

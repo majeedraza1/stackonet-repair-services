@@ -79,6 +79,7 @@ final class Stackonet_Repair_Services {
 
 			// initialize the classes
 			add_action( 'plugins_loaded', array( self::$instance, 'init_classes' ) );
+			add_action( 'init', array( self::$instance, 'init_background_processes' ) );
 
 			// Load plugin textdomain
 			add_action( 'plugins_loaded', array( self::$instance, 'load_plugin_textdomain' ) );
@@ -169,6 +170,22 @@ final class Stackonet_Repair_Services {
 	}
 
 	/**
+	 * Initiate async request
+	 */
+	public function init_background_processes() {
+		$this->container['reschedule'] = new Stackonet\Models\Reschedule();
+	}
+
+	/**
+	 * Async reschedule request
+	 *
+	 * @return Stackonet\Models\Reschedule
+	 */
+	public function async_reschedule() {
+		return $this->container['reschedule'];
+	}
+
+	/**
 	 * Create tables on plugin activation
 	 */
 	public function activation() {
@@ -183,11 +200,11 @@ final class Stackonet_Repair_Services {
 	 */
 	public function load_plugin_textdomain() {
 		// Traditional WordPress plugin locale filter
-		$locale = apply_filters( 'plugin_locale', get_locale(), 'vue-wp-starter' );
-		$mofile = sprintf( '%1$s-%2$s.mo', 'vue-wp-starter', $locale );
+		$locale = apply_filters( 'plugin_locale', get_locale(), $this->plugin_name );
+		$mofile = sprintf( '%1$s-%2$s.mo', $this->plugin_name, $locale );
 
 		// Setup paths to current locale file
-		$mofile_global = WP_LANG_DIR . '/vue-wp-starter/' . $mofile;
+		$mofile_global = WP_LANG_DIR . '/stackonet-repair-services/' . $mofile;
 
 		// Look in global /wp-content/languages/dialog-contact-form folder
 		if ( file_exists( $mofile_global ) ) {

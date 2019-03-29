@@ -167,13 +167,23 @@ class RescheduleDateTime {
 			return;
 		}
 
-		$order = wc_get_order( $post_id );
-		Reschedule::process( $order, [
+		$data = [
 			'date'       => $date,
 			'time'       => $time_range,
 			'user'       => get_current_user_id(),
 			'created_by' => 'admin',
-		] );
+		];
+
+		// Update order metadata
+		$order = wc_get_order( $post_id );
+		Reschedule::update_service_date( $order, $data );
+
+		// Set background process for sms and email.
+		$reschedule = stackonet_repair_services()->async_reschedule();
+		$reschedule->push_to_queue( [ 'order_id' => $post_id, 'data' => $data, ] );
+		$reschedule->save();
+		$reschedule->dispatch();
+
 	}
 
 	/**

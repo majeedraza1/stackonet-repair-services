@@ -1,5 +1,10 @@
 <template>
     <div class="stackonet-reschedule-section">
+
+        <div class="repair-services-loader" :class="{'is-active':loading}">
+            <mdl-spinner :active="loading"></mdl-spinner>
+        </div>
+
         <div class="select-time-wrapper">
             <div class="step-nav-page-wrapper">
                 <div class="step-nav-wrapper">
@@ -65,7 +70,7 @@
                 </template>
             </div>
             <div class="select-time-continue-button-wrapper">
-                <big-button @click="handleContinue" :disabled="!isButtonActive">Continue</big-button>
+                <big-button @click="handleContinue" :disabled="!isButtonActive">Reschedule</big-button>
             </div>
             <p class="select-time-additional-text">
                 Timing is subject to technician availability. We will<br>
@@ -77,13 +82,18 @@
 
 <script>
     import BigButton from '../../components/BigButton.vue';
-    import {mapState} from 'vuex';
+    import mdlSpinner from '../../material-design-lite/spinner/mdlSpinner.vue';
 
     export default {
         name: "Reschedule",
-        components: {BigButton},
+        components: {BigButton, mdlSpinner},
         data() {
             return {
+                loading: false,
+                order_id: 0,
+                token: '',
+                date: '',
+                timeRange: '',
                 dateRanges: [],
                 timeRanges: [],
                 rescheduleData: [],
@@ -99,18 +109,12 @@
             this.dateRanges = window.Stackonet.dateRanges;
             this.timeRanges = window.Stackonet.timeRanges;
             this.rescheduleData = window.RescheduleData.reschedule;
+            this.order_id = window.RescheduleData.order_id;
+            this.token = window.RescheduleData.token;
             this.tempDate = this.dateRanges[0];
             this.tempTime = this.timeRanges[this.tempDate.day][0];
-
-            if (window.RescheduleData.order_id) {
-                this.$store.commit('SET_ORDER_ID', window.RescheduleData.order_id);
-            }
-            if (window.RescheduleData.token) {
-                this.$store.commit('SET_TOKEN', window.RescheduleData.token);
-            }
         },
         computed: {
-            ...mapState(['date', 'timeRange']),
             last_reschedule_date() {
                 let rescheduleData = this.rescheduleData;
                 return rescheduleData ? rescheduleData.pop() : {};
@@ -142,10 +146,35 @@
             },
             handleContinue() {
                 if (confirm('Are you sure to change date and time?')) {
-                    this.$store.commit('SET_DATE', this.tempDate.date);
-                    this.$store.commit('SET_TIME_RANGE', this.tempTime);
-                    this.$store.dispatch('rescheduleOrder');
+                    this.date = this.tempDate.date;
+                    this.timeRange = this.tempTime;
+                    this.reschedule();
                 }
+            },
+            reschedule() {
+                let $ = window.jQuery, self = this;
+
+                self.loading = true;
+                $.ajax({
+                    url: window.Stackonet.rest_root + '/reschedule',
+                    method: 'POST',
+                    data: {
+                        order_id: self.order_id,
+                        token: self.token,
+                        date: self.date,
+                        time_range: self.timeRange,
+                    },
+                    success: function (response) {
+                        self.loading = false;
+                        alert("Order has rescheduled. You will get SMS and mail soon.");
+                        setTimeout(() => {
+                            window.location.href = window.Stackonet.home_url;
+                        })
+                    },
+                    error: function () {
+                        self.loading = true;
+                    }
+                });
             }
         }
     }
@@ -153,6 +182,13 @@
 
 <style lang="scss">
     .stackonet-reschedule-section {
+        position: relative;
         background-color: #eff2f5 !important;
+
+        .repair-services-loader {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+        }
     }
 </style>

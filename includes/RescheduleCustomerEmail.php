@@ -24,9 +24,9 @@ class RescheduleCustomerEmail extends \WC_Email {
 		// set ID, this simply needs to be a unique name
 		$this->id = 'customer_reschedule_order';
 		// this is the title in WooCommerce Email settings
-		$this->title = 'Admin Reschedule Order';
+		$this->title = 'Customer Reschedule Order';
 		// this is the description in WooCommerce email settings
-		$this->description = 'Admin reschedule order mail send when admin or customer reschedule date and time.';
+		$this->description = 'Customer reschedule order mail send when admin or customer reschedule date and time.';
 
 		// these are the default heading and subject lines that can be overridden using the settings
 		$this->heading = 'Appointment Date and Time have been rescheduled';

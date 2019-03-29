@@ -84,7 +84,14 @@ class OrderRescheduleController extends ApiController {
 			'created_by' => 'customer',
 		];
 
-		Reschedule::process( $order, $data );
+		// Update order metadata
+		Reschedule::update_service_date( $order, $data );
+
+		// Set background process for sms and email.
+		$reschedule = stackonet_repair_services()->async_reschedule();
+		$reschedule->push_to_queue( [ 'order_id' => $order_id, 'data' => $data, ] );
+		$reschedule->save();
+		$reschedule->dispatch();
 
 		return $this->respondOK( 'Order has been rescheduled successfully.' );
 	}

@@ -35,20 +35,7 @@ export default new Vuex.Store({
     // Same as Vue methods
     actions: {
         rescheduleOrder({state}) {
-            let $ = window.jQuery, self = this;
-            $.ajax({
-                url: window.Stackonet.rest_root + '/reschedule',
-                method: 'POST',
-                data: {
-                    order_id: state.order_id,
-                    token: state.token,
-                    date: state.date,
-                    time_range: state.timeRange,
-                },
-                success: function (response) {
 
-                }
-            });
         }
     },
 
