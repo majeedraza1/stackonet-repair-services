@@ -160,6 +160,7 @@ final class Stackonet_Repair_Services {
 			$this->container['frontend']              = Stackonet\Frontend::init();
 			$this->container['rest-testimonial']      = Stackonet\REST\TestimonialController::init();
 			$this->container['rest-unsupported-area'] = Stackonet\REST\UnsupportedAreaController::init();
+			$this->container['rest-reschedule-order'] = Stackonet\REST\OrderRescheduleController::init();
 		}
 
 		if ( $this->is_request( 'ajax' ) ) {
@@ -209,9 +210,9 @@ final class Stackonet_Repair_Services {
 		$error .= sprintf( __( 'The Dialog Contact Form plugin requires PHP version %s or greater.',
 			'vue-wp-starter' ), $this->min_php );
 		?>
-		<div class="error">
-			<p><?php printf( $error ); ?></p>
-		</div>
+        <div class="error">
+            <p><?php printf( $error ); ?></p>
+        </div>
 		<?php
 	}
 
@@ -245,7 +246,7 @@ final class Stackonet_Repair_Services {
 	/**
 	 * What type of request is this?
 	 *
-	 * @param  string $type admin, ajax, rest, cron or frontend.
+	 * @param string $type admin, ajax, rest, cron or frontend.
 	 *
 	 * @return bool
 	 */

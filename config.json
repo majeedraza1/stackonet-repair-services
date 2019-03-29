@@ -1,3 +1,3 @@
 {
-	"proxyURL": "http://phonerepairsasap.test/services"
+  "proxyURL": "http://phonerepairsasap.test/reschedule-order/?order_id=3456&token=d51eab18ed2b893910007369e119463603774b52"
 }

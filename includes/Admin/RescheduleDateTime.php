@@ -2,7 +2,9 @@
 
 namespace Stackonet\Admin;
 
+use Exception;
 use Stackonet\Integrations\Twilio;
+use Stackonet\Models\Reschedule;
 use Stackonet\Models\Settings;
 use Stackonet\RescheduleAdminEmail;
 use Stackonet\RescheduleCustomerEmail;
@@ -61,7 +63,7 @@ class RescheduleDateTime {
 	 *
 	 * @param \WP_Post $post
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function re_schedule_date_time_callback( $post ) {
 		$service_date = get_post_meta( $post->ID, '_preferred_service_date', true );
@@ -101,11 +103,11 @@ class RescheduleDateTime {
 		$_total_schedule  = count( $_reschedule_date );
 
 		?>
-		<p>
-			<strong>Preferred Date & Time: </strong><br>
+        <p>
+            <strong>Preferred Date & Time: </strong><br>
 			<?php echo $date . ', ' . $time_range; ?>
-		</p>
-		<hr>
+        </p>
+        <hr>
 		<?php
 		if ( $_total_schedule ) {
 			echo '<p>';
@@ -120,9 +122,9 @@ class RescheduleDateTime {
 			echo '</p>';
 		}
 		?>
-		<p>
-			<label for="_reschedule_date">Date: </label>
-			<select id="_reschedule_date" name="_reschedule_date" class="widefat">
+        <p>
+            <label for="_reschedule_date">Date: </label>
+            <select id="_reschedule_date" name="_reschedule_date" class="widefat">
 				<?php
 				echo '<option value="">Choose Date</option>';
 				foreach ( $dateRanges as $date_range ) {
@@ -131,22 +133,22 @@ class RescheduleDateTime {
 					echo '<option value="' . $date_range['date'] . '" ' . $disabled . '>' . $label . '</option>';
 				}
 				?>
-			</select>
-		</p>
-		<p>
-			<label for="_reschedule_time_range">Time Range: </label>
-			<select id="_reschedule_time_range" name="_reschedule_time_range" class="widefat">
+            </select>
+        </p>
+        <p>
+            <label for="_reschedule_time_range">Time Range: </label>
+            <select id="_reschedule_time_range" name="_reschedule_time_range" class="widefat">
 				<?php
 				echo '<option value="">Choose Time Range</option>';
 				foreach ( $_times as $time ) {
 					echo '<option value="' . $time . '">' . $time . '</option>';
 				}
 				?>
-			</select>
-		</p>
-		<p>
-			<button class="button widefat">Re-Schedule Date & Time</button>
-		</p>
+            </select>
+        </p>
+        <p>
+            <button class="button widefat">Re-Schedule Date & Time</button>
+        </p>
 		<?php
 	}
 
@@ -154,6 +156,8 @@ class RescheduleDateTime {
 	 * Save re-schedule date and time
 	 *
 	 * @param int $post_id
+	 *
+	 * @throws Exception
 	 */
 	public function save_date_time( $post_id ) {
 		$date       = isset( $_POST['_reschedule_date'] ) ? $_POST['_reschedule_date'] : null;
@@ -163,17 +167,13 @@ class RescheduleDateTime {
 			return;
 		}
 
-		$_reschedule_date = get_post_meta( $post_id, '_reschedule_date_time', true );
-		$_reschedule_date = is_array( $_reschedule_date ) ? $_reschedule_date : [];
-
-		$data = [ 'date' => $date, 'time' => $time_range, 'user' => get_current_user_id() ];
-
-		$_reschedule_date[] = $data;
-
-		update_post_meta( $post_id, '_reschedule_date_time', $_reschedule_date );
-
-		$this->send_sms( $post_id, $data );
-		$this->send_email( $post_id, $data );
+		$order = wc_get_order( $post_id );
+		Reschedule::process( $order, [
+			'date'       => $date,
+			'time'       => $time_range,
+			'user'       => get_current_user_id(),
+			'created_by' => 'admin',
+		] );
 	}
 
 	/**
@@ -185,35 +185,5 @@ class RescheduleDateTime {
 	 */
 	public static function isValidTimezone( $timezone ) {
 		return in_array( $timezone, timezone_identifiers_list() );
-	}
-
-	/**
-	 * Send SMS to customer and admin
-	 *
-	 * @param int $post_id
-	 * @param array $data
-	 */
-	private function send_sms( $post_id, array $data ) {
-		$order  = wc_get_order( $post_id );
-		$twilio = new Twilio();
-		$twilio->send_reschedule_mail( $order );
-	}
-
-	/**
-	 * Send email to customer and admin
-	 *
-	 * @param int $post_id
-	 * @param array $data
-	 */
-	private function send_email( $post_id, array $data ) {
-		$order = wc_get_order( $post_id );
-		$email = wc()->mailer()->get_emails();
-		/** @var RescheduleAdminEmail $admin_email */
-		$admin_email = $email['admin_reschedule_order'];
-		/** @var RescheduleCustomerEmail $user_email */
-		$user_email = $email['customer_reschedule_order'];
-
-		$admin_email->trigger( $post_id, $order );
-		$user_email->trigger( $post_id, $order );
 	}
 }

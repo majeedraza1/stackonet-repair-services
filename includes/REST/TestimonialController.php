@@ -3,6 +3,10 @@
 namespace Stackonet\REST;
 
 use Stackonet\Models\Testimonial;
+use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
+use WP_REST_Server;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -36,41 +40,41 @@ class TestimonialController extends ApiController {
 	public function register_routes() {
 		register_rest_route( $this->namespace, '/testimonials', [
 			[
-				'methods'  => \WP_REST_Server::READABLE,
+				'methods'  => WP_REST_Server::READABLE,
 				'callback' => [ $this, 'get_items' ],
 				'args'     => $this->get_collection_params(),
 			],
-			[ 'methods' => \WP_REST_Server::CREATABLE, 'callback' => [ $this, 'create_item' ], ],
+			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'create_item' ], ],
 		] );
 
 		register_rest_route( $this->namespace, '/testimonials/batch/trash', [
-			'methods'  => \WP_REST_Server::DELETABLE,
+			'methods'  => WP_REST_Server::DELETABLE,
 			'callback' => [ $this, 'trash_items' ],
 		] );
 
 		register_rest_route( $this->namespace, '/testimonials/batch/restore', [
-			'methods'  => \WP_REST_Server::DELETABLE,
+			'methods'  => WP_REST_Server::DELETABLE,
 			'callback' => [ $this, 'restore_items' ],
 		] );
 
 		register_rest_route( $this->namespace, '/testimonials/batch/delete', [
-			'methods'  => \WP_REST_Server::DELETABLE,
+			'methods'  => WP_REST_Server::DELETABLE,
 			'callback' => [ $this, 'delete_items' ],
 		] );
 
 		register_rest_route( $this->namespace, '/testimonials/(?P<id>\d+)', [
-			[ 'methods' => \WP_REST_Server::READABLE, 'callback' => [ $this, 'get_item' ], ],
-			[ 'methods' => \WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_item' ], ],
-			[ 'methods' => \WP_REST_Server::DELETABLE, 'callback' => [ $this, 'delete_item' ], ],
+			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_item' ], ],
+			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_item' ], ],
+			[ 'methods' => WP_REST_Server::DELETABLE, 'callback' => [ $this, 'delete_item' ], ],
 		] );
 	}
 
 	/**
 	 * Get a collection of items.
 	 *
-	 * @param \WP_REST_Request $request Full data about the request.
+	 * @param WP_REST_Request $request Full data about the request.
 	 *
-	 * @return \WP_Error|\WP_REST_Response
+	 * @return WP_Error|WP_REST_Response
 	 */
 	public function get_items( $request ) {
 		if ( ! current_user_can( 'edit_posts' ) ) {
@@ -113,9 +117,9 @@ class TestimonialController extends ApiController {
 	/**
 	 * Updates one item from the collection.
 	 *
-	 * @param \WP_REST_Request $request Full data about the request.
+	 * @param WP_REST_Request $request Full data about the request.
 	 *
-	 * @return \WP_Error|\WP_REST_Response Response object on success, or WP_Error object on failure.
+	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function update_item( $request ) {
 		if ( ! current_user_can( 'edit_posts' ) ) {
@@ -156,11 +160,11 @@ class TestimonialController extends ApiController {
 	/**
 	 * Deletes one item from the collection.
 	 *
-	 * @since 4.7.0
+	 * @param WP_REST_Request $request Full data about the request.
 	 *
-	 * @param \WP_REST_Request $request Full data about the request.
+	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
+	 *@since 4.7.0
 	 *
-	 * @return \WP_Error|\WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function delete_item( $request ) {
 		if ( ! current_user_can( 'edit_posts' ) ) {
@@ -184,9 +188,9 @@ class TestimonialController extends ApiController {
 	/**
 	 * Trash a collection of items.
 	 *
-	 * @param \WP_REST_Request $request Full data about the request.
+	 * @param WP_REST_Request $request Full data about the request.
 	 *
-	 * @return \WP_Error|\WP_REST_Response
+	 * @return WP_Error|WP_REST_Response
 	 */
 	public function trash_items( $request ) {
 		$ids = (array) $request->get_param( 'ids' );
@@ -201,9 +205,9 @@ class TestimonialController extends ApiController {
 	/**
 	 * Restore a collection of items.
 	 *
-	 * @param \WP_REST_Request $request Full data about the request.
+	 * @param WP_REST_Request $request Full data about the request.
 	 *
-	 * @return \WP_Error|\WP_REST_Response
+	 * @return WP_Error|WP_REST_Response
 	 */
 	public function restore_items( $request ) {
 		$ids = (array) $request->get_param( 'ids' );
@@ -218,9 +222,9 @@ class TestimonialController extends ApiController {
 	/**
 	 * Delete a collection of items.
 	 *
-	 * @param \WP_REST_Request $request Full data about the request.
+	 * @param WP_REST_Request $request Full data about the request.
 	 *
-	 * @return \WP_Error|\WP_REST_Response
+	 * @return WP_Error|WP_REST_Response
 	 */
 	public function delete_items( $request ) {
 		$ids = (array) $request->get_param( 'ids' );
