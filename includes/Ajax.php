@@ -4,6 +4,7 @@ namespace Stackonet;
 
 use Stackonet\Models\Device;
 use Stackonet\Models\DeviceIssue;
+use Stackonet\Models\OrderReminder;
 use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
 use Stackonet\Models\Testimonial;
@@ -59,9 +60,18 @@ class Ajax {
 			add_action( 'wp_ajax_create_client_testimonial', [ self::$instance, 'create_client_testimonial' ] );
 			add_action( 'wp_ajax_nopriv_create_client_testimonial', [ self::$instance, 'create_client_testimonial' ] );
 
+			add_action( 'wp_ajax_stackonet_test', [ self::$instance, 'stackonet_test' ] );
 		}
 
 		return self::$instance;
+	}
+
+	public function stackonet_test() {
+		$order = wc_get_order( 3456 );
+
+		$reminder = new OrderReminder();
+		$reminder::process( $order );
+		die();
 	}
 
 	/**

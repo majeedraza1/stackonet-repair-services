@@ -36,7 +36,6 @@ class Reschedule extends BackgroundProcess {
 	protected function task( $item ) {
 		$order = wc_get_order( $item['order_id'] );
 		self::process( $order );
-		Logger::log( $item );
 
 		return false;
 	}

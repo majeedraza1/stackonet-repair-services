@@ -2,6 +2,12 @@
 
 namespace Stackonet\Models;
 
+use DateInterval;
+use DatePeriod;
+use DateTime;
+use DateTimeZone;
+use Exception;
+
 class Settings {
 
 	/**
@@ -15,12 +21,13 @@ class Settings {
 	 * @var array
 	 */
 	private static $default = [
-		'support_phone'      => '',
-		'support_email'      => '',
-		'business_address'   => '',
-		'reschedule_page_id' => '',
-		'google_map_key'     => '',
-		'service_times'      => [
+		'support_phone'          => '',
+		'support_email'          => '',
+		'business_address'       => '',
+		'reschedule_page_id'     => '',
+		'order_reminder_minutes' => '',
+		'google_map_key'         => '',
+		'service_times'          => [
 			'Monday'    => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 			'Tuesday'   => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 			'Wednesday' => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
@@ -29,7 +36,7 @@ class Settings {
 			'Saturday'  => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 			'Sunday'    => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 		],
-		'holidays_list'      => [ [ 'date' => '', 'note' => '' ] ],
+		'holidays_list'          => [ [ 'date' => '', 'note' => '' ] ],
 	];
 
 	/**
@@ -68,8 +75,21 @@ class Settings {
 	}
 
 	/**
+	 * Get order reminder minutes
+	 *
+	 * @return int
+	 */
+	public static function get_order_reminder_minutes() {
+		$options = self::get_option();
+		$key     = 'order_reminder_minutes';
+		$default = 1440; // 24 hours
+
+		return ! empty( $options[ $key ] ) ? intval( $options[ $key ] ) : $default;
+	}
+
+	/**
 	 * @return array|mixed
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public static function get_service_dates_ranges() {
 		$key     = 'holidays_list';
@@ -79,13 +99,13 @@ class Settings {
 		$off_days = array_filter( wp_list_pluck( $holidays, 'date' ) );
 
 		$days     = [];
-		$date     = new \DateTime();
+		$date     = new DateTime();
 		$timezone = get_option( 'timezone_string' );
-		if ( in_array( $timezone, \DateTimeZone::listIdentifiers() ) ) {
-			$date->setTimezone( new \DateTimeZone( $timezone ) );
+		if ( in_array( $timezone, DateTimeZone::listIdentifiers() ) ) {
+			$date->setTimezone( new DateTimeZone( $timezone ) );
 		}
-		/** @var \DateTime[] $period */
-		$period = new \DatePeriod( $date, new \DateInterval( 'P1D' ), new \DateTime( '+ 10 days' ) );
+		/** @var DateTime[] $period */
+		$period = new DatePeriod( $date, new DateInterval( 'P1D' ), new DateTime( '+ 10 days' ) );
 		foreach ( $period as $day ) {
 			$_date      = $day->format( 'Y-m-d' );
 			$is_holiday = in_array( $_date, $off_days );
@@ -107,7 +127,7 @@ class Settings {
 	 * Get service times
 	 *
 	 * @return array
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public static function get_service_times_ranges() {
 		$key     = 'service_times';
@@ -119,12 +139,12 @@ class Settings {
 			$start = date( 'Y-m-d', time() ) . ' ' . $service_time['start_time'];
 			$end   = date( 'Y-m-d', time() ) . ' ' . $service_time['end_time'];
 
-			$date1 = new \DateTime( $start );
-			$date2 = new \DateTime( $end );
+			$date1 = new DateTime( $start );
+			$date2 = new DateTime( $end );
 
-			$interval = new \DateInterval( 'PT1H' );
-			/** @var \DateTime[] $period */
-			$period = new \DatePeriod( $date1, $interval, $date2 );
+			$interval = new DateInterval( 'PT1H' );
+			/** @var DateTime[] $period */
+			$period = new DatePeriod( $date1, $interval, $date2 );
 
 			foreach ( $period as $day ) {
 				$_h1 = $day->format( 'ha' );

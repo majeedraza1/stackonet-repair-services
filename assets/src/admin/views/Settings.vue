@@ -47,6 +47,16 @@
 								<p class="description">Reschedule page.</p>
 							</td>
 						</tr>
+						<tr>
+							<th scope="row">
+								<label for="order_reminder_minutes">Order Reminder Time</label>
+							</th>
+							<td>
+								<input type="number" id="order_reminder_minutes" class="regular-text"
+									   v-model="settings.order_reminder_minutes"/>
+								<p class="description">Enter order reminder time in minutes. Example, enter 1440 for For 24 hours.</p>
+							</td>
+						</tr>
 					</table>
 				</mdl-tab>
 				<mdl-tab name="Service Times">
@@ -124,6 +134,7 @@
 					support_email: '',
 					business_address: '',
 					reschedule_page_id: '',
+					order_reminder_minutes: '',
 					google_map_key: '',
 					service_times: {
 						Monday: {start_time: '', end_time: '',},
