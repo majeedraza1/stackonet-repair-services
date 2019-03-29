@@ -2,8 +2,10 @@
 
 namespace Stackonet\Supports;
 
+use Exception;
 use Stackonet\Integrations\FirebaseDynamicLinks;
 use Stackonet\Models\Settings;
+use WC_Order;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -66,10 +68,10 @@ class Utils {
 	/**
 	 * Get reschedule url
 	 *
-	 * @param \WC_Order $order
+	 * @param WC_Order $order
 	 *
 	 * @return string
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public static function get_reschedule_url( $order ) {
 		$reschedule_page_id = Settings::get_reschedule_page_id();
