@@ -28,11 +28,11 @@ class OrderReminder extends BackgroundProcess {
 	 */
 	public function __construct() {
 		parent::__construct();
-		$this->init();
 
+		$this->init();
 		add_action( 'stackonet_order_created', [ $this, 'add_new_order' ] );
-		add_action( 'delete_post', [ $this, 'clear_transient' ] );
-		add_action( 'save_post', [ $this, 'clear_transient' ] );
+		add_action( 'save_order_reschedule', [ $this, 'save_order_reschedule' ] );
+		add_action( 'delete_post', [ $this, 'delete_order' ] );
 	}
 
 	/**
@@ -45,17 +45,38 @@ class OrderReminder extends BackgroundProcess {
 		$data[ $order->get_id() ] = self::get_order_reminder_data( $order );
 
 		delete_transient( 'get_orders_reminder_data' );
-		set_transient( 'get_orders_reminder_data', $data, DAY_IN_SECONDS );
+		set_transient( 'get_orders_reminder_data', $data );
+	}
+
+	/**
+	 * @param WC_Order $order
+	 *
+	 * @throws Exception
+	 */
+	public function save_order_reschedule( WC_Order $order ) {
+		$order_id          = $order->get_id();
+		$data              = self::get_orders_reminder_data();
+		$data[ $order_id ] = self::get_order_reminder_data( $order );
+
+		delete_transient( 'get_orders_reminder_data' );
+		set_transient( 'get_orders_reminder_data', $data );
 	}
 
 	/**
 	 * Create Transient
 	 *
 	 * @param int $post_id
+	 *
+	 * @throws Exception
 	 */
-	public function clear_transient( $post_id ) {
+	public function delete_order( $post_id ) {
 		if ( get_post_type( $post_id ) == 'shop_order' ) {
-			delete_transient( 'get_orders_reminder_data' );
+			$data = self::get_orders_reminder_data();
+			if ( isset( $data[ $post_id ] ) ) {
+				unset( $data[ $post_id ] );
+				delete_transient( 'get_orders_reminder_data' );
+				set_transient( 'get_orders_reminder_data', $data );
+			}
 		}
 	}
 
@@ -102,22 +123,25 @@ class OrderReminder extends BackgroundProcess {
 	 */
 	public static function get_orders_reminder_data() {
 		$data = get_transient( 'get_orders_reminder_data' );
-		if ( false === $data ) {
-			$query = new WC_Order_Query();
-			$query->set( 'limit', - 1 );
-			$query->set( 'status', [ 'wc-processing' ] );
-			$query->set( 'orderby', 'date' );
-			$query->set( 'order', 'DESC' );
-			/** @var WC_Order[] $orders */
-			$orders = $query->get_orders();
-
-			$data = [];
-			foreach ( $orders as $order ) {
-				$data[ $order->get_id() ] = self::get_order_reminder_data( $order );
-			}
-
-			set_transient( 'get_orders_reminder_data', $data, DAY_IN_SECONDS );
+		if ( ! empty( $data ) && is_array( $data ) ) {
+			return $data;
 		}
+
+		return [];
+
+		$query = new WC_Order_Query();
+		$query->set( 'limit', - 1 );
+		$query->set( 'status', [ 'wc-processing' ] );
+		$query->set( 'orderby', 'date' );
+		$query->set( 'order', 'DESC' );
+		/** @var WC_Order[] $orders */
+		$orders = $query->get_orders();
+		$data   = [];
+		foreach ( $orders as $order ) {
+			$data[ $order->get_id() ] = self::get_order_reminder_data( $order );
+		}
+
+		set_transient( 'get_orders_reminder_data', $data );
 
 		return $data;
 	}

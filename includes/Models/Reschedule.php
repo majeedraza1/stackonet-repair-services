@@ -92,6 +92,8 @@ class Reschedule extends BackgroundProcess {
 		$dates[] = $data;
 
 		update_post_meta( $order->get_id(), '_reschedule_date_time', $dates );
+
+		do_action( 'save_order_reschedule', $order, $data );
 	}
 
 	/**
