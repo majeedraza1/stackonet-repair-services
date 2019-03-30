@@ -105,6 +105,8 @@ class Twilio {
 	 * Send SMS to admin
 	 *
 	 * @param WC_Order $order
+	 *
+	 * @throws Exception
 	 */
 	public function send_sms_to_admin( $order ) {
 		$message = "NEW ORDER %order_id%: %customer_name% has order a %device_name% %device_model%";
@@ -188,6 +190,28 @@ class Twilio {
 				$status = $e->getMessage();
 				Logger::log( $status );
 			}
+		}
+	}
+
+	/**
+	 * @param WC_Order $order
+	 *
+	 * @throws Exception
+	 */
+	public function send_reminder_sms( WC_Order $order ) {
+		$message = "Thank You for your  %device_name% %device_model% service order at %prefer_date% %prefer_time%!";
+		$message .= " If you need to reschedule please Click here %reschedule_url% or please text or call %support_phone%.";
+
+		$to      = $order->get_billing_phone();
+		$message = $this->variable_replace( $message, $order );
+
+		try {
+			$billing_country = $order->get_meta( 'billing_country', true );
+			$response        = wc_twilio_sms()->get_api()->send( $to, $message, $billing_country );
+		} catch ( Exception $e ) {
+			// Set status to error message
+			$status = $e->getMessage();
+			Logger::log( $status );
 		}
 	}
 

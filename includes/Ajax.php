@@ -67,10 +67,6 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$order = wc_get_order( 3456 );
-
-		$reminder = new OrderReminder();
-		$reminder::process( $order );
 		die();
 	}
 

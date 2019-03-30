@@ -2,12 +2,18 @@
 
 namespace Stackonet\Admin;
 
+use DateInterval;
+use DatePeriod;
+use DateTime;
+use DateTimeZone;
 use Exception;
 use Stackonet\Integrations\Twilio;
 use Stackonet\Models\Reschedule;
 use Stackonet\Models\Settings;
 use Stackonet\RescheduleAdminEmail;
 use Stackonet\RescheduleCustomerEmail;
+use Stackonet\Supports\Utils;
+use WP_Post;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -61,7 +67,7 @@ class RescheduleDateTime {
 	/**
 	 * Meta box callback
 	 *
-	 * @param \WP_Post $post
+	 * @param WP_Post $post
 	 *
 	 * @throws Exception
 	 */
@@ -69,27 +75,20 @@ class RescheduleDateTime {
 		$service_date = get_post_meta( $post->ID, '_preferred_service_date', true );
 		$time_range   = get_post_meta( $post->ID, '_preferred_service_time_range', true );
 
-		$dateTime = new \DateTime( $service_date );
-
-		// Receive mail come as utc time, not need to set timezone
-		if ( is_numeric( self::$gmt_offset ) && self::$gmt_offset ) {
-			$dateTime->setTimezone( new \DateTimeZone( self::$gmt_offset ) );
-		} elseif ( self::isValidTimezone( self::$timezone_string ) ) {
-			$dateTime->setTimezone( new \DateTimeZone( self::$timezone_string ) );
-		}
-
-		$date = $dateTime->format( get_option( 'date_format' ) );
+		$timezone = Utils::get_timezone();
+		$dateTime = new DateTime( $service_date, $timezone );
+		$date     = $dateTime->format( get_option( 'date_format' ) );
 
 		$dateRanges = Settings::get_service_dates_ranges();
 
 		$start = date( 'Y-m-d', time() ) . ' 00:00:01';
 		$end   = date( 'Y-m-d', time() ) . ' 24:00:00';
-		$date1 = new \DateTime( $start );
-		$date2 = new \DateTime( $end );
+		$date1 = new DateTime( $start );
+		$date2 = new DateTime( $end );
 
-		$interval = new \DateInterval( 'PT1H' );
-		/** @var \DateTime[] $period */
-		$period = new \DatePeriod( $date1, $interval, $date2 );
+		$interval = new DateInterval( 'PT1H' );
+		/** @var DateTime[] $period */
+		$period = new DatePeriod( $date1, $interval, $date2 );
 
 		$_times = [];
 		foreach ( $period as $day ) {

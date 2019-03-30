@@ -2,6 +2,7 @@
 
 namespace Stackonet\Supports;
 
+use DateTimeZone;
 use Exception;
 use Stackonet\Integrations\FirebaseDynamicLinks;
 use Stackonet\Models\Settings;
@@ -94,5 +95,38 @@ class Utils {
 		$url = add_query_arg( [ 'order_id' => $order->get_id(), 'token' => $_reschedule_hash, ], $link );
 
 		return self::shorten_url( $url );
+	}
+
+	/**
+	 *  Returns the blog timezone
+	 *
+	 * Gets timezone settings from the db. If a timezone identifier is used just turns
+	 * it into a DateTimeZone. If an offset is used, it tries to find a suitable timezone.
+	 * If all else fails it uses UTC.
+	 *
+	 * @return DateTimeZone The blog timezone
+	 */
+	public static function get_timezone() {
+		$timezone_string = get_option( 'timezone_string' );
+		$offset          = get_option( 'gmt_offset' );
+
+		//Manual offset...
+		//@see http://us.php.net/manual/en/timezones.others.php
+		//@see https://bugs.php.net/bug.php?id=45543
+		//@see https://bugs.php.net/bug.php?id=45528
+		//IANA timezone database that provides PHP's timezone support uses POSIX (i.e. reversed) style signs
+		if ( empty( $timezone_string ) && 0 != $offset && floor( $offset ) == $offset ) {
+			$offset_st       = $offset > 0 ? "-$offset" : '+' . absint( $offset );
+			$timezone_string = 'Etc/GMT' . $offset_st;
+		}
+
+		//Issue with the timezone selected, set to 'UTC'
+		if ( empty( $timezone_string ) ) {
+			$timezone_string = 'UTC';
+		}
+
+		$timezone = new DateTimeZone( $timezone_string );
+
+		return $timezone;
 	}
 }

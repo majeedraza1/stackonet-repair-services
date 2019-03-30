@@ -173,7 +173,8 @@ final class Stackonet_Repair_Services {
 	 * Initiate async request
 	 */
 	public function init_background_processes() {
-		$this->container['reschedule'] = new Stackonet\Models\Reschedule();
+		$this->container['reschedule']     = new Stackonet\Models\Reschedule();
+		$this->container['order_reminder'] = new Stackonet\Models\OrderReminder();
 	}
 
 	/**
@@ -183,6 +184,15 @@ final class Stackonet_Repair_Services {
 	 */
 	public function async_reschedule() {
 		return $this->container['reschedule'];
+	}
+
+	/**
+	 * Async reschedule request
+	 *
+	 * @return Stackonet\Models\OrderReminder
+	 */
+	public function order_reminder() {
+		return $this->container['order_reminder'];
 	}
 
 	/**
