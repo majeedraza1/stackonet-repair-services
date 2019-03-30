@@ -66,6 +66,7 @@ class OrderReminder extends BackgroundProcess {
 		$reminder_data = self::get_orders_reminder_data();
 		foreach ( $reminder_data as $item ) {
 			if ( $item['can_send_sms'] ) {
+				update_post_meta( $item['order_id'], '_is_order_reminder_send', 1 );
 				$reminder = stackonet_repair_services()->order_reminder();
 				$reminder->push_to_queue( $item );
 				$reminder->save();

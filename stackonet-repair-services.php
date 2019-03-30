@@ -3,7 +3,7 @@
  * Plugin Name: Stackonet Toolkit for Phone Repairs ASAP
  * Plugin URI: https://github.com/sayful1/stackonet-repair-services
  * Description: Stackonet Toolkit for Phone Repairs ASAP
- * Version: 1.0.0
+ * Version: 1.0.2
  * Author: Stackonet Services Private Limited
  * Author URI: http://www.stackonet.com/
  * Requires at least: 4.9
@@ -34,7 +34,7 @@ final class Stackonet_Repair_Services {
 	 *
 	 * @var string
 	 */
-	private $version = '1.0.1-rc1';
+	private $version = '1.0.2';
 
 	/**
 	 * Holds various class instances
