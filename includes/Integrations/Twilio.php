@@ -199,8 +199,20 @@ class Twilio {
 	 * @throws Exception
 	 */
 	public function send_reminder_sms( WC_Order $order ) {
+		$this->send_reminder_sms_to_customer( $order );
+		$this->send_reminder_sms_to_admin( $order );
+	}
+
+	/**
+	 * Send reminder SMS to customer
+	 *
+	 * @param WC_Order $order
+	 *
+	 * @throws Exception
+	 */
+	public function send_reminder_sms_to_customer( WC_Order $order ) {
 		$message = "Thank You for your  %device_name% %device_model% service order at %prefer_date% %prefer_time%!";
-		$message .= " If you need to reschedule please Click here %reschedule_url% or please text or call %support_phone%.";
+		$message .= " If you need to reschedule please Click here %reschedule_url% or text or call %support_phone%.";
 
 		$to      = $order->get_billing_phone();
 		$message = $this->variable_replace( $message, $order );
@@ -212,6 +224,30 @@ class Twilio {
 			// Set status to error message
 			$status = $e->getMessage();
 			Logger::log( $status );
+		}
+	}
+
+	/**
+	 * Send reminder SMS to admin
+	 *
+	 * @param WC_Order $order
+	 *
+	 * @throws Exception
+	 */
+	public function send_reminder_sms_to_admin( WC_Order $order ) {
+		$message = "Hi Admin. 24 hours left to arrive at %customer_address% by %prefer_date% %prefer_time% to ";
+		$message .= "meet %customer_name%. Be prepared for this %device_issues%.";
+
+		$message = $this->variable_replace( $message, $order );
+
+		foreach ( $this->admin_numbers as $to ) {
+			try {
+				$response = wc_twilio_sms()->get_api()->send( $to, $message );
+			} catch ( Exception $e ) {
+				// Set status to error message
+				$status = $e->getMessage();
+				Logger::log( $status );
+			}
 		}
 	}
 

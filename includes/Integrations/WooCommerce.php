@@ -4,6 +4,10 @@ namespace Stackonet\Integrations;
 
 use Exception;
 use Stackonet\Models\Settings;
+use Stackonet\OrderReminderAdminEmail;
+use Stackonet\OrderReminderCustomerEmail;
+use Stackonet\RescheduleAdminEmail;
+use Stackonet\RescheduleCustomerEmail;
 use Stackonet\Supports\Utils;
 use WC_Order;
 
@@ -89,22 +93,22 @@ class WooCommerce {
 		$reschedule_url = Utils::get_reschedule_url( $order );
 
 		if ( ! $sent_to_admin ) { ?>
-            <p>Thank you for placing your order with Phone Repairs ASAP. A professional will meet you at</p>
-            <p><?php echo $order->get_formatted_billing_address(); ?></p>
-            <p><?php echo esc_html( $requested_time ); ?></p>
-            <p>You will be notified via text or phone call when we are close to arriving!</p>
-            <p>
-                If you have any questions please contact us at
+			<p>Thank you for placing your order with Phone Repairs ASAP. A professional will meet you at</p>
+			<p><?php echo $order->get_formatted_billing_address(); ?></p>
+			<p><?php echo esc_html( $requested_time ); ?></p>
+			<p>You will be notified via text or phone call when we are close to arriving!</p>
+			<p>
+				If you have any questions please contact us at
 				<?php echo esc_html( $settings['support_phone'] ); ?>
-                or email us at <?php echo esc_attr( $settings['support_email'] ); ?>
-            </p>
+				or email us at <?php echo esc_attr( $settings['support_email'] ); ?>
+			</p>
 
-            <p>
-                If you wish to reschedule appointment Click <a
-                        href="<?php echo $reschedule_url; ?>"><?php echo $reschedule_url; ?></a>
-            </p>
+			<p>
+				If you wish to reschedule appointment Click <a
+					href="<?php echo $reschedule_url; ?>"><?php echo $reschedule_url; ?></a>
+			</p>
 
-            <p><?php echo get_bloginfo( 'name', 'display' ) ?></p>
+			<p><?php echo get_bloginfo( 'name', 'display' ) ?></p>
 		<?php }
 	}
 
@@ -117,8 +121,10 @@ class WooCommerce {
 	 */
 	public function email_classes( $email_classes ) {
 		// $email_classes['NewDeviceRepairsOrderEmail'] = new \Stackonet\NewDeviceRepairsOrderEmail();
-		$email_classes['admin_reschedule_order']    = new \Stackonet\RescheduleAdminEmail();
-		$email_classes['customer_reschedule_order'] = new \Stackonet\RescheduleCustomerEmail();
+		$email_classes['admin_reschedule_order']        = new RescheduleAdminEmail();
+		$email_classes['customer_reschedule_order']     = new RescheduleCustomerEmail();
+		$email_classes['customer_order_reminder_email'] = new OrderReminderCustomerEmail();
+		$email_classes['admin_order_reminder_email']    = new OrderReminderAdminEmail();
 
 		return $email_classes;
 	}

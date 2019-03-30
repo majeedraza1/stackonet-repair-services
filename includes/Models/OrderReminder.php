@@ -7,6 +7,8 @@ use DateTimeZone;
 use Exception;
 use Stackonet\Abstracts\BackgroundProcess;
 use Stackonet\Integrations\Twilio;
+use Stackonet\OrderReminderAdminEmail;
+use Stackonet\OrderReminderCustomerEmail;
 use WC_Order;
 use WC_Order_Query;
 
@@ -19,6 +21,43 @@ class OrderReminder extends BackgroundProcess {
 	 * @access protected
 	 */
 	protected $action = 'order_reminder_background_process';
+
+	/**
+	 * Initiate new background process
+	 * @throws Exception
+	 */
+	public function __construct() {
+		parent::__construct();
+		$this->init();
+
+		add_action( 'stackonet_order_created', [ $this, 'add_new_order' ] );
+		add_action( 'delete_post', [ $this, 'clear_transient' ] );
+		add_action( 'save_post', [ $this, 'clear_transient' ] );
+	}
+
+	/**
+	 * @param WC_Order $order
+	 *
+	 * @throws Exception
+	 */
+	public function add_new_order( WC_Order $order ) {
+		$data                     = self::get_orders_reminder_data();
+		$data[ $order->get_id() ] = self::get_order_reminder_data( $order );
+
+		delete_transient( 'get_orders_reminder_data' );
+		set_transient( 'get_orders_reminder_data', $data, DAY_IN_SECONDS );
+	}
+
+	/**
+	 * Create Transient
+	 *
+	 * @param int $post_id
+	 */
+	public function clear_transient( $post_id ) {
+		if ( get_post_type( $post_id ) == 'shop_order' ) {
+			delete_transient( 'get_orders_reminder_data' );
+		}
+	}
 
 	/**
 	 * @throws Exception
@@ -46,6 +85,7 @@ class OrderReminder extends BackgroundProcess {
 	 * @param mixed $item Queue item to iterate over.
 	 *
 	 * @return mixed
+	 * @throws Exception
 	 */
 	protected function task( $item ) {
 		$order = wc_get_order( $item['order_id'] );
@@ -123,6 +163,32 @@ class OrderReminder extends BackgroundProcess {
 	public static function process( WC_Order $order ) {
 		$twilio = new Twilio();
 		$twilio->send_reminder_sms( $order );
+		self::send_mail_to_admin( $order );
+		self::send_mail_to_customer( $order );
+	}
+
+	/**
+	 * Send reschedule mail to admin
+	 *
+	 * @param WC_Order $order
+	 */
+	public static function send_mail_to_admin( WC_Order $order ) {
+		$email = wc()->mailer()->get_emails();
+		/** @var OrderReminderAdminEmail $admin_email */
+		$admin_email = $email['admin_order_reminder_email'];
+		$admin_email->trigger( $order->get_id(), $order );
+	}
+
+	/**
+	 * Send reschedule mail to customer
+	 *
+	 * @param WC_Order $order
+	 */
+	public static function send_mail_to_customer( WC_Order $order ) {
+		$email = wc()->mailer()->get_emails();
+		/** @var OrderReminderCustomerEmail $user_email */
+		$user_email = $email['customer_order_reminder_email'];
+		$user_email->trigger( $order->get_id(), $order );
 	}
 
 	/**
