@@ -9,6 +9,7 @@ use Stackonet\Abstracts\BackgroundProcess;
 use Stackonet\Integrations\Twilio;
 use Stackonet\OrderReminderAdminEmail;
 use Stackonet\OrderReminderCustomerEmail;
+use Stackonet\Supports\Logger;
 use WC_Order;
 use WC_Order_Query;
 
@@ -23,16 +24,68 @@ class OrderReminder extends BackgroundProcess {
 	protected $action = 'order_reminder_background_process';
 
 	/**
-	 * Initiate new background process
+	 * The instance of the class
+	 *
+	 * @var self
+	 */
+	private static $instance;
+
+	/**
+	 * @return OrderReminder
 	 * @throws Exception
 	 */
-	public function __construct() {
-		parent::__construct();
+	public static function init() {
+		if ( is_null( self::$instance ) ) {
+			self::$instance = new self();
 
-		$this->init();
-		add_action( 'stackonet_order_created', [ $this, 'add_new_order' ] );
-		add_action( 'save_order_reschedule', [ $this, 'save_order_reschedule' ] );
-		add_action( 'delete_post', [ $this, 'delete_order' ] );
+			add_action( 'init', [ self::$instance, 'init_queue' ] );
+			add_action( 'stackonet_order_created', [ self::$instance, 'add_new_order' ] );
+			add_action( 'save_order_reschedule', [ self::$instance, 'save_order_reschedule' ] );
+			add_action( 'delete_post', [ self::$instance, 'delete_order' ] );
+		}
+
+		return self::$instance;
+	}
+
+	/**
+	 * Initiate queue
+	 *
+	 * @throws Exception
+	 */
+	public function init_queue() {
+		$reminder_data = array_filter( self::get_orders_reminder_data() );
+		if ( count( $reminder_data ) < 1 ) {
+			return;
+		}
+		$timezone = self::get_blog_timezone();
+
+		foreach ( $reminder_data as $item ) {
+			// If SMS already sent, then exit
+			if ( isset( $item['is_sms_sent'] ) && $item['is_sms_sent'] ) {
+				continue;
+			}
+			$dateTimeNow  = new DateTime( 'now', $timezone );
+			$serviceTime  = new DateTime( $item['service_time'] );
+			$reminderTime = new DateTime( $item['reminder_time'] );
+			$sendSMS      = ( $dateTimeNow <= $reminderTime ) && ( $serviceTime > $reminderTime );
+			if ( ! $sendSMS ) {
+				continue;
+			}
+
+			$this->update_transient( $item['order_id'], [
+				'order_id'      => $item['order_id'],
+				'order_status'  => $item['order_status'],
+				'service_time'  => $item['service_time'],
+				'reminder_time' => $item['reminder_time'],
+				'is_sms_sent'   => true,
+			] );
+			update_post_meta( $item['order_id'], '_is_order_reminder_send', 1 );
+
+			$reminder = stackonet_repair_services()->order_reminder();
+			$reminder->push_to_queue( $item );
+			$reminder->save();
+			$reminder->dispatch();
+		}
 	}
 
 	/**
@@ -63,6 +116,21 @@ class OrderReminder extends BackgroundProcess {
 	}
 
 	/**
+	 * Update transient
+	 *
+	 * @param int $order_id
+	 * @param array $new_data
+	 */
+	public function update_transient( $order_id, array $new_data ) {
+		$data = get_transient( 'get_orders_reminder_data' );
+		$data = is_array( $data ) ? $data : [];
+
+		$data[ $order_id ] = $new_data;
+		delete_transient( 'get_orders_reminder_data' );
+		set_transient( 'get_orders_reminder_data', $data );
+	}
+
+	/**
 	 * Create Transient
 	 *
 	 * @param int $post_id
@@ -76,22 +144,6 @@ class OrderReminder extends BackgroundProcess {
 				unset( $data[ $post_id ] );
 				delete_transient( 'get_orders_reminder_data' );
 				set_transient( 'get_orders_reminder_data', $data );
-			}
-		}
-	}
-
-	/**
-	 * @throws Exception
-	 */
-	public function init() {
-		$reminder_data = self::get_orders_reminder_data();
-		foreach ( $reminder_data as $item ) {
-			if ( $item['can_send_sms'] ) {
-				update_post_meta( $item['order_id'], '_is_order_reminder_send', 1 );
-				$reminder = stackonet_repair_services()->order_reminder();
-				$reminder->push_to_queue( $item );
-				$reminder->save();
-				$reminder->dispatch();
 			}
 		}
 	}
@@ -111,7 +163,9 @@ class OrderReminder extends BackgroundProcess {
 	 */
 	protected function task( $item ) {
 		$order = wc_get_order( $item['order_id'] );
-		self::process( $order );
+		if ( $order instanceof WC_Order ) {
+			self::process( $order );
+		}
 
 		return false;
 	}
@@ -164,18 +218,15 @@ class OrderReminder extends BackgroundProcess {
 		$_time            = explode( ' - ', $time );
 		$_time            = isset( $_time[0] ) ? $_time[0] : '';
 		$timezone         = self::get_blog_timezone();
-		$dateTimeNow      = new DateTime( 'now', $timezone );
 		$serviceTime      = new DateTime( $date . ' ' . $_time, $timezone );
 		$reminderTime     = clone $serviceTime;
 		$reminderTime->modify( '-' . $reminder_minutes . ' minutes' );
-		$sendSMS = ( $dateTimeNow <= $reminderTime ) && ( $serviceTime > $reminderTime );
 
 		return [
 			'order_id'      => $order->get_id(),
 			'order_status'  => $order->get_status(),
-			'service_time'  => $serviceTime->format( 'Y-m-d H:i:s' ),
-			'reminder_time' => $reminderTime->format( 'Y-m-d H:i:s' ),
-			'can_send_sms'  => ( $sendSMS && ! $is_sms_sent ),
+			'service_time'  => $serviceTime->format( DateTime::ISO8601 ),
+			'reminder_time' => $reminderTime->format( DateTime::ISO8601 ),
 			'is_sms_sent'   => $is_sms_sent,
 		];
 	}

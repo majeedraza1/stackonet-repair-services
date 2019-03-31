@@ -79,7 +79,6 @@ final class Stackonet_Repair_Services {
 
 			// initialize the classes
 			add_action( 'plugins_loaded', array( self::$instance, 'init_classes' ) );
-			add_action( 'init', array( self::$instance, 'init_background_processes' ) );
 
 			// Load plugin textdomain
 			add_action( 'plugins_loaded', array( self::$instance, 'load_plugin_textdomain' ) );
@@ -145,12 +144,14 @@ final class Stackonet_Repair_Services {
 	 * Instantiate the required classes
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public function init_classes() {
-
-		$this->container['assets']      = Stackonet\Assets::init();
-		$this->container['twilio']      = Stackonet\Integrations\Twilio::init();
-		$this->container['woocommerce'] = Stackonet\Integrations\WooCommerce::init();
+		$this->container['assets']         = Stackonet\Assets::init();
+		$this->container['twilio']         = Stackonet\Integrations\Twilio::init();
+		$this->container['woocommerce']    = Stackonet\Integrations\WooCommerce::init();
+		$this->container['reschedule']     = new Stackonet\Models\Reschedule();
+		$this->container['order_reminder'] = Stackonet\Models\OrderReminder::init();
 
 		if ( $this->is_request( 'admin' ) ) {
 			$this->container['reschedule-date-time'] = Stackonet\Admin\RescheduleDateTime::init();
@@ -167,14 +168,6 @@ final class Stackonet_Repair_Services {
 		if ( $this->is_request( 'ajax' ) ) {
 			$this->container['ajax'] = Stackonet\Ajax::init();
 		}
-	}
-
-	/**
-	 * Initiate async request
-	 */
-	public function init_background_processes() {
-		$this->container['reschedule']     = new Stackonet\Models\Reschedule();
-		$this->container['order_reminder'] = new Stackonet\Models\OrderReminder();
 	}
 
 	/**
