@@ -2,12 +2,12 @@
 
 namespace Stackonet\Models;
 
+use DateTime;
 use Exception;
 use Stackonet\Abstracts\BackgroundProcess;
 use Stackonet\Integrations\Twilio;
 use Stackonet\RescheduleAdminEmail;
 use Stackonet\RescheduleCustomerEmail;
-use Stackonet\Supports\Logger;
 use WC_Order;
 
 class Reschedule extends BackgroundProcess {
@@ -68,7 +68,7 @@ class Reschedule extends BackgroundProcess {
 			'date'       => $service_date,
 			'time'       => $service_time_range,
 			'user'       => $order->get_customer_id(),
-			'created_at' => $order->get_date_created(),
+			'created_at' => $order->get_date_created()->format( DateTime::ISO8601 ),
 			'created_by' => 'customer',
 		];
 

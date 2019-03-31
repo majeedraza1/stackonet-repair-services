@@ -57,17 +57,22 @@ class OrderReminder extends BackgroundProcess {
 		if ( count( $reminder_data ) < 1 ) {
 			return;
 		}
-		$timezone = self::get_blog_timezone();
+		$timezone         = self::get_blog_timezone();
+		$reminder_minutes = Settings::get_order_reminder_minutes();
 
 		foreach ( $reminder_data as $item ) {
 			// If SMS already sent, then exit
 			if ( isset( $item['is_sms_sent'] ) && $item['is_sms_sent'] ) {
 				continue;
 			}
-			$dateTimeNow  = new DateTime( 'now', $timezone );
-			$serviceTime  = new DateTime( $item['service_time'] );
-			$reminderTime = new DateTime( $item['reminder_time'] );
-			$sendSMS      = ( $dateTimeNow <= $reminderTime ) && ( $serviceTime > $reminderTime );
+			$dateTimeNow    = new DateTime( 'now' );
+			$created_at     = new DateTime( $item['created_at'] );
+			$serviceTime    = new DateTime( $item['service_time'] );
+			$reminderTime   = new DateTime( $item['reminder_time'] );
+			$interval       = ( $serviceTime->getTimestamp() - $created_at->getTimestamp() );
+			$interval_hours = absint( $interval / 60 );
+			$sendSMS        = ( $dateTimeNow <= $reminderTime ) && ( $serviceTime > $reminderTime ) && ( $interval_hours > $reminder_minutes );
+
 			if ( ! $sendSMS ) {
 				continue;
 			}
@@ -75,6 +80,7 @@ class OrderReminder extends BackgroundProcess {
 			$this->update_transient( $item['order_id'], [
 				'order_id'      => $item['order_id'],
 				'order_status'  => $item['order_status'],
+				'created_at'    => $item['created_at'],
 				'service_time'  => $item['service_time'],
 				'reminder_time' => $item['reminder_time'],
 				'is_sms_sent'   => true,

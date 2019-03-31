@@ -98,11 +98,11 @@ class RescheduleDateTime {
 		$_total_schedule  = count( $_reschedule_date );
 
 		?>
-        <p>
-            <strong>Preferred Date & Time: </strong><br>
+		<p>
+			<strong>Preferred Date & Time: </strong><br>
 			<?php echo $date . ', ' . $time_range; ?>
-        </p>
-        <hr>
+		</p>
+		<hr>
 		<?php
 		if ( $_total_schedule ) {
 			echo '<p>';
@@ -117,9 +117,9 @@ class RescheduleDateTime {
 			echo '</p>';
 		}
 		?>
-        <p>
-            <label for="_reschedule_date">Date: </label>
-            <select id="_reschedule_date" name="_reschedule_date" class="widefat">
+		<p>
+			<label for="_reschedule_date">Date: </label>
+			<select id="_reschedule_date" name="_reschedule_date" class="widefat">
 				<?php
 				echo '<option value="">Choose Date</option>';
 				foreach ( $dateRanges as $date_range ) {
@@ -128,22 +128,22 @@ class RescheduleDateTime {
 					echo '<option value="' . $date_range['date'] . '" ' . $disabled . '>' . $label . '</option>';
 				}
 				?>
-            </select>
-        </p>
-        <p>
-            <label for="_reschedule_time_range">Time Range: </label>
-            <select id="_reschedule_time_range" name="_reschedule_time_range" class="widefat">
+			</select>
+		</p>
+		<p>
+			<label for="_reschedule_time_range">Time Range: </label>
+			<select id="_reschedule_time_range" name="_reschedule_time_range" class="widefat">
 				<?php
 				echo '<option value="">Choose Time Range</option>';
 				foreach ( $_times as $time ) {
 					echo '<option value="' . $time . '">' . $time . '</option>';
 				}
 				?>
-            </select>
-        </p>
-        <p>
-            <button class="button widefat">Re-Schedule Date & Time</button>
-        </p>
+			</select>
+		</p>
+		<p>
+			<button class="button widefat">Re-Schedule Date & Time</button>
+		</p>
 		<?php
 	}
 
@@ -179,17 +179,5 @@ class RescheduleDateTime {
 		$reschedule->push_to_queue( [ 'order_id' => $post_id, 'data' => $data, ] );
 		$reschedule->save();
 		$reschedule->dispatch();
-
-	}
-
-	/**
-	 * Check if a string is a valid timezone
-	 *
-	 * @param string $timezone
-	 *
-	 * @return bool
-	 */
-	public static function isValidTimezone( $timezone ) {
-		return in_array( $timezone, timezone_identifiers_list() );
 	}
 }
