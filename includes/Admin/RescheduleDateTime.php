@@ -5,13 +5,9 @@ namespace Stackonet\Admin;
 use DateInterval;
 use DatePeriod;
 use DateTime;
-use DateTimeZone;
 use Exception;
-use Stackonet\Integrations\Twilio;
 use Stackonet\Models\Reschedule;
 use Stackonet\Models\Settings;
-use Stackonet\RescheduleAdminEmail;
-use Stackonet\RescheduleCustomerEmail;
 use Stackonet\Supports\Utils;
 use WP_Post;
 
@@ -170,6 +166,7 @@ class RescheduleDateTime {
 			'date'       => $date,
 			'time'       => $time_range,
 			'user'       => get_current_user_id(),
+			'created_at' => gmdate( DateTime::ISO8601 ),
 			'created_by' => 'admin',
 		];
 

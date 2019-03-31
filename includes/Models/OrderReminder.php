@@ -225,6 +225,7 @@ class OrderReminder extends BackgroundProcess {
 		return [
 			'order_id'      => $order->get_id(),
 			'order_status'  => $order->get_status(),
+			'created_at'    => $order->get_date_created()->format( DateTime::ISO8601 ),
 			'service_time'  => $serviceTime->format( DateTime::ISO8601 ),
 			'reminder_time' => $reminderTime->format( DateTime::ISO8601 ),
 			'is_sms_sent'   => $is_sms_sent,

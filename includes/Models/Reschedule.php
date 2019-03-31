@@ -68,6 +68,7 @@ class Reschedule extends BackgroundProcess {
 			'date'       => $service_date,
 			'time'       => $service_time_range,
 			'user'       => $order->get_customer_id(),
+			'created_at' => $order->get_date_created(),
 			'created_by' => 'customer',
 		];
 
