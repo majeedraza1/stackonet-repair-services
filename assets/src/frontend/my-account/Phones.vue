@@ -29,18 +29,16 @@
 			<tbody>
 			<tr class="woocommerce-orders-table__row">
 				<td class="woocommerce-orders-table__cell" data-title="Brand">
-					<a href="//localhost:3000/my-account/view-order/3471/">
-						#3471 </a>
+					Apple
 				</td>
 				<td class="woocommerce-orders-table__cell" data-title="Device Model">
-					<time datetime="2019-04-02T07:05:15+00:00">April 2, 2019</time>
+					Iphone X
 				</td>
 				<td class="woocommerce-orders-table__cell" data-title="Issues">
-					Processing
+					Broken Screen
 				</td>
 				<td class="woocommerce-orders-table__cell" data-title="LCD">
-					<span class="woocommerce-Price-amount amount"><span
-						class="woocommerce-Price-currencySymbol">$</span>0.00</span> for 1 item
+					No
 				</td>
 				<td class="woocommerce-orders-table__cell" data-title="Actions">
 					<a href="" class="woocommerce-button button view">Edit</a>
@@ -64,8 +62,17 @@
 					<animated-input v-model="phone.color" label="Color"></animated-input>
 				</div>
 				<div class="column is-6">
-					<animated-input v-model="phone.imea" label="Color"></animated-input>
+					<animated-input v-model="phone.imei_number" label="IMEI Number"></animated-input>
 				</div>
+				<div class="column is-6">
+					<animated-input v-model="phone.issues" label="Issues"></animated-input>
+				</div>
+				<div class="column is-6">
+					<animated-input v-model="phone.is_broken_screen" label="Is Screen broken?"></animated-input>
+				</div>
+			</div>
+			<div slot="foot">
+				<mdl-button type="raised" color="primary">Save</mdl-button>
 			</div>
 		</mdl-modal>
 	</div>
@@ -73,11 +80,12 @@
 
 <script>
 	import mdlModal from '../../material-design-lite/modal/mdlModal.vue';
+	import mdlButton from '../../material-design-lite/button/mdlButton.vue';
 	import AnimatedInput from '../../components/AnimatedInput.vue';
 
 	export default {
 		name: "Phones",
-		components: {mdlModal, AnimatedInput},
+		components: {mdlModal, AnimatedInput, mdlButton},
 		data() {
 			return {
 				isModalActive: false,
@@ -87,6 +95,9 @@
 					brand_name: '',
 					model: '',
 					color: '',
+					imei_number: '',
+					issues: '',
+					is_broken_screen: '',
 				}
 			}
 		}
