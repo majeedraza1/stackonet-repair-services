@@ -21,6 +21,10 @@ let entryPoints = {
 		'./assets/src/frontend/reschedule.js',
 		'./assets/scss/frontend.scss'
 	],
+	'my-account': [
+		'./assets/src/frontend/my-account.js',
+		'./assets/scss/my-account.scss',
+	],
 };
 
 plugins.push(new MiniCssExtractPlugin({

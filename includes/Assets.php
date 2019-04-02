@@ -37,7 +37,7 @@ class Assets {
 	/**
 	 * Register scripts
 	 *
-	 * @param  array $scripts
+	 * @param array $scripts
 	 *
 	 * @return void
 	 */
@@ -56,7 +56,7 @@ class Assets {
 	/**
 	 * Register styles
 	 *
-	 * @param  array $styles
+	 * @param array $styles
 	 *
 	 * @return void
 	 */
@@ -83,6 +83,11 @@ class Assets {
 				'deps'      => [ 'jquery' ],
 				'in_footer' => true
 			],
+			'stackonet-repair-services-account'  => [
+				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/my-account.js',
+				'deps'      => [ 'jquery' ],
+				'in_footer' => true
+			],
 			'stackonet-repair-services-admin'    => [
 				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/admin.js',
 				'deps'      => [ 'jquery', 'wp-color-picker' ],
@@ -102,6 +107,9 @@ class Assets {
 		$styles = [
 			'stackonet-repair-services-frontend' => [
 				'src' => STACKONET_REPAIR_SERVICES_ASSETS . '/css/frontend.css'
+			],
+			'stackonet-repair-services-account'  => [
+				'src' => STACKONET_REPAIR_SERVICES_ASSETS . '/css/my-account.css'
 			],
 			'stackonet-repair-services-admin'    => [
 				'src'  => STACKONET_REPAIR_SERVICES_ASSETS . '/css/admin.css',

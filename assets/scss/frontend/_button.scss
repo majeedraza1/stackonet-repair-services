@@ -1,0 +1,11 @@
+.button {
+	&--primary {
+		background: #f58730 !important;
+		color: #fff !important;
+
+		&:not(.is-active):hover {
+			background: darken(#f58730, 5) !important;
+			color: #fff !important;
+		}
+	}
+}

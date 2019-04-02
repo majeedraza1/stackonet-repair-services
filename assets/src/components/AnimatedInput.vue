@@ -2,16 +2,16 @@
 	<div :class="rootClasses">
 		<div class="mdl-textfield__control">
 			<textarea
-					v-if="isTextarea"
-					:id="id"
-					:value="value"
-					:required="required"
-					:disabled="disabled"
-					placeholder=""
-					class="mdl-textfield__textarea"
-					@input="handleInputEvent($event)"
-					@focus="handleFocusEvent($event)"
-					@blur="handleBlurEvent($event)"
+				v-if="isTextarea"
+				:id="id"
+				:value="value"
+				:required="required"
+				:disabled="disabled"
+				placeholder=""
+				class="mdl-textfield__textarea"
+				@input="handleInputEvent($event)"
+				@focus="handleFocusEvent($event)"
+				@blur="handleBlurEvent($event)"
 			></textarea>
 			<input v-else :type="type"
 				   :id="id"
@@ -32,8 +32,9 @@
 				   transform="translate(-128.000000, -71.000000)">
 					<g transform="translate(128.000000, 71.000000)">
 						<circle id="Oval-3-Copy" fill="#F44545" cx="9.5" cy="9.5" r="9.5"></circle>
-						<path d="M10.458,4.074 L10.01,10.976 L8.652,10.976 L8.204,4.074 L10.458,4.074 Z M8.232,13.006 C8.232,12.39 8.722,11.886 9.324,11.886 C9.94,11.886 10.444,12.39 10.444,13.006 C10.444,13.622 9.94,14.112 9.324,14.112 C8.722,14.112 8.232,13.622 8.232,13.006 Z"
-							  id="!-copy" fill="#FFFFFF"></path>
+						<path
+							d="M10.458,4.074 L10.01,10.976 L8.652,10.976 L8.204,4.074 L10.458,4.074 Z M8.232,13.006 C8.232,12.39 8.722,11.886 9.324,11.886 C9.94,11.886 10.444,12.39 10.444,13.006 C10.444,13.622 9.94,14.112 9.324,14.112 C8.722,14.112 8.232,13.622 8.232,13.006 Z"
+							id="!-copy" fill="#FFFFFF"></path>
 					</g>
 				</g>
 			</svg>
@@ -148,6 +149,7 @@
 		.mdl-textfield__label {
 			font-size: 16px;
 			color: #383e42;
+			line-height: 1.2;
 			position: absolute;
 			pointer-events: none;
 			left: 20px;

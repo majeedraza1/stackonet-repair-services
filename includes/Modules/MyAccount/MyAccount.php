@@ -23,9 +23,17 @@ class MyAccount {
 			self::$instance = new self();
 
 			self::$instance->include_files();
+			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_my_account_scripts' ] );
 		}
 
 		return self::$instance;
+	}
+
+	public function load_my_account_scripts() {
+		if ( function_exists( 'is_account_page' ) && is_account_page() ) {
+			wp_enqueue_script( 'stackonet-repair-services-account' );
+			wp_enqueue_style( 'stackonet-repair-services-account' );
+		}
 	}
 
 	/**
