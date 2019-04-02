@@ -102,6 +102,6 @@ class TrackStatus {
 	 * Endpoint content
 	 */
 	public function endpoint_content() {
-		echo '<div id="my-account-track-status">Working On Track Status.</div>';
+		echo '<div id="my-account-track-status"></div>';
 	}
 }

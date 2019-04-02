@@ -23,12 +23,31 @@ class MyAccount {
 			self::$instance = new self();
 
 			self::$instance->include_files();
+			add_filter( 'woocommerce_account_menu_items', [ self::$instance, 'account_menu_items' ] );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_my_account_scripts' ] );
 		}
 
 		return self::$instance;
 	}
 
+	/**
+	 * Modify menu item
+	 *
+	 * @param array $items
+	 *
+	 * @return array
+	 */
+	public function account_menu_items( $items ) {
+		if ( isset( $items['downloads'] ) ) {
+			unset( $items['downloads'] );
+		}
+
+		return $items;
+	}
+
+	/**
+	 * Load my account related scripts
+	 */
 	public function load_my_account_scripts() {
 		if ( function_exists( 'is_account_page' ) && is_account_page() ) {
 			wp_enqueue_script( 'stackonet-repair-services-account' );

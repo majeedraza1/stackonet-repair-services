@@ -102,6 +102,6 @@ class Phones {
 	 * Endpoint content
 	 */
 	public function endpoint_content() {
-		echo '<div id="my-account-phones">Working On it.</div>';
+		echo '<div id="my-account-phones"></div>';
 	}
 }
