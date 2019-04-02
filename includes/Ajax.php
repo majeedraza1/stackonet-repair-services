@@ -4,7 +4,6 @@ namespace Stackonet;
 
 use Stackonet\Models\Device;
 use Stackonet\Models\DeviceIssue;
-use Stackonet\Models\OrderReminder;
 use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
 use Stackonet\Models\Testimonial;

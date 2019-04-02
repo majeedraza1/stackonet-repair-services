@@ -153,6 +153,8 @@ final class Stackonet_Repair_Services {
 		$this->container['reschedule']     = new Stackonet\Models\Reschedule();
 		$this->container['order_reminder'] = Stackonet\Models\OrderReminder::init();
 
+		$this->container['my_account'] = Stackonet\Modules\MyAccount\MyAccount::init();
+
 		if ( $this->is_request( 'admin' ) ) {
 			$this->container['reschedule-date-time'] = Stackonet\Admin\RescheduleDateTime::init();
 			$this->container['admin']                = Stackonet\Admin\Admin::init();
@@ -196,6 +198,8 @@ final class Stackonet_Repair_Services {
 		$area->create_table();
 		$testimonial = new \Stackonet\Models\Testimonial();
 		$testimonial->create_table();
+
+		do_action( 'phone_repairs_asap_activation' );
 	}
 
 	/**
@@ -230,9 +234,9 @@ final class Stackonet_Repair_Services {
 		$error .= sprintf( __( 'The Dialog Contact Form plugin requires PHP version %s or greater.',
 			'vue-wp-starter' ), $this->min_php );
 		?>
-        <div class="error">
-            <p><?php printf( $error ); ?></p>
-        </div>
+		<div class="error">
+			<p><?php printf( $error ); ?></p>
+		</div>
 		<?php
 	}
 
