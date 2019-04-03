@@ -7,6 +7,7 @@ use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
 use Stackonet\Models\Testimonial;
 use WC_Order;
+use WP_Post;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -44,6 +45,7 @@ class Frontend {
 	 */
 	public function load_scripts() {
 		wp_enqueue_style( 'stackonet-repair-services-frontend' );
+		wp_localize_script( 'jquery', 'PhoneRepairs', self::dynamic_data() );
 
 		if ( $this->should_load_scripts() ) {
 			wp_enqueue_script( 'stackonet-repair-services-frontend' );
@@ -51,30 +53,33 @@ class Frontend {
 		}
 	}
 
+	/**
+	 * Check if scripts should load
+	 *
+	 * @return bool
+	 */
 	public function should_load_scripts() {
+		if ( function_exists( 'is_account_page' ) && is_account_page() ) {
+			return true;
+		}
+
+		$shortcodes = [
+			'stackonet_repair_service',
+			'stackonet_testimonial_form',
+			'stackonet_client_testimonial',
+			'stackonet_repair_service_pricing',
+			'stackonet_reschedule_order',
+		];
+
 		global $post;
-		if ( ! $post instanceof \WP_Post ) {
+		if ( ! $post instanceof WP_Post ) {
 			return false;
 		}
 
-		if ( has_shortcode( $post->post_content, 'stackonet_repair_service' ) ) {
-			return true;
-		}
-
-		if ( has_shortcode( $post->post_content, 'stackonet_testimonial_form' ) ) {
-			return true;
-		}
-
-		if ( has_shortcode( $post->post_content, 'stackonet_client_testimonial' ) ) {
-			return true;
-		}
-
-		if ( has_shortcode( $post->post_content, 'stackonet_repair_service_pricing' ) ) {
-			return true;
-		}
-
-		if ( has_shortcode( $post->post_content, 'stackonet_reschedule_order' ) ) {
-			return true;
+		foreach ( $shortcodes as $shortcode ) {
+			if ( has_shortcode( $post->post_content, $shortcode ) ) {
+				return true;
+			}
 		}
 
 		return false;
@@ -233,12 +238,11 @@ class Frontend {
 	}
 
 	/**
-	 * Get service data
+	 * Plugin core dynamic data
 	 *
 	 * @return array
-	 * @throws \Exception
 	 */
-	public static function service_data() {
+	public static function dynamic_data() {
 		global $is_iphone;
 
 		$data = [
@@ -250,6 +254,18 @@ class Frontend {
 			'rest_nonce' => wp_create_nonce( 'wp_rest' ),
 			'is_iphone'  => $is_iphone,
 		];
+
+		return $data;
+	}
+
+	/**
+	 * Get service data
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function service_data() {
+		$data = self::dynamic_data();
 
 		$data['devices']     = Device::get_devices();
 		$data["serviceArea"] = ServiceArea::get_zip_codes();

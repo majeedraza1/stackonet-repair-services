@@ -29,6 +29,34 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 	protected $primaryKeyType = '%d';
 
 	/**
+	 * Column name for holding author id
+	 *
+	 * @var string
+	 */
+	protected $created_by = 'created_by';
+
+	/**
+	 * Column name for holding date time when creating record
+	 *
+	 * @var string
+	 */
+	protected $created_at = 'created_at';
+
+	/**
+	 * Column name for holding date time when updating record
+	 *
+	 * @var string
+	 */
+	protected $updated_at = 'updated_at';
+
+	/**
+	 * Column name for holding date time when updating record
+	 *
+	 * @var string
+	 */
+	protected $deleted_at = 'deleted_at';
+
+	/**
 	 * Data format
 	 *
 	 * @var array
@@ -81,6 +109,10 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 
 		$query = "SELECT * FROM {$table} WHERE 1=1";
 
+		if ( isset( $args[ $this->created_by ] ) && is_numeric( $args[ $this->created_by ] ) ) {
+			$query .= $wpdb->prepare( " AND {$this->created_by} = %d", intval( $args[ $this->created_by ] ) );
+		}
+
 		$query   .= " ORDER BY {$orderby} {$order}";
 		$query   .= $wpdb->prepare( " LIMIT %d OFFSET %d", $per_page, $offset );
 		$results = $wpdb->get_results( $query, ARRAY_A );
@@ -93,7 +125,7 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 	 *
 	 * @param int $id
 	 *
-	 * @return array
+	 * @return array|self
 	 */
 	public function find_by_id( $id ) {
 		global $wpdb;
@@ -114,7 +146,8 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 	 */
 	public function create( array $data ) {
 		global $wpdb;
-		$table = $wpdb->prefix . $this->table;
+		$table        = $wpdb->prefix . $this->table;
+		$current_time = current_time( 'mysql' );
 
 		$_data = [];
 		foreach ( $this->default_data as $key => $default ) {
@@ -125,7 +158,33 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 			unset( $_data[ $this->primaryKey ] );
 		}
 
-		$wpdb->insert( $table, $_data );
+		// Update Author ID
+		if ( array_key_exists( $this->created_by, $this->default_data ) ) {
+			if ( isset( $data[ $this->created_by ] ) && is_numeric( $data[ $this->created_by ] ) ) {
+				$_data[ $this->created_by ] = intval( $data[ $this->created_by ] );
+			} else {
+				$_data[ $this->created_by ] = get_current_user_id();
+			}
+		}
+
+		// Update created time
+		if ( array_key_exists( $this->created_at, $this->default_data ) ) {
+			$_data[ $this->created_at ] = $current_time;
+		}
+
+		// Update updated time
+		if ( array_key_exists( $this->updated_at, $this->default_data ) ) {
+			$_data[ $this->updated_at ] = $current_time;
+		}
+
+		// Set deleted at time as null
+		if ( array_key_exists( $this->deleted_at, $this->default_data ) ) {
+			$_data[ $this->deleted_at ] = null;
+		}
+
+		$format = $this->data_format;
+		unset( $format[0] );
+		$wpdb->insert( $table, $_data, $format );
 
 		return $wpdb->insert_id;
 	}
@@ -135,7 +194,7 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 	 *
 	 * @param mixed $data
 	 *
-	 * @return array
+	 * @return array|self
 	 */
 	public function read( $data ) {
 		if ( is_array( $data ) ) {
@@ -167,8 +226,9 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 	 */
 	public function update( array $data ) {
 		global $wpdb;
-		$table = $wpdb->prefix . $this->table;
-		$id    = isset( $data[ $this->primaryKey ] ) ? intval( $data[ $this->primaryKey ] ) : 0;
+		$table        = $wpdb->prefix . $this->table;
+		$id           = isset( $data[ $this->primaryKey ] ) ? intval( $data[ $this->primaryKey ] ) : 0;
+		$current_time = current_time( 'mysql' );
 
 		$item = $this->find_by_id( $id );
 		if ( ! $item instanceof self ) {
@@ -180,6 +240,11 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 			$_data[ $key ] = isset( $data[ $key ] ) ? $data[ $key ] : $item->get( $key );
 		}
 		$_data[ $this->primaryKey ] = $id;
+
+		// Update updated time
+		if ( array_key_exists( $this->updated_at, $this->default_data ) ) {
+			$_data[ $this->updated_at ] = $current_time;
+		}
 
 		if ( $wpdb->update( $table, $_data, [ $this->primaryKey => $id ], $this->data_format, $this->primaryKeyType ) ) {
 			return true;
@@ -224,8 +289,8 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 	/**
 	 * Handle dynamic static method calls into the method.
 	 *
-	 * @param  string $method
-	 * @param  array $parameters
+	 * @param string $method
+	 * @param array $parameters
 	 *
 	 * @return mixed
 	 */

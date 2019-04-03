@@ -74,14 +74,14 @@ final class Stackonet_Repair_Services {
 			// Include Classes
 			self::$instance->include_classes();
 
-			// Register plugin activation activity
-			register_activation_hook( __FILE__, array( self::$instance, 'activation' ) );
-
 			// initialize the classes
 			add_action( 'plugins_loaded', array( self::$instance, 'init_classes' ) );
 
 			// Load plugin textdomain
 			add_action( 'plugins_loaded', array( self::$instance, 'load_plugin_textdomain' ) );
+
+			// Register plugin activation activity
+			register_activation_hook( __FILE__, array( self::$instance, 'activation' ) );
 		}
 
 		return self::$instance;
@@ -165,6 +165,9 @@ final class Stackonet_Repair_Services {
 			$this->container['rest-testimonial']      = Stackonet\REST\TestimonialController::init();
 			$this->container['rest-unsupported-area'] = Stackonet\REST\UnsupportedAreaController::init();
 			$this->container['rest-reschedule-order'] = Stackonet\REST\OrderRescheduleController::init();
+			$this->container['rest-devices']          = Stackonet\REST\DeviceController::init();
+			$this->container['rest-issues']           = Stackonet\REST\IssueController::init();
+			$this->container['rest-phones']           = Stackonet\REST\PhoneController::init();
 		}
 
 		if ( $this->is_request( 'ajax' ) ) {
@@ -194,9 +197,11 @@ final class Stackonet_Repair_Services {
 	 * Create tables on plugin activation
 	 */
 	public function activation() {
-		$area = new \Stackonet\Models\UnsupportedArea();
+		$area = new Stackonet\Models\UnsupportedArea();
 		$area->create_table();
-		$testimonial = new \Stackonet\Models\Testimonial();
+		$testimonial = new Stackonet\Models\Testimonial();
+		$testimonial->create_table();
+		$testimonial = new Stackonet\Models\Phone();
 		$testimonial->create_table();
 
 		do_action( 'phone_repairs_asap_activation' );

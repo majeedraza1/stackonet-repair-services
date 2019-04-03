@@ -22,7 +22,7 @@ let entryPoints = {
 		'./assets/scss/frontend.scss'
 	],
 	'my-account': [
-		'./assets/src/frontend/my-account.js',
+		'./assets/src/frontend/my-account/main.js',
 		'./assets/scss/my-account.scss',
 	],
 };
