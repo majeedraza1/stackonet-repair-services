@@ -6,6 +6,14 @@
 		<wp-list-table
 			:rows="phones"
 			:columns="columns"
+			:loading="loading"
+			:actions="actions"
+			:statuses="statuses"
+			:bulk-actions="bulkActions"
+			:total-items="pagination.totalCount"
+			:total-pages="pagination.pageCount"
+			:per-page="pagination.limit"
+			:current-page="pagination.currentPage"
 		></wp-list-table>
 		<mdl-modal :active="isModalActive" :title="modalTitle" @close="isModalActive =false">
 			<div class="columns is-multiline">
@@ -136,11 +144,23 @@
 					{key: 'model', label: 'Model'},
 					{key: 'color', label: 'Color'},
 					{key: 'imei_number', label: 'IMEI Number'},
+				],
+				status: 'all',
+				default_statuses: [
+					{key: 'all', label: 'All', count: 0, active: true},
+					{key: 'processing', label: 'Processing', count: 0, active: false},
+					{key: 'arriving-soon', label: 'Arriving Soon', count: 0, active: false},
+					{key: 'picked-off', label: 'Picked off', count: 0, active: false},
+					{key: 'not-picked-off', label: 'Not Picked off', count: 0, active: false},
+					{key: 'repairing', label: 'Repairing', count: 0, active: false},
+					{key: 'not-repaired', label: 'delivered', count: 0, active: false},
+					{key: 'delivered', label: 'Delivered', count: 0, active: false},
+					{key: 'trash', label: 'Trash', count: 0, active: false},
 				]
 			}
 		},
 		computed: {
-			...mapState(['phones', 'devices', 'issues']),
+			...mapState(['loading', 'phones', 'devices', 'issues', 'pagination', 'counts']),
 			devicesDropdown() {
 				if (!this.devices.length) return [];
 
@@ -153,9 +173,32 @@
 			},
 			modelsDropdown() {
 				if (!this.models.length) return [];
-
 				return this.models.map(element => element.title);
-			}
+			},
+			statuses() {
+				let _status = [], self = this;
+				self.default_statuses.forEach(status => {
+					status.count = self.counts[status.key];
+					_status.push(status);
+				});
+
+				return _status;
+			},
+			actions() {
+				if ('trash' === this.status) {
+					return [{key: 'restore', label: 'Restore'}, {key: 'delete', label: 'Delete Permanently'}];
+				}
+
+				return [{key: 'edit', label: 'Edit'}, {key: 'view', label: 'View'},
+					{key: 'upload', label: 'Upload'}, {key: 'trash', label: 'Trash'}];
+			},
+			bulkActions() {
+				if ('trash' === this.status) {
+					return [{key: 'restore', label: 'Restore'}, {key: 'delete', label: 'Delete Permanently'}];
+				} else {
+					return [{key: 'trash', label: 'Move to Trash'}];
+				}
+			},
 		},
 		mounted() {
 			if (!this.devices.length) {

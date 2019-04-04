@@ -208,6 +208,7 @@ class Admin {
 	 * Admin menu page scripts
 	 */
 	public function init_rent_a_center_hooks() {
+		wp_enqueue_style( 'stackonet-repair-services-rent-center' );
 		wp_enqueue_script( 'stackonet-repair-services-rent-center' );
 	}
 }

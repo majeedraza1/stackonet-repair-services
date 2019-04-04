@@ -110,15 +110,18 @@ class Assets {
 	 */
 	public function get_styles() {
 		$styles = [
-			'stackonet-repair-services-frontend' => [
+			'stackonet-repair-services-frontend'    => [
 				'src' => STACKONET_REPAIR_SERVICES_ASSETS . '/css/frontend.css'
 			],
-			'stackonet-repair-services-account'  => [
+			'stackonet-repair-services-account'     => [
 				'src' => STACKONET_REPAIR_SERVICES_ASSETS . '/css/my-account.css'
 			],
-			'stackonet-repair-services-admin'    => [
+			'stackonet-repair-services-admin'       => [
 				'src'  => STACKONET_REPAIR_SERVICES_ASSETS . '/css/admin.css',
 				'deps' => [ 'wp-color-picker' ],
+			],
+			'stackonet-repair-services-rent-center' => [
+				'src' => STACKONET_REPAIR_SERVICES_ASSETS . '/css/admin-rent-center.css',
 			],
 		];
 
