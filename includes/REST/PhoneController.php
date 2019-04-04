@@ -48,6 +48,10 @@ class PhoneController extends ApiController {
 	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function get_items( $request ) {
+		if ( ! current_user_can( 'read' ) ) {
+			return $this->respondUnauthorized();
+		}
+
 		$author = (int) $request->get_param( 'author' );
 		if ( ! $author ) {
 			$author = get_current_user_id();
@@ -69,6 +73,10 @@ class PhoneController extends ApiController {
 	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
+		if ( ! current_user_can( 'read' ) ) {
+			return $this->respondUnauthorized();
+		}
+
 		$params = $request->get_params();
 		if ( isset( $params['issues'] ) && is_array( $params['issues'] ) ) {
 			$params['issues'] = maybe_serialize( $params['issues'] );
@@ -85,5 +93,4 @@ class PhoneController extends ApiController {
 
 		return $this->respondCreated( $phone );
 	}
-
 }

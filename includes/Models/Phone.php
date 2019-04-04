@@ -31,7 +31,7 @@ class Phone extends DatabaseModel {
 		'broken_screen' => 'no',
 		'issues'        => '',
 		'extra_info'    => '',
-		'status'        => '',
+		'status'        => 'processing',
 		'created_by'    => 0,
 		'created_at'    => '',
 		'updated_at'    => '',
@@ -49,6 +49,43 @@ class Phone extends DatabaseModel {
 	 * @var string
 	 */
 	protected $cache_group = 'phone_repairs_asap';
+
+	/**
+	 * Get available status
+	 *
+	 * @return array
+	 */
+	public static function available_status() {
+		return [
+			'processing'     => __( 'Processing', 'stackonet-repair-services' ),
+			'arriving-soon'  => __( 'Arriving Soon', 'stackonet-repair-services' ),
+			'picked-off'     => __( 'Picked off', 'stackonet-repair-services' ),
+			'not-picked-off' => __( 'Not Picked off', 'stackonet-repair-services' ),
+			'repairing'      => __( 'Repairing', 'stackonet-repair-services' ),
+			'not-repaired'   => __( 'Not Repaired', 'stackonet-repair-services' ),
+			'delivered'      => __( 'Delivered', 'stackonet-repair-services' ),
+		];
+	}
+
+	/**
+	 * Find multiple records from database
+	 *
+	 * @param array $args
+	 *
+	 * @return array
+	 */
+	public function find( $args = [] ) {
+		$items   = [];
+		$results = parent::find( $args );
+		if ( $results ) {
+			foreach ( $results as $result ) {
+				$result['issues'] = maybe_unserialize( $result['issues'] );
+				$items[]          = new self( $result );
+			}
+		}
+
+		return $items;
+	}
 
 	/**
 	 * Find record by id
@@ -74,7 +111,28 @@ class Phone extends DatabaseModel {
 	 * @return array
 	 */
 	public function count_records() {
-		return [];
+		global $wpdb;
+		$table  = $wpdb->prefix . $this->table;
+		$status = self::available_status();
+		$counts = wp_cache_get( 'phones_count', $this->cache_group );
+		if ( false === $counts ) {
+			$query   = "SELECT status, COUNT( * ) AS num_entries FROM {$table} WHERE deleted_at IS NULL";
+			$query   .= " GROUP BY status";
+			$results = $wpdb->get_results( $query, ARRAY_A );
+			foreach ( $status as $key => $life_stage ) {
+				$counts[ $key ] = 0;
+			}
+			foreach ( $results as $row ) {
+				$counts[ $row['status'] ] = intval( $row['num_entries'] );
+			}
+			$counts['all']   = array_sum( $counts );
+			$query           = "SELECT COUNT( * ) AS num_entries FROM {$table} WHERE deleted_at IS NOT NULL";
+			$results         = $wpdb->get_row( $query, ARRAY_A );
+			$counts['trash'] = intval( $results['num_entries'] );
+			wp_cache_set( 'phones_count', $counts, $this->cache_group );
+		}
+
+		return $counts;
 	}
 
 	/**

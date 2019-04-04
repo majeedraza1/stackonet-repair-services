@@ -3,6 +3,9 @@
 namespace Stackonet\Admin;
 
 use Stackonet\Models\Settings;
+use WC_Order_Item;
+use WC_Order_Item_Product;
+use WC_Product;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -24,7 +27,9 @@ class Admin {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
+			add_action( 'admin_enqueue_scripts', [ self::$instance, 'admin_scripts' ] );
 			add_action( 'admin_menu', [ self::$instance, 'add_menu' ] );
+			add_action( 'admin_menu', [ self::$instance, 'add_rent_a_center_menu' ] );
 
 			// Add decoration product data on Checkout(after), Email and Order Detail Page
 			add_action( 'woocommerce_order_item_meta_start', [ self::$instance, 'order_item_meta_start' ], 10, 3 );
@@ -38,12 +43,23 @@ class Admin {
 	}
 
 	/**
+	 * Admin scripts
+	 */
+	public function admin_scripts() {
+		wp_localize_script( 'jquery', 'stackonetSettings', array(
+			'root'     => esc_url_raw( rest_url( 'stackonet/v1' ) ),
+			'nonce'    => wp_create_nonce( 'wp_rest' ),
+			'settings' => Settings::get_settings(),
+		) );
+	}
+
+	/**
 	 * Add decoration and custom data to product item on
 	 * Checkout, Email and Order Detail
 	 *
-	 * @param  int $item_id
-	 * @param  \WC_Order_Item_Product $item
-	 * @param  array $order
+	 * @param int $item_id
+	 * @param WC_Order_Item_Product $item
+	 * @param array $order
 	 *
 	 * @return void
 	 */
@@ -84,8 +100,8 @@ class Admin {
 	 * Show on admin order item meta
 	 *
 	 * @param int $item_id
-	 * @param \WC_Order_Item $item
-	 * @param \WC_Product $product
+	 * @param WC_Order_Item $item
+	 * @param WC_Product $product
 	 */
 	public function show_order_item_meta_fields( $item_id, $item, $product ) {
 		$device_title = $item->get_meta( '_device_title', true );
@@ -155,10 +171,43 @@ class Admin {
 		wp_enqueue_media();
 		wp_enqueue_style( 'stackonet-repair-services-admin' );
 		wp_enqueue_script( 'stackonet-repair-services-admin' );
-		wp_localize_script( 'stackonet-repair-services-admin', 'stackonetSettings', array(
-			'root'     => esc_url_raw( rest_url( 'stackonet/v1' ) ),
-			'nonce'    => wp_create_nonce( 'wp_rest' ),
-			'settings' => Settings::get_settings(),
-		) );
+	}
+
+	/**
+	 * Add Rent a center menu
+	 */
+	public static function add_rent_a_center_menu() {
+		global $submenu;
+		$capability = 'manage_options';
+		$slug       = 'rent-a-center';
+
+		$hook = add_menu_page( __( 'Rent a Center', 'stackonet-repair-services' ), __( 'Rent a Center', 'stackonet-repair-services' ),
+			$capability, $slug, [ self::$instance, 'rent_a_center_callback' ], 'dashicons-cart', 6 );
+
+		$menus = [
+			[ 'title' => __( 'Phones', 'vue-wp-starter' ), 'slug' => '#/' ],
+		];
+
+		if ( current_user_can( $capability ) ) {
+			foreach ( $menus as $menu ) {
+				$submenu[ $slug ][] = [ $menu['title'], $capability, 'admin.php?page=' . $slug . $menu['slug'] ];
+			}
+		}
+
+		add_action( 'load-' . $hook, [ self::$instance, 'init_rent_a_center_hooks' ] );
+	}
+
+	/**
+	 * Rent a Center page callback
+	 */
+	public function rent_a_center_callback() {
+		echo '<div class="wrap"><div id="rent-a-center"></div></div>';
+	}
+
+	/**
+	 * Admin menu page scripts
+	 */
+	public function init_rent_a_center_hooks() {
+		wp_enqueue_script( 'stackonet-repair-services-rent-center' );
 	}
 }

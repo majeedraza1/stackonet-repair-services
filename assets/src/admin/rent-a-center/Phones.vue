@@ -1,45 +1,12 @@
 <template>
-	<div class="my-account-phones">
-		<div class="action-button-container">
-			<button class="button button--primary button-add-new-phone"
-					@click="isModalActive = true">Add New
-			</button>
-		</div>
-		<table class="shop_table shop_table_responsive my_account_phones">
-			<thead>
-			<tr>
-				<th class="woocommerce-orders-table__header">
-					<span class="nobr">Brand</span>
-				</th>
-				<th class="woocommerce-orders-table__header">
-					<span class="nobr">Device Model</span>
-				</th>
-				<th class="woocommerce-orders-table__header">
-					<span class="nobr">Issues</span>
-				</th>
-				<th class="woocommerce-orders-table__header">
-					<span class="nobr">LCD</span>
-				</th>
-				<th class="woocommerce-orders-table__header">
-					<span class="nobr">Actions</span>
-				</th>
-			</tr>
-			</thead>
-
-			<tbody>
-			<tr class="woocommerce-orders-table__row" v-for="phone in phones">
-				<td class="woocommerce-orders-table__cell" data-title="Brand" v-text="phone.brand_name"></td>
-				<td class="woocommerce-orders-table__cell" data-title="Device Model" v-text="phone.model"></td>
-				<td class="woocommerce-orders-table__cell" data-title="Issues"
-					v-html="phone.issues.join(', ')"></td>
-				<td class="woocommerce-orders-table__cell" data-title="LCD" v-html="phone.broken_screen"></td>
-				<td class="woocommerce-orders-table__cell" data-title="Actions">
-					<a href="" class="woocommerce-button button view">Edit</a>
-					<a href="" class="woocommerce-button button view">View</a>
-				</td>
-			</tr>
-			</tbody>
-		</table>
+	<div>
+		<h1 class="wp-heading-inline">Phones</h1>
+		<a href="#" class="page-title-action" @click.prevent="isModalActive = true">Add New</a>
+		<div class="clear"></div>
+		<wp-list-table
+			:rows="phones"
+			:columns="columns"
+		></wp-list-table>
 		<mdl-modal :active="isModalActive" :title="modalTitle" @close="isModalActive =false">
 			<div class="columns is-multiline">
 				<div class="column is-6">
@@ -133,25 +100,19 @@
 				<mdl-button type="raised" color="primary" @click="savePhone">Save</mdl-button>
 			</div>
 		</mdl-modal>
-		<div class="loading-container" :class="{'is-active':loading}">
-			<div class="mdl-loader">
-				<mdl-spinner :active="loading"></mdl-spinner>
-			</div>
-		</div>
 	</div>
 </template>
 
 <script>
+	import {mapState} from 'vuex';
 	import VueSelect from 'vue-select';
+	import wpListTable from '../../wp/wpListTable.vue'
 	import mdlModal from '../../material-design-lite/modal/mdlModal.vue';
 	import mdlButton from '../../material-design-lite/button/mdlButton.vue';
-	import mdlSpinner from '../../material-design-lite/spinner/mdlSpinner.vue';
-	import AnimatedInput from '../../components/AnimatedInput.vue';
-	import {mapState} from 'vuex';
 
 	export default {
 		name: "Phones",
-		components: {mdlModal, AnimatedInput, mdlButton, VueSelect, mdlSpinner},
+		components: {VueSelect, wpListTable, mdlModal, mdlButton},
 		data() {
 			return {
 				isModalActive: false,
@@ -169,10 +130,17 @@
 					broken_screen: 'no',
 				},
 				errors: {},
+				columns: [
+					{key: 'asset_number', label: 'Asset Number'},
+					{key: 'brand_name', label: 'Brand Name'},
+					{key: 'model', label: 'Model'},
+					{key: 'color', label: 'Color'},
+					{key: 'imei_number', label: 'IMEI Number'},
+				]
 			}
 		},
 		computed: {
-			...mapState(['loading', 'devices', 'issues', 'phones']),
+			...mapState(['phones', 'devices', 'issues']),
 			devicesDropdown() {
 				if (!this.devices.length) return [];
 
@@ -197,8 +165,9 @@
 				this.$store.dispatch('fetchIssues');
 			}
 			if (!this.phones.length) {
-				this.$store.dispatch('getPhones');
+				this.$store.dispatch('fetchPhones');
 			}
+			this.$store.commit('SET_LOADING_STATUS', false);
 		},
 		methods: {
 			savePhone() {
@@ -265,42 +234,5 @@
 </script>
 
 <style lang="scss">
-	.action-button-container {
-		width: 100%;
-		margin-bottom: 1rem;
-		display: flex;
-		justify-content: flex-end;
 
-		.button-add-new-phone {
-			float: right;
-		}
-	}
-
-	.my-account-phones {
-		.v-select {
-			.dropdown-toggle {
-				border-radius: 0;
-				border-color: #999999;
-			}
-		}
-
-		.v-select input[type=search],
-		.v-select input[type=search]:focus {
-			padding: 5px 7px;
-		}
-	}
-
-	.loading-container.is-active {
-		display: flex;
-		position: fixed;
-		left: 0;
-		top: 0;
-		align-items: center;
-		justify-content: center;
-		flex-direction: column;
-		width: 100%;
-		height: 100%;
-		background-color: rgba(#000, 0.6);
-		z-index: 999999;
-	}
 </style>

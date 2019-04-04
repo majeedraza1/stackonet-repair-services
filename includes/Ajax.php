@@ -4,6 +4,7 @@ namespace Stackonet;
 
 use Stackonet\Models\Device;
 use Stackonet\Models\DeviceIssue;
+use Stackonet\Models\Phone;
 use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
 use Stackonet\Models\Testimonial;
@@ -60,6 +61,9 @@ class Ajax {
 			add_action( 'wp_ajax_nopriv_create_client_testimonial', [ self::$instance, 'create_client_testimonial' ] );
 
 			add_action( 'wp_ajax_stackonet_test', [ self::$instance, 'stackonet_test' ] );
+
+			// Phones
+			add_action( 'wp_ajax_get_phones', [ self::$instance, 'get_phones' ] );
 		}
 
 		return self::$instance;
@@ -67,6 +71,36 @@ class Ajax {
 
 	public function stackonet_test() {
 		die();
+	}
+
+	/**
+	 * Get phones
+	 */
+	public function get_phones() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'You have no permission to view phones.', 401 );
+		}
+
+		$status       = isset( $_REQUEST['status'] ) ? $_REQUEST['status'] : 'all';
+		$search       = isset( $_REQUEST['search'] ) ? $_REQUEST['search'] : null;
+		$per_page     = isset( $_REQUEST['per_page'] ) ? absint( $_REQUEST['per_page'] ) : 20;
+		$paged        = isset( $_REQUEST['paged'] ) ? absint( $_REQUEST['paged'] ) : 1;
+		$current_page = $paged < 1 ? 1 : $paged;
+		$offset       = ( $current_page - 1 ) * $per_page;
+
+		$phone  = new Phone();
+		$phones = $phone->find( [ 'per_page' => $per_page, 'offset' => $offset ] );
+
+		$counts = $phone->count_records();
+
+		$pagination = $phone->getPaginationMetadata( [
+			'totalCount'  => $counts[ $status ],
+			'limit'       => $per_page,
+			'currentPage' => $paged,
+		] );
+
+		$response = [ 'items' => $phones, 'counts' => $counts, 'pagination' => $pagination ];
+		wp_send_json_success( $response, 200 );
 	}
 
 	/**

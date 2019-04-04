@@ -78,19 +78,24 @@ class Assets {
 	 */
 	public function get_scripts() {
 		$scripts = [
-			'stackonet-repair-services-frontend' => [
+			'stackonet-repair-services-frontend'    => [
 				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/frontend.js',
 				'deps'      => [ 'jquery' ],
 				'in_footer' => true
 			],
-			'stackonet-repair-services-account'  => [
+			'stackonet-repair-services-account'     => [
 				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/my-account.js',
 				'deps'      => [ 'jquery' ],
 				'in_footer' => true
 			],
-			'stackonet-repair-services-admin'    => [
+			'stackonet-repair-services-admin'       => [
 				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/admin.js',
 				'deps'      => [ 'jquery', 'wp-color-picker' ],
+				'in_footer' => true
+			],
+			'stackonet-repair-services-rent-center' => [
+				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/admin-rent-center.js',
+				'deps'      => [ 'jquery' ],
 				'in_footer' => true
 			]
 		];
