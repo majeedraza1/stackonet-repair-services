@@ -158,5 +158,9 @@ export default new Vuex.Store({
 	},
 
 	// Save as Vue computed property
-	getters: {},
+	getters: {
+		phone_statuses() {
+			return StackonetRentCenter.phone_statuses;
+		}
+	},
 });

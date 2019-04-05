@@ -5,6 +5,7 @@ namespace Stackonet\Models;
 
 
 use Stackonet\Abstracts\DatabaseModel;
+use WP_User;
 
 class Phone extends DatabaseModel {
 
@@ -49,6 +50,37 @@ class Phone extends DatabaseModel {
 	 * @var string
 	 */
 	protected $cache_group = 'phone_repairs_asap';
+
+	/**
+	 * Phone author data
+	 *
+	 * @var array
+	 */
+	private $author = [];
+
+	public function to_array() {
+		$data           = parent::to_array();
+		$data['author'] = $this->get_author()->display_name;
+
+		return $data;
+	}
+
+	/**
+	 * Get author info
+	 *
+	 * @return WP_User
+	 */
+	public function get_author() {
+		if ( empty( $this->author ) ) {
+			$created_by = $this->get( 'created_by' );
+			$author     = get_user_by( 'id', $created_by );
+			if ( $author instanceof WP_User ) {
+				$this->author = $author;
+			}
+		}
+
+		return $this->author;
+	}
 
 	/**
 	 * Get available status

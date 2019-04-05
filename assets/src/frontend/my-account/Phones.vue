@@ -18,7 +18,7 @@
 					<span class="nobr">Issues</span>
 				</th>
 				<th class="woocommerce-orders-table__header">
-					<span class="nobr">LCD</span>
+					<span class="nobr">LCD Broken?</span>
 				</th>
 				<th class="woocommerce-orders-table__header">
 					<span class="nobr">Actions</span>
@@ -32,10 +32,10 @@
 				<td class="woocommerce-orders-table__cell" data-title="Device Model" v-text="phone.model"></td>
 				<td class="woocommerce-orders-table__cell" data-title="Issues"
 					v-html="phone.issues.join(', ')"></td>
-				<td class="woocommerce-orders-table__cell" data-title="LCD" v-html="phone.broken_screen"></td>
+				<td class="woocommerce-orders-table__cell" data-title="LCD Broken?" v-html="phone.broken_screen"></td>
 				<td class="woocommerce-orders-table__cell" data-title="Actions">
 					<a href="" class="woocommerce-button button view">Edit</a>
-					<a href="" class="woocommerce-button button view">View</a>
+					<a href="" class="woocommerce-button button view" @click.prevent="viewPhoneDetails(phone)">View</a>
 				</td>
 			</tr>
 			</tbody>
@@ -133,6 +133,24 @@
 				<mdl-button type="raised" color="primary" @click="savePhone">Save</mdl-button>
 			</div>
 		</mdl-modal>
+		<mdl-modal :active="isViewModalActive" title="Phone Details" v-if="Object.keys(activePhone).length"
+				   @close="closeViewModel">
+			<div class="phone-detail-info">
+				<list-item label="Brand Name">{{activePhone.brand_name}}</list-item>
+				<list-item label="Model">{{activePhone.model}}</list-item>
+				<list-item label="Color">{{activePhone.color}}</list-item>
+				<list-item label="IMEI Number">{{activePhone.imei_number}}</list-item>
+				<list-item label="Is broken screen?">{{activePhone.broken_screen}}</list-item>
+				<list-item label="Issues">{{activePhone.issues.join(', ')}}</list-item>
+				<list-item label="Status">{{activePhone.status}}</list-item>
+				<list-item label="Created">{{activePhone.created_at}}</list-item>
+				<list-item label="Modified">{{activePhone.updated_at}}</list-item>
+				<list-item label="Author">{{activePhone.author}}</list-item>
+			</div>
+			<div slot="foot">
+				<mdl-button @click="closeViewModel">Close</mdl-button>
+			</div>
+		</mdl-modal>
 		<div class="loading-container" :class="{'is-active':loading}">
 			<div class="mdl-loader">
 				<mdl-spinner :active="loading"></mdl-spinner>
@@ -147,11 +165,12 @@
 	import mdlButton from '../../material-design-lite/button/mdlButton.vue';
 	import mdlSpinner from '../../material-design-lite/spinner/mdlSpinner.vue';
 	import AnimatedInput from '../../components/AnimatedInput.vue';
+	import ListItem from '../../components/ListItem.vue';
 	import {mapState} from 'vuex';
 
 	export default {
 		name: "Phones",
-		components: {mdlModal, AnimatedInput, mdlButton, VueSelect, mdlSpinner},
+		components: {mdlModal, AnimatedInput, mdlButton, VueSelect, mdlSpinner, ListItem},
 		data() {
 			return {
 				isModalActive: false,
@@ -159,6 +178,8 @@
 				models: [],
 				colors: [],
 				selectedIssues: [],
+				isViewModalActive: false,
+				activePhone: {},
 				phone: {
 					asset_number: '',
 					brand_name: '',
@@ -201,6 +222,14 @@
 			}
 		},
 		methods: {
+			viewPhoneDetails(phone) {
+				this.activePhone = phone;
+				this.isViewModalActive = true;
+			},
+			closeViewModel() {
+				this.activePhone = {};
+				this.isViewModalActive = false;
+			},
 			savePhone() {
 				this.isModalActive = false;
 				let data = {
@@ -302,5 +331,24 @@
 		height: 100%;
 		background-color: rgba(#000, 0.6);
 		z-index: 999999;
+	}
+
+	.phone-detail-info {
+		.mdl-list-item {
+			display: block;
+			margin: 1rem 0;
+
+			&-label {
+				display: inline-block;
+				font-weight: bold;
+				min-width: 120px;
+			}
+
+			&-separator {
+				width: 30px;
+				display: inline-block;
+				text-align: center;
+			}
+		}
 	}
 </style>
