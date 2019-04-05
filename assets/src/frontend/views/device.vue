@@ -7,7 +7,7 @@
 		</div>
 		<div class="info-box-wrapper">
 			<div class="info-box-inner-wrapper">
-				Home, Office or even a Massage. We come to you and fix your phone right on the spot!
+				Whether you’re at home, the office or even your favorite coffee shop. We come to you and repair your device on the spot!
 			</div>
 		</div>
 		<div class="select-device-content-container">

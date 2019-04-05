@@ -7,6 +7,7 @@ export default new Vuex.Store({
 	// Same as Vue data
 	state: {
 		loading: true,
+		snackbar: {},
 		issues: [],
 		devices: [],
 		phones: [],
@@ -21,6 +22,9 @@ export default new Vuex.Store({
 	mutations: {
 		SET_LOADING_STATUS(state, loading) {
 			state.loading = loading;
+		},
+		SET_SNACKBAR(state, snackbar) {
+			state.snackbar = snackbar;
 		},
 		SET_ISSUES(state, issues) {
 			state.issues = issues;
@@ -117,6 +121,24 @@ export default new Vuex.Store({
 				success: function (response) {
 					if (response.data) {
 						dispatch('fetchPhones');
+					}
+					commit('SET_LOADING_STATUS', false);
+				},
+				error: function () {
+					commit('SET_LOADING_STATUS', false);
+				}
+			});
+		},
+		updatePhone({commit, state, dispatch}, data) {
+			commit('SET_LOADING_STATUS', true);
+			window.jQuery.ajax({
+				method: 'PUT',
+				url: window.stackonetSettings.root + '/phones/' + data.id,
+				data: data,
+				success: function (response) {
+					if (response.data) {
+						dispatch('fetchPhones');
+						commit('SET_SNACKBAR', {message: 'Data has been updated.'});
 					}
 					commit('SET_LOADING_STATUS', false);
 				},

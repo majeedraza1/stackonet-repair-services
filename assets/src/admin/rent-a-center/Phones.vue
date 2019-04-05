@@ -137,6 +137,21 @@
 				<mdl-button @click="closeViewModel">Close</mdl-button>
 			</div>
 		</mdl-modal>
+		<mdl-modal :active="isEditModalActive" title="Edit Phone" @close="isEditModalActive = false">
+			<div class="columns">
+				<div class="column is-6">
+					<div class="field">
+						<label for="status">Status</label>
+						<select id="status" class="widefat" v-model="editPhone.status">
+							<option v-for="(_status, key) in phone_statuses" :value="key">{{_status}}</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div slot="foot">
+				<mdl-button @click="updatePhone">Update</mdl-button>
+			</div>
+		</mdl-modal>
 	</div>
 </template>
 
@@ -155,11 +170,13 @@
 			return {
 				isModalActive: false,
 				isViewModalActive: false,
+				isEditModalActive: false,
 				modalTitle: 'Add New Phone',
 				models: [],
 				colors: [],
 				selectedIssues: [],
 				activePhone: {},
+				editPhone: {},
 				phone: {
 					asset_number: '',
 					brand_name: '',
@@ -328,6 +345,8 @@
 			},
 			onActionClick(action, item) {
 				if ('edit' === action) {
+					this.editPhone = item;
+					this.isEditModalActive = true;
 				}
 				if ('view' === action) {
 					this.activePhone = item;
@@ -361,6 +380,9 @@
 			closeViewModel() {
 				this.activePhone = {};
 				this.isViewModalActive = false;
+			},
+			updatePhone() {
+				this.$store.dispatch('updatePhone', this.editPhone);
 			}
 		}
 	}

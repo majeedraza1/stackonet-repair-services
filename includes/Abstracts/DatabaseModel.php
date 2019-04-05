@@ -246,6 +246,11 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 			$_data[ $this->updated_at ] = $current_time;
 		}
 
+		// Update deleted time
+		if ( array_key_exists( $this->deleted_at, $this->default_data ) ) {
+			$_data[ $this->deleted_at ] = null;
+		}
+
 		if ( $wpdb->update( $table, $_data, [ $this->primaryKey => $id ], $this->data_format, $this->primaryKeyType ) ) {
 			return true;
 		}

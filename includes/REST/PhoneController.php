@@ -38,6 +38,10 @@ class PhoneController extends ApiController {
 			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_items' ] ],
 			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'create_item' ] ],
 		] );
+
+		register_rest_route( $this->namespace, '/phones/(?P<id>\d+)', [
+			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_item' ] ],
+		] );
 	}
 
 	/**
@@ -92,5 +96,27 @@ class PhoneController extends ApiController {
 		$phone = $phone->find_by_id( $id );
 
 		return $this->respondCreated( $phone );
+	}
+
+	/**
+	 * Updates one item from the collection.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
+	 */
+	public function update_item( $request ) {
+		$id     = $request->get_param( 'id' );
+		$params = $request->get_params();
+		if ( isset( $params['issues'] ) && is_array( $params['issues'] ) ) {
+			$params['issues'] = maybe_serialize( $params['issues'] );
+		}
+
+		$phone = new Phone();
+		$phone->update( $params );
+
+		$phone = $phone->find_by_id( $id );
+
+		return $this->respondOK( $phone );
 	}
 }

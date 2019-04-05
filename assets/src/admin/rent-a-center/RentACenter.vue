@@ -1,7 +1,7 @@
 <template>
 	<div class="rent-a-center-container">
 		<router-view></router-view>
-		<mdl-snackbar></mdl-snackbar>
+		<mdl-snackbar :options="snackbar"></mdl-snackbar>
 		<div class="rent-a-center-loader" :class="{'is-active':loading}">
 			<mdl-spinner :active="loading"></mdl-spinner>
 		</div>
@@ -9,6 +9,7 @@
 </template>
 
 <script>
+	import {mapState} from 'vuex';
 	import mdlSnackbar from '../../material-design-lite/snackbar/mdlSnackbar.vue';
 	import mdlSpinner from '../../material-design-lite/spinner/mdlSpinner.vue';
 
@@ -19,6 +20,7 @@
 			return {}
 		},
 		computed: {
+			...mapState(['snackbar']),
 			loading() {
 				return this.$store.state.loading;
 			}
