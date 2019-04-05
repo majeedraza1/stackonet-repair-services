@@ -4,16 +4,25 @@
 		<a href="#" class="page-title-action" @click.prevent="isModalActive = true">Add New</a>
 		<div class="clear"></div>
 		<wp-list-table
+			:loading="loading"
 			:rows="phones"
 			:columns="columns"
-			:loading="loading"
 			:actions="actions"
-			:statuses="statuses"
 			:bulk-actions="bulkActions"
+			index="id"
+			action-column="brand_name"
+			:statuses="statuses"
+			:show-search="true"
+			search-key="phones"
 			:total-items="pagination.totalCount"
 			:total-pages="pagination.pageCount"
 			:per-page="pagination.limit"
 			:current-page="pagination.currentPage"
+			@action:click="onActionClick"
+			@bulk:apply="onBulkAction"
+			@status:change="changeStatus"
+			@search="searchQuery"
+			@pagination="paginate"
 		></wp-list-table>
 		<mdl-modal :active="isModalActive" :title="modalTitle" @close="isModalActive =false">
 			<div class="columns is-multiline">
@@ -139,13 +148,12 @@
 				},
 				errors: {},
 				columns: [
-					{key: 'asset_number', label: 'Asset Number'},
 					{key: 'brand_name', label: 'Brand Name'},
+					{key: 'asset_number', label: 'Asset Number'},
 					{key: 'model', label: 'Model'},
 					{key: 'color', label: 'Color'},
 					{key: 'imei_number', label: 'IMEI Number'},
 				],
-				status: 'all',
 				default_statuses: [
 					{key: 'all', label: 'All', count: 0, active: true},
 					{key: 'processing', label: 'Processing', count: 0, active: false},
@@ -160,7 +168,7 @@
 			}
 		},
 		computed: {
-			...mapState(['loading', 'phones', 'devices', 'issues', 'pagination', 'counts']),
+			...mapState(['loading', 'phones', 'devices', 'issues', 'pagination', 'counts', 'status']),
 			devicesDropdown() {
 				if (!this.devices.length) return [];
 
@@ -189,8 +197,7 @@
 					return [{key: 'restore', label: 'Restore'}, {key: 'delete', label: 'Delete Permanently'}];
 				}
 
-				return [{key: 'edit', label: 'Edit'}, {key: 'view', label: 'View'},
-					{key: 'upload', label: 'Upload'}, {key: 'trash', label: 'Trash'}];
+				return [{key: 'edit', label: 'Edit'}, {key: 'view', label: 'View'}, {key: 'trash', label: 'Trash'}];
 			},
 			bulkActions() {
 				if ('trash' === this.status) {
@@ -271,7 +278,61 @@
 
 				this.phone.issues = data;
 				this.selectedIssues = data.map(element => element.title);
-			}
+			},
+			changeStatus(status) {
+				this.$store.commit('SET_CURRENT_PAGE', 1);
+				this.$store.commit('SET_STATUS', status.key);
+				this.default_statuses.forEach(element => {
+					element.active = false;
+				});
+				status.active = true;
+				this.$store.dispatch('fetchPhones');
+			},
+			searchQuery(search) {
+				this.$store.commit('SET_SEARCH', search);
+				this.$store.dispatch('fetchPhones');
+			},
+			paginate(page) {
+				this.$store.commit('SET_CURRENT_PAGE', page);
+				this.$store.dispatch('fetchPhones');
+			},
+			trashAction(item, action) {
+				this.$store.dispatch('trashPhone', {item, action});
+			},
+			batchTrashAction(ids, action) {
+				console.log(ids, action);
+				this.$store.dispatch('batchTrashPhones', {ids, action});
+			},
+			onActionClick(action, item) {
+				if ('edit' === action) {
+				}
+				if ('view' === action) {
+				}
+				if ('trash' === action && window.confirm('Are you sure move this item to trash?')) {
+					this.trashAction(item, 'trash');
+				}
+				if ('restore' === action && window.confirm('Are you sure restore this item again?')) {
+					this.trashAction(item, 'restore');
+				}
+				if ('delete' === action && window.confirm('Are you sure to delete permanently?')) {
+					this.trashAction(item, 'delete');
+				}
+			},
+			onBulkAction(action, items) {
+				if ('trash' === action) {
+					if (confirm('Are you sure to trash all selected items?')) {
+						this.batchTrashAction(items, action);
+					}
+				} else if ('delete' === action) {
+					if (confirm('Are you sure to delete all selected items permanently?')) {
+						this.batchTrashAction(items, action);
+					}
+				} else if ('restore' === action) {
+					if (confirm('Are you sure to restore all selected items?')) {
+						this.batchTrashAction(items, action);
+					}
+				}
+			},
 		}
 	}
 </script>

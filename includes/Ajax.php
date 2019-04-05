@@ -64,6 +64,8 @@ class Ajax {
 
 			// Phones
 			add_action( 'wp_ajax_get_phones', [ self::$instance, 'get_phones' ] );
+			add_action( 'wp_ajax_delete_phone', [ self::$instance, 'delete_phone' ] );
+			add_action( 'wp_ajax_batch_delete_phones', [ self::$instance, 'delete_phones' ] );
 		}
 
 		return self::$instance;
@@ -81,15 +83,18 @@ class Ajax {
 			wp_send_json_error( 'You have no permission to view phones.', 401 );
 		}
 
-		$status       = isset( $_REQUEST['status'] ) ? $_REQUEST['status'] : 'all';
-		$search       = isset( $_REQUEST['search'] ) ? $_REQUEST['search'] : null;
-		$per_page     = isset( $_REQUEST['per_page'] ) ? absint( $_REQUEST['per_page'] ) : 20;
-		$paged        = isset( $_REQUEST['paged'] ) ? absint( $_REQUEST['paged'] ) : 1;
-		$current_page = $paged < 1 ? 1 : $paged;
-		$offset       = ( $current_page - 1 ) * $per_page;
+		$status   = isset( $_REQUEST['status'] ) ? $_REQUEST['status'] : 'all';
+		$per_page = isset( $_REQUEST['per_page'] ) ? absint( $_REQUEST['per_page'] ) : 20;
+		$paged    = isset( $_REQUEST['paged'] ) ? absint( $_REQUEST['paged'] ) : 1;
+		$search   = isset( $_REQUEST['search'] ) ? $_REQUEST['search'] : null;
 
-		$phone  = new Phone();
-		$phones = $phone->find( [ 'per_page' => $per_page, 'offset' => $offset ] );
+		$phone = new Phone();
+
+		if ( ! empty( $search ) ) {
+			$phones = $phone->search( [ 'search' => $search, 'status' => $status ] );
+		} else {
+			$phones = $phone->find( [ 'per_page' => $per_page, 'paged' => $paged, 'status' => $status ] );
+		}
 
 		$counts = $phone->count_records();
 
@@ -101,6 +106,61 @@ class Ajax {
 
 		$response = [ 'items' => $phones, 'counts' => $counts, 'pagination' => $pagination ];
 		wp_send_json_success( $response, 200 );
+	}
+
+	/**
+	 * Delete company by company id
+	 */
+	public static function delete_phone() {
+		$id     = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+		$action = isset( $_POST['_action'] ) ? sanitize_text_field( $_POST['_action'] ) : '';
+		if ( ! in_array( $action, [ 'trash', 'restore', 'delete' ] ) ) {
+			wp_send_json_error( 'Unsupported action.', 422 );
+		}
+		$class   = new Phone();
+		$catalog = $class->find_by_id( $id );
+
+		if ( false === $catalog ) {
+			wp_send_json_error( 'Phone not found.', 404 );
+		}
+
+		if ( 'trash' == $action ) {
+			$class->trash( $id );
+		}
+		if ( 'restore' == $action ) {
+			$class->restore( $id );
+		}
+		if ( 'delete' == $action ) {
+			$class->delete( $id );
+		}
+		wp_send_json_success( "#{$id} Phone has been deleted", 200 );
+	}
+
+	/**
+	 * Delete multiple companies
+	 */
+	public static function delete_phones() {
+		$action = isset( $_POST['_action'] ) ? sanitize_text_field( $_POST['_action'] ) : '';
+		$ids    = isset( $_POST['ids'] ) && is_array( $_POST['ids'] ) ? $_POST['ids'] : [];
+		$ids    = array_map( 'intval', $ids );
+		if ( ! in_array( $action, [ 'trash', 'restore', 'delete' ] ) ) {
+			wp_send_json_error( 'Unsupported action.', 422 );
+		}
+
+		$class = new Phone();
+
+		foreach ( $ids as $id ) {
+			if ( 'trash' == $action ) {
+				$class->trash( $id );
+			}
+			if ( 'restore' == $action ) {
+				$class->restore( $id );
+			}
+			if ( 'delete' == $action ) {
+				$class->delete( $id );
+			}
+		}
+		wp_send_json_success( "Phones has been deleted", 200 );
 	}
 
 	/**

@@ -182,7 +182,7 @@ class Admin {
 		$slug       = 'rent-a-center';
 
 		$hook = add_menu_page( __( 'Rent a Center', 'stackonet-repair-services' ), __( 'Rent a Center', 'stackonet-repair-services' ),
-			$capability, $slug, [ self::$instance, 'rent_a_center_callback' ], 'dashicons-cart', 6 );
+			$capability, $slug, [ self::$instance, 'rent_a_center_callback' ], 'dashicons-cart', 6.66 );
 
 		$menus = [
 			[ 'title' => __( 'Phones', 'vue-wp-starter' ), 'slug' => '#/' ],
@@ -208,6 +208,7 @@ class Admin {
 	 * Admin menu page scripts
 	 */
 	public function init_rent_a_center_hooks() {
+		wp_enqueue_style( 'stackonet-repair-services-admin' );
 		wp_enqueue_style( 'stackonet-repair-services-rent-center' );
 		wp_enqueue_script( 'stackonet-repair-services-rent-center' );
 	}

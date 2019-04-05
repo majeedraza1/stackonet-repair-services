@@ -8,7 +8,7 @@
 		</div>
 
 		<wp-status-list :statuses="statuses" @change="changeStatus"></wp-status-list>
-		<wp-search v-if="showSearch" :id="searchKey"></wp-search>
+		<wp-search v-if="showSearch" :id="searchKey" @submit="searchInput" @clear="searchInput"></wp-search>
 
 		<div class="tablenav top">
 			<wp-bulk-actions :actions="bulkActions" :active="!!checkedItems.length" v-model="bulkLocal"
@@ -245,6 +245,10 @@
 
 			changeStatus(status) {
 				this.$emit('status:change', status);
+			},
+
+			searchInput(query) {
+				this.$emit('search', query);
 			}
 		}
 	}

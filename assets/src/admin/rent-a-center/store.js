@@ -12,6 +12,9 @@ export default new Vuex.Store({
 		phones: [],
 		pagination: {},
 		counts: {},
+		status: 'all',
+		currentPage: 1,
+		search: '',
 	},
 
 	// Commit + track state changes
@@ -33,6 +36,15 @@ export default new Vuex.Store({
 		},
 		SET_COUNTS(state, counts) {
 			state.counts = counts;
+		},
+		SET_STATUS(state, status) {
+			state.status = status;
+		},
+		SET_CURRENT_PAGE(state, currentPage) {
+			state.currentPage = currentPage;
+		},
+		SET_SEARCH(state, search) {
+			state.search = search;
 		},
 	},
 
@@ -72,14 +84,16 @@ export default new Vuex.Store({
 				}
 			});
 		},
-		fetchPhones({commit}) {
+		fetchPhones({commit, state}) {
 			commit('SET_LOADING_STATUS', true);
 			window.jQuery.ajax({
 				method: 'GET',
 				url: ajaxurl,
 				data: {
 					action: 'get_phones',
-					per_page: 20,
+					status: state.status,
+					paged: state.currentPage,
+					search: state.search,
 				},
 				success: function (response) {
 					if (response.data) {
@@ -110,7 +124,37 @@ export default new Vuex.Store({
 					commit('SET_LOADING_STATUS', false);
 				}
 			});
-		}
+		},
+		trashPhone({commit, dispatch, state}, data) {
+			commit('SET_LOADING_STATUS', true);
+			window.jQuery.ajax({
+				method: 'POST',
+				url: ajaxurl,
+				data: {action: 'delete_phone', id: data.item.id, _action: data.action},
+				success: function () {
+					dispatch('fetchPhones');
+					commit('SET_LOADING_STATUS', false);
+				},
+				error: function () {
+					commit('SET_LOADING_STATUS', false);
+				}
+			});
+		},
+		batchTrashPhones({commit, dispatch, state}, {ids, action}) {
+			commit('SET_LOADING_STATUS', true);
+			window.jQuery.ajax({
+				method: 'POST',
+				url: ajaxurl,
+				data: {action: 'batch_delete_phones', ids: ids, _action: action,},
+				success: function () {
+					dispatch('fetchPhones');
+					commit('SET_LOADING_STATUS', false);
+				},
+				error: function () {
+					commit('SET_LOADING_STATUS', false);
+				}
+			});
+		},
 	},
 
 	// Save as Vue computed property

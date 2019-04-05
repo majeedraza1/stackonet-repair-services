@@ -273,6 +273,38 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 	}
 
 	/**
+	 * Send an item to trash
+	 *
+	 * @param int $id
+	 *
+	 * @return bool
+	 */
+	public function trash( $id ) {
+		global $wpdb;
+		$table = $wpdb->prefix . $this->table;
+		$query = $wpdb->update( $table, [ $this->deleted_at => current_time( 'mysql' ) ],
+			[ $this->primaryKey => $id ]
+		);
+
+		return ( false !== $query );
+	}
+
+	/**
+	 * Restore an item from trash
+	 *
+	 * @param int $id
+	 *
+	 * @return bool
+	 */
+	public function restore( $id ) {
+		global $wpdb;
+		$table = $wpdb->prefix . $this->table;
+		$query = $wpdb->update( $table, [ $this->deleted_at => null ], [ $this->primaryKey => $id ] );
+
+		return ( false !== $query );
+	}
+
+	/**
 	 * Generate pagination metadata
 	 *
 	 * @param array $args
