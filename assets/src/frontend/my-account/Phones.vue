@@ -34,7 +34,7 @@
 					v-html="phone.issues.join(', ')"></td>
 				<td class="woocommerce-orders-table__cell" data-title="LCD Broken?" v-html="phone.broken_screen"></td>
 				<td class="woocommerce-orders-table__cell" data-title="Actions">
-					<a href="" class="woocommerce-button button view">Edit</a>
+					<a href="" class="woocommerce-button button view" @click.prevent="editPhoneDetails(phone)">Edit</a>
 					<a href="" class="woocommerce-button button view" @click.prevent="viewPhoneDetails(phone)">View</a>
 				</td>
 			</tr>
@@ -151,6 +151,13 @@
 				<mdl-button @click="closeViewModel">Close</mdl-button>
 			</div>
 		</mdl-modal>
+		<phone-edit-modal
+			:active="isEditModalActive"
+			:phone="editPhone"
+			title="Edit Phone"
+			@close="isEditModalActive = false"
+		/>
+		<mdl-snackbar :options="snackbar"></mdl-snackbar>
 		<div class="loading-container" :class="{'is-active':loading}">
 			<div class="mdl-loader">
 				<mdl-spinner :active="loading"></mdl-spinner>
@@ -161,25 +168,29 @@
 
 <script>
 	import VueSelect from 'vue-select';
+	import PhoneEditModal from '../../admin/rent-a-center/PhoneEditModal.vue'
 	import mdlModal from '../../material-design-lite/modal/mdlModal.vue';
 	import mdlButton from '../../material-design-lite/button/mdlButton.vue';
 	import mdlSpinner from '../../material-design-lite/spinner/mdlSpinner.vue';
+	import mdlSnackbar from '../../material-design-lite/snackbar/mdlSnackbar.vue';
 	import AnimatedInput from '../../components/AnimatedInput.vue';
 	import ListItem from '../../components/ListItem.vue';
 	import {mapState} from 'vuex';
 
 	export default {
 		name: "Phones",
-		components: {mdlModal, AnimatedInput, mdlButton, VueSelect, mdlSpinner, ListItem},
+		components: {mdlModal, AnimatedInput, mdlButton, VueSelect, mdlSpinner, ListItem, PhoneEditModal, mdlSnackbar},
 		data() {
 			return {
 				isModalActive: false,
+				isEditModalActive: false,
 				modalTitle: 'Add New Phone',
 				models: [],
 				colors: [],
 				selectedIssues: [],
 				isViewModalActive: false,
 				activePhone: {},
+				editPhone: {},
 				phone: {
 					asset_number: '',
 					brand_name: '',
@@ -193,7 +204,7 @@
 			}
 		},
 		computed: {
-			...mapState(['loading', 'devices', 'issues', 'phones']),
+			...mapState(['loading', 'devices', 'issues', 'phones', 'snackbar']),
 			devicesDropdown() {
 				if (!this.devices.length) return [];
 
@@ -222,6 +233,10 @@
 			}
 		},
 		methods: {
+			editPhoneDetails(phone) {
+				this.editPhone = phone;
+				this.isEditModalActive = true;
+			},
 			viewPhoneDetails(phone) {
 				this.activePhone = phone;
 				this.isViewModalActive = true;

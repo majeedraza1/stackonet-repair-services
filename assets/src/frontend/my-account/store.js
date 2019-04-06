@@ -7,6 +7,7 @@ export default new Vuex.Store({
 	// Same as Vue data
 	state: {
 		loading: true,
+		snackbar: {},
 		currentPage: 1,
 		phones: [],
 		devices: [],
@@ -17,6 +18,9 @@ export default new Vuex.Store({
 	mutations: {
 		SET_LOADING_STATUS(state, loading) {
 			state.loading = loading;
+		},
+		SET_SNACKBAR(state, snackbar) {
+			state.snackbar = snackbar;
 		},
 		SET_DEVICES(state, devices) {
 			state.devices = devices;
@@ -89,7 +93,6 @@ export default new Vuex.Store({
 				url: window.PhoneRepairs.rest_root + '/phones',
 				data: data,
 				success: function (response) {
-					console.log(response);
 					if (response.data) {
 						dispatch('getPhones');
 					}
@@ -99,7 +102,25 @@ export default new Vuex.Store({
 					commit('SET_LOADING_STATUS', false);
 				}
 			});
-		}
+		},
+		updatePhone({commit, state, dispatch}, data) {
+			commit('SET_LOADING_STATUS', true);
+			window.jQuery.ajax({
+				method: 'PUT',
+				url: window.PhoneRepairs.rest_root + '/phones/' + data.id,
+				data: data,
+				success: function (response) {
+					if (response.data) {
+						dispatch('getPhones');
+						commit('SET_SNACKBAR', {message: 'Data has been updated.'});
+					}
+					commit('SET_LOADING_STATUS', false);
+				},
+				error: function () {
+					commit('SET_LOADING_STATUS', false);
+				}
+			});
+		},
 	},
 
 	// Save as Vue computed property

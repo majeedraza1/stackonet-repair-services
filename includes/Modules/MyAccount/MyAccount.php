@@ -2,6 +2,8 @@
 
 namespace Stackonet\Modules\MyAccount;
 
+use Stackonet\Models\Phone;
+
 defined( 'ABSPATH' ) || exit;
 
 class MyAccount {
@@ -52,6 +54,9 @@ class MyAccount {
 		if ( function_exists( 'is_account_page' ) && is_account_page() ) {
 			wp_enqueue_script( 'stackonet-repair-services-account' );
 			wp_enqueue_style( 'stackonet-repair-services-account' );
+			wp_localize_script( 'stackonet-repair-services-account', 'StackonetRentCenter', [
+				'phone_statuses' => Phone::available_status(),
+			] );
 		}
 	}
 

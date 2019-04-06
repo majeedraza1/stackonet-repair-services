@@ -137,27 +137,20 @@
 				<mdl-button @click="closeViewModel">Close</mdl-button>
 			</div>
 		</mdl-modal>
-		<mdl-modal :active="isEditModalActive" title="Edit Phone" @close="isEditModalActive = false">
-			<div class="columns">
-				<div class="column is-6">
-					<div class="field">
-						<label for="status">Status</label>
-						<select id="status" class="widefat" v-model="editPhone.status">
-							<option v-for="(_status, key) in phone_statuses" :value="key">{{_status}}</option>
-						</select>
-					</div>
-				</div>
-			</div>
-			<div slot="foot">
-				<mdl-button @click="updatePhone">Update</mdl-button>
-			</div>
-		</mdl-modal>
+
+		<phone-edit-modal
+			:active="isEditModalActive"
+			:phone="editPhone"
+			title="Edit Phone"
+			@close="isEditModalActive = false"
+		/>
 	</div>
 </template>
 
 <script>
 	import {mapState, mapGetters} from 'vuex';
 	import VueSelect from 'vue-select';
+	import PhoneEditModal from './PhoneEditModal.vue'
 	import wpListTable from '../../wp/wpListTable.vue'
 	import ListItem from '../../components/ListItem.vue'
 	import mdlModal from '../../material-design-lite/modal/mdlModal.vue';
@@ -165,7 +158,7 @@
 
 	export default {
 		name: "Phones",
-		components: {VueSelect, wpListTable, mdlModal, mdlButton, ListItem},
+		components: {VueSelect, wpListTable, mdlModal, mdlButton, ListItem, PhoneEditModal},
 		data() {
 			return {
 				isModalActive: false,
