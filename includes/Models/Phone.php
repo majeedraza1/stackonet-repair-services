@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Stackonet\Models;
-
 
 use Stackonet\Abstracts\DatabaseModel;
 use WP_User;
@@ -128,8 +126,19 @@ class Phone extends DatabaseModel {
 
 		$valid_status = array_keys( self::available_status() );
 		$status       = isset( $args['status'] ) ? $args['status'] : 'all';
-		if ( in_array( $status, $valid_status ) ) {
+		if ( is_string( $status ) && in_array( $status, $valid_status ) ) {
 			$query .= $wpdb->prepare( " AND status = %s", $status );
+		}
+
+		if ( is_array( $status ) ) {
+			$query .= " AND (";
+			foreach ( $status as $index => $m_stage ) {
+				if ( $index !== 0 ) {
+					$query .= " OR";
+				}
+				$query .= $wpdb->prepare( " status = %s", $m_stage );
+			}
+			$query .= ")";
 		}
 
 		if ( 'trash' == $status ) {
@@ -151,6 +160,32 @@ class Phone extends DatabaseModel {
 		}
 
 		return $items;
+	}
+
+	/**
+	 * Find new phones
+	 *
+	 * @param array $args
+	 *
+	 * @return array
+	 */
+	public static function findNew( $args = [] ) {
+		$args['status'] = [ 'processing', 'arriving-soon', 'picked-off', 'not-picked-off' ];
+
+		return ( new static )->find( $args );
+	}
+
+	/**
+	 * Find Old phones
+	 *
+	 * @param array $args
+	 *
+	 * @return array
+	 */
+	public static function findOld( $args = [] ) {
+		$args['status'] = [ 'repairing', 'not-repaired', 'delivered' ];
+
+		return ( new static )->find( $args );
 	}
 
 	/**

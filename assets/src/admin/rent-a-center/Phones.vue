@@ -143,6 +143,7 @@
 			:phone="editPhone"
 			title="Edit Phone"
 			@close="isEditModalActive = false"
+			show-status
 		/>
 	</div>
 </template>

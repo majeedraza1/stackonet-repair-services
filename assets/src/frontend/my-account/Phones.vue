@@ -9,10 +9,7 @@
 			<thead>
 			<tr>
 				<th class="woocommerce-orders-table__header">
-					<span class="nobr">Brand</span>
-				</th>
-				<th class="woocommerce-orders-table__header">
-					<span class="nobr">Device Model</span>
+					<span class="nobr">Device</span>
 				</th>
 				<th class="woocommerce-orders-table__header">
 					<span class="nobr">Issues</span>
@@ -28,8 +25,9 @@
 
 			<tbody>
 			<tr class="woocommerce-orders-table__row" v-for="phone in phones">
-				<td class="woocommerce-orders-table__cell" data-title="Brand" v-text="phone.brand_name"></td>
-				<td class="woocommerce-orders-table__cell" data-title="Device Model" v-text="phone.model"></td>
+				<td class="woocommerce-orders-table__cell" data-title="Device">
+					{{phone.brand_name}} {{phone.model}}
+				</td>
 				<td class="woocommerce-orders-table__cell" data-title="Issues"
 					v-html="phone.issues.join(', ')"></td>
 				<td class="woocommerce-orders-table__cell" data-title="LCD Broken?" v-html="phone.broken_screen"></td>

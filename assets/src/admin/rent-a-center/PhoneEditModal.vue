@@ -81,9 +81,9 @@
 					</div>
 				</div>
 			</div>
-			<div class="column is-6">
+			<div class="column is-6" v-if="showStatus">
 				<div class="field">
-					<label for="status">Status</label>
+					<label for="status">Status</label><br>
 					<select id="status" class="widefat woocommerce-Input" v-model="phone.status">
 						<option v-for="(_status, key) in phone_statuses" :value="key">{{_status}}</option>
 					</select>
@@ -107,6 +107,7 @@
 		components: {VueSelect, mdlModal, mdlButton},
 		props: {
 			active: {type: Boolean, default: false},
+			showStatus: {type: Boolean, default: false},
 			title: {type: String, default: 'Edit Phone'},
 			phone: {
 				type: Object, default: function () {

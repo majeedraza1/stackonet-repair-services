@@ -168,6 +168,7 @@ final class Stackonet_Repair_Services {
 			$this->container['rest-devices']          = Stackonet\REST\DeviceController::init();
 			$this->container['rest-issues']           = Stackonet\REST\IssueController::init();
 			$this->container['rest-phones']           = Stackonet\REST\PhoneController::init();
+			$this->container['rest-track-status']     = Stackonet\REST\TrackStatusController::init();
 		}
 
 		if ( $this->is_request( 'ajax' ) ) {
