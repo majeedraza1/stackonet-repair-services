@@ -80,6 +80,8 @@ final class Stackonet_Repair_Services {
 			// Load plugin textdomain
 			add_action( 'plugins_loaded', array( self::$instance, 'load_plugin_textdomain' ) );
 
+			add_action( 'phone_repairs_asap_activation', [ self::$instance, 'add_custom_role' ] );
+
 			// Register plugin activation activity
 			register_activation_hook( __FILE__, array( self::$instance, 'activation' ) );
 		}
@@ -206,6 +208,30 @@ final class Stackonet_Repair_Services {
 		$testimonial->create_table();
 
 		do_action( 'phone_repairs_asap_activation' );
+	}
+
+	/**
+	 * Add custom role
+	 */
+	public function add_custom_role() {
+		if ( ! get_role( 'manager' ) ) {
+			$caps = [
+				'read_phone'    => true,
+				'add_phone'     => true,
+				'delete_phone'  => true,
+				'manage_phones' => true,
+			];
+
+			add_role( 'manager', 'Manager', array_merge( $caps, [ 'read' => true ] ) );
+
+			$admin_role  = get_role( 'administrator' );
+			$editor_role = get_role( 'editor' );
+
+			foreach ( $caps as $cap => $grant ) {
+				$admin_role->add_cap( $cap, $grant );
+				$editor_role->add_cap( $cap, $grant );
+			}
+		}
 	}
 
 	/**
