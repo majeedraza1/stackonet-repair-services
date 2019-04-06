@@ -9,6 +9,7 @@ use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
 use Stackonet\Models\Testimonial;
 use Stackonet\Models\UnsupportedArea;
+use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -59,6 +60,9 @@ class Ajax {
 			add_action( 'wp_ajax_accept_reject_testimonial', [ self::$instance, 'accept_reject_testimonial' ] );
 			add_action( 'wp_ajax_create_client_testimonial', [ self::$instance, 'create_client_testimonial' ] );
 			add_action( 'wp_ajax_nopriv_create_client_testimonial', [ self::$instance, 'create_client_testimonial' ] );
+
+			// Manager Registration
+			add_action( 'wp_ajax_nopriv_manager_registration', [ self::$instance, 'manager_registration' ] );
 
 			add_action( 'wp_ajax_stackonet_test', [ self::$instance, 'stackonet_test' ] );
 
@@ -205,6 +209,51 @@ class Ajax {
 		wp_send_json_error( null, 500 );
 	}
 
+	public function manager_registration() {
+		$email         = isset( $_POST['email'] ) ? sanitize_email( $_POST['email'] ) : '';
+		$password      = isset( $_POST['password'] ) ? sanitize_text_field( $_POST['password'] ) : '';
+		$store_address = isset( $_POST['store_address'] ) ? sanitize_textarea_field( $_POST['store_address'] ) : '';
+
+		$error = new WP_Error();
+
+		if ( ! is_email( $email ) ) {
+			$error->add( 'email', 'Enter a valid email address.' );
+		}
+
+		if ( username_exists( $email ) || email_exists( $email ) ) {
+			$error->add( 'email', 'A user account already exists with this email address.' );
+		}
+
+		if ( mb_strlen( $password ) < 8 ) {
+			$error->add( 'password', 'Password must be at least 8 characters.' );
+		}
+
+		if ( mb_strlen( $store_address ) < 3 ) {
+			$error->add( 'store_address', 'Store address is required.' );
+		}
+
+		if ( ! empty( $error->errors ) ) {
+			wp_send_json_error( $error->errors, 422 );
+		}
+
+		$user_data = array(
+			'user_email' => $email,
+			'user_login' => $email,
+			'user_pass'  => $password,
+			'role'       => 'manager',
+		);
+
+		$user_id = wp_insert_user( $user_data );
+
+		if ( is_wp_error( $user_id ) ) {
+			wp_send_json_error( 'Fail to create new user.', 500 );
+		}
+
+		add_user_meta( $user_id, '_store_address', $store_address );
+
+		wp_send_json_success( 'New user has been created successfully.', 200 );
+	}
+
 	/**
 	 * Create client testimonial
 	 */
@@ -216,7 +265,7 @@ class Ajax {
 		$description = isset( $_POST['description'] ) ? wp_strip_all_tags( $_POST['description'] ) : '';
 		$description = stripslashes( $description );
 
-		$error = new \WP_Error();
+		$error = new WP_Error();
 
 		if ( $rating < 1 ) {
 			$error->add( 'rating', 'Choose rating from 1 to 5.' );

@@ -22,6 +22,7 @@ let entryPoints = {
 		'./assets/src/frontend/testimonial.js',
 		'./assets/src/frontend/pricing.js',
 		'./assets/src/frontend/reschedule.js',
+		'./assets/src/frontend/manager-registration/main.js',
 		'./assets/scss/frontend.scss'
 	],
 	'my-account': [

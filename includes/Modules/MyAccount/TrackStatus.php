@@ -51,6 +51,10 @@ class TrackStatus {
 	 * @return array
 	 */
 	public static function add_menu_items( $items ) {
+		if ( ! current_user_can( 'manage_phones' ) ) {
+			return $items;
+		}
+
 		$new_items = [ self::$endpoint => __( 'Track Status', 'stackonet-repair-services' ), ];
 		$items     = ArrayHelper::insert_after( $items, 'edit-account', $new_items );
 

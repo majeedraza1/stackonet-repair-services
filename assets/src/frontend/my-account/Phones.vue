@@ -319,6 +319,11 @@
 	}
 
 	.my-account-phones {
+
+		input[type="text"] {
+			width: 100% !important;
+		}
+
 		.v-select {
 			.dropdown-toggle {
 				border-radius: 0;

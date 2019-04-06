@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="admin-phones">
 		<h1 class="wp-heading-inline">Phones</h1>
 		<a href="#" class="page-title-action" @click.prevent="isModalActive = true">Add New</a>
 		<div class="clear"></div>
@@ -383,6 +383,12 @@
 </script>
 
 <style lang="scss">
+	.admin-phones {
+		input[type="text"] {
+			width: 100% !important;
+		}
+	}
+
 	.phone-detail-info {
 		.mdl-list-item {
 			display: block;

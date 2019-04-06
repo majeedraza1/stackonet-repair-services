@@ -18,6 +18,7 @@
 				   :value="value"
 				   :required="required"
 				   :disabled="disabled"
+				   :autocomplete="autocomplete"
 				   placeholder=""
 				   class="mdl-textfield__input"
 				   @input="handleInputEvent($event)"
@@ -68,6 +69,7 @@
 			id: {type: String},
 			value: {type: [Number, String]},
 			label: {type: String},
+			autocomplete: {type: String},
 			required: {type: Boolean, default: false},
 			disabled: {type: Boolean, default: false},
 			hasError: {type: Boolean, default: false},

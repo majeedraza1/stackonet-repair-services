@@ -32,6 +32,7 @@ class Frontend {
 			add_shortcode( 'stackonet_repair_service', [ self::$instance, 'repair_services' ] );
 			add_shortcode( 'stackonet_repair_service_pricing', [ self::$instance, 'repair_services_pricing' ] );
 			add_shortcode( 'stackonet_testimonial_form', [ self::$instance, 'testimonial_form' ] );
+			add_shortcode( 'stackonet_manager_registration_form', [ self::$instance, 'manager_registration_form' ] );
 			add_shortcode( 'stackonet_client_testimonial', [ self::$instance, 'client_testimonial' ] );
 			add_shortcode( 'stackonet_reschedule_order', [ self::$instance, 'reschedule_order' ] );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
@@ -69,6 +70,7 @@ class Frontend {
 			'stackonet_client_testimonial',
 			'stackonet_repair_service_pricing',
 			'stackonet_reschedule_order',
+			'stackonet_manager_registration_form',
 		];
 
 		global $post;
@@ -116,7 +118,6 @@ class Frontend {
 		$html = '<script>window.RescheduleData = ' . wp_json_encode( $data ) . '</script>';
 		$html .= '<div id="stackonet_reschedule_order"></div>';
 
-		// var_dump( $order );
 		return $html;
 	}
 
@@ -124,23 +125,30 @@ class Frontend {
 	 * display services
 	 *
 	 * @param array $attrs
+	 *
+	 * @return false|string
 	 */
 	public function repair_services( $attrs ) {
 		$attrs = shortcode_atts( array(
 			'group' => '',
 		), $attrs, 'stackonet_repair_service' );
+		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
 
+		ob_start();
 		echo '<div class="stackonet_repair_services_container" data-group="' . esc_attr( $attrs['group'] ) . '">';
 		echo '<div id="stackonet_repair_services"></div>';
 		echo '</div>';
 		include STACKONET_REPAIR_SERVICES_PATH . "/assets/img/frontend-icons.svg";
-		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
+
+		return ob_get_clean();
 	}
 
 	/**
 	 * Service pricing page
 	 *
 	 * @param array $atts
+	 *
+	 * @return string
 	 */
 	public function repair_services_pricing( $atts ) {
 		$atts = shortcode_atts( array(
@@ -152,7 +160,7 @@ class Frontend {
 			$cta_url = get_permalink( $atts['page_id'] );
 		}
 
-		echo '<div class="stackonet_pricing_container" data-cta_url="' . esc_attr( $cta_url ) . '"><div id="stackonet_repair_services_pricing"></div></div>';
+		return '<div class="stackonet_pricing_container" data-cta_url="' . esc_attr( $cta_url ) . '"><div id="stackonet_repair_services_pricing"></div></div>';
 	}
 
 	/**
@@ -162,6 +170,7 @@ class Frontend {
 		$testimonial = new Testimonial();
 		/** @var Testimonial[] $testimonials */
 		$testimonials = $testimonial->find( [ 'status' => 'accept' ] );
+		ob_start();
 		?>
 		<div class="fp-tns-slider-outer arrows-visible-hover">
 			<div class="fp-tns-slider-controls">
@@ -217,13 +226,21 @@ class Frontend {
 			</div>
 		</div>
 		<?php
+		return ob_get_clean();
 	}
 
 	/**
 	 * Testimonial form
 	 */
 	public function testimonial_form() {
-		echo '<div id="stackonet_testimonial_form"></div>';
+		return '<div id="stackonet_testimonial_form"></div>';
+	}
+
+	/**
+	 * Manager registration form
+	 */
+	public function manager_registration_form() {
+		return '<div id="stackonet_manager_registration_form"></div>';
 	}
 
 	/**
@@ -249,6 +266,7 @@ class Frontend {
 			'ajaxurl'    => admin_url( 'admin-ajax.php' ),
 			'site_url'   => site_url(),
 			'home_url'   => home_url(),
+			'login_url'  => wp_login_url(),
 			'token'      => wp_create_nonce( 'confirm_appointment' ),
 			'rest_root'  => esc_url_raw( rest_url( 'stackonet/v1' ) ),
 			'rest_nonce' => wp_create_nonce( 'wp_rest' ),
