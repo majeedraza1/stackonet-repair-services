@@ -2,6 +2,25 @@
 	<div>
 		<form action="#" method="post" accept-charset="UTF-8" @submit.prevent="handleSubmit">
 			<animated-input
+				id="first_name"
+				v-model="first_name"
+				label="First Name"
+				:has-success="!!first_name.length"
+				type="text"
+				autocomplete="given-name"
+			></animated-input>
+			<animated-input
+				id="last_name"
+				v-model="last_name"
+				label="Last Name"
+				:has-success="!!last_name.length"
+				type="text"
+				autocomplete="family-name"
+				:has-error="!!(errors.last_name && errors.last_name.length)"
+				helptext="Last name is required."
+				required
+			></animated-input>
+			<animated-input
 				id="email"
 				v-model="email"
 				label="Email"
@@ -9,7 +28,18 @@
 				type="email"
 				autocomplete="email"
 				:has-error="!!(errors.email && errors.email.length)"
-				:helptext="errors.email[0]"
+				:helptext="!!(errors.email && errors.email.length)?errors.email[0]:''"
+				required
+			></animated-input>
+			<animated-input
+				id="phone"
+				v-model="phone"
+				label="Phone Number"
+				:has-success="!!phone.length"
+				type="tel"
+				autocomplete="tel"
+				:has-error="!!(errors.phone && errors.phone.length)"
+				helptext="Phone number is required."
 				required
 			></animated-input>
 			<animated-input
@@ -20,7 +50,7 @@
 				type="password"
 				:has-error="!!(errors.password && errors.password.length)"
 				autocomplete="new-password"
-				helptext="Password is required."
+				helptext="Password must be at least 8 characters."
 				required
 			></animated-input>
 			<animated-input
@@ -56,10 +86,16 @@
 		data() {
 			return {
 				openModel: false,
+				first_name: '',
+				last_name: '',
+				phone: '',
 				email: '',
 				password: '',
 				store_address: '',
 				errors: {
+					first_name: [],
+					last_name: [],
+					phone: [],
 					email: [],
 					password: [],
 					store_address: [],
@@ -69,7 +105,7 @@
 		methods: {
 			closeModal() {
 				this.openModel = false;
-				window.location.href = PhoneRepairs.login_url;
+				window.location.href = PhoneRepairs.myaccount;
 			},
 			handleSubmit() {
 				let self = this, $ = window.jQuery;
@@ -78,18 +114,32 @@
 					url: window.Stackonet.ajaxurl,
 					data: {
 						action: 'manager_registration',
+						first_name: self.first_name,
+						last_name: self.last_name,
+						phone: self.phone,
 						email: self.email,
 						password: self.password,
 						store_address: self.store_address,
 					},
 					success: function () {
 						self.openModel = true;
+						self.first_name = '';
+						self.last_name = '';
+						self.phone = '';
 						self.email = '';
 						self.password = '';
 						self.store_address = '';
-						self.errors = {email: [], password: [], store_address: []}
+						self.errors = {
+							first_name: [],
+							last_name: [],
+							phone: [],
+							email: [],
+							password: [],
+							store_address: []
+						}
 					},
 					error: function (data) {
+						console.log(data.responseJSON.data);
 						self.errors = data.responseJSON.data
 					}
 				});

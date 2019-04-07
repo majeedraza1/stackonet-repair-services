@@ -74,7 +74,7 @@
 			</div>
 			<div class="column is-6">
 				<div class="input-field">
-					<label>Is Screen broken?</label>
+					<label>LCD Broken?</label>
 					<div>
 						<label> <input type="radio" value="yes" v-model="phone.broken_screen"> Yes </label>
 						<label> <input type="radio" value="no" v-model="phone.broken_screen"> No </label>

@@ -58,7 +58,11 @@ class Phone extends DatabaseModel {
 
 	public function to_array() {
 		$data           = parent::to_array();
-		$data['author'] = $this->get_author()->display_name;
+		$data['author'] = [
+			'display_name'  => $this->get_author_display_name(),
+			'phone_number'  => $this->get_author_phone_number(),
+			'store_address' => $this->get_author_store_address(),
+		];
 
 		return $data;
 	}
@@ -78,6 +82,35 @@ class Phone extends DatabaseModel {
 		}
 
 		return $this->author;
+	}
+
+	/**
+	 * Get author display name
+	 */
+	public function get_author_display_name() {
+		return $this->get_author()->display_name;
+	}
+
+	/**
+	 * Get author store address
+	 *
+	 * @return string
+	 */
+	public function get_author_store_address() {
+		$_store_address = get_user_meta( $this->get_author()->ID, '_store_address', true );
+
+		return $_store_address;
+	}
+
+	/**
+	 * Get author phone number
+	 *
+	 * @return string
+	 */
+	public function get_author_phone_number() {
+		$_phone_number = get_user_meta( $this->get_author()->ID, '_phone_number', true );
+
+		return $_phone_number;
 	}
 
 	/**

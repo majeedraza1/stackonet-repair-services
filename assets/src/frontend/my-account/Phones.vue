@@ -113,7 +113,7 @@
 				</div>
 				<div class="column is-6">
 					<div class="input-field">
-						<label>Is Screen broken?</label>
+						<label>LCD Broken?</label>
 						<div>
 							<label>
 								<input type="radio" value="yes" v-model="phone.broken_screen">
@@ -138,7 +138,7 @@
 				<list-item label="Model">{{activePhone.model}}</list-item>
 				<list-item label="Color">{{activePhone.color}}</list-item>
 				<list-item label="IMEI Number">{{activePhone.imei_number}}</list-item>
-				<list-item label="Is broken screen?">{{activePhone.broken_screen}}</list-item>
+				<list-item label="LCD Broken?">{{activePhone.broken_screen}}</list-item>
 				<list-item label="Issues">{{activePhone.issues.join(', ')}}</list-item>
 				<list-item label="Status">{{activePhone.status}}</list-item>
 				<list-item label="Created">{{activePhone.created_at}}</list-item>

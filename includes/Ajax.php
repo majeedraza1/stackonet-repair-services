@@ -209,12 +209,26 @@ class Ajax {
 		wp_send_json_error( null, 500 );
 	}
 
+	/**
+	 * Process manager registration
+	 */
 	public function manager_registration() {
+		$first_name    = isset( $_POST['first_name'] ) ? sanitize_text_field( $_POST['first_name'] ) : '';
+		$last_name     = isset( $_POST['last_name'] ) ? sanitize_text_field( $_POST['last_name'] ) : '';
+		$phone         = isset( $_POST['phone'] ) ? sanitize_text_field( $_POST['phone'] ) : '';
 		$email         = isset( $_POST['email'] ) ? sanitize_email( $_POST['email'] ) : '';
 		$password      = isset( $_POST['password'] ) ? sanitize_text_field( $_POST['password'] ) : '';
 		$store_address = isset( $_POST['store_address'] ) ? sanitize_textarea_field( $_POST['store_address'] ) : '';
 
 		$error = new WP_Error();
+
+		if ( empty( $last_name ) ) {
+			$error->add( 'last_name', 'Last name is required.' );
+		}
+
+		if ( empty( $phone ) ) {
+			$error->add( 'phone', 'Phone number is required.' );
+		}
 
 		if ( ! is_email( $email ) ) {
 			$error->add( 'email', 'Enter a valid email address.' );
@@ -237,6 +251,8 @@ class Ajax {
 		}
 
 		$user_data = array(
+			'first_name' => $first_name,
+			'last_name'  => $last_name,
 			'user_email' => $email,
 			'user_login' => $email,
 			'user_pass'  => $password,
@@ -250,6 +266,7 @@ class Ajax {
 		}
 
 		add_user_meta( $user_id, '_store_address', $store_address );
+		add_user_meta( $user_id, '_phone_number', $phone );
 
 		wp_send_json_success( 'New user has been created successfully.', 200 );
 	}

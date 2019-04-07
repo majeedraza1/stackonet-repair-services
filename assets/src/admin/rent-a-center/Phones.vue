@@ -31,6 +31,12 @@
 			<template slot="status" slot-scope="data">
 				<span>{{phone_statuses[data.row.status] ? phone_statuses[data.row.status]:data.row.status}}</span>
 			</template>
+			<template slot="display_name" slot-scope="data">
+				<span>{{data.row.author.display_name}}</span>
+			</template>
+			<template slot="store_address" slot-scope="data">
+				<span>{{data.row.author.store_address}}</span>
+			</template>
 		</wp-list-table>
 		<mdl-modal :active="isModalActive" :title="modalTitle" @close="isModalActive =false">
 			<div class="columns is-multiline">
@@ -107,7 +113,7 @@
 				</div>
 				<div class="column is-6">
 					<div class="input-field">
-						<label>Is Screen broken?</label>
+						<label>LCD Broken?</label>
 						<div>
 							<label> <input type="radio" value="yes" v-model="phone.broken_screen"> Yes </label>
 							<label> <input type="radio" value="no" v-model="phone.broken_screen"> No </label>
@@ -126,12 +132,14 @@
 				<list-item label="Model">{{activePhone.model}}</list-item>
 				<list-item label="Color">{{activePhone.color}}</list-item>
 				<list-item label="IMEI Number">{{activePhone.imei_number}}</list-item>
-				<list-item label="Is broken screen?">{{activePhone.broken_screen}}</list-item>
+				<list-item label="LCD Broken?">{{activePhone.broken_screen}}</list-item>
 				<list-item label="Issues">{{activePhone.issues.join(', ')}}</list-item>
 				<list-item label="Status">{{activePhone.status}}</list-item>
 				<list-item label="Created">{{activePhone.created_at}}</list-item>
 				<list-item label="Modified">{{activePhone.updated_at}}</list-item>
-				<list-item label="Author">{{activePhone.author}}</list-item>
+				<list-item label="Author">{{activePhone.author.display_name}}</list-item>
+				<list-item label="Phone Number">{{activePhone.author.phone_number}}</list-item>
+				<list-item label="Store Address">{{activePhone.author.store_address}}</list-item>
 			</div>
 			<div slot="foot">
 				<mdl-button @click="closeViewModel">Close</mdl-button>
@@ -186,7 +194,8 @@
 					{key: 'asset_number', label: 'Asset Number'},
 					{key: 'imei_number', label: 'IMEI Number'},
 					{key: 'status', label: 'Status'},
-					{key: 'author', label: 'Created By'},
+					{key: 'display_name', label: 'Created By'},
+					{key: 'store_address', label: 'Store Address'},
 				],
 				default_statuses: [
 					{key: 'all', label: 'All', count: 0, active: true},
