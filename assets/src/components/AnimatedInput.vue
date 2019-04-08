@@ -136,6 +136,7 @@
 			height: 25px;
 			background: none;
 			border: none;
+			box-shadow: none;
 			outline: none;
 			padding-right: 50px;
 			padding-left: 20px;

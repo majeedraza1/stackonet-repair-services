@@ -161,10 +161,15 @@
 			:phone="editPhone"
 			title="Edit Phone"
 			@close="isEditModalActive = false"
-			show-status
+			:show-status="true"
 		/>
 		<mdl-modal :active="isNoteModalActive" title="Note" @close="isNoteModalActive = false">
-			{{notePhone}}
+			<animated-input label="Add Note" type="textarea" v-model="note"></animated-input>
+			<mdl-button type="raised" color="primary" :disabled="note.length < 5" @click="saveNote">Add Note</mdl-button>
+			<div class="clear"></div>
+			<div slot="foot">
+				<mdl-button @click="isNoteModalActive = false">Close</mdl-button>
+			</div>
 		</mdl-modal>
 	</div>
 </template>
@@ -177,10 +182,11 @@
 	import ListItem from '../../components/ListItem.vue'
 	import mdlModal from '../../material-design-lite/modal/mdlModal.vue';
 	import mdlButton from '../../material-design-lite/button/mdlButton.vue';
+	import AnimatedInput from "../../components/AnimatedInput";
 
 	export default {
 		name: "Phones",
-		components: {VueSelect, wpListTable, mdlModal, mdlButton, ListItem, PhoneEditModal},
+		components: {AnimatedInput, VueSelect, wpListTable, mdlModal, mdlButton, ListItem, PhoneEditModal},
 		data() {
 			return {
 				isModalActive: false,
@@ -190,6 +196,7 @@
 				isViewModalActive: false,
 				isEditModalActive: false,
 				modalTitle: 'Add New Phone',
+				note: '',
 				models: [],
 				colors: [],
 				selectedIssues: [],
@@ -286,6 +293,11 @@
 			this.$store.commit('SET_LOADING_STATUS', false);
 		},
 		methods: {
+			saveNote() {
+				console.log(this.note);
+				// this.notePhone = item;
+				// this.isNoteModalActive = true;
+			},
 			filterAddress(event) {
 				let addr = event.target.value;
 				if ('-1' !== addr) {
@@ -385,6 +397,8 @@
 				this.$store.dispatch('batchTrashPhones', {ids, action});
 			},
 			onActionClick(action, item) {
+				console.log(action, item);
+
 				if ('edit' === action) {
 					this.editPhone = item;
 					this.isEditModalActive = true;

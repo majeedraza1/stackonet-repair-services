@@ -150,7 +150,7 @@
 				return this.issues.map(element => element.title);
 			}
 		},
-		updated() {
+		mounted() {
 			this.chooseBrand(this.phone.brand_name);
 			this.chooseModel(this.phone.model);
 		},
