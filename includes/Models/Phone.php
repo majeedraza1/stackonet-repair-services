@@ -131,6 +131,25 @@ class Phone extends DatabaseModel {
 	}
 
 	/**
+	 * Get unique store address
+	 */
+	public static function unique_store_address() {
+		global $wpdb;
+
+		$sql = "SELECT DISTINCT meta_value AS store_address FROM {$wpdb->usermeta} WHERE 1=1";
+		$sql .= " AND meta_key = '_store_address'";
+
+		$results = $wpdb->get_results( $sql, ARRAY_A );
+
+		$items = [];
+		foreach ( $results as $result ) {
+			$items[] = $result['store_address'];
+		}
+
+		return $items;
+	}
+
+	/**
 	 * Find multiple records from database
 	 *
 	 * @param array $args
@@ -281,6 +300,50 @@ class Phone extends DatabaseModel {
 				}
 			}
 			wp_cache_add( $cache_key, $phones, $this->cache_group );
+		}
+
+		return $phones;
+	}
+
+	/**
+	 * Search by store address
+	 *
+	 * @param array $args
+	 *
+	 * @return array
+	 */
+	public function search_store_address( $args = [] ) {
+		$store_address = ! empty( $args['store_address'] ) ? $args['store_address'] : null;
+		$status        = ! empty( $args['status'] ) ? $args['status'] : 'all';
+
+		global $wpdb;
+		$table = $wpdb->prefix . $this->table;
+
+		// Get user ids by address
+		$sql     = "SELECT user_id FROM {$wpdb->usermeta} WHERE 1=1";
+		$sql     .= $wpdb->prepare( " AND meta_key = '_store_address' AND meta_value = %s", $store_address );
+		$results = $wpdb->get_results( $sql, ARRAY_A );
+
+		if ( empty( $results ) ) {
+			return [];
+		}
+
+		$ids = [];
+		foreach ( $results as $result ) {
+			$ids[] = intval( $result['user_id'] );
+		}
+
+		$query   = "SELECT * FROM {$table} WHERE 1 = 1";
+		$query   .= " AND {$this->created_by} IN(" . implode( ',', array_filter( $ids ) ) . ")";
+		$results = $wpdb->get_results( $query, ARRAY_A );
+		if ( empty( $results ) ) {
+			return [];
+		}
+
+		$phones = [];
+		foreach ( $results as $item ) {
+			$item['issues'] = maybe_unserialize( $item['issues'] );
+			$phones[]       = new self( $item );
 		}
 
 		return $phones;

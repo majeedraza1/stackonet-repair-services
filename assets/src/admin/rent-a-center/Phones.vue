@@ -38,10 +38,14 @@
 				<span>{{data.row.author.store_address}}</span>
 			</template>
 			<template slot="filters">
-				<select @change="filterAddress($event)">
-					<option value="address">Select a address to filter</option>
-					<option value="address2">Address</option>
+				<label for="filter-address" class="screen-reader-text">Select bulk action</label>
+				<select id="filter-address" :value="filterable_address" @change="filterAddress($event)">
+					<option value="-1">Select a address to filter</option>
+					<option :value="addr" v-for="addr in store_addresses">{{addr}}</option>
 				</select>
+				<button :disabled="!hasFilterActive" class="button button-clear-filter" @click="clearFilter">Clear
+					Filter
+				</button>
 			</template>
 		</wp-list-table>
 		<mdl-modal :active="isModalActive" :title="modalTitle" @close="isModalActive =false">
@@ -181,6 +185,8 @@
 			return {
 				isModalActive: false,
 				isNoteModalActive: false,
+				hasFilterActive: false,
+				filterable_address: '-1',
 				isViewModalActive: false,
 				isEditModalActive: false,
 				modalTitle: 'Add New Phone',
@@ -223,7 +229,7 @@
 		},
 		computed: {
 			...mapState(['loading', 'phones', 'devices', 'issues', 'pagination', 'counts', 'status']),
-			...mapGetters(['phone_statuses']),
+			...mapGetters(['phone_statuses', 'store_addresses']),
 			devicesDropdown() {
 				if (!this.devices.length) return [];
 
@@ -281,7 +287,20 @@
 		},
 		methods: {
 			filterAddress(event) {
-				console.log(event);
+				let addr = event.target.value;
+				if ('-1' !== addr) {
+					this.hasFilterActive = true;
+					this.filterable_address = addr;
+					this.$store.dispatch('filterAddress', addr);
+				} else {
+					this.$store.dispatch('filterAddress', '');
+					this.clearFilter();
+				}
+			},
+			clearFilter() {
+				this.hasFilterActive = false;
+				this.filterable_address = '-1';
+				this.$store.dispatch('fetchPhones');
 			},
 			savePhone() {
 				this.isModalActive = false;

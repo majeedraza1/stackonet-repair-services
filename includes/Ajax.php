@@ -87,14 +87,17 @@ class Ajax {
 			wp_send_json_error( 'You have no permission to view phones.', 401 );
 		}
 
-		$status   = isset( $_REQUEST['status'] ) ? $_REQUEST['status'] : 'all';
-		$per_page = isset( $_REQUEST['per_page'] ) ? absint( $_REQUEST['per_page'] ) : 20;
-		$paged    = isset( $_REQUEST['paged'] ) ? absint( $_REQUEST['paged'] ) : 1;
-		$search   = isset( $_REQUEST['search'] ) ? $_REQUEST['search'] : null;
+		$status        = isset( $_REQUEST['status'] ) ? $_REQUEST['status'] : 'all';
+		$per_page      = isset( $_REQUEST['per_page'] ) ? absint( $_REQUEST['per_page'] ) : 20;
+		$paged         = isset( $_REQUEST['paged'] ) ? absint( $_REQUEST['paged'] ) : 1;
+		$search        = isset( $_REQUEST['search'] ) ? $_REQUEST['search'] : null;
+		$store_address = isset( $_REQUEST['store_address'] ) ? $_REQUEST['store_address'] : null;
 
 		$phone = new Phone();
 
-		if ( ! empty( $search ) ) {
+		if ( ! empty( $store_address ) ) {
+			$phones = $phone->search_store_address( [ 'store_address' => $store_address, 'status' => $status ] );
+		} else if ( ! empty( $search ) ) {
 			$phones = $phone->search( [ 'search' => $search, 'status' => $status ] );
 		} else {
 			$phones = $phone->find( [ 'per_page' => $per_page, 'paged' => $paged, 'status' => $status ] );

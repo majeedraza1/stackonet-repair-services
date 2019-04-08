@@ -16,6 +16,7 @@ export default new Vuex.Store({
 		status: 'all',
 		currentPage: 1,
 		search: '',
+		store_address: '',
 	},
 
 	// Commit + track state changes
@@ -49,6 +50,9 @@ export default new Vuex.Store({
 		},
 		SET_SEARCH(state, search) {
 			state.search = search;
+		},
+		SET_STORE_ADDRESS(state, store_address) {
+			state.store_address = store_address;
 		},
 	},
 
@@ -88,6 +92,10 @@ export default new Vuex.Store({
 				}
 			});
 		},
+		filterAddress({commit, dispatch}, address) {
+			commit('SET_STORE_ADDRESS', address);
+			dispatch('fetchPhones');
+		},
 		fetchPhones({commit, state}) {
 			commit('SET_LOADING_STATUS', true);
 			window.jQuery.ajax({
@@ -98,6 +106,7 @@ export default new Vuex.Store({
 					status: state.status,
 					paged: state.currentPage,
 					search: state.search,
+					store_address: state.store_address,
 				},
 				success: function (response) {
 					if (response.data) {
@@ -183,6 +192,9 @@ export default new Vuex.Store({
 	getters: {
 		phone_statuses() {
 			return StackonetRentCenter.phone_statuses;
+		},
+		store_addresses() {
+			return StackonetRentCenter.unique_store_addresses;
 		}
 	},
 });

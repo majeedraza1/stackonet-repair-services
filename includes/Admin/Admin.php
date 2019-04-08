@@ -213,7 +213,8 @@ class Admin {
 		wp_enqueue_style( 'stackonet-repair-services-rent-center' );
 		wp_enqueue_script( 'stackonet-repair-services-rent-center' );
 		wp_localize_script( 'jquery', 'StackonetRentCenter', [
-			'phone_statuses' => Phone::available_status(),
+			'phone_statuses'         => Phone::available_status(),
+			'unique_store_addresses' => Phone::unique_store_address(),
 		] );
 	}
 }
