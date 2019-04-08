@@ -3,6 +3,7 @@
 namespace Stackonet\REST;
 
 use Stackonet\Models\Phone;
+use Stackonet\NewPhoneAdminEmail;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -94,6 +95,18 @@ class PhoneController extends ApiController {
 		}
 
 		$phone = $phone->find_by_id( $id );
+
+		$email = wc()->mailer()->get_emails();
+		/** @var NewPhoneAdminEmail $admin_email */
+		$admin_email = $email['admin_new_phone_email'];
+		$admin_email->trigger( $phone );
+
+		/**
+		 * Save phone
+		 *
+		 * @param Phone $phone
+		 */
+		do_action( 'save_phone', $phone );
 
 		return $this->respondCreated( $phone );
 	}
