@@ -143,7 +143,6 @@
 				<list-item label="Status">{{activePhone.status}}</list-item>
 				<list-item label="Created">{{activePhone.created_at}}</list-item>
 				<list-item label="Modified">{{activePhone.updated_at}}</list-item>
-				<list-item label="Author">{{activePhone.author}}</list-item>
 			</div>
 			<div slot="foot">
 				<mdl-button @click="closeViewModel">Close</mdl-button>

@@ -37,6 +37,12 @@
 			<template slot="store_address" slot-scope="data">
 				<span>{{data.row.author.store_address}}</span>
 			</template>
+			<template slot="filters">
+				<select @change="filterAddress($event)">
+					<option value="address">Select a address to filter</option>
+					<option value="address2">Address</option>
+				</select>
+			</template>
 		</wp-list-table>
 		<mdl-modal :active="isModalActive" :title="modalTitle" @close="isModalActive =false">
 			<div class="columns is-multiline">
@@ -153,6 +159,9 @@
 			@close="isEditModalActive = false"
 			show-status
 		/>
+		<mdl-modal :active="isNoteModalActive" title="Note" @close="isNoteModalActive = false">
+			{{notePhone}}
+		</mdl-modal>
 	</div>
 </template>
 
@@ -171,6 +180,7 @@
 		data() {
 			return {
 				isModalActive: false,
+				isNoteModalActive: false,
 				isViewModalActive: false,
 				isEditModalActive: false,
 				modalTitle: 'Add New Phone',
@@ -178,6 +188,7 @@
 				colors: [],
 				selectedIssues: [],
 				activePhone: {},
+				notePhone: {},
 				editPhone: {},
 				phone: {
 					asset_number: '',
@@ -241,7 +252,12 @@
 					return [{key: 'restore', label: 'Restore'}, {key: 'delete', label: 'Delete Permanently'}];
 				}
 
-				return [{key: 'edit', label: 'Edit'}, {key: 'view', label: 'View'}, {key: 'trash', label: 'Trash'}];
+				return [
+					{key: 'edit', label: 'Edit'},
+					{key: 'note', label: 'Note'},
+					{key: 'view', label: 'View'},
+					{key: 'trash', label: 'Trash'}
+				];
 			},
 			bulkActions() {
 				if ('trash' === this.status) {
@@ -264,6 +280,9 @@
 			this.$store.commit('SET_LOADING_STATUS', false);
 		},
 		methods: {
+			filterAddress(event) {
+				console.log(event);
+			},
 			savePhone() {
 				this.isModalActive = false;
 				let data = {
@@ -350,6 +369,10 @@
 				if ('edit' === action) {
 					this.editPhone = item;
 					this.isEditModalActive = true;
+				}
+				if ('note' === action) {
+					this.notePhone = item;
+					this.isNoteModalActive = true;
 				}
 				if ('view' === action) {
 					this.activePhone = item;
