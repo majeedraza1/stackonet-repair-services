@@ -2,7 +2,7 @@
 	<div class="my-account-phones">
 		<div class="action-button-container">
 			<button class="button button--primary button-add-new-phone"
-					@click="isModalActive = true">Add New
+					@click="openAddNewModal">Add New
 			</button>
 		</div>
 		<table class="shop_table shop_table_responsive my_account_phones">
@@ -59,7 +59,7 @@
 			</tr>
 			</tbody>
 		</table>
-		<mdl-modal :active="isModalActive" :title="modalTitle" @close="isModalActive =false">
+		<mdl-modal :active="isModalActive" :title="modalTitle" @close="closePhoneAddModal">
 			<div class="columns is-multiline">
 				<div class="column is-6">
 					<div class="input-field">
@@ -173,9 +173,9 @@
 			:active="isEditModalActive"
 			:phone="editPhone"
 			title="Edit Phone"
-			@close="isEditModalActive = false"
+			@close="closePhoneEditModal"
 		/>
-		<mdl-modal :active="isNoteModalActive" title="Notes" @close="isNoteModalActive = false">
+		<mdl-modal :active="isNoteModalActive" title="Notes" @close="closeNoteModal">
 			<div class="phone-note-list-container">
 				<div class="phone-note-list" v-if="notePhone && notePhone.notes">
 					<div class="phone-note-list__item mdl-shadow--2dp" v-for="_note in notePhone.notes">
@@ -189,7 +189,7 @@
 				</div>
 			</div>
 			<div slot="foot">
-				<mdl-button @click="isNoteModalActive = false">Close</mdl-button>
+				<mdl-button @click="closeNoteModal">Close</mdl-button>
 			</div>
 		</mdl-modal>
 		<mdl-snackbar :options="snackbar"></mdl-snackbar>
@@ -223,6 +223,7 @@
 				modalTitle: 'Add New Phone',
 				models: [],
 				colors: [],
+				zIndex: [],
 				selectedIssues: [],
 				isViewModalActive: false,
 				activePhone: {},
@@ -268,26 +269,53 @@
 			if (!this.phones.length) {
 				this.$store.dispatch('getPhones');
 			}
+
+			this.zIndex['navbar'] = jQuery('#navbar').css('z-index');
 		},
 		methods: {
+			zIndexToInitial() {
+				jQuery('#navbar').css('z-index', this.zIndex['navbar']);
+			},
+			fixInitialzIndex() {
+				jQuery('#navbar').css('z-index', 'auto');
+			},
+			openAddNewModal() {
+				this.isModalActive = true;
+				this.fixInitialzIndex();
+			},
 			editPhoneDetails(phone) {
 				this.editPhone = phone;
 				this.isEditModalActive = true;
+				this.fixInitialzIndex();
 			},
 			viewPhoneDetails(phone) {
 				this.activePhone = phone;
 				this.isViewModalActive = true;
+				this.fixInitialzIndex();
 			},
 			viewNotes(phone) {
 				this.notePhone = phone;
 				this.isNoteModalActive = true;
+				this.fixInitialzIndex();
+			},
+			closePhoneAddModal() {
+				this.isModalActive = false;
+				this.zIndexToInitial();
+			},
+			closePhoneEditModal() {
+				this.isEditModalActive = false;
+				this.zIndexToInitial();
+			},
+			closeNoteModal() {
+				this.isNoteModalActive = false;
+				this.zIndexToInitial();
 			},
 			closeViewModel() {
 				this.activePhone = {};
 				this.isViewModalActive = false;
+				this.zIndexToInitial();
 			},
 			savePhone() {
-				this.isModalActive = false;
 				let data = {
 					asset_number: this.phone.asset_number,
 					brand_name: this.phone.brand_name,
@@ -298,6 +326,8 @@
 					issues: this.selectedIssues,
 				};
 				this.$store.dispatch('createPhone', data);
+				this.isModalActive = false;
+				this.zIndexToInitial();
 			},
 			chooseBrand(data) {
 				if (!data) {
