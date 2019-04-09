@@ -28,8 +28,9 @@
 				<td class="woocommerce-orders-table__cell" data-title="Device">
 					{{phone.brand_name}} {{phone.model}}
 				</td>
-				<td class="woocommerce-orders-table__cell" data-title="Issues"
-					v-html="phone.issues.join(', ')"></td>
+				<td class="woocommerce-orders-table__cell" data-title="Issues">
+					<span v-if="phone.issues && phone.issues.length">{{phone.issues.join(', ')}}</span>
+				</td>
 				<td class="woocommerce-orders-table__cell" data-title="LCD Broken?" v-html="phone.broken_screen"></td>
 				<td class="woocommerce-orders-table__cell" data-title="Actions">
 					<a href="" class="woocommerce-button button view" @click.prevent="editPhoneDetails(phone)">Edit</a>

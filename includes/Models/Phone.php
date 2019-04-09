@@ -56,13 +56,20 @@ class Phone extends DatabaseModel {
 	 */
 	private $author = [];
 
+	/**
+	 * Array representation of the class
+	 *
+	 * @return array
+	 */
 	public function to_array() {
 		$data           = parent::to_array();
+		$data['id']     = intval( $data['id'] );
 		$data['author'] = [
 			'display_name'  => $this->get_author_display_name(),
 			'phone_number'  => $this->get_author_phone_number(),
 			'store_address' => $this->get_author_store_address(),
 		];
+		$data['notes']  = $this->get_notes();
 
 		return $data;
 	}
@@ -82,6 +89,21 @@ class Phone extends DatabaseModel {
 		}
 
 		return $this->author;
+	}
+
+	/**
+	 * Get note
+	 *
+	 * @return array
+	 */
+	public function get_notes() {
+		$extra_info = $this->get( 'extra_info' );
+
+		if ( empty( $extra_info['notes'] ) ) {
+			return [];
+		}
+
+		return is_array( $extra_info['notes'] ) ? $extra_info['notes'] : [];
 	}
 
 	/**
@@ -206,8 +228,9 @@ class Phone extends DatabaseModel {
 		$items = [];
 		if ( $results ) {
 			foreach ( $results as $result ) {
-				$result['issues'] = maybe_unserialize( $result['issues'] );
-				$items[]          = new self( $result );
+				$result['issues']     = maybe_unserialize( $result['issues'] );
+				$result['extra_info'] = maybe_unserialize( $result['extra_info'] );
+				$items[]              = new self( $result );
 			}
 		}
 
@@ -295,8 +318,9 @@ class Phone extends DatabaseModel {
 			$items = $wpdb->get_results( $query, ARRAY_A );
 			if ( $items ) {
 				foreach ( $items as $item ) {
-					$item['issues'] = maybe_unserialize( $item['issues'] );
-					$phones[]       = new self( $item );
+					$item['issues']     = maybe_unserialize( $item['issues'] );
+					$item['extra_info'] = maybe_unserialize( $item['extra_info'] );
+					$phones[]           = new self( $item );
 				}
 			}
 			wp_cache_add( $cache_key, $phones, $this->cache_group );
@@ -359,7 +383,8 @@ class Phone extends DatabaseModel {
 	public function find_by_id( $id ) {
 		$item = parent::find_by_id( $id );
 		if ( $item ) {
-			$item['issues'] = maybe_unserialize( $item['issues'] );
+			$item['issues']     = maybe_unserialize( $item['issues'] );
+			$item['extra_info'] = maybe_unserialize( $item['extra_info'] );
 
 			return new self( $item );
 		}
@@ -395,6 +420,47 @@ class Phone extends DatabaseModel {
 		}
 
 		return $counts;
+	}
+
+	/**
+	 * Add a note to phone
+	 *
+	 * @param self $phone
+	 * @param string $note
+	 *
+	 * @return array
+	 */
+	public function add_note( $phone, $note ) {
+		$extra_info = $phone->get( 'extra_info' );
+		$extra_info = is_array( $extra_info ) ? $extra_info : [];
+		$notes      = $phone->get_notes();
+
+		array_unshift( $notes, [
+			'id'         => uniqid(),
+			'note'       => $note,
+			'created_by' => get_current_user_id(),
+			'created_at' => current_time( 'mysql' ),
+		] );
+
+		$extra_info['notes'] = $notes;
+
+		$this->update( [
+			'id'         => intval( $phone->get( 'id' ) ),
+			'extra_info' => maybe_serialize( $extra_info ),
+		] );
+
+		return $notes;
+	}
+
+	/**
+	 * Delete a note from phone
+	 *
+	 * @param self $phone
+	 * @param string $note_id
+	 */
+	public function delete_note( $phone, $note_id ) {
+		$extra_info = $phone->get( 'extra_info' );
+		$note       = $phone->get_notes();
 	}
 
 	/**

@@ -165,8 +165,20 @@
 		/>
 		<mdl-modal :active="isNoteModalActive" title="Note" @close="isNoteModalActive = false">
 			<animated-input label="Add Note" type="textarea" v-model="note"></animated-input>
-			<mdl-button type="raised" color="primary" :disabled="note.length < 5" @click="saveNote">Add Note</mdl-button>
-			<div class="clear"></div>
+			<mdl-button type="raised" color="primary" :disabled="note.length < 5" @click="saveNote">Add Note
+			</mdl-button>
+			<div class="phone-note-list-container">
+				<ul class="phone-note-list" v-if="notePhone && notePhone.notes">
+					<li class="phone-note-list__item mdl-shadow--2dp" v-for="_note in notePhone.notes">
+						<div class="note_content">
+							<p>{{_note.note}}</p>
+						</div>
+						<p class="meta">
+							<abbr class="exact-date" :title="_note.created_at">added on {{_note.created_at}}</abbr>
+						</p>
+					</li>
+				</ul>
+			</div>
 			<div slot="foot">
 				<mdl-button @click="isNoteModalActive = false">Close</mdl-button>
 			</div>
@@ -294,9 +306,27 @@
 		},
 		methods: {
 			saveNote() {
-				console.log(this.note);
 				// this.notePhone = item;
 				// this.isNoteModalActive = true;
+				let self = this, $ = window.jQuery;
+				$.ajax({
+					method: 'POST',
+					url: ajaxurl,
+					data: {
+						action: 'add_phone_note',
+						phone_id: self.notePhone.id,
+						note: self.note,
+					},
+					success: function (response) {
+						if (response.data) {
+							self.note = '';
+							self.notePhone.notes = response.data;
+						}
+					},
+					error: function () {
+						// commit('SET_LOADING_STATUS', false);
+					}
+				});
 			},
 			filterAddress(event) {
 				let addr = event.target.value;
@@ -397,8 +427,6 @@
 				this.$store.dispatch('batchTrashPhones', {ids, action});
 			},
 			onActionClick(action, item) {
-				console.log(action, item);
-
 				if ('edit' === action) {
 					this.editPhone = item;
 					this.isEditModalActive = true;
@@ -451,6 +479,16 @@
 	.admin-phones {
 		input[type="text"] {
 			width: 100% !important;
+		}
+	}
+
+	.phone-note-list__item {
+		padding: 0.5rem;
+		margin-bottom: 1rem;
+
+		p {
+			margin: 0;
+			padding: 0;
 		}
 	}
 

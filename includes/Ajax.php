@@ -70,6 +70,7 @@ class Ajax {
 			add_action( 'wp_ajax_get_phones', [ self::$instance, 'get_phones' ] );
 			add_action( 'wp_ajax_delete_phone', [ self::$instance, 'delete_phone' ] );
 			add_action( 'wp_ajax_batch_delete_phones', [ self::$instance, 'delete_phones' ] );
+			add_action( 'wp_ajax_add_phone_note', [ self::$instance, 'add_phone_note' ] );
 		}
 
 		return self::$instance;
@@ -113,6 +114,33 @@ class Ajax {
 
 		$response = [ 'items' => $phones, 'counts' => $counts, 'pagination' => $pagination ];
 		wp_send_json_success( $response, 200 );
+	}
+
+	/**
+	 * Add phone note
+	 */
+	public function add_phone_note() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'You have no permission to add phone note.', 401 );
+		}
+
+		$phone_id = isset( $_POST['phone_id'] ) ? intval( $_POST['phone_id'] ) : 0;
+		$note     = isset( $_POST['note'] ) ? sanitize_textarea_field( $_POST['note'] ) : null;
+
+		if ( empty( $phone_id ) || empty( $note ) ) {
+			wp_send_json_error( 'Phone id and note both are required.', 422 );
+		}
+
+		$class = new Phone();
+		$phone = $class->find_by_id( $phone_id );
+
+		if ( ! $phone instanceof Phone ) {
+			wp_send_json_error( 'Phone not found.', 404 );
+		}
+
+		$notes = $class->add_note( $phone, $note );
+
+		wp_send_json_success( $notes, 201 );
 	}
 
 	/**

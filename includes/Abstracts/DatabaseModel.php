@@ -151,7 +151,8 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 
 		$_data = [];
 		foreach ( $this->default_data as $key => $default ) {
-			$_data[ $key ] = isset( $data[ $key ] ) ? $data[ $key ] : $default;
+			$temp_data     = isset( $data[ $key ] ) ? $data[ $key ] : $default;
+			$_data[ $key ] = $this->serialize( $temp_data );
 		}
 
 		if ( isset( $_data[ $this->primaryKey ] ) ) {
@@ -237,7 +238,8 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 
 		$_data = [];
 		foreach ( $this->default_data as $key => $default ) {
-			$_data[ $key ] = isset( $data[ $key ] ) ? $data[ $key ] : $item->get( $key );
+			$temp_data     = isset( $data[ $key ] ) ? $data[ $key ] : $item->get( $key );
+			$_data[ $key ] = $this->serialize( $temp_data );
 		}
 		$_data[ $this->primaryKey ] = $id;
 
@@ -341,6 +343,22 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 
 		return $data;
 	}
+
+	/**
+	 * Serialize array and object data
+	 *
+	 * @param mixed $data
+	 *
+	 * @return string
+	 */
+	protected function serialize( $data ) {
+		if ( is_array( $data ) || is_object( $data ) ) {
+			return serialize( $data );
+		}
+
+		return $data;
+	}
+
 
 	/**
 	 * Count total records from the database
