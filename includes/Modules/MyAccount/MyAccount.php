@@ -44,6 +44,13 @@ class MyAccount {
 			unset( $items['downloads'] );
 		}
 
+		// Hide edit address menu for shop manager.
+		if ( self::is_manager() ) {
+			if ( isset( $items['edit-address'] ) ) {
+				unset( $items['edit-address'] );
+			}
+		}
+
 		return $items;
 	}
 
@@ -66,5 +73,15 @@ class MyAccount {
 	private function include_files() {
 		Phones::init();
 		TrackStatus::init();
+		ManagerStoreAddress::init();
+	}
+
+	/**
+	 * Check if current user is manager
+	 *
+	 * @return bool
+	 */
+	public static function is_manager() {
+		return ( current_user_can( 'manage_phones' ) && ! current_user_can( 'manage_options' ) );
 	}
 }
