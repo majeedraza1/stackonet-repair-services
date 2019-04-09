@@ -163,7 +163,7 @@
 			@close="isEditModalActive = false"
 			:show-status="true"
 		/>
-		<mdl-modal :active="isNoteModalActive" title="Note" @close="isNoteModalActive = false">
+		<mdl-modal :active="isNoteModalActive" title="Notes" @close="isNoteModalActive = false">
 			<animated-input label="Add Note" type="textarea" v-model="note"></animated-input>
 			<mdl-button type="raised" color="primary" :disabled="note.length < 5" @click="saveNote">Add Note
 			</mdl-button>
@@ -306,8 +306,6 @@
 		},
 		methods: {
 			saveNote() {
-				// this.notePhone = item;
-				// this.isNoteModalActive = true;
 				let self = this, $ = window.jQuery;
 				$.ajax({
 					method: 'POST',
@@ -324,7 +322,6 @@
 						}
 					},
 					error: function () {
-						// commit('SET_LOADING_STATUS', false);
 					}
 				});
 			},

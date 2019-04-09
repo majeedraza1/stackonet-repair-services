@@ -33,8 +33,28 @@
 				</td>
 				<td class="woocommerce-orders-table__cell" data-title="LCD Broken?" v-html="phone.broken_screen"></td>
 				<td class="woocommerce-orders-table__cell" data-title="Actions">
-					<a href="" class="woocommerce-button button view" @click.prevent="editPhoneDetails(phone)">Edit</a>
-					<a href="" class="woocommerce-button button view" @click.prevent="viewPhoneDetails(phone)">View</a>
+					<a href="" title="Edit" class="icon-container" @click.prevent="editPhoneDetails(phone)">
+						<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+							 viewBox="0 0 16 16">
+							<path
+								d="M13.813 4.688l-1.219 1.219-2.5-2.5 1.219-1.219c0.25-0.25 0.688-0.25 0.938 0l1.563 1.563c0.25 0.25 0.25 0.688 0 0.938zM2 11.5l7.375-7.375 2.5 2.5-7.375 7.375h-2.5v-2.5z"></path>
+						</svg>
+					</a>
+					<a href="" title="View" class="icon-container" @click.prevent="viewPhoneDetails(phone)">
+						<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+							 viewBox="0 0 16 16">
+							<path
+								d="M8 6c1.094 0 2 0.906 2 2s-0.906 2-2 2-2-0.906-2-2 0.906-2 2-2zM8 11.344c1.844 0 3.344-1.5 3.344-3.344s-1.5-3.344-3.344-3.344-3.344 1.5-3.344 3.344 1.5 3.344 3.344 3.344zM8 3c3.344 0 6.188 2.063 7.344 5-1.156 2.938-4 5-7.344 5s-6.188-2.063-7.344-5c1.156-2.938 4-5 7.344-5z"></path>
+						</svg>
+					</a>
+					<a href="" title="Note" class="icon-container" v-if="phone.notes.length"
+					   @click.prevent="viewNotes(phone)">
+						<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+							 viewBox="0 0 16 16">
+							<path
+								d="M12 5.344v-1.344h-5.344v1.344h5.344zM12 7.344v-1.344h-5.344v1.344h5.344zM10 9.344v-1.344h-3.344v1.344h3.344zM5.344 5.344v-1.344h-1.344v1.344h1.344zM5.344 7.344v-1.344h-1.344v1.344h1.344zM5.344 9.344v-1.344h-1.344v1.344h1.344zM13.344 1.344c0.719 0 1.313 0.594 1.313 1.313v8c0 0.719-0.594 1.344-1.313 1.344h-9.344l-2.656 2.656v-12c0-0.719 0.594-1.313 1.313-1.313h10.688z"></path>
+						</svg>
+					</a>
 				</td>
 			</tr>
 			</tbody>
@@ -155,6 +175,23 @@
 			title="Edit Phone"
 			@close="isEditModalActive = false"
 		/>
+		<mdl-modal :active="isNoteModalActive" title="Notes" @close="isNoteModalActive = false">
+			<div class="phone-note-list-container">
+				<div class="phone-note-list" v-if="notePhone && notePhone.notes">
+					<div class="phone-note-list__item mdl-shadow--2dp" v-for="_note in notePhone.notes">
+						<div class="note_content">
+							<p>{{_note.note}}</p>
+						</div>
+						<p class="meta">
+							<abbr class="exact-date" :title="_note.created_at">added on {{_note.created_at}}</abbr>
+						</p>
+					</div>
+				</div>
+			</div>
+			<div slot="foot">
+				<mdl-button @click="isNoteModalActive = false">Close</mdl-button>
+			</div>
+		</mdl-modal>
 		<mdl-snackbar :options="snackbar"></mdl-snackbar>
 		<div class="loading-container" :class="{'is-active':loading}">
 			<div class="mdl-loader">
@@ -182,6 +219,7 @@
 			return {
 				isModalActive: false,
 				isEditModalActive: false,
+				isNoteModalActive: false,
 				modalTitle: 'Add New Phone',
 				models: [],
 				colors: [],
@@ -189,6 +227,7 @@
 				isViewModalActive: false,
 				activePhone: {},
 				editPhone: {},
+				notePhone: {},
 				phone: {
 					asset_number: '',
 					brand_name: '',
@@ -238,6 +277,10 @@
 			viewPhoneDetails(phone) {
 				this.activePhone = phone;
 				this.isViewModalActive = true;
+			},
+			viewNotes(phone) {
+				this.notePhone = phone;
+				this.isNoteModalActive = true;
 			},
 			closeViewModel() {
 				this.activePhone = {};
@@ -307,6 +350,16 @@
 </script>
 
 <style lang="scss">
+	.phone-note-list__item {
+		padding: 0.5rem;
+		margin-bottom: 1rem;
+
+		p {
+			margin: 0;
+			padding: 0;
+		}
+	}
+
 	.action-button-container {
 		width: 100%;
 		margin-bottom: 1rem;
@@ -367,6 +420,27 @@
 				display: inline-block;
 				text-align: center;
 			}
+		}
+	}
+
+	.icon-container {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 20px;
+		height: 20px;
+		float: left;
+		text-align: center;
+		border: 1px solid rgba(#333, 0.85);
+		border-radius: 3px;
+
+		&:not(:last-child) {
+			margin-right: 5px;
+		}
+
+		svg {
+			overflow: hidden;
+			fill: rgba(#333, 0.85);
 		}
 	}
 </style>
