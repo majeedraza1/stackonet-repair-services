@@ -46,6 +46,7 @@
 				<button :disabled="!hasFilterActive" class="button button-clear-filter" @click="clearFilter">Clear
 					Filter
 				</button>
+				<button class="button" @click="exportAsCSV">Export as CSV</button>
 			</template>
 		</wp-list-table>
 		<mdl-modal :active="isModalActive" :title="modalTitle" @close="isModalActive =false">
@@ -247,7 +248,7 @@
 			}
 		},
 		computed: {
-			...mapState(['loading', 'phones', 'devices', 'issues', 'pagination', 'counts', 'status']),
+			...mapState(['loading', 'phones', 'devices', 'issues', 'pagination', 'counts', 'status', 'currentPage', 'search', 'store_address']),
 			...mapGetters(['phone_statuses', 'store_addresses']),
 			devicesDropdown() {
 				if (!this.devices.length) return [];
@@ -340,6 +341,17 @@
 				this.hasFilterActive = false;
 				this.filterable_address = '-1';
 				this.$store.dispatch('fetchPhones');
+			},
+			exportAsCSV() {
+				let data = {
+					action: 'download_phones_csv',
+					status: this.status,
+					paged: this.currentPage,
+					search: this.search,
+					store_address: this.store_address,
+				};
+				let url = window.ajaxurl + "?" + Object.keys(data).map(key => `${key}=${data[key]}`).join("&");
+				window.location.href = url;
 			},
 			savePhone() {
 				this.isModalActive = false;

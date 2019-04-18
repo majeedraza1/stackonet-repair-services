@@ -129,4 +129,29 @@ class Utils {
 
 		return $timezone;
 	}
+
+
+	/**
+	 * Generate CSV from array
+	 *
+	 * @param array $data
+	 * @param string $delimiter
+	 * @param string $enclosure
+	 *
+	 * @return string
+	 */
+	public static function generateCsv( array $data, $delimiter = ',', $enclosure = '"' ) {
+		$handle = fopen( 'php://temp', 'r+' );
+		foreach ( $data as $line ) {
+			fputcsv( $handle, $line, $delimiter, $enclosure );
+		}
+		rewind( $handle );
+		$contents = '';
+		while ( ! feof( $handle ) ) {
+			$contents .= fread( $handle, 8192 );
+		}
+		fclose( $handle );
+
+		return $contents;
+	}
 }

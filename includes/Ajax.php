@@ -9,6 +9,7 @@ use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
 use Stackonet\Models\Testimonial;
 use Stackonet\Models\UnsupportedArea;
+use Stackonet\Supports\Utils;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -71,6 +72,7 @@ class Ajax {
 			add_action( 'wp_ajax_delete_phone', [ self::$instance, 'delete_phone' ] );
 			add_action( 'wp_ajax_batch_delete_phones', [ self::$instance, 'delete_phones' ] );
 			add_action( 'wp_ajax_add_phone_note', [ self::$instance, 'add_phone_note' ] );
+			add_action( 'wp_ajax_download_phones_csv', [ self::$instance, 'download_phones_csv' ] );
 		}
 
 		return self::$instance;
@@ -79,6 +81,77 @@ class Ajax {
 	public function stackonet_test() {
 		die();
 	}
+
+	/**
+	 * Download Phone CSV
+	 */
+	public function download_phones_csv() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'You have no permission to download phones CSV file.', 401 );
+		}
+
+		$status        = isset( $_REQUEST['status'] ) ? $_REQUEST['status'] : 'all';
+		$per_page      = isset( $_REQUEST['per_page'] ) ? absint( $_REQUEST['per_page'] ) : 20;
+		$paged         = isset( $_REQUEST['paged'] ) ? absint( $_REQUEST['paged'] ) : 1;
+		$search        = isset( $_REQUEST['search'] ) ? $_REQUEST['search'] : null;
+		$store_address = isset( $_REQUEST['store_address'] ) ? $_REQUEST['store_address'] : null;
+
+		$phone = new Phone();
+
+		if ( ! empty( $store_address ) ) {
+			$phones = $phone->search_store_address( [ 'store_address' => $store_address, 'status' => $status ] );
+		} else if ( ! empty( $search ) ) {
+			$phones = $phone->search( [ 'search' => $search, 'status' => $status ] );
+		} else {
+			$phones = $phone->find( [ 'per_page' => $per_page, 'paged' => $paged, 'status' => $status ] );
+		}
+
+		$filename = sprintf( 'phones-status-%s-page-%s.csv', $status, $paged );
+
+		$header = [
+			'ID',
+			'Asset Number',
+			'Brand Name',
+			'Model',
+			'Color',
+			'IMEI Number',
+			'Broken Screen',
+			'issues',
+			'Status',
+			'Created By',
+			'Store Address'
+		];
+
+		$rows = [ $header ];
+
+		/** @var Phone[] $phones */
+		foreach ( $phones as $_phone ) {
+			$issues = $_phone->get( 'issues' );
+			$rows[] = [
+				$_phone->get( 'id' ),
+				$_phone->get( 'asset_number' ),
+				$_phone->get( 'brand_name' ),
+				$_phone->get( 'model' ),
+				$_phone->get( 'color' ),
+				$_phone->get( 'imei_number' ),
+				$_phone->get( 'broken_screen' ),
+				is_array( $issues ) ? implode( ", ", $issues ) : '',
+				$_phone->get( 'status' ),
+				$_phone->get_author()->display_name,
+				$_phone->get_author_store_address(),
+			];
+		}
+
+		@header( 'Content-Description: File Transfer' );
+		@header( 'Content-Type: text/csv; charset=UTF-8' );
+		@header( 'Content-Disposition: filename="' . $filename . '"' );
+		@header( 'Expires: 0' );
+		@header( 'Cache-Control: must-revalidate' );
+		@header( 'Pragma: public' );
+		echo Utils::generateCsv( $rows );
+		die();
+	}
+
 
 	/**
 	 * Get phones
