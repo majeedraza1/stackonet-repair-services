@@ -46,7 +46,7 @@
 				<button :disabled="!hasFilterActive" class="button button-clear-filter" @click="clearFilter">Clear
 					Filter
 				</button>
-				<button class="button" @click="exportAsCSV">Export as CSV</button>
+				<button class="button" @click="exportAsCSV">Excel Export</button>
 			</template>
 		</wp-list-table>
 		<mdl-modal :active="isModalActive" :title="modalTitle" @close="isModalActive =false">
