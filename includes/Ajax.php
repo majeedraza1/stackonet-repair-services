@@ -79,6 +79,7 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
+		var_dump( 'working' );
 		die();
 	}
 
