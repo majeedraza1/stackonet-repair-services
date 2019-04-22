@@ -35,6 +35,7 @@ class Frontend {
 			add_shortcode( 'stackonet_manager_registration_form', [ self::$instance, 'manager_registration_form' ] );
 			add_shortcode( 'stackonet_client_testimonial', [ self::$instance, 'client_testimonial' ] );
 			add_shortcode( 'stackonet_reschedule_order', [ self::$instance, 'reschedule_order' ] );
+			add_shortcode( 'stackonet_rent_a_center', [ self::$instance, 'rent_a_center' ] );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
 		}
 
@@ -85,6 +86,18 @@ class Frontend {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Rent a center shortcode content
+	 *
+	 * @return string
+	 */
+	public function rent_a_center() {
+		wp_enqueue_style( 'frontend-rent-center' );
+		wp_enqueue_script( 'frontend-rent-center' );
+
+		return '<div id="stackonet_rent_a_center"></div>';
 	}
 
 	/**
