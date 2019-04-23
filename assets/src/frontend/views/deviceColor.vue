@@ -81,7 +81,7 @@
 		height: 120px;
 		background: #fff;
 		color: #333333;
-		margin: 15px;
+		margin: 15px !important;
 		border-radius: 5px;
 		display: flex;
 		flex-direction: column;

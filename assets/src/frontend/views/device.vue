@@ -93,7 +93,7 @@
 		display: flex;
 		flex-direction: column;
 		border-radius: 6px;
-		margin: 15px;
+		margin: 15px !important;
 	}
 
 	.phone-family-item-wrapper:hover {

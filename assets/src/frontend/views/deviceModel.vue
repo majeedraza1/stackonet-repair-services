@@ -58,7 +58,7 @@
 		cursor: pointer;
 		height: 75px;
 		min-width: 140px;
-		margin: 15px;
+		margin: 15px !important;
 		border-radius: 4px;
 		background-color: #fff;
 		text-align: center;

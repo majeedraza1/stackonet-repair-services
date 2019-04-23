@@ -43,7 +43,7 @@
 			</div>
 		</div>
 
-		<section-info></section-info>
+		<section-help></section-help>
 	</div>
 </template>
 

@@ -25,8 +25,9 @@
 			color: #f9a73b;
 			display: inline-block;
 			font-size: 16px;
-			line-height: 1.2;
+			line-height: 1.6;
 			margin-bottom: 20px !important;
+			max-width: 650px;
 			padding: 5px 15px;
 		}
 	}

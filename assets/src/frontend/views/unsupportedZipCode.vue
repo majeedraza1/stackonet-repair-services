@@ -9,7 +9,8 @@
 			<p>Enter your email below:</p>
 		</div>
 		<div class="unsupported-zip-code-input-wrapper">
-			<input type="email" placeholder="Type in your email" v-model="email" autocomplete="email">
+			<animated-input type="email" label="Type in your email" v-model="email"
+							autocomplete="email"></animated-input>
 		</div>
 		<div class="unsupported-zip-code-button-wrapper">
 			<big-button :disabled="!isValidEmail" @click="handleNotifyMe">Notify Me</big-button>
@@ -21,12 +22,13 @@
 
 <script>
 	import BigButton from '../../components/BigButton.vue';
+	import AnimatedInput from '../../components/AnimatedInput.vue';
 	import SectionHelp from '../components/SectionHelp'
 	import {mapState} from 'vuex';
 
 	export default {
 		name: "unsupportedZipCode",
-		components: {BigButton, SectionHelp},
+		components: {AnimatedInput, BigButton, SectionHelp},
 		data() {
 			return {
 				email: '',

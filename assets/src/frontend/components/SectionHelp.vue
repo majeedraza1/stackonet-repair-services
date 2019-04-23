@@ -16,10 +16,11 @@
 	.shapla-help-line {
 		display: flex;
 		justify-content: space-around;
-		margin-top: 3em;
+		margin: 2em auto !important;
 
 		&__content {
-			font-size: 2em;
+			font-size: 1em;
+			font-weight: bold;
 		}
 	}
 </style>

@@ -142,7 +142,7 @@
 		background: #fff;
 		text-align: center;
 		display: inline-block;
-		margin: 15px;
+		margin: 15px !important;
 		border-radius: 6px;
 		padding-top: 15px;
 	}

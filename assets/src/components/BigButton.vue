@@ -31,17 +31,17 @@
 <style lang="scss">
 	.big-button-wrapper {
 		.big-button {
-			color: #0161c7;
 			background-color: #12ffcd;
-			border-width: 0;
-			cursor: pointer;
 			border-radius: 5px;
-			line-height: 1.2;
+			border-width: 0;
+			color: #0161c7;
+			cursor: pointer;
+			font-size: 18px;
+			line-height: 1.2 !important;
+			padding: 1em;
 			text-align: center;
 			transition: all .4s ease;
-			font-size: 18px;
-			padding: 1em;
-			width: 100%;
+			width: 80%;
 
 			&:disabled {
 				background-color: #e1e8ec;
