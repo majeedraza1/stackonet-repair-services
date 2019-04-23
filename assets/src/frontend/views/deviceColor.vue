@@ -4,11 +4,11 @@
 		<section-info>Amazing Service Affordable Prices</section-info>
 		<div class="select-color-content-container">
 			<template v-for="color in deviceColors">
-				<div class="scale-on-mount scale-on-mount-active" @click="chooseDeviceColor(color)">
-					<div class="phone-color-item-wrapper hoverable">
-						<div class="phone-color-item-color-circle" :style="{backgroundColor: color.color}"></div>
-						<div class="phone-color-item-color-title" v-text="color.title"></div>
-						<div class="phone-color-item-color-subtitle" v-text="color.subtitle"></div>
+				<div class="shapla-device-box is-active" @click="chooseDeviceColor(color)">
+					<div class="shapla-device-box__content hoverable">
+						<div class="shapla-device-box__circle" :style="{backgroundColor: color.color}"></div>
+						<div class="shapla-device-box__title" v-text="color.title"></div>
+						<div class="shapla-device-box__subtitle" v-text="color.subtitle"></div>
 					</div>
 				</div>
 			</template>
@@ -61,43 +61,5 @@
 		flex-wrap: wrap;
 		max-width: 800px;
 		margin: 0 auto;
-	}
-
-	.scale-on-mount {
-		transform: scale(.5);
-		opacity: 0;
-		display: inline-block;
-		transition: all .4s ease-in-out;
-	}
-
-	.scale-on-mount-active {
-		opacity: 1;
-		transform: scale(1);
-	}
-
-	.phone-color-item-wrapper {
-		cursor: pointer;
-		min-width: 140px;
-		height: 120px;
-		background: #fff;
-		color: #333333;
-		margin: 15px !important;
-		border-radius: 5px;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.phone-color-item-color-circle {
-		height: 25px;
-		width: 25px;
-		border-radius: 50%;
-		margin-bottom: 10px;
-	}
-
-	.phone-color-item-color-subtitle {
-		margin-top: 5px;
-		font-size: 12px;
 	}
 </style>

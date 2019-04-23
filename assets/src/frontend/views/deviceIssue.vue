@@ -12,15 +12,19 @@
 
 			<template v-if="'multiple' === screenCracked">
 				<template v-for="issue in multi_issues">
-					<div class="scale-on-mount scale-on-mount-active" @click="pushIssue(issue)">
-						<div :class="issueItemClass(issue)" v-text="issue.title"></div>
+					<div class="shapla-device-box shapla-device-box--issue" @click="pushIssue(issue)">
+						<div class="shapla-device-box__content" :class="issueItemClass(issue)">
+							<div v-text="issue.title"></div>
+						</div>
 					</div>
 				</template>
 			</template>
 			<template v-else>
 				<template v-for="issue in no_issues">
-					<div class="scale-on-mount scale-on-mount-active" @click="pushIssue(issue)">
-						<div :class="issueItemClass(issue)" v-text="issue.title"></div>
+					<div class="shapla-device-box shapla-device-box--issue" @click="pushIssue(issue)">
+						<div class="shapla-device-box__content" :class="issueItemClass(issue)">
+							<div v-text="issue.title"></div>
+						</div>
 					</div>
 				</template>
 			</template>
@@ -87,10 +91,7 @@
 		},
 		methods: {
 			issueItemClass(issue) {
-				return {
-					'select-issue-item': true,
-					'select-issue-item-selected': -1 !== this.issues.indexOf(issue),
-				}
+				return {'is-active': -1 !== this.issues.indexOf(issue),}
 			},
 			updateDescription(event) {
 				this.$store.commit('SET_ISSUE_DESCRIPTION', event.target.value);
@@ -131,30 +132,15 @@
 		margin-top: 0;
 	}
 
-	.select-issue-item {
-		box-sizing: border-box;
-		cursor: pointer;
-		display: inline-block;
-		height: 50px;
-		width: 200px;
-		margin: 10px;
-		text-align: center;
-		border-radius: 4px;
-		background-color: #fff;
-		display: -ms-flexbox;
-		display: flex;
-		align-items: center;
-		font-size: 16px;
-		color: #4a4a4a;
-		border: 2px solid transparent;
-		transition: all .4s;
-		padding: 0 5px;
+	.shapla-device-box--issue {
+		.shapla-device-box__content {
+			height: 75px;
+			padding: 10px;
+			text-align: center;
 
-		@media (max-width: 1500px) {
-			height: 45px;
-			width: 130px;
-			font-size: 14px;
-			margin: 5px;
+			&.is-active {
+				border: 2px solid #f58730;
+			}
 		}
 	}
 
@@ -187,9 +173,5 @@
 		height: 64px;
 		width: 280px;
 		margin: 20px auto 50px;
-	}
-
-	.select-issue-item-selected {
-		border: 2px solid #0161c7;
 	}
 </style>

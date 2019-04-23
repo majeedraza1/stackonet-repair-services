@@ -4,8 +4,8 @@
 		<section-info>Pay once the job is complete!</section-info>
 		<div class="select-device-content-container">
 			<template v-for="device in deviceModels">
-				<div class="scale-on-mount scale-on-mount-active" @click="chooseDeviceModel(device)">
-					<div class="phone-model-item-wrapper hoverable">
+				<div class="shapla-device-box is-active" @click="chooseDeviceModel(device)">
+					<div class="shapla-device-box__content shapla-device-model-box__content hoverable">
 						<div v-text="device.title"></div>
 					</div>
 				</div>
@@ -54,16 +54,7 @@
 </script>
 
 <style lang="scss">
-	.phone-model-item-wrapper {
-		cursor: pointer;
+	.shapla-device-box__content.shapla-device-model-box__content {
 		height: 75px;
-		min-width: 140px;
-		margin: 15px !important;
-		border-radius: 4px;
-		background-color: #fff;
-		text-align: center;
-		display: flex;
-		align-items: center;
-		justify-content: center;
 	}
 </style>

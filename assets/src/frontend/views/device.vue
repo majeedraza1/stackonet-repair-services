@@ -9,12 +9,12 @@
 		</section-info>
 		<div class="select-device-content-container">
 			<template v-for="device in _devices">
-				<div class="scale-on-mount scale-on-mount-active" @click="chooseDeviceModel(device)">
-					<div class="phone-family-item-wrapper hoverable">
-						<div class="phone-family-image-wrapper">
+				<div class="shapla-device-box is-active" @click="chooseDeviceModel(device)">
+					<div class="shapla-device-box__content hoverable">
+						<div class="shapla-device-box__image">
 							<img :src="device.image.src" :alt="device.device_title">
 						</div>
-						<div class="phone-family-item-text-wrapper" v-text="device.device_title"></div>
+						<div class="shapla-device-box__label" v-text="device.device_title"></div>
 					</div>
 				</div>
 			</template>
@@ -72,71 +72,5 @@
 		justify-content: center;
 		align-items: center;
 		margin: 0 auto;
-	}
-
-	.scale-on-mount {
-		transform: scale(0.5);
-		opacity: 0;
-		display: inline-block;
-		transition: all 0.4s ease-in-out 0s;
-
-		&-active {
-			opacity: 1;
-			transform: scale(1);
-		}
-	}
-
-	.phone-family-item-wrapper {
-		height: 140px;
-		width: 140px;
-		background-color: rgb(255, 255, 255);
-		display: flex;
-		flex-direction: column;
-		border-radius: 6px;
-		margin: 15px !important;
-	}
-
-	.phone-family-item-wrapper:hover {
-		cursor: pointer;
-	}
-
-	@media (min-width: 1250px) {
-		.hoverable {
-			box-sizing: border-box;
-			transition: all 0.4s ease-in-out 0s;
-			border-width: 2px;
-			border-style: solid;
-			border-color: transparent;
-			border-image: initial;
-
-			&:not(.time-content-box-active):not(:disabled):hover {
-				color: rgb(1, 97, 199);
-				border-width: 2px;
-				border-style: solid;
-				border-color: rgba(18, 255, 205, 0.5);
-				border-image: initial;
-				background: rgba(1, 97, 199, 0.05);
-			}
-		}
-	}
-
-	.phone-family-image-wrapper {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		flex: 1 1 0%;
-	}
-
-	.phone-family-image-wrapper img {
-		max-width: 80px;
-		max-height: 60px;
-		position: relative;
-		top: 10px;
-	}
-
-	.phone-family-item-text-wrapper {
-		line-height: 60px;
-		text-align: center;
-		font-weight: bold;
 	}
 </style>

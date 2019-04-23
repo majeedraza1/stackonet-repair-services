@@ -62,7 +62,7 @@
                         <button v-for="time in times"
                                 :disabled="isHoliday"
                                 class="time-content-box hoverable"
-                                :class="{'time-content-box-active': tempTime === time}"
+                                :class="{'is-active': tempTime === time}"
                                 @click="setTimeRange(time)">
                             <div v-text="time"></div>
                         </button>

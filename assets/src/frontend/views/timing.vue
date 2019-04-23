@@ -49,7 +49,7 @@
 					<button v-for="time in times"
 							:disabled="isHoliday"
 							class="time-content-box hoverable"
-							:class="{'time-content-box-active': tempTime === time}"
+							:class="{'is-active': tempTime === time}"
 							@click="setTimeRange(time)">
 						<div v-text="time"></div>
 					</button>
@@ -216,7 +216,7 @@
 		border: 2px solid transparent;
 		outline: none;
 
-		&-active:not(:disabled) {
+		&.is-active:not(:disabled) {
 			background: #0161c7;
 			color: #fff;
 		}
