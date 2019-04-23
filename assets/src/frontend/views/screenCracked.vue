@@ -1,13 +1,12 @@
 <template>
 	<div class="select-issue-wrapper">
-		<div class="step-nav-page-wrapper">
-			<div class="step-nav-wrapper"><span class="step-nav-title">Is your screen broken?</span></div>
-		</div>
-		<div class="info-box-wrapper">
-			<div class="info-box-inner-wrapper">
-				<span><b>Lifetime warranty</b></span><span> on all parts and labor</span>
-			</div>
-		</div>
+
+		<section-title>Is your screen broken?</section-title>
+
+		<section-info>
+			<span><b>Lifetime warranty</b></span><span> on all parts and labor</span>
+		</section-info>
+
 		<div class="select-issue-content-container">
 
 			<template v-if="broken_screen_price">
@@ -40,14 +39,19 @@
 				</div>
 			</div>
 		</div>
+		<section-help></section-help>
 	</div>
 </template>
 
 <script>
 	import {mapState} from 'vuex';
+	import SectionInfo from '../components/SectionInfo'
+	import SectionTitle from '../components/SectionTitle'
+	import SectionHelp from '../components/SectionHelp'
 
 	export default {
 		name: "screenCracked",
+		components: {SectionInfo, SectionTitle, SectionHelp},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 			this.$store.commit('SET_SHOW_CART', true);
@@ -107,39 +111,6 @@
 	.select-issue-wrapper {
 		display: flex;
 		flex-direction: column;
-	}
-
-	.step-nav-wrapper {
-		display: flex;
-		justify-content: space-around;
-		margin: 30px 0;
-	}
-
-	.step-nav-title {
-		flex: 1 1;
-		text-align: center;
-		font-size: 22px;
-		font-weight: bold;
-		color: #3d4248;
-	}
-
-	.info-box-wrapper {
-		text-align: center;
-		position: relative;
-		top: -10px;
-		padding: 0 10px;
-	}
-
-	.info-box-inner-wrapper {
-		display: inline-block;
-		background: #fff;
-		padding: 5px 15px;
-		color: #0161c7;
-		font-size: 16px;
-		line-height: 1.6;
-		border-radius: 15px;
-		box-shadow: 0 1px 0 0 #12ffcd;
-		margin-bottom: 20px;
 	}
 
 	.select-issue-content-container {

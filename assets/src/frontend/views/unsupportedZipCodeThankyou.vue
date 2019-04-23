@@ -13,15 +13,18 @@
 		<div class="thank-you-button-wrapper">
 			<big-button @click="BackToHome">Back to home</big-button>
 		</div>
+
+		<section-help></section-help>
 	</div>
 </template>
 
 <script>
 	import BigButton from '../../components/BigButton.vue';
+	import SectionHelp from '../components/SectionHelp'
 
 	export default {
 		name: "unsupportedZipCodeThankyou",
-		components: {BigButton},
+		components: {BigButton, SectionHelp},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 			this.$store.commit('SET_SHOW_CART', false);

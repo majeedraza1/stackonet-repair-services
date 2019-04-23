@@ -1,16 +1,13 @@
 <template>
 	<div class="select-time-wrapper">
-		<div class="step-nav-page-wrapper">
-			<div class="step-nav-wrapper">
-				<span class="step-nav-title">What time do you prefer?</span>
-			</div>
-		</div>
-		<div class="info-box-wrapper">
-			<div class="info-box-inner-wrapper">
-				<span>We do our best to deliver amazing service at affordable prices to everyone. If we are unable to meet you at your desired time, we will deduct $5 and include a free tempered glass with the repair!</span>
-				<span>We will confirm timing by email and SMS</span>
-			</div>
-		</div>
+
+		<section-title>What time do you prefer?</section-title>
+
+		<section-info>
+			<span>We do our best to deliver amazing service at affordable prices to everyone. If we are unable to meet you at your desired time, we will deduct $5 and include a free tempered glass with the repair!</span>
+			<span>We will confirm timing by email and SMS</span>
+		</section-info>
+
 		<div>
 			<div class="select-time-day-selector-container-desktop">
 				<div class="select-time-day-selector-triangle"></div>
@@ -66,16 +63,21 @@
 			Timing is subject to technician availability. We will<br>
 			confirm timing by email and SMS.
 		</p>
+
+		<section-help></section-help>
 	</div>
 </template>
 
 <script>
 	import BigButton from '../../components/BigButton.vue';
+	import SectionTitle from '../components/SectionTitle'
+	import SectionInfo from '../components/SectionInfo'
+	import SectionHelp from '../components/SectionHelp'
 	import {mapState} from 'vuex';
 
 	export default {
 		name: "timing",
-		components: {BigButton},
+		components: {BigButton, SectionTitle, SectionInfo, SectionHelp},
 		data() {
 			return {
 				dateRanges: [],

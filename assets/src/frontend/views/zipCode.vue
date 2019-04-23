@@ -1,9 +1,8 @@
 <template>
 	<div>
+		<section-title>What's your zip code?</section-title>
+
 		<div class="zip-code-wrapper">
-			<div class="step-nav-page-wrapper">
-				<div class="step-nav-wrapper"><span class="step-nav-title">What's your zip code?</span></div>
-			</div>
 			<form action="#" class="zip-code-form-wrapper" @submit.prevent="handleSubmit">
 				<div class="zip-code-input-wrapper">
 					<input type="tel" placeholder="Please enter zip code" v-model="tempZipCode">
@@ -14,6 +13,8 @@
 			</form>
 		</div>
 
+		<section-help></section-help>
+
 		<div class="testimonial-carousel-wrapper">
 			<testimonial-carousel :items="testimonials"></testimonial-carousel>
 		</div>
@@ -23,11 +24,14 @@
 <script>
 	import BigButton from '../../components/BigButton.vue';
 	import TestimonialCarousel from '../TestimonialCarousel';
+	import SectionTitle from '../components/SectionTitle'
+	import SectionInfo from '../components/SectionInfo'
+	import SectionHelp from '../components/SectionHelp'
 	import {mapState} from 'vuex';
 
 	export default {
 		name: "zipCode",
-		components: {BigButton, TestimonialCarousel},
+		components: {BigButton, TestimonialCarousel, SectionTitle, SectionInfo, SectionHelp},
 		data() {
 			return {
 				tempZipCode: '',
@@ -90,19 +94,6 @@
 
 	.testimonial-carousel-wrapper {
 		margin: 3rem auto;
-	}
-
-	.step-nav-wrapper {
-		display: flex;
-		justify-content: space-around;
-		margin: 30px 0;
-	}
-
-	.step-nav-title {
-		flex: 1 1;
-		text-align: center;
-		font-size: 22px;
-		color: #3d4248;
 	}
 
 	.zip-code-form-wrapper {

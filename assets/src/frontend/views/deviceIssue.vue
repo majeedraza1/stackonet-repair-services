@@ -1,13 +1,12 @@
 <template>
 	<div class="select-issue-wrapper">
-		<div class="step-nav-page-wrapper">
-			<div class="step-nav-wrapper"><span class="step-nav-title">What can we fix for you?</span></div>
-		</div>
-		<div class="info-box-wrapper">
-			<div class="info-box-inner-wrapper">
-				<span>Parts and labor come with a </span><span><b>lifetime guarantee.</b></span>
-			</div>
-		</div>
+
+		<section-title>What can we fix for you?</section-title>
+
+		<section-info>
+			<span>Parts and labor come with a </span><span><b>lifetime guarantee.</b></span>
+		</section-info>
+
 		<label class="issue-subline">Select issue(s)</label>
 		<div class="select-issue-content-container">
 
@@ -35,16 +34,21 @@
 		<div class="select-issue-continue-wrapper">
 			<big-button :disabled="!showContinueButton" @click="handleContinue">Continue</big-button>
 		</div>
+
+		<section-help></section-help>
 	</div>
 </template>
 
 <script>
 	import BigButton from '../../components/BigButton.vue';
+	import SectionTitle from '../components/SectionTitle'
+	import SectionInfo from '../components/SectionInfo'
+	import SectionHelp from '../components/SectionHelp'
 	import {mapState} from 'vuex';
 
 	export default {
 		name: "deviceIssue",
-		components: {BigButton},
+		components: {BigButton, SectionTitle, SectionInfo, SectionHelp},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 			this.$store.commit('SET_SHOW_CART', true);

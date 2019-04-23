@@ -1,13 +1,7 @@
 <template>
 	<div class="device-colors-list">
-		<div class="step-nav-page-wrapper">
-			<div class="step-nav-wrapper">
-				<span class="step-nav-title">What Color is your device?</span>
-			</div>
-		</div>
-		<div class="info-box-wrapper">
-			<div class="info-box-inner-wrapper">Amazing Service Affordable Prices</div>
-		</div>
+		<section-title>What Color is your device?</section-title>
+		<section-info>Amazing Service Affordable Prices</section-info>
 		<div class="select-color-content-container">
 			<template v-for="color in deviceColors">
 				<div class="scale-on-mount scale-on-mount-active" @click="chooseDeviceColor(color)">
@@ -19,14 +13,19 @@
 				</div>
 			</template>
 		</div>
+		<section-help></section-help>
 	</div>
 </template>
 
 <script>
 	import {mapState} from 'vuex';
+	import SectionInfo from '../components/SectionInfo'
+	import SectionTitle from '../components/SectionTitle'
+	import SectionHelp from '../components/SectionHelp'
 
 	export default {
 		name: "deviceColor",
+		components: {SectionInfo, SectionTitle, SectionHelp},
 		data() {
 			return {}
 		},

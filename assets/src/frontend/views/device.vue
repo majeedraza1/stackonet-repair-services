@@ -1,15 +1,12 @@
 <template>
 	<div class="device-list">
-		<div class="step-nav-page-wrapper">
-			<div class="step-nav-wrapper">
-				<span class="step-nav-title">Which device would you like repaired?</span>
-			</div>
-		</div>
-		<div class="info-box-wrapper">
-			<div class="info-box-inner-wrapper">
-				Whether you’re at home, the office or even your favorite coffee shop. We come to you and repair your device on the spot!
-			</div>
-		</div>
+		<section-title>
+			Which device would you like repaired?
+		</section-title>
+		<section-info>
+			Whether you’re at home, the office or even your favorite coffee shop. We come to you and repair your
+			device on the spot!
+		</section-info>
 		<div class="select-device-content-container">
 			<template v-for="device in _devices">
 				<div class="scale-on-mount scale-on-mount-active" @click="chooseDeviceModel(device)">
@@ -22,17 +19,22 @@
 				</div>
 			</template>
 		</div>
+		<section-help></section-help>
 	</div>
 </template>
 
 <script>
 	import {mapState} from 'vuex';
+	import SectionInfo from '../components/SectionInfo'
+	import SectionTitle from '../components/SectionTitle'
+	import SectionHelp from '../components/SectionHelp'
 
 	export default {
 		name: "device",
 		data() {
 			return {}
 		},
+		components: {SectionInfo, SectionTitle, SectionHelp},
 		computed: {
 			...mapState(['devices', 'group']),
 			_devices() {

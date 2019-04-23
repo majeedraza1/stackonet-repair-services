@@ -40,6 +40,7 @@
 			text-align: center;
 			transition: all .4s ease;
 			font-size: 18px;
+			padding: 1em;
 			width: 100%;
 
 			&:disabled {

@@ -14,16 +14,19 @@
 		<div class="unsupported-zip-code-button-wrapper">
 			<big-button :disabled="!isValidEmail" @click="handleNotifyMe">Notify Me</big-button>
 		</div>
+
+		<section-help></section-help>
 	</div>
 </template>
 
 <script>
 	import BigButton from '../../components/BigButton.vue';
+	import SectionHelp from '../components/SectionHelp'
 	import {mapState} from 'vuex';
 
 	export default {
 		name: "unsupportedZipCode",
-		components: {BigButton},
+		components: {BigButton, SectionHelp},
 		data() {
 			return {
 				email: '',

@@ -1,34 +1,34 @@
 <template>
 	<div class="select-address-wrapper">
-		<div class="step-nav-page-wrapper">
-			<div class="step-nav-wrapper"><span class="step-nav-title">Where can we meet you?</span></div>
-		</div>
+
+		<section-title>Where can we meet you?</section-title>
+
 		<div class="select-address-content-wrapper">
 			<form action="#" autocomplete="off">
 
 				<animated-input
-						id="address"
-						v-model="addressTemp"
-						@focus="geolocate"
-						label="Enter exact address"
-						helptext="Please enter valid input"
-						autocomplete="not-valid-address"
-						:has-error="hasExactAddressError"
-						:has-success="zipCode === newZipCode"
+					id="address"
+					v-model="addressTemp"
+					@focus="geolocate"
+					label="Enter exact address"
+					helptext="Please enter valid input"
+					autocomplete="not-valid-address"
+					:has-error="hasExactAddressError"
+					:has-success="zipCode === newZipCode"
 				></animated-input>
 
 				<animated-input
-						id="additional"
-						v-model="additionalAddressTemp"
-						label="Apt / Suite / Floor No. (optional)"
-						:has-success="!!additionalAddressTemp.length"
+					id="additional"
+					v-model="additionalAddressTemp"
+					label="Apt / Suite / Floor No. (optional)"
+					:has-success="!!additionalAddressTemp.length"
 				></animated-input>
 
 				<animated-input
-						id="instructions"
-						v-model="instructionsTemp"
-						label="Add instructions (optional)"
-						:has-success="!!instructionsTemp.length"
+					id="instructions"
+					v-model="instructionsTemp"
+					label="Add instructions (optional)"
+					:has-success="!!instructionsTemp.length"
 				></animated-input>
 
 				<div class="select-address-market-no-aligned" v-if="showZipCodeError">
@@ -41,16 +41,20 @@
 				</div>
 			</form>
 		</div>
+		<section-help></section-help>
 	</div>
 </template>
 
 <script>
 	import AnimatedInput from '../../components/AnimatedInput.vue';
 	import BigButton from '../../components/BigButton.vue';
+	import SectionTitle from '../components/SectionTitle'
+	import SectionInfo from '../components/SectionInfo'
+	import SectionHelp from '../components/SectionHelp'
 
 	export default {
 		name: "userAddress",
-		components: {AnimatedInput, BigButton},
+		components: {AnimatedInput, BigButton, SectionTitle, SectionInfo, SectionHelp},
 		data() {
 			return {
 				addressTemp: '',
@@ -134,7 +138,7 @@
 							lng: position.coords.longitude
 						};
 						let circle = new google.maps.Circle(
-								{center: geolocation, radius: position.coords.accuracy}
+							{center: geolocation, radius: position.coords.accuracy}
 						);
 						this.autocomplete.setBounds(circle.getBounds());
 					});
@@ -185,19 +189,6 @@
 </script>
 
 <style lang="scss">
-	.step-nav-wrapper {
-		display: flex;
-		justify-content: space-around;
-		margin: 30px 0;
-	}
-
-	.step-nav-title {
-		flex: 1 1;
-		text-align: center;
-		font-size: 22px;
-		color: #3d4248;
-	}
-
 	.select-address-content-wrapper {
 		padding-top: 10px;
 		width: 100%;

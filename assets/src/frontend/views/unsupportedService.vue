@@ -17,12 +17,17 @@
 		<div class="unsupported-zip-code-button-wrapper">
 			<button disabled="" class="">Notify Me</button>
 		</div>
+
+		<section-help></section-help>
 	</div>
 </template>
 
 <script>
+	import SectionHelp from '../components/SectionHelp'
+
 	export default {
 		name: "unsupportedService",
+		components: {SectionHelp},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 			this.$store.commit('SET_SHOW_CART', false);
