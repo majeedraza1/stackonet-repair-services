@@ -3,14 +3,6 @@
 		<div class="columns is-multiline">
 			<div class="column is-6">
 				<div class="input-field">
-					<label for="asset_number">Asset Number</label>
-					<input type="text" id="asset_number"
-						   class="woocommerce-Input woocommerce-Input--text input-text"
-						   v-model="phone.asset_number">
-				</div>
-			</div>
-			<div class="column is-6">
-				<div class="input-field">
 					<label for="brand_name">Brand Name</label>
 					<vue-select
 						id="brand_name"

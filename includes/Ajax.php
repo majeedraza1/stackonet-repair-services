@@ -110,7 +110,6 @@ class Ajax {
 		$filename = sprintf( 'phones-status-%s-page-%s.csv', $status, $paged );
 
 		$header = [
-			'ID',
 			'Asset Number',
 			'Brand Name',
 			'Model',
@@ -130,7 +129,6 @@ class Ajax {
 			$issues = $_phone->get( 'issues' );
 			$rows[] = [
 				$_phone->get( 'id' ),
-				$_phone->get( 'asset_number' ),
 				$_phone->get( 'brand_name' ),
 				$_phone->get( 'model' ),
 				$_phone->get( 'color' ),

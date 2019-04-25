@@ -19,6 +19,7 @@ let entryPoints = {
 	],
 	'frontend-rent-center': [
 		'./assets/src/frontend/rent-a-center/main.js',
+		'./assets/scss/frontend-rent-center.scss'
 	],
 	frontend: [
 		'./assets/src/frontend/main.js',

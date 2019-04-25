@@ -3,9 +3,15 @@
 		<columns>
 			<column :tablet="3">
 				<div class="user">
-					<div class="user__avatar"></div>
-					<div class="user__display_name"></div>
-					<div class="user__role"></div>
+					<div class="user__avatar">
+						<image-container square>
+							<img class="is-rounded"
+								 src="http://phonerepairsasap.test/wp-content/uploads/2017/03/1.jpg"
+								 alt="">
+						</image-container>
+					</div>
+					<div class="user__display_name">Saif Al Araf</div>
+					<div class="user__role">Lead Developer</div>
 				</div>
 
 				<div class="action-menu">
@@ -75,10 +81,23 @@
 			</column>
 
 			<column :tablet="6">
-				Middle Content
+				<div class="section-reports">
+					<div class="section-title">Reports</div>
+				</div>
+				<div class="section-latest-status">
+					<div class="section-title">Latest Status</div>
+				</div>
+				<div class="section-total-damaged-devices">
+					<div class="section-title">Total Damaged Devices</div>
+				</div>
 			</column>
 			<column :tablet="3">
-				Center Content
+				<div class="section-store-managers">
+					<div class="section-title">Store managers</div>
+				</div>
+				<div class="section-recent-activity">
+					<div class="section-title">Recent Activities</div>
+				</div>
 			</column>
 		</columns>
 	</div>
@@ -103,18 +122,5 @@
 </script>
 
 <style lang="scss">
-	.action-menu {
-		&__item {
-			align-items: center;
-			border: 1px solid rgba(#000, 0.2);
-			border-radius: 4px;
-			display: flex;
-			flex-direction: column;
-			height: 100%;
-			justify-content: center;
-			padding: 5px;
-			text-align: center;
-			width: 100%;
-		}
-	}
+
 </style>
