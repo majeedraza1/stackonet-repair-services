@@ -36,10 +36,18 @@
 							</div>
 						</div>
 					</div>
-					<div class="my-cart-small-price-section">
+					<div class="my-cart-small-price-section" v-if="totalPrice">
+						<div class="my-cart-small-total-price">
+							<span>Subtotal </span>
+							<span class="my-cart-small-text-bold">${{totalPrice}}</span>
+						</div>
+						<div class="my-cart-small-total-price">
+							<span>Tax (7%)</span>
+							<span class="my-cart-small-text-bold">${{totalTax}}</span>
+						</div>
 						<div class="my-cart-small-total-price">
 							<span>Total Price</span>
-							<span class="my-cart-small-text-bold">${{totalPrice}}</span>
+							<span class="my-cart-small-text-bold">${{totalPrice + totalTax}}</span>
 						</div>
 					</div>
 				</div>
@@ -114,6 +122,13 @@
 			},
 			totalPrice() {
 				return this.issues.reduce((prev, next) => prev + next.price, 0);
+			},
+			totalTax() {
+				if (this.totalPrice < 1) {
+					return 0;
+				}
+				let tax = (this.totalPrice * .07), places = 2;
+				return +(Math.round(tax + "e+" + places) + "e-" + places);
 			},
 			hasAddress() {
 				return !!(this.address && this.address.length);

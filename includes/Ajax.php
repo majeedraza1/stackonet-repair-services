@@ -2,6 +2,7 @@
 
 namespace Stackonet;
 
+use Exception;
 use Stackonet\Models\Device;
 use Stackonet\Models\DeviceIssue;
 use Stackonet\Models\Phone;
@@ -10,6 +11,9 @@ use Stackonet\Models\Settings;
 use Stackonet\Models\Testimonial;
 use Stackonet\Models\UnsupportedArea;
 use Stackonet\Supports\Utils;
+use WC_Data_Exception;
+use WC_Order;
+use WC_Order_Item_Fee;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -469,8 +473,8 @@ class Ajax {
 	/**
 	 * Confirm Appointment
 	 *
-	 * @throws \WC_Data_Exception
-	 * @throws \Exception
+	 * @throws WC_Data_Exception
+	 * @throws Exception
 	 */
 	public function confirm_appointment() {
 		$product_id        = isset( $_POST['product_id'] ) ? intval( $_POST['product_id'] ) : 0;
@@ -491,7 +495,29 @@ class Ajax {
 		$additionalAddress = isset( $_POST['additional_address'] ) ? sanitize_text_field( $_POST['additional_address'] ) : '';
 
 		// Now we create the order
-		$order = new \WC_Order();
+		$order = new WC_Order();
+
+		$_address = [
+			'first_name' => $first_name,
+			'last_name'  => $last_name,
+			'company'    => '',
+			'address_1'  => $address['street_number']['short_name'] . ' ' . $address['street_address']['long_name'],
+			'address_2'  => '',
+			'city'       => $address['street_number']['long_name'],
+			'state'      => $address['state']['short_name'],
+			'postcode'   => $address['postal_code']['short_name'],
+			'country'    => $address['country']['short_name'],
+			'email'      => $email,
+			'phone'      => $phone,
+		];
+
+		// Set billing address
+		$order->set_address( $_address, 'billing' );
+
+		// Set shipping address
+		$order->set_address( $_address, 'shipping' );
+
+		$order->set_customer_id( 0 );
 
 		// Add Product
 		$product = wc_get_product( $product_id );
@@ -508,10 +534,12 @@ class Ajax {
 		$total_amount  = 0;
 		// Add Issue
 		foreach ( $issues as $issue ) {
-			$item_fee = new \WC_Order_Item_Fee();
+			$item_price = floatval( $issue['price'] );
+			$item_tax   = $item_price * 0.07;
+			$item_fee   = new WC_Order_Item_Fee();
 			$item_fee->set_name( sanitize_text_field( $issue['title'] ) );
-			$item_fee->set_total( floatval( $issue['price'] ) );
-			$item_fee->set_total_tax( '0' );
+			$item_fee->set_total( $item_price );
+			$item_fee->set_total_tax( $item_tax );
 			$item_fee->set_order_id( $order->get_id() );
 			$item_fee->save();
 			$order->add_item( $item_fee );
@@ -519,23 +547,6 @@ class Ajax {
 
 			$device_issues[] = sanitize_text_field( $issue['title'] );
 		}
-
-		// Set billing address
-		$order->set_address( [
-			'first_name' => $first_name,
-			'last_name'  => $last_name,
-			'company'    => '',
-			'address_1'  => $address['street_number']['short_name'] . ' ' . $address['street_address']['long_name'],
-			'address_2'  => '',
-			'city'       => $address['street_number']['long_name'],
-			'state'      => $address['state']['short_name'],
-			'postcode'   => $address['postal_code']['short_name'],
-			'country'    => $address['country']['short_name'],
-			'email'      => $email,
-			'phone'      => $phone,
-		] );
-
-		$order->set_customer_id( 0 );
 
 		if ( ! empty( $issueDescription ) ) {
 			$order->add_order_note( $issueDescription, false, true );
@@ -563,7 +574,8 @@ class Ajax {
 
 		// Calculate totals and save data
 		$order->set_total( $total_amount );
-		$order->set_status( 'processing' );
+		$order->set_status( 'on-hold' );
+		$order->calculate_taxes();
 		$order->save();
 
 		do_action( 'stackonet_order_created', $order );
