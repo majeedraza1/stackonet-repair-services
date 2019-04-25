@@ -13,7 +13,7 @@
 			<template v-if="'multiple' === screenCracked">
 				<template v-for="issue in multi_issues">
 					<div class="shapla-device-box shapla-device-box--issue" @click="pushIssue(issue)">
-						<div class="shapla-device-box__content" :class="issueItemClass(issue)">
+						<div class="shapla-device-box__content hoverable" :class="issueItemClass(issue)">
 							<div v-text="issue.title"></div>
 						</div>
 					</div>
@@ -22,7 +22,7 @@
 			<template v-else>
 				<template v-for="issue in no_issues">
 					<div class="shapla-device-box shapla-device-box--issue" @click="pushIssue(issue)">
-						<div class="shapla-device-box__content" :class="issueItemClass(issue)">
+						<div class="shapla-device-box__content hoverable" :class="issueItemClass(issue)">
 							<div v-text="issue.title"></div>
 						</div>
 					</div>

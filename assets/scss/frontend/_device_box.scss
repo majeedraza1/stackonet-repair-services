@@ -79,6 +79,40 @@
 	}
 }
 
+.shapla-date-time-box {
+	padding: 15px;
+
+	&__content {
+		align-items: center;
+		background: #fff;
+		border-radius: 50%;
+		cursor: pointer;
+		display: flex;
+		height: 75px;
+		overflow: hidden;
+		justify-content: center;
+		transition: all .5s ease;
+		width: 75px;
+
+		&.is-active {
+			background: #f58730;
+			color: #fff;
+		}
+
+	}
+
+	&__day {
+		font-size: 10px;
+		line-height: 12px;
+		text-align: center;
+	}
+
+	&__date {
+		font-size: 22px;
+		line-height: 22px;
+		text-align: center;
+	}
+}
 
 @media (min-width: 1250px) {
 	.hoverable {
@@ -86,8 +120,7 @@
 		box-sizing: border-box;
 		transition: all 0.4s ease-in-out 0s;
 
-		&:not(.is-active):hover,
-		&:not(:disabled):hover {
+		&:not(.is-active):not(.is-disabled):not(:disabled):hover {
 			background: rgba(249, 167, 59, 0.65);
 			border-color: #f58730;
 			color: #fff;
