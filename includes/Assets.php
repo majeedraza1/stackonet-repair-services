@@ -102,6 +102,11 @@ class Assets {
 				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/frontend-rent-center.js',
 				'deps'      => [],
 				'in_footer' => true
+			],
+			'admin-survey'                          => [
+				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/admin-survey.js',
+				'deps'      => [ 'jquery' ],
+				'in_footer' => true
 			]
 		];
 
@@ -130,6 +135,9 @@ class Assets {
 			],
 			'frontend-rent-center'                  => [
 				'src' => STACKONET_REPAIR_SERVICES_ASSETS . '/css/frontend-rent-center.css',
+			],
+			'admin-survey'                          => [
+				'src' => STACKONET_REPAIR_SERVICES_ASSETS . '/css/admin-survey.css',
 			],
 		];
 

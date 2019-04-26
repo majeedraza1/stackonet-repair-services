@@ -31,6 +31,7 @@ class Admin {
 			add_action( 'admin_enqueue_scripts', [ self::$instance, 'admin_scripts' ] );
 			add_action( 'admin_menu', [ self::$instance, 'add_menu' ] );
 			add_action( 'admin_menu', [ self::$instance, 'add_rent_a_center_menu' ] );
+			add_action( 'admin_menu', [ self::$instance, 'add_survey_menu' ] );
 
 			// Add decoration product data on Checkout(after), Email and Order Detail Page
 			add_action( 'woocommerce_order_item_meta_start', [ self::$instance, 'order_item_meta_start' ], 10, 3 );
@@ -183,7 +184,7 @@ class Admin {
 		$slug       = 'rent-a-center';
 
 		$hook = add_menu_page( __( 'Rent a Center', 'stackonet-repair-services' ), __( 'Rent a Center', 'stackonet-repair-services' ),
-			$capability, $slug, [ self::$instance, 'rent_a_center_callback' ], 'dashicons-cart', 7 );
+			$capability, $slug, [ self::$instance, 'rent_a_center_callback' ], 'dashicons-admin-post', 7 );
 
 		$menus = [
 			[ 'title' => __( 'Phones', 'vue-wp-starter' ), 'slug' => '#/' ],
@@ -216,5 +217,45 @@ class Admin {
 			'phone_statuses'         => Phone::available_status(),
 			'unique_store_addresses' => Phone::unique_store_address(),
 		] );
+	}
+
+	/**
+	 * Add survey menu
+	 */
+	public static function add_survey_menu() {
+		global $submenu;
+		$capability = 'manage_options';
+		$slug       = 'survey';
+
+		$hook = add_menu_page( __( 'Survey', 'stackonet-repair-services' ), __( 'Survey', 'stackonet-repair-services' ),
+			$capability, $slug, [ self::$instance, 'survey_callback' ], 'dashicons-admin-post', 8 );
+
+		$menus = [
+			[ 'title' => __( 'Survey', 'stackonet-repair-services' ), 'slug' => '#/' ],
+		];
+
+		if ( current_user_can( $capability ) ) {
+			foreach ( $menus as $menu ) {
+				$submenu[ $slug ][] = [ $menu['title'], $capability, 'admin.php?page=' . $slug . $menu['slug'] ];
+			}
+		}
+
+		add_action( 'load-' . $hook, [ self::$instance, 'init_survey_hooks' ] );
+	}
+
+	/**
+	 * Rent a Center page callback
+	 */
+	public function survey_callback() {
+		echo '<div class="wrap"><div id="admin-stackonet-survey"></div></div>';
+	}
+
+	/**
+	 * Admin menu page scripts
+	 */
+	public function init_survey_hooks() {
+		wp_enqueue_style( 'stackonet-repair-services-admin' );
+//		wp_enqueue_style( 'admin-survey' );
+		wp_enqueue_script( 'admin-survey' );
 	}
 }

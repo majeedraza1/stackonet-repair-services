@@ -21,6 +21,9 @@ let entryPoints = {
 		'./assets/src/frontend/rent-a-center/main.js',
 		'./assets/scss/frontend-rent-center.scss'
 	],
+	'admin-survey': [
+		'./assets/src/admin/survey/main.js',
+	],
 	frontend: [
 		'./assets/src/frontend/main.js',
 		'./assets/src/frontend/testimonial.js',
