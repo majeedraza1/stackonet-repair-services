@@ -2,6 +2,7 @@
 
 namespace Stackonet;
 
+use Exception;
 use Stackonet\Models\Device;
 use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
@@ -103,6 +104,8 @@ class Frontend {
 	}
 
 	public function survey_form() {
+		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
+
 		return '<div id="stackonet_survey_form"></div>';
 	}
 
@@ -282,15 +285,16 @@ class Frontend {
 		global $is_iphone;
 
 		$data = [
-			'ajaxurl'    => admin_url( 'admin-ajax.php' ),
-			'site_url'   => site_url(),
-			'home_url'   => home_url(),
-			'login_url'  => wp_login_url(),
-			'myaccount'  => wc_get_page_permalink( 'myaccount' ),
-			'token'      => wp_create_nonce( 'confirm_appointment' ),
-			'rest_root'  => esc_url_raw( rest_url( 'stackonet/v1' ) ),
-			'rest_nonce' => wp_create_nonce( 'wp_rest' ),
-			'is_iphone'  => $is_iphone,
+			'ajaxurl'     => admin_url( 'admin-ajax.php' ),
+			'site_url'    => site_url(),
+			'home_url'    => home_url(),
+			'login_url'   => wp_login_url(),
+			'myaccount'   => wc_get_page_permalink( 'myaccount' ),
+			'token'       => wp_create_nonce( 'confirm_appointment' ),
+			'rest_root'   => esc_url_raw( rest_url( 'stackonet/v1' ) ),
+			'rest_nonce'  => wp_create_nonce( 'wp_rest' ),
+			'is_iphone'   => $is_iphone,
+			'map_api_key' => Settings::get_map_api_key(),
 		];
 
 		return $data;
@@ -300,7 +304,7 @@ class Frontend {
 	 * Get service data
 	 *
 	 * @return array
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public static function service_data() {
 		$data = self::dynamic_data();

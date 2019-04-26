@@ -1,10 +1,9 @@
 <?php
 /**
  * Plugin Name: Stackonet Toolkit for Phone Repairs ASAP
- * Plugin URI: https://github.com/sayful1/stackonet-repair-services
  * Description: Stackonet Toolkit for Phone Repairs ASAP
  * Version: 1.0.2
- * Author: Stackonet Services Private Limited
+ * Author: Stackonet Services (Pvt.) Ltd.
  * Author URI: http://www.stackonet.com/
  * Requires at least: 4.9
  * Tested up to: 5.1
@@ -171,6 +170,7 @@ final class Stackonet_Repair_Services {
 			$this->container['rest-issues']           = Stackonet\REST\IssueController::init();
 			$this->container['rest-phones']           = Stackonet\REST\PhoneController::init();
 			$this->container['rest-track-status']     = Stackonet\REST\TrackStatusController::init();
+			$this->container['rest-survey']           = Stackonet\REST\SurveyController::init();
 		}
 
 		if ( $this->is_request( 'ajax' ) ) {
@@ -206,6 +206,8 @@ final class Stackonet_Repair_Services {
 		$testimonial->create_table();
 		$testimonial = new Stackonet\Models\Phone();
 		$testimonial->create_table();
+		$survey = new Stackonet\Models\Survey();
+		$survey->create_table();
 
 		do_action( 'phone_repairs_asap_activation' );
 	}
