@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import Reschedule from './reschedule/Reschedule'
+import Reschedule from './Reschedule'
 
 if (document.querySelector('#stackonet_reschedule_order')) {
 	let body = document.querySelector('body');

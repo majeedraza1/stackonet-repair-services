@@ -1,15 +1,5 @@
 <template>
 	<div class="stackonet-pricing-section">
-		<!--<div class="title-wrapper">-->
-		<!--<h2 class="pricing-title">SmartPhone and Tablet Repair Prices</h2>-->
-		<!--<div class="pricing-subtitle">-->
-		<!--<p>Select your device and issue for an ASAP Quote!</p>-->
-		<!--</div>-->
-		<!--</div>-->
-		<!--<div class="img-wrapper">-->
-		<!--<img src="https://d7gh5vrfihrl.cloudfront.net/website/pricing/phone_pricing.svg">-->
-		<!--</div>-->
-
 		<div class="phone-services-container">
 			<div class="device-issue-container">
 				<pricing-accordion

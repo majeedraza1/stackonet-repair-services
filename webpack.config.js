@@ -24,8 +24,9 @@ let entryPoints = {
 	frontend: [
 		'./assets/src/frontend/main.js',
 		'./assets/src/frontend/testimonial.js',
-		'./assets/src/frontend/pricing.js',
-		'./assets/src/frontend/reschedule.js',
+		'./assets/src/frontend/pricing/main.js',
+		'./assets/src/frontend/reschedule/main.js',
+		'./assets/src/frontend/survey/main.js',
 		'./assets/src/frontend/manager-registration/main.js',
 		'./assets/scss/frontend.scss'
 	],

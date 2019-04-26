@@ -36,6 +36,7 @@ class Frontend {
 			add_shortcode( 'stackonet_client_testimonial', [ self::$instance, 'client_testimonial' ] );
 			add_shortcode( 'stackonet_reschedule_order', [ self::$instance, 'reschedule_order' ] );
 			add_shortcode( 'stackonet_rent_a_center', [ self::$instance, 'rent_a_center' ] );
+			add_shortcode( 'stackonet_survey_form', [ self::$instance, 'survey_form' ] );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
 		}
 
@@ -72,6 +73,7 @@ class Frontend {
 			'stackonet_repair_service_pricing',
 			'stackonet_reschedule_order',
 			'stackonet_manager_registration_form',
+			'stackonet_survey_form',
 		];
 
 		global $post;
@@ -98,6 +100,10 @@ class Frontend {
 		wp_enqueue_script( 'frontend-rent-center' );
 
 		return '<div id="stackonet_rent_a_center"></div>';
+	}
+
+	public function survey_form() {
+		return '<div id="stackonet_survey_form"></div>';
 	}
 
 	/**
