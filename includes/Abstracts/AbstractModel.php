@@ -2,9 +2,12 @@
 
 namespace Stackonet\Abstracts;
 
+use ArrayAccess;
+use JsonSerializable;
+
 defined( 'ABSPATH' ) || exit;
 
-class AbstractModel implements \ArrayAccess, \JsonSerializable {
+class AbstractModel implements ArrayAccess, JsonSerializable {
 
 	/**
 	 * Object data

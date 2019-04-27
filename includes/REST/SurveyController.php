@@ -37,8 +37,52 @@ class SurveyController extends ApiController {
 	 */
 	public function register_routes() {
 		register_rest_route( $this->namespace, '/survey', [
+			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_items' ] ],
 			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'create_item' ] ],
 		] );
+
+		register_rest_route( $this->namespace, '/survey/delete', [
+			[ 'methods' => WP_REST_Server::DELETABLE, 'callback' => [ $this, 'delete_item' ] ],
+		] );
+
+		register_rest_route( $this->namespace, '/survey/batch_delete', [
+			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'delete_items' ] ],
+		] );
+	}
+
+	/**
+	 * Retrieves a collection of items.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
+	 */
+	public function get_items( $request ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $this->respondUnauthorized();
+		}
+
+		$status   = $request->get_param( 'status' );
+		$per_page = $request->get_param( 'per_page' );
+		$paged    = $request->get_param( 'paged' );
+
+		$survey = new Survey();
+
+		$status   = ! empty( $status ) ? $status : 'all';
+		$per_page = ! empty( $per_page ) ? absint( $per_page ) : 20;
+		$paged    = ! empty( $paged ) ? absint( $paged ) : 1;
+
+		$items      = $survey->find( [ 'status' => $status, 'paged' => $paged, 'per_page' => $per_page, ] );
+		$counts     = $survey->count_records();
+		$pagination = $survey->getPaginationMetadata( [
+			'totalCount'  => $counts[ $status ],
+			'limit'       => $per_page,
+			'currentPage' => $paged,
+		] );;
+
+		$response = [ 'items' => $items, 'counts' => $counts, 'pagination' => $pagination ];
+
+		return $this->respondOK( $response );
 	}
 
 	/**
@@ -75,5 +119,84 @@ class SurveyController extends ApiController {
 		}
 
 		return $this->respondInternalServerError();
+	}
+
+	/**
+	 * Deletes one item from the collection.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
+	 */
+	public function delete_item( $request ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $this->respondUnauthorized();
+		}
+		$id     = $request->get_param( 'id' );
+		$action = $request->get_param( 'action' );
+
+		$id     = ! empty( $id ) ? absint( $id ) : 0;
+		$action = ! empty( $action ) ? sanitize_text_field( $action ) : '';
+
+		if ( ! in_array( $action, [ 'trash', 'restore', 'delete' ] ) ) {
+			return $this->respondUnauthorized();
+		}
+
+		$class  = new Survey();
+		$survey = $class->find_by_id( $id );
+
+		if ( ! $survey instanceof Survey ) {
+			return $this->respondNotFound();
+		}
+
+		if ( 'trash' == $action ) {
+			$class->trash( $id );
+		}
+		if ( 'restore' == $action ) {
+			$class->restore( $id );
+		}
+		if ( 'delete' == $action ) {
+			$class->delete( $id );
+		}
+
+		return $this->respondOK( "#{$id} Survey record has been deleted" );
+	}
+
+	/**
+	 * Deletes multiple items from the collection.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
+	 */
+	public function delete_items( $request ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $this->respondUnauthorized();
+		}
+
+		$ids    = $request->get_param( 'ids' );
+		$ids    = is_array( $ids ) ? array_map( 'intval', $ids ) : [];
+		$action = $request->get_param( 'action' );
+		$action = ! empty( $action ) ? sanitize_text_field( $action ) : '';
+
+		if ( ! in_array( $action, [ 'trash', 'restore', 'delete' ] ) ) {
+			return $this->respondUnprocessableEntity();
+		}
+
+		$class = new Survey();
+
+		foreach ( $ids as $id ) {
+			if ( 'trash' == $action ) {
+				$class->trash( $id );
+			}
+			if ( 'restore' == $action ) {
+				$class->restore( $id );
+			}
+			if ( 'delete' == $action ) {
+				$class->delete( $id );
+			}
+		}
+
+		return $this->respondOK( "Phones has been deleted" );
 	}
 }

@@ -3,6 +3,7 @@
 namespace Stackonet\Models;
 
 use Stackonet\Abstracts\DatabaseModel;
+use WP_User;
 
 class Survey extends DatabaseModel {
 
@@ -10,6 +11,13 @@ class Survey extends DatabaseModel {
 	 * @var string
 	 */
 	protected $table = 'stackonet_survey';
+
+	/**
+	 * Cache group name
+	 *
+	 * @var string
+	 */
+	protected $cache_group = 'stackonet_survey';
 
 	/**
 	 * Default data
@@ -30,6 +38,18 @@ class Survey extends DatabaseModel {
 	];
 
 	/**
+	 * Data format
+	 *
+	 * @var array
+	 */
+	protected $data_format = [ '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ];
+
+	/**
+	 * @var bool|WP_User
+	 */
+	private $author;
+
+	/**
 	 * Get available status
 	 *
 	 * @return array
@@ -48,13 +68,185 @@ class Survey extends DatabaseModel {
 	 * @return array
 	 */
 	public function to_array() {
-		$_data = parent::to_array();
-		$data  = [];
-		foreach ( $_data as $key => $value ) {
-			$data[ $key ] = maybe_unserialize( $value );
-		}
+		$data           = parent::to_array();
+		$data['id']     = intval( $data['id'] );
+		$data['author'] = [
+			'display_name' => $this->get_author_display_name(),
+		];
 
 		return $data;
+	}
+
+	/**
+	 * Get author info
+	 *
+	 * @return WP_User
+	 */
+	public function get_author() {
+		if ( empty( $this->author ) ) {
+			$created_by = $this->get( 'created_by' );
+			$author     = get_user_by( 'id', $created_by );
+			if ( $author instanceof WP_User ) {
+				$this->author = $author;
+			}
+		}
+
+		return $this->author;
+	}
+
+	/**
+	 * Get author display name
+	 */
+	public function get_author_display_name() {
+		return $this->get_author()->display_name;
+	}
+
+	/**
+	 * Find multiple records from database
+	 *
+	 * @param array $args
+	 *
+	 * @return array
+	 */
+	public function find( $args = [] ) {
+		$per_page     = isset( $args['per_page'] ) ? absint( $args['per_page'] ) : $this->perPage;
+		$paged        = isset( $args['paged'] ) ? absint( $args['paged'] ) : 1;
+		$current_page = $paged < 1 ? 1 : $paged;
+		$offset       = ( $current_page - 1 ) * $per_page;
+		$orderby      = $this->primaryKey;
+		if ( isset( $args['orderby'] ) && in_array( $args['orderby'], array_keys( $this->default_data ) ) ) {
+			$orderby = $args['orderby'];
+		}
+		$order = isset( $args['order'] ) && 'ASC' == $args['order'] ? 'ASC' : 'DESC';
+
+		global $wpdb;
+		$table = $wpdb->prefix . $this->table;
+
+		$query = "SELECT * FROM {$table} WHERE 1=1";
+
+		if ( isset( $args[ $this->created_by ] ) && is_numeric( $args[ $this->created_by ] ) ) {
+			$query .= $wpdb->prepare( " AND {$this->created_by} = %d", intval( $args[ $this->created_by ] ) );
+		}
+
+		$valid_status = array_keys( self::available_status() );
+		$status       = isset( $args['status'] ) ? $args['status'] : 'all';
+		if ( is_string( $status ) && in_array( $status, $valid_status ) ) {
+			$query .= $wpdb->prepare( " AND device_status = %s", $status );
+		}
+
+		if ( is_array( $status ) ) {
+			$query .= " AND (";
+			foreach ( $status as $index => $m_stage ) {
+				if ( $index !== 0 ) {
+					$query .= " OR";
+				}
+				$query .= $wpdb->prepare( " device_status = %s", $m_stage );
+			}
+			$query .= ")";
+		}
+
+		if ( 'trash' == $status ) {
+			$query .= " AND deleted_at IS NOT NULL";
+		} else {
+			$query .= " AND deleted_at IS NULL";
+		}
+
+		$query   .= " ORDER BY {$orderby} {$order}";
+		$query   .= $wpdb->prepare( " LIMIT %d OFFSET %d", $per_page, $offset );
+		$results = $wpdb->get_results( $query, ARRAY_A );
+
+		$items = [];
+		if ( $results ) {
+			foreach ( $results as $result ) {
+				$result['address'] = maybe_unserialize( $result['address'] );
+				$items[]           = new self( $result );
+			}
+		}
+
+		return $items;
+	}
+
+	/**
+	 * Search phone
+	 *
+	 * @param array $args
+	 * @param array $fields
+	 *
+	 * @return array
+	 */
+	public function search( $args, $fields = [] ) {
+		global $wpdb;
+		$table  = $wpdb->prefix . $this->table;
+		$string = isset( $args['search'] ) ? esc_sql( $args['search'] ) : '';
+		$fields = empty( $fields ) ? array_keys( $this->default_data ) : $fields;
+		$status = ! empty( $args['status'] ) ? $args['status'] : 'all';
+
+		$cache_key = sprintf( 'survey_search_%s', md5( json_encode( $args ) ) );
+		$phones    = wp_cache_get( $cache_key, $this->cache_group );
+		if ( false === $phones ) {
+			$query = "SELECT * FROM {$table} WHERE 1 = 1";
+
+			if ( isset( $args[ $this->created_by ] ) && is_numeric( $args[ $this->created_by ] ) ) {
+				$query .= $wpdb->prepare( " AND {$this->created_by} = %d", intval( $args[ $this->created_by ] ) );
+			}
+
+			if ( 'trash' == $status ) {
+				$query .= " AND deleted_at IS NOT NULL";
+			} else {
+				$query .= " AND deleted_at IS NULL";
+			}
+
+			if ( in_array( $status, array_keys( self::available_status() ) ) ) {
+				$query .= $wpdb->prepare( " AND device_status = %s", $status );
+			}
+
+			if ( isset( $args['survey_id__in'] ) && is_array( $args['survey_id__in'] ) ) {
+				$ids   = array_map( function ( $id ) {
+					$id = intval( $id );
+
+					return $id > 0 ? $id : 0;
+				}, $args['survey_id__in'] );
+				$query .= " AND id IN(" . implode( ',', array_filter( $ids ) ) . ")";
+			}
+			$total_fields = count( $fields );
+			foreach ( $fields as $index => $field ) {
+				if ( 0 === $index ) {
+					$query .= " AND ({$field} LIKE '%{$string}%'";
+				} elseif ( ( $total_fields - 1 ) === $index ) {
+					$query .= " OR {$field} LIKE '%{$string}%')";
+				} else {
+					$query .= " OR {$field} LIKE '%{$string}%'";
+				}
+			}
+			$items = $wpdb->get_results( $query, ARRAY_A );
+			if ( $items ) {
+				foreach ( $items as $item ) {
+					$item['address'] = maybe_unserialize( $item['address'] );
+					$phones[]        = new self( $item );
+				}
+			}
+			wp_cache_add( $cache_key, $phones, $this->cache_group );
+		}
+
+		return $phones;
+	}
+
+	/**
+	 * Find record by id
+	 *
+	 * @param int $id
+	 *
+	 * @return self|false
+	 */
+	public function find_by_id( $id ) {
+		$item = parent::find_by_id( $id );
+		if ( $item ) {
+			$item['address'] = maybe_unserialize( $item['address'] );
+
+			return new self( $item );
+		}
+
+		return false;
 	}
 
 	/**
