@@ -107,7 +107,7 @@
 					})
 					.catch((error) => {
 						console.log(error);
-					})
+					});
 			},
 
 			changeStatus(status) {
@@ -148,9 +148,38 @@
 				}
 			},
 			trashAction(item, action) {
+				let self = this;
+				self.loading = true;
+				axios
+					.post(stackonetSettings.root + '/survey/delete', {
+						id: item.id,
+						action: action
+					})
+					.then((response) => {
+						self.getItems();
+						self.loading = false;
+					})
+					.catch((error) => {
+						console.log(error);
+						self.loading = false;
+					});
 			},
 			batchTrashAction(ids, action) {
-
+				let self = this;
+				self.loading = true;
+				axios
+					.post(stackonetSettings.root + '/survey/batch_delete', {
+						ids: ids,
+						action: action
+					})
+					.then((response) => {
+						self.getItems();
+						self.loading = false;
+					})
+					.catch((error) => {
+						console.log(error);
+						self.loading = false;
+					});
 			}
 		}
 	}

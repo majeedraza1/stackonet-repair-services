@@ -42,7 +42,7 @@ class SurveyController extends ApiController {
 		] );
 
 		register_rest_route( $this->namespace, '/survey/delete', [
-			[ 'methods' => WP_REST_Server::DELETABLE, 'callback' => [ $this, 'delete_item' ] ],
+			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'delete_item' ] ],
 		] );
 
 		register_rest_route( $this->namespace, '/survey/batch_delete', [

@@ -1,6 +1,5 @@
 <template>
 	<div class="stackonet-survey-form">
-		<h2 class="stackonet-section-title">Survey Form</h2>
 
 		<div class="form-field">
 			<mdl-radio
