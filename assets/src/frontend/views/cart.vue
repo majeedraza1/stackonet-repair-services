@@ -11,7 +11,7 @@
 				<div class="my-cart-small-items-wrapper my-cart-small-items-wrapper-colored">
 					<div class="cart-title-container">
 						<div class="cart-title-left">
-							<img :src="icons.phone" alt="Icon phone" style="width: 20px;height: 40px;">
+							<img :src="icon_src" :alt="device.device_title" style="width: auto;max-height: 40px;">
 							<span class="cart-title">Phone Repair</span>
 						</div>
 						<div class="my-cart-small-items-edit" v-if="totalPrice" @click="editDevice">
@@ -114,6 +114,12 @@
 			icons() {
 				return window.Stackonet.icons;
 			},
+			icon_src() {
+				if (this.device.image) {
+					return this.device.image.src;
+				}
+				return this.icons.phone;
+			},
 			hasDevice() {
 				return !!(this.device && this.device.device_title);
 			},
@@ -134,7 +140,7 @@
 				return !!(this.address && this.address.length);
 			},
 			showPhoneRepairSection() {
-				return this.device;
+				return Object.keys(this.device).length;
 			},
 			showDateTimeSection() {
 				return this.totalPrice;
