@@ -24,7 +24,8 @@
 		</div>
 
 		<div class="form-field">
-			<animated-input id="formatted_address" label="Address" v-model="formatted_address"></animated-input>
+			<g-map-autocomplete geolocation :value="formatted_address" @change="changeGeoLocation"></g-map-autocomplete>
+
 			<button class="button" @click="open_address_modal = true">Change Address</button>
 
 			<modal :active="open_address_modal" @close="open_address_modal = false" title="Address">
@@ -37,6 +38,9 @@
 					>
 						<div>{{_address.formatted_address}}</div>
 					</div>
+				</div>
+				<div slot="foot">
+					<button @click="open_address_modal = false">Close</button>
 				</div>
 			</modal>
 		</div>
@@ -56,10 +60,11 @@
 	import modal from '../../shapla/modal/modal';
 	import mdlRadio from '../../material-design-lite/radio/mdlRadio';
 	import mdlSpinner from '../../material-design-lite/spinner/mdlSpinner';
+	import gMapAutocomplete from '../components/gMapAutocomplete'
 
 	export default {
 		name: "SurveyForm",
-		components: {AnimatedInput, BigButton, mdlRadio, mdlSpinner, modal},
+		components: {AnimatedInput, BigButton, mdlRadio, mdlSpinner, modal, gMapAutocomplete},
 		data() {
 			return {
 				loading: true,
@@ -133,6 +138,12 @@
 			}
 		},
 		methods: {
+			changeGeoLocation(data) {
+				this.address_object = data.address;
+				this.formatted_address = data.formatted_address;
+				this.latitude = data.latitude;
+				this.longitude = data.longitude;
+			},
 			changeAddress(address) {
 				this.address_object = address;
 				this.formatted_address = address.formatted_address;

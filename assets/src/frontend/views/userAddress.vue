@@ -9,7 +9,6 @@
 				<animated-input
 					id="address"
 					v-model="addressTemp"
-					@focus="geolocate"
 					label="Enter exact address"
 					helptext="Please enter valid input"
 					autocomplete="not-valid-address"
@@ -108,9 +107,7 @@
 			}
 
 			let address = this.$el.querySelector('#address');
-			address.addEventListener('focus', function () {
-				address.setAttribute('autocomplete', 'noop-' + Date.now());
-			});
+
 			// Create the autocomplete object, restricting the search predictions to
 			// geographical location types.
 			this.autocomplete = new google.maps.places.Autocomplete(address, {types: ['geocode']});
@@ -122,15 +119,12 @@
 			// When the user selects an address from the drop-down, populate the
 			// address fields in the form.
 			this.autocomplete.addListener('place_changed', this.fillInAddress);
-		},
-		methods: {
-			handleContinue() {
-				this.$store.commit('SET_ADDRESS', this.addressTemp);
-				this.$store.commit('SET_ADDITIONAL_ADDRESS', this.additionalAddressTemp);
-				this.$store.commit('SET_INSTRUCTIONS', this.instructionsTemp);
-				this.$router.push('/user-details');
-			},
-			geolocate() {
+
+
+			address.addEventListener('focus', function () {
+
+				address.setAttribute('autocomplete', 'noop-' + Date.now());
+
 				if (navigator.geolocation) {
 					navigator.geolocation.getCurrentPosition(function (position) {
 						let geolocation = {
@@ -143,6 +137,14 @@
 						this.autocomplete.setBounds(circle.getBounds());
 					});
 				}
+			});
+		},
+		methods: {
+			handleContinue() {
+				this.$store.commit('SET_ADDRESS', this.addressTemp);
+				this.$store.commit('SET_ADDITIONAL_ADDRESS', this.additionalAddressTemp);
+				this.$store.commit('SET_INSTRUCTIONS', this.instructionsTemp);
+				this.$router.push('/user-details');
 			},
 			fillInAddress() {
 				let placeData = {};

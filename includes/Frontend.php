@@ -103,7 +103,16 @@ class Frontend {
 		return '<div id="stackonet_rent_a_center"></div>';
 	}
 
+	/**
+	 * Survey form
+	 *
+	 * @return string
+	 */
 	public function survey_form() {
+		if ( ! current_user_can( 'add_survey' ) ) {
+			return '<div>Please login to view this form.</div>';
+		}
+
 		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
 
 		return '<div id="stackonet_survey_form"></div>';

@@ -216,6 +216,7 @@ final class Stackonet_Repair_Services {
 	 * Add custom role
 	 */
 	public function add_custom_role() {
+		// Manager Role
 		if ( ! get_role( 'manager' ) ) {
 			$caps = [
 				'read_phone'    => true,
@@ -232,6 +233,28 @@ final class Stackonet_Repair_Services {
 			foreach ( $caps as $cap => $grant ) {
 				$admin_role->add_cap( $cap, $grant );
 				$editor_role->add_cap( $cap, $grant );
+			}
+		}
+
+		// Agent Role
+		if ( ! get_role( 'agent' ) ) {
+			$caps = [
+				'read_survey'   => true,
+				'add_survey'    => true,
+				'delete_survey' => true,
+				'manage_survey' => true,
+			];
+
+			add_role( 'agent', 'Agent', array_merge( $caps, [ 'read' => true ] ) );
+
+			$admin_role   = get_role( 'administrator' );
+			$editor_role  = get_role( 'editor' );
+			$manager_role = get_role( 'manager' );
+
+			foreach ( $caps as $cap => $grant ) {
+				$admin_role->add_cap( $cap, $grant );
+				$editor_role->add_cap( $cap, $grant );
+				$manager_role->add_cap( $cap, $grant );
 			}
 		}
 	}
