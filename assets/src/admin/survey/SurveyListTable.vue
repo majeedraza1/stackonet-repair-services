@@ -25,6 +25,11 @@
 			<template slot="display_name" slot-scope="data">
 				<span>{{data.row.author.display_name}}</span>
 			</template>
+			<template slot="device_status" slot-scope="data">
+				<span v-if="'affordable' === data.row.device_status">Affordable</span>
+				<span v-if="'not-affordable' === data.row.device_status">Not Affordable</span>
+				<span v-if="'not-pertain' === data.row.device_status">Not Pertain</span>
+			</template>
 		</wp-list-table>
 	</div>
 </template>

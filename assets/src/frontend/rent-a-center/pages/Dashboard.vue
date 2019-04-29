@@ -86,6 +86,32 @@
 				</div>
 				<div class="section-latest-status">
 					<div class="section-title">Latest Status</div>
+					<columns multiline mobile>
+						<column :mobile="12" :tablet="6">
+							<status-box label="Processing" number="72" icon-background="red" icon-color="white"
+										border-color="red">
+								<icon large><i class="fa fa-2x fa-sign-out"></i></icon>
+							</status-box>
+						</column>
+						<column :mobile="12" :tablet="6">
+							<status-box label="Repairing" number="72" icon-background="green" icon-color="white"
+										border-color="green">
+								<icon large><i class="fa fa-2x fa-address-book-o"></i></icon>
+							</status-box>
+						</column>
+						<column :mobile="12" :tablet="6">
+							<status-box label="Not Repaired" number="72" icon-background="#ff8240" icon-color="white"
+										border-color="#ff8240">
+								<icon large><i class="fa fa-2x fa-bar-chart"></i></icon>
+							</status-box>
+						</column>
+						<column :mobile="12" :tablet="6">
+							<status-box label="Processing" number="72" icon-background="red" icon-color="white"
+										border-color="red">
+								<icon large><i class="fa fa-2x fa-sign-out"></i></icon>
+							</status-box>
+						</column>
+					</columns>
 				</div>
 				<div class="section-total-damaged-devices">
 					<div class="section-title">Total Damaged Devices</div>
@@ -108,10 +134,11 @@
 	import column from '../../../shapla/columns/column'
 	import icon from '../../../shapla/icon/icon'
 	import imageContainer from '../../../shapla/image/image'
+	import StatusBox from '../../components/StatusBox'
 
 	export default {
 		name: "Dashboard",
-		components: {columns, column, icon, imageContainer},
+		components: {columns, column, icon, imageContainer, StatusBox},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 			this.$store.commit('SET_SNACKBAR', {
@@ -122,5 +149,7 @@
 </script>
 
 <style lang="scss">
+	.rent-a-center-dashboard-container {
 
+	}
 </style>
