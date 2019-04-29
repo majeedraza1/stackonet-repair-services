@@ -2,25 +2,22 @@
 	<div class="stackonet-survey-form">
 
 		<div class="form-field">
-			<mdl-radio
-				label="Product or service does not pertain to them."
-				value="not-pertain"
-				v-model="device_status"
-			></mdl-radio>
+			<label for="device_status_not_pertain">
+				<input id="device_status_not_pertain" type="radio" value="not-pertain" v-model="device_status">
+				Product or service does not pertain to them.
+			</label>
 		</div>
 		<div class="form-field">
-			<mdl-radio
-				label="Device can be fixed at an affordable price."
-				value="affordable"
-				v-model="device_status"
-			></mdl-radio>
+			<label for="device_status_affordable">
+				<input id="device_status_affordable" type="radio" value="affordable" v-model="device_status">
+				Device can be fixed at an affordable price.
+			</label>
 		</div>
 		<div class="form-field">
-			<mdl-radio
-				label="Device cannot be fixed at an affordable price."
-				value="not-affordable"
-				v-model="device_status"
-			></mdl-radio>
+			<label for="device_status_not_affordable">
+				<input id="device_status_not_affordable" type="radio" value="not-affordable" v-model="device_status">
+				Device cannot be fixed at an affordable price.
+			</label>
 		</div>
 
 		<div class="form-field">
@@ -50,6 +47,14 @@
 		<div class="loading-container" :class="{'is-active':loading}">
 			<mdl-spinner :active="loading"></mdl-spinner>
 		</div>
+
+		<mdl-modal :active="open_thank_you_model" type="box" @close="open_thank_you_model = false">
+			<div class="mdl-box mdl-shadow--2dp">
+				<h3>Data has been submitted successfully.</h3>
+				<mdl-button @click="open_thank_you_model = false">Close</mdl-button>
+			</div>
+		</mdl-modal>
+
 	</div>
 </template>
 
@@ -60,15 +65,18 @@
 	import modal from '../../shapla/modal/modal';
 	import mdlRadio from '../../material-design-lite/radio/mdlRadio';
 	import mdlSpinner from '../../material-design-lite/spinner/mdlSpinner';
+	import mdlModal from '../../material-design-lite/modal/mdlModal';
+	import mdlButton from '../../material-design-lite/button/mdlButton';
 	import gMapAutocomplete from '../components/gMapAutocomplete'
 
 	export default {
 		name: "SurveyForm",
-		components: {AnimatedInput, BigButton, mdlRadio, mdlSpinner, modal, gMapAutocomplete},
+		components: {AnimatedInput, BigButton, mdlRadio, mdlSpinner, modal, gMapAutocomplete, mdlModal, mdlButton},
 		data() {
 			return {
 				loading: true,
 				open_address_modal: false,
+				open_thank_you_model: false,
 				device_status: '',
 				latitude: '',
 				longitude: '',
@@ -169,7 +177,7 @@
 						})
 					.then((response) => {
 						self.loading = false;
-						alert('Data has been submitted successfully.');
+						self.open_thank_you_model = true;
 					})
 					.catch((error) => {
 						self.loading = false;
@@ -186,7 +194,7 @@
 	.stackonet-survey-form {
 		margin: 100px auto;
 		max-width: 600px;
-		position: relative;
+		// position: relative;
 
 		.form-field {
 			margin-bottom: 1rem;

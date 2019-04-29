@@ -21,6 +21,7 @@
 			@action:click="onActionClick"
 			@bulk:apply="onBulkAction"
 			@status:change="changeStatus"
+			@pagination="paginate"
 		>
 			<template slot="display_name" slot-scope="data">
 				<span>{{data.row.author.display_name}}</span>
@@ -87,7 +88,6 @@
 				}
 
 				return [
-					{key: 'view', label: 'View'},
 					{key: 'trash', label: 'Trash'}
 				];
 			},
@@ -122,6 +122,10 @@
 					element.active = false;
 				});
 				status.active = true;
+				this.getItems();
+			},
+			paginate(page) {
+				this.currentPage = page;
 				this.getItems();
 			},
 			onActionClick(action, item) {
