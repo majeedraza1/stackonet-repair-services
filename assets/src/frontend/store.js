@@ -25,6 +25,9 @@ export default new Vuex.Store({
 		timeRange: '',
 		addressObject: {},
 		address: '',
+		geo_address: false,
+		geo_address_object: {},
+		formatted_address: '',
 		additionalAddress: '',
 		instructions: '',
 		firstName: '',
@@ -86,6 +89,15 @@ export default new Vuex.Store({
 		},
 		SET_ADDRESS(state, address) {
 			state.address = address;
+		},
+		SET_FORMATTED_ADDRESS(state, formatted_address) {
+			state.formatted_address = formatted_address;
+		},
+		SET_GEO_ADDRESS(state, geo_address) {
+			state.geo_address = geo_address;
+		},
+		SET_GEO_ADDRESS_OBJECT(state, geo_address_object) {
+			state.geo_address_object = geo_address_object;
 		},
 		SET_ADDRESS_OBJECT(state, addressObject) {
 			state.addressObject = addressObject;

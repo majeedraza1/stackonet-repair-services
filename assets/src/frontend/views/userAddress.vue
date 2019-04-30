@@ -7,6 +7,7 @@
 			<form action="#" autocomplete="off">
 
 				<animated-input
+					type="textarea"
 					id="address"
 					v-model="addressTemp"
 					label="Enter exact address"
@@ -50,6 +51,7 @@
 	import SectionTitle from '../components/SectionTitle'
 	import SectionInfo from '../components/SectionInfo'
 	import SectionHelp from '../components/SectionHelp'
+	import {mapState} from 'vuex';
 
 	export default {
 		name: "userAddress",
@@ -64,12 +66,7 @@
 			}
 		},
 		computed: {
-			zipCode() {
-				return this.$store.state.zipCode;
-			},
-			addressObject() {
-				return this.$store.state.addressObject;
-			},
+			...mapState(['zipCode', 'addressObject', 'formatted_address', 'geo_address', 'geo_address_object', 'date']),
 			newZipCode() {
 				if (typeof this.addressObject.postal_code == "undefined") {
 					return false;
@@ -86,9 +83,6 @@
 			hasExactAddressError() {
 				return (!!this.addressTemp.length && !this.zipCode.length);
 			},
-			date() {
-				return this.$store.state.date;
-			},
 			hasDate() {
 				return !!(this.date && this.date.length);
 			},
@@ -104,6 +98,19 @@
 			// If no models, redirect one step back
 			if (!this.hasDate) {
 				this.$router.push('/select-time');
+			}
+
+			if (this.geo_address) {
+				if (this.formatted_address) {
+					this.addressTemp = this.formatted_address;
+				}
+
+				if (this.geo_address_object) {
+					let placeData = this.format_address_components(this.geo_address_object.address_components);
+					this.addressObj = placeData;
+					this.addressTemp = this.calculateFullAddress(placeData);
+					this.$store.commit('SET_ADDRESS_OBJECT', placeData);
+				}
 			}
 
 			let address = this.$el.querySelector('#address');
@@ -147,6 +154,19 @@
 				this.$router.push('/user-details');
 			},
 			fillInAddress() {
+				// Get the place details from the autocomplete object.
+				let place = this.autocomplete.getPlace();
+				// Get each component of the address from the place details,
+				// and then fill-in the corresponding field on the form.
+				if (place.address_components) {
+					let placeData = this.format_address_components(place.address_components);
+
+					this.addressObj = placeData;
+					this.addressTemp = this.calculateFullAddress(placeData);
+					this.$store.commit('SET_ADDRESS_OBJECT', placeData);
+				}
+			},
+			format_address_components(address_components) {
 				let placeData = {};
 				let componentForm = {
 					street_number: 'street_number',
@@ -157,25 +177,17 @@
 					postal_code: 'postal_code' // Post code
 				};
 
-				// Get the place details from the autocomplete object.
-				let place = this.autocomplete.getPlace();
-				// Get each component of the address from the place details,
-				// and then fill-in the corresponding field on the form.
-				if (place.address_components) {
-					for (let i = 0; i < place.address_components.length; i++) {
-						let addressComponent = place.address_components[i];
-						let addressType = addressComponent.types[0];
-						if (componentForm[addressType]) {
-							let val = addressComponent;
-							delete addressComponent.types;
-							placeData[componentForm[addressType]] = val;
-						}
+				for (let i = 0; i < address_components.length; i++) {
+					let addressComponent = address_components[i];
+					let addressType = addressComponent.types[0];
+					if (componentForm[addressType]) {
+						let val = addressComponent;
+						delete addressComponent.types;
+						placeData[componentForm[addressType]] = val;
 					}
-
-					this.addressObj = placeData;
-					this.addressTemp = this.calculateFullAddress(placeData);
-					this.$store.commit('SET_ADDRESS_OBJECT', placeData);
 				}
+
+				return placeData;
 			},
 			calculateFullAddress(addressObj) {
 				let address = '';

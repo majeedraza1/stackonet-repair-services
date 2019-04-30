@@ -27,18 +27,26 @@
 	import TestimonialCarousel from '../TestimonialCarousel';
 	import SectionTitle from '../components/SectionTitle'
 	import SectionHelp from '../components/SectionHelp'
+	import gMapAutocomplete from '../components/gMapAutocomplete'
 	import {mapState} from 'vuex';
 
 	export default {
 		name: "zipCode",
-		components: {AnimatedInput, BigButton, TestimonialCarousel, SectionTitle, SectionHelp},
+		components: {AnimatedInput, BigButton, TestimonialCarousel, SectionTitle, SectionHelp, gMapAutocomplete},
 		data() {
 			return {
 				tempZipCode: '',
 				serviceArea: [],
+				latitude: '',
+				longitude: '',
+				postal_code: '',
+				formatted_address: '',
+				address: {},
 			}
 		},
 		mounted() {
+			let self = this;
+
 			this.serviceArea = window.Stackonet.serviceArea;
 			this.$store.commit('SET_LOADING_STATUS', false);
 			this.$store.commit('SET_SHOW_CART', true);
@@ -47,6 +55,40 @@
 			// If no models, redirect one step back
 			if (!this.hasDeviceColor) {
 				this.$router.push('/device-color');
+			}
+
+			if (navigator.geolocation) {
+				let geocoder = new google.maps.Geocoder;
+
+				navigator.geolocation.getCurrentPosition(function (position) {
+					self.latitude = position.coords.latitude;
+					self.longitude = position.coords.longitude;
+
+					// Test self.latitude = 32.892389; self.longitude = -97.149092;
+
+					geocoder.geocode(
+						{'location': {lat: self.latitude, lng: self.longitude}},
+						function (results, status) {
+							if (status === 'OK') {
+								if (results[0]) {
+									self.address = results[0];
+									self.formatted_address = results[0].formatted_address;
+
+									for (let i = 0; i < results[0].address_components.length; i++) {
+										let addressComponent = results[0].address_components[i];
+										let addressType = addressComponent.types[0];
+										if ('postal_code' === addressType) {
+											self.postal_code = addressComponent.short_name;
+											self.tempZipCode = self.postal_code;
+										}
+									}
+								}
+							} else {
+								console.log('Geocoder failed due to: ' + status);
+							}
+						}
+					);
+				});
 			}
 
 			if (!this.isTestimonials) {
@@ -74,11 +116,20 @@
 				this.tempZipCode = event.target.value ? parseInt(event.target.value) : '';
 			},
 			handleSubmit() {
+				this.$store.commit('SET_ZIP_CODE', this.tempZipCode);
+				if (this.tempZipCode === this.postal_code) {
+					if (this.formatted_address)
+						this.$store.commit('SET_FORMATTED_ADDRESS', this.formatted_address);
+
+					if (this.address)
+						this.$store.commit('SET_GEO_ADDRESS_OBJECT', this.address);
+
+					this.$store.commit('SET_GEO_ADDRESS', true);
+				}
+
 				if (this.isValidArea) {
-					this.$store.commit('SET_ZIP_CODE', this.tempZipCode);
 					this.$router.push('/screen-cracked');
 				} else {
-					this.$store.commit('SET_ZIP_CODE', this.tempZipCode);
 					this.$router.push('/unsupported-zip-code');
 				}
 			}

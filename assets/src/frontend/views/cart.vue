@@ -12,7 +12,7 @@
 					<div class="cart-title-container">
 						<div class="cart-title-left">
 							<img :src="icon_src" :alt="device.device_title" style="width: auto;max-height: 40px;">
-							<span class="cart-title">Phone Repair</span>
+							<span class="cart-title">{{device.device_title}} Repair</span>
 						</div>
 						<div class="my-cart-small-items-edit" v-if="totalPrice" @click="editDevice">
 							<svg width="12px" height="11px" xmlns="http://www.w3.org/2000/svg">

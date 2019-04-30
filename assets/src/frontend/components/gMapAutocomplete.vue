@@ -1,6 +1,7 @@
 <template>
-	<div>
+	<div class="g-map-autocomplete">
 		<animated-input
+			type="textarea"
 			id="g-map-autocomplete-address"
 			:label="label"
 			:value="formatted_address"
@@ -24,6 +25,7 @@
 			return {
 				latitude: '',
 				longitude: '',
+				postal_code: '',
 				formatted_address: '',
 				address: {},
 				addresses: [],
@@ -41,6 +43,10 @@
 			if (self.value) {
 				self.formatted_address = self.value;
 			}
+
+			inputField.addEventListener('focus', function () {
+				inputField.setAttribute('autocomplete', 'noop-' + Date.now());
+			});
 
 			// Create the autocomplete object, restricting the search predictions to
 			// geographical location types.
@@ -61,6 +67,8 @@
 									self.addresses = results;
 									self.address = results[0];
 									self.formatted_address = results[0].formatted_address;
+
+									self.findPostalCode(results[0]);
 								}
 							} else {
 								console.log('Geocoder failed due to: ' + status);
@@ -85,8 +93,11 @@
 				self.latitude = place.geometry.location.lat();
 				self.longitude = place.geometry.location.lng();
 
+				self.findPostalCode(place);
+
 				self.$emit('change', {
 					formatted_address: self.formatted_address,
+					postal_code: self.postal_code,
 					latitude: self.latitude,
 					longitude: self.longitude,
 					address: self.address,
@@ -97,6 +108,15 @@
 		methods: {
 			handleInputEvent(value) {
 				this.formatted_address = value;
+			},
+			findPostalCode(address) {
+				for (let i = 0; i < address.address_components.length; i++) {
+					let addressComponent = address.address_components[i];
+					let addressType = addressComponent.types[0];
+					if ('postal_code' === addressType) {
+						this.postal_code = addressComponent.short_name;
+					}
+				}
 			}
 		}
 	}

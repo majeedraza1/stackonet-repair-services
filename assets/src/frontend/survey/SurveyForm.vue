@@ -23,7 +23,9 @@
 		<div class="form-field">
 			<g-map-autocomplete geolocation :value="formatted_address" @change="changeGeoLocation"></g-map-autocomplete>
 
-			<button class="button" @click="open_address_modal = true">Change Address</button>
+			<p>
+				<button class="button" @click="open_address_modal = true">Change Address</button>
+			</p>
 
 			<modal :active="open_address_modal" @close="open_address_modal = false" title="Address">
 				<div class="formatted-address-list">
@@ -196,7 +198,8 @@
 		max-width: 600px;
 		// position: relative;
 
-		.form-field {
+		.form-field,
+		.g-map-autocomplete {
 			margin-bottom: 1rem;
 		}
 
