@@ -58,16 +58,12 @@
 					<span>${{subTotal}}</span>
 				</div>
 				<div class="price-calculator__item price-calculator__discount" v-if="discount">
-					<span>Discount:</span>
+					<span>Discount (15%):</span>
 					<span>- ${{discount}}</span>
-				</div>
-				<div class="price-calculator__item price-calculator__discount">
-					<span>Tax (7%):</span>
-					<span>${{tax}}</span>
 				</div>
 				<div class="price-calculator__item price-calculator__total">
 					<span>Our price:</span>
-					<span>${{totalPrice}}</span>
+					<span>${{taxableAmount}}</span>
 				</div>
 			</div>
 		</div>

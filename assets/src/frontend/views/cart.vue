@@ -14,7 +14,7 @@
 							<img :src="icon_src" :alt="device.device_title" style="width: auto;max-height: 40px;">
 							<span class="cart-title">{{device.device_title}} Repair</span>
 						</div>
-						<div class="my-cart-small-items-edit" v-if="totalPrice" @click="editDevice">
+						<div class="my-cart-small-items-edit" v-if="subtotal" @click="editDevice">
 							<svg width="12px" height="11px" xmlns="http://www.w3.org/2000/svg">
 								<use xlink:href="#icon-pen"></use>
 							</svg>
@@ -36,18 +36,31 @@
 							</div>
 						</div>
 					</div>
-					<div class="my-cart-small-price-section" v-if="totalPrice">
-						<div class="my-cart-small-total-price">
-							<span>Subtotal </span>
-							<span class="my-cart-small-text-bold">${{totalPrice}}</span>
+					<div class="shapla-cart-price" v-if="subtotal">
+						<div class="shapla-cart-price__item">
+							<div class="shapla-cart-price__content">
+								<span class="shapla-cart-price__title">Subtotal </span>
+							</div>
+							<span class="shapla-cart-price__amount">${{subtotal}}</span>
 						</div>
-						<div class="my-cart-small-total-price">
-							<span>Tax (7%)</span>
-							<span class="my-cart-small-text-bold">${{totalTax}}</span>
+						<div class="shapla-cart-price__item" v-if="discount">
+							<div class="shapla-cart-price__content">
+								<div class="shapla-cart-price__title">Discount (15%)</div>
+								<div class="shapla-cart-price__description">We've added 15% discount</div>
+							</div>
+							<span class="shapla-cart-price__amount">- ${{discount}}</span>
 						</div>
-						<div class="my-cart-small-total-price">
-							<span>Total Price</span>
-							<span class="my-cart-small-text-bold">${{totalPrice + totalTax}}</span>
+						<div class="shapla-cart-price__item">
+							<div class="shapla-cart-price__content">
+								<span class="shapla-cart-price__title">Tax (7%)</span>
+							</div>
+							<span class="shapla-cart-price__amount">${{totalTax}}</span>
+						</div>
+						<div class="shapla-cart-price__item">
+							<div class="shapla-cart-price__content">
+								<span class="shapla-cart-price__title">Total Price</span>
+							</div>
+							<span class="shapla-cart-price__amount">${{totalPrice}}</span>
 						</div>
 					</div>
 				</div>
@@ -126,15 +139,30 @@
 			hasDeviceColor() {
 				return !!(this.deviceColor && this.deviceColor.title);
 			},
-			totalPrice() {
+			subtotal() {
 				return this.issues.reduce((prev, next) => prev + next.price, 0);
 			},
-			totalTax() {
-				if (this.totalPrice < 1) {
+			discount() {
+				if (this.issues.length < 2) {
 					return 0;
 				}
-				let tax = (this.totalPrice * .07), places = 2;
-				return +(Math.round(tax + "e+" + places) + "e-" + places);
+
+				return this.round(this.subtotal * 0.15, 2);
+			},
+			taxableAmount() {
+				let amount = (this.subtotal - this.discount);
+
+				return amount > 0 ? this.round(amount, 2) : 0;
+			},
+			totalTax() {
+				let amount = (this.taxableAmount * 0.07);
+
+				return amount > 0 ? this.round(amount, 2) : 0;
+			},
+			totalPrice() {
+				let amount = (this.taxableAmount - this.totalTax);
+
+				return amount > 0 ? this.round(amount, 2) : 0;
 			},
 			hasAddress() {
 				return !!(this.address && this.address.length);
@@ -143,7 +171,7 @@
 				return Object.keys(this.device).length;
 			},
 			showDateTimeSection() {
-				return this.totalPrice;
+				return !!this.subtotal;
 			},
 			showLocationSection() {
 				return !!(this.addressObject && this.address);
@@ -153,6 +181,9 @@
 			}
 		},
 		methods: {
+			round(value, decimals) {
+				return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+			},
 			editDevice() {
 				this.$store.commit('SET_DEVICE', {});
 				this.$store.commit('SET_DEVICE_MODEL', {});
@@ -264,19 +295,34 @@
 		}
 	}
 
-	.my-cart-small-price-section {
+	.shapla-cart-price {
 		border-top: 2px solid #e0e4e7;
-		padding-top: 10px;
-		margin-top: 20px;
-	}
-
-	.my-cart-small-total-price {
-		font-size: 18px;
-		align-items: center;
-		margin-top: 5px;
-		height: 25px;
 		display: flex;
-		justify-content: space-between;
+		flex-direction: column;
+		margin-top: 20px;
+		padding-top: 10px;
+
+		&__item {
+			align-items: center;
+			display: flex;
+			justify-content: space-between;
+		}
+
+		&__content {
+			margin-top: 5px;
+		}
+
+		&__title {
+			font-weight: bold;
+		}
+
+		&__description {
+			font-size: 0.75em;
+		}
+
+		&__amount {
+
+		}
 	}
 
 	.float-right-price {

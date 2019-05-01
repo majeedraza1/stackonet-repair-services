@@ -10,10 +10,13 @@ use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
 use Stackonet\Models\Testimonial;
 use Stackonet\Models\UnsupportedArea;
+use Stackonet\Supports\Logger;
 use Stackonet\Supports\Utils;
 use WC_Data_Exception;
 use WC_Order;
+use WC_Order_Item_Coupon;
 use WC_Order_Item_Fee;
+use WC_Tax;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -532,18 +535,23 @@ class Ajax {
 
 		$device_issues = [];
 		$total_amount  = 0;
+		$has_discount  = count( $issues ) >= 2;
+
 		// Add Issue
 		foreach ( $issues as $issue ) {
 			$item_price = floatval( $issue['price'] );
 			$item_tax   = $item_price * 0.07;
-			$item_fee   = new WC_Order_Item_Fee();
+			if ( $has_discount ) {
+				// $item_tax = ( ( $item_price - ( $item_price * 0.15 ) ) * 0.07 );
+			}
+			$item_fee = new WC_Order_Item_Fee();
 			$item_fee->set_name( sanitize_text_field( $issue['title'] ) );
 			$item_fee->set_total( $item_price );
 			$item_fee->set_total_tax( $item_tax );
 			$item_fee->set_order_id( $order->get_id() );
 			$item_fee->save();
 			$order->add_item( $item_fee );
-			$total_amount += floatval( $issue['price'] );
+			$total_amount += $item_price;
 
 			$device_issues[] = sanitize_text_field( $issue['title'] );
 		}
@@ -572,6 +580,21 @@ class Ajax {
 
 		$order->save_meta_data();
 
+		// Add Discount
+		if ( count( $issues ) >= 2 ) {
+			$discount_amount = $total_amount * 0.15;
+			$discount_tax    = $discount_amount * 0.07;
+			$item_discount   = new WC_Order_Item_Fee();
+			$item_discount->set_name( 'Fixed Discount (15%)' );
+			$item_discount->set_total( - $discount_amount );
+			$item_discount->set_total_tax( $discount_tax );
+			$item_discount->set_order_id( $order->get_id() );
+			$item_discount->save();
+			$order->add_item( $item_discount );
+
+			$total_amount = $total_amount - ( $discount_amount + $discount_tax );
+		}
+
 		// Calculate totals and save data
 		$order->set_total( $total_amount );
 		$order->set_status( 'on-hold' );
@@ -581,6 +604,64 @@ class Ajax {
 		do_action( 'stackonet_order_created', $order );
 
 		wp_send_json_success( null, 201 );
+	}
+
+	/**
+	 * Add a discount to an Orders programmatically
+	 * (Using the FEE API - A negative fee)
+	 *
+	 * @param WC_Order $order The order ID. Required.
+	 * @param string $title The label name for the discount. Required.
+	 * @param mixed $amount Fixed amount (float) or percentage based on the subtotal. Required.
+	 * @param string $tax_class The tax Class. '' by default. Optional.
+	 */
+	public function add_discount( $order, $title, $amount, $tax_class = '' ) {
+		$subtotal = $order->get_subtotal();
+		$item     = new WC_Order_Item_Fee();
+
+		if ( strpos( $amount, '%' ) !== false ) {
+			$percentage = (float) str_replace( array( '%', ' ' ), array( '', '' ), $amount );
+			$percentage = $percentage > 100 ? - 100 : - $percentage;
+			$discount   = $percentage * $subtotal / 100;
+		} else {
+			$discount = (float) str_replace( ' ', '', $amount );
+			$discount = $discount > $subtotal ? - $subtotal : - $discount;
+		}
+
+		$item->set_tax_class( $tax_class );
+		$item->set_name( $title );
+		$item->set_amount( $discount );
+		$item->set_total( $discount );
+
+		if ( '0' !== $item->get_tax_class() && 'taxable' === $item->get_tax_status() && wc_tax_enabled() ) {
+			$tax_for   = array(
+				'country'   => $order->get_shipping_country(),
+				'state'     => $order->get_shipping_state(),
+				'postcode'  => $order->get_shipping_postcode(),
+				'city'      => $order->get_shipping_city(),
+				'tax_class' => $item->get_tax_class(),
+			);
+			$tax_rates = WC_Tax::find_rates( $tax_for );
+			$taxes     = WC_Tax::calc_tax( $item->get_total(), $tax_rates, false );
+
+			if ( method_exists( $item, 'get_subtotal' ) ) {
+				$subtotal_taxes = WC_Tax::calc_tax( $item->get_subtotal(), $tax_rates, false );
+				$item->set_taxes( array( 'total' => $taxes, 'subtotal' => $subtotal_taxes ) );
+				$item->set_total_tax( array_sum( $taxes ) );
+			} else {
+				$item->set_taxes( array( 'total' => $taxes ) );
+				$item->set_total_tax( array_sum( $taxes ) );
+			}
+			$has_taxes = true;
+		} else {
+			$item->set_taxes( [] );
+			$has_taxes = false;
+		}
+		$item->save();
+
+		$order->add_item( $item );
+		$order->calculate_totals( $has_taxes );
+		$order->save();
 	}
 
 	/**
