@@ -541,10 +541,7 @@ class Ajax {
 		foreach ( $issues as $issue ) {
 			$item_price = floatval( $issue['price'] );
 			$item_tax   = $item_price * 0.07;
-			if ( $has_discount ) {
-				// $item_tax = ( ( $item_price - ( $item_price * 0.15 ) ) * 0.07 );
-			}
-			$item_fee = new WC_Order_Item_Fee();
+			$item_fee   = new WC_Order_Item_Fee();
 			$item_fee->set_name( sanitize_text_field( $issue['title'] ) );
 			$item_fee->set_total( $item_price );
 			$item_fee->set_total_tax( $item_tax );
@@ -580,30 +577,48 @@ class Ajax {
 
 		$order->save_meta_data();
 
-		// Add Discount
-		if ( count( $issues ) >= 2 ) {
-			$discount_amount = $total_amount * 0.15;
-			$discount_tax    = $discount_amount * 0.07;
-			$item_discount   = new WC_Order_Item_Fee();
-			$item_discount->set_name( 'Fixed Discount (15%)' );
-			$item_discount->set_total( - $discount_amount );
-			$item_discount->set_total_tax( $discount_tax );
-			$item_discount->set_order_id( $order->get_id() );
-			$item_discount->save();
-			$order->add_item( $item_discount );
-
-			$total_amount = $total_amount - ( $discount_amount + $discount_tax );
-		}
-
 		// Calculate totals and save data
 		$order->set_total( $total_amount );
 		$order->set_status( 'on-hold' );
 		$order->calculate_taxes();
 		$order->save();
 
+		// Add Discount
+		if ( count( $issues ) >= 2 ) {
+			$this->add_order_discount( $order->get_id(), 'Fixed Discount (15%)', '15%' );
+		}
+
 		do_action( 'stackonet_order_created', $order );
 
 		wp_send_json_success( null, 201 );
+	}
+
+	public function add_order_discount( $order_id, $title, $amount ) {
+		$order = wc_get_order( $order_id );
+
+		$calculate_tax_args = array(
+			'country'  => $order->get_shipping_country(),
+			'state'    => $order->get_shipping_state(),
+			'postcode' => $order->get_shipping_postcode(),
+			'city'     => $order->get_shipping_city(),
+		);
+
+		if ( strstr( $amount, '%' ) ) {
+			$percent = floatval( trim( $amount, '%' ) );
+			$amount  = $order->get_total() * ( $percent / 100 );
+		} else {
+			$amount = floatval( $amount );
+		}
+
+		$fee = new WC_Order_Item_Fee();
+		$fee->set_amount( - $amount );
+		$fee->set_total( - $amount );
+		$fee->set_name( $title );
+
+		$order->add_item( $fee );
+		$order->calculate_taxes( $calculate_tax_args );
+		$order->calculate_totals( false );
+		$order->save();
 	}
 
 	/**

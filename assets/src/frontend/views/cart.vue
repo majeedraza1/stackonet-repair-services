@@ -160,7 +160,7 @@
 				return amount > 0 ? this.round(amount, 2) : 0;
 			},
 			totalPrice() {
-				let amount = (this.taxableAmount - this.totalTax);
+				let amount = (this.taxableAmount + this.totalTax);
 
 				return amount > 0 ? this.round(amount, 2) : 0;
 			},
