@@ -3,10 +3,10 @@
 		<div class="phone-services-container">
 			<div class="device-issue-container">
 				<pricing-accordion
-						label="Choose device"
-						:selected-issue="device.device_title"
-						:active="activeDeviceAccordion"
-						@toggle="activeDeviceAccordion = !activeDeviceAccordion"
+					label="Choose device"
+					:selected-issue="device.device_title"
+					:active="activeDeviceAccordion"
+					@toggle="activeDeviceAccordion = !activeDeviceAccordion"
 				>
 					<div class="device-item-container">
 						<div class="device-item"
@@ -17,36 +17,58 @@
 					</div>
 				</pricing-accordion>
 				<pricing-accordion
-						label="Select your model"
-						:selected-issue="deviceModel.title"
-						:active="activeModelAccordion"
-						@toggle="activeModelAccordion = !activeModelAccordion"
+					label="Select your model"
+					:selected-issue="device_model.title"
+					:active="activeModelAccordion"
+					@toggle="activeModelAccordion = !activeModelAccordion"
 				>
 					<div class="device-item-container">
 						<div class="device-item"
-							 v-for="_model in deviceModels"
+							 v-for="_model in devices_models"
 							 @click="chooseModel(_model)"
 							 v-html="_model.title"
 						></div>
 					</div>
 				</pricing-accordion>
 				<pricing-accordion
-						label="Choose issue (pick up to 3)"
-						multiple
-						:selected-issues="selectedIssueNames"
-						:active="activeIssuesAccordion"
-						@toggle="activeIssuesAccordion = !activeIssuesAccordion"
+					label="Choose issue (pick up to 3)"
+					multiple
+					:selected-issues="selectedIssueNames"
+					:active="activeIssuesAccordion"
+					@toggle="activeIssuesAccordion = !activeIssuesAccordion"
 				>
-					<div class="device-item"
-						 v-for="_issue in _issues"
-						 @click="chooseIssue(_issue)"><span :class="issueClass(_issue)">+ {{_issue.title}}</span>
+					<div class="device-item" v-for="_issue in _issues"
+						 @click="chooseIssue(_issue)">
+						<div class="device-item__inner" :class="issueClass(_issue)">
+							<div class="device-item__icon">+</div>
+							<div class="device-item__content">
+								<div class="device-item__title">{{_issue.title}}</div>
+								<div class="device-item__description"
+									 v-if="_issue.description">{{_issue.description}}
+								</div>
+							</div>
+						</div>
 					</div>
 				</pricing-accordion>
 			</div>
 
-			<div class="price-container">
-				<div>Our price:</div>
-				<span>${{totalPrice}}</span>
+			<div class="price-calculator">
+				<div class="price-calculator__item price-calculator__subtotal">
+					<span>Subtotal:</span>
+					<span>${{subTotal}}</span>
+				</div>
+				<div class="price-calculator__item price-calculator__discount" v-if="discount">
+					<span>Discount:</span>
+					<span>- ${{discount}}</span>
+				</div>
+				<div class="price-calculator__item price-calculator__discount">
+					<span>Tax (7%):</span>
+					<span>${{tax}}</span>
+				</div>
+				<div class="price-calculator__item price-calculator__total">
+					<span>Our price:</span>
+					<span>${{totalPrice}}</span>
+				</div>
 			</div>
 		</div>
 
@@ -95,7 +117,7 @@
 			}
 		},
 		computed: {
-			...mapState(['devices', 'device', 'deviceModels', 'deviceModel', 'issues']),
+			...mapState(['devices', 'device', 'devices_models', 'device_model', 'issues']),
 			icons() {
 				return window.Stackonet.icons;
 			},
@@ -106,18 +128,51 @@
 				return this.issue_count < 3;
 			},
 			_issues() {
-				let brokenPrice = this.deviceModel.broken_screen_price;
-				return this.issues.map(issue => {
+				let brokenPrice = this.device_model.broken_screen_price;
+				let issues = this.issues.map(issue => {
 					if (issue.title === 'Broken Screen') {
 						issue.price = brokenPrice;
 					}
 
 					return issue;
 				});
+
+				if (brokenPrice) {
+					issues.unshift({
+						id: '',
+						title: 'Front Glass',
+						price: brokenPrice,
+						description: 'Glass price is subject to undamaged display.',
+					});
+				}
+
+				return issues;
 			},
-			totalPrice() {
+			subTotal() {
 				let num = this.selectedIssues.reduce((prev, next) => prev + next.price, 0);
 				return this.round(num, 2);
+			},
+			discount() {
+				if (this.selectedIssues.length < 2) {
+					return 0;
+				}
+
+				return this.round(this.subTotal * 0.15, 2);
+			},
+			taxableAmount() {
+				let amount = (this.subTotal - this.discount);
+
+				return amount > 0 ? this.round(amount, 2) : 0;
+			},
+			tax() {
+				let amount = (this.taxableAmount * 0.07);
+
+				return amount > 0 ? this.round(amount, 2) : 0;
+			},
+			totalPrice() {
+				let amount = (this.taxableAmount - this.tax);
+
+				return amount > 0 ? this.round(amount, 2) : 0;
 			},
 			selectedIssueNames() {
 				let names = this.selectedIssues.map(issue => issue.title);
@@ -143,6 +198,7 @@
 			},
 			defaultDevice() {
 				let device = this.devices[0];
+				console.log(device);
 				this.$store.commit('SET_DEVICE', device);
 				this.$store.commit('SET_DEVICES_MODELS', device.device_models);
 				this.$store.commit('SET_DEVICE_MODEL', device.device_models[0]);
@@ -176,15 +232,15 @@
 			},
 			issueClass(issue) {
 				let issues = this.selectedIssues,
-						index = issues.indexOf(issue),
-						isSelected = -1 !== index;
+					index = issues.indexOf(issue),
+					isSelected = -1 !== index;
 				return {
 					'selected-issue': isSelected,
 					'disabled-issue': !isSelected && !this.can_add_issue,
 				}
 			},
 			goToRepairPage() {
-				let url = this.cta_url, device_id = this.device.id, device_model = this.deviceModel.title;
+				let url = this.cta_url, device_id = this.device.id, device_model = this.device_model.title;
 				let tUrl = `${url}#/?device=${device_id}&model=${device_model}`;
 				window.location.href = tUrl;
 			}
@@ -267,7 +323,6 @@
 			.big-button-wrapper {
 				min-width: 250px;
 				max-width: 300px;
-
 			}
 		}
 
@@ -340,7 +395,26 @@
 			.device-item {
 				padding: 1rem;
 
-				&:hover {
+				&__inner {
+					display: flex;
+				}
+
+				&__icon {
+					min-width: 1em;
+				}
+
+				&__content {
+				}
+
+				&__title {
+				}
+
+				&__description {
+					font-size: .75em;
+					color: rgba(#000, .85);
+				}
+
+				&:not(.disabled-issue):hover {
 					background: #eee;
 					cursor: pointer;
 				}
@@ -358,6 +432,20 @@
 		@media screen and (min-width: 768px) {
 			.service-includes-item {
 				width: 33%;
+			}
+		}
+
+		.price-calculator {
+			display: flex;
+			flex-direction: column;
+			margin-top: 3rem;
+			max-width: 430px;
+			width: 100%;
+
+			&__item {
+				display: flex;
+				font-size: 16px;
+				justify-content: space-between;
 			}
 		}
 	}
