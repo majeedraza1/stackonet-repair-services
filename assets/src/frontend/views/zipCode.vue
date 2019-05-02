@@ -6,6 +6,12 @@
 			<form action="#" class="zip-code-form-wrapper" @submit.prevent="handleSubmit">
 				<div class="zip-code-input-wrapper">
 					<animated-input label="Enter zip code" v-model="tempZipCode"></animated-input>
+					<template v-if="postal_code.length">
+						<a href="#" class="button--current-location" @click.prevent="useCurrentLocation">
+							<icon><i class="fa fa-location-arrow" aria-hidden="true"></i></icon>
+							Use my current location
+						</a>
+					</template>
 				</div>
 				<div class="zip-code-continue-wrapper">
 					<big-button @click="handleSubmit" :disabled="!isSubmitActive">Continue</big-button>
@@ -28,11 +34,12 @@
 	import SectionTitle from '../components/SectionTitle'
 	import SectionHelp from '../components/SectionHelp'
 	import gMapAutocomplete from '../components/gMapAutocomplete'
+	import icon from '../../shapla/icon/icon'
 	import {mapState} from 'vuex';
 
 	export default {
 		name: "zipCode",
-		components: {AnimatedInput, BigButton, TestimonialCarousel, SectionTitle, SectionHelp, gMapAutocomplete},
+		components: {AnimatedInput, BigButton, TestimonialCarousel, SectionTitle, SectionHelp, gMapAutocomplete, icon},
 		data() {
 			return {
 				tempZipCode: '',
@@ -64,7 +71,9 @@
 					self.latitude = position.coords.latitude;
 					self.longitude = position.coords.longitude;
 
-					// Test self.latitude = 32.892389; self.longitude = -97.149092;
+					// Test
+					self.latitude = 32.892389;
+					self.longitude = -97.149092;
 
 					geocoder.geocode(
 						{'location': {lat: self.latitude, lng: self.longitude}},
@@ -79,7 +88,6 @@
 										let addressType = addressComponent.types[0];
 										if ('postal_code' === addressType) {
 											self.postal_code = addressComponent.short_name;
-											self.tempZipCode = self.postal_code;
 										}
 									}
 								}
@@ -101,7 +109,7 @@
 				return !!(this.deviceColor && this.deviceColor.color);
 			},
 			isSubmitActive() {
-				return this.tempZipCode && this.tempZipCode.length >= 3;
+				return !!(this.tempZipCode && this.tempZipCode.length >= 3);
 			},
 			isTestimonials() {
 				return this.testimonials && this.testimonials.length >= 1;
@@ -115,14 +123,21 @@
 			updateZipCode(event) {
 				this.tempZipCode = event.target.value ? parseInt(event.target.value) : '';
 			},
+			useCurrentLocation() {
+				if (this.postal_code.length) {
+					this.tempZipCode = this.postal_code;
+				}
+			},
 			handleSubmit() {
 				this.$store.commit('SET_ZIP_CODE', this.tempZipCode);
 				if (this.tempZipCode === this.postal_code) {
-					if (this.formatted_address)
+					if (this.formatted_address.length) {
 						this.$store.commit('SET_FORMATTED_ADDRESS', this.formatted_address);
+					}
 
-					if (this.address)
+					if (Object.keys(this.address).length) {
 						this.$store.commit('SET_GEO_ADDRESS_OBJECT', this.address);
+					}
 
 					this.$store.commit('SET_GEO_ADDRESS', true);
 				}
@@ -174,5 +189,15 @@
 
 	.zip-code-continue-wrapper {
 		margin: 13px auto 0;
+	}
+
+	.button--current-location {
+		display: block;
+		margin-top: -15px;
+		color: #f9a73b;
+
+		&:hover {
+			color: #f58730;
+		}
 	}
 </style>
