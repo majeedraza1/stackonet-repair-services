@@ -1,3 +1,9 @@
+#### 1.1.1 - May 2, 2019
+* Add - Add auto complete zip from browser zip for phone repair.
+* Add - Add "Front Glass" issue on pricing page.
+* Add - Add discount and tax calculation on pricing page.
+* Add - Add 15% discount functionality when user choosing multiple issue.
+
 #### 1.1.0 - Apr 30, 2019
 * Feature - Add pricing calculation page to pre estimate phone repair price.
 * Feature - Add reschedule functionality for admin with sending SMS and Email.
