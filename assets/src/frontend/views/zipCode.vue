@@ -71,9 +71,7 @@
 					self.latitude = position.coords.latitude;
 					self.longitude = position.coords.longitude;
 
-					// Test
-					self.latitude = 32.892389;
-					self.longitude = -97.149092;
+					// Test self.latitude = 32.892389; self.longitude = -97.149092;
 
 					geocoder.geocode(
 						{'location': {lat: self.latitude, lng: self.longitude}},
