@@ -85,7 +85,8 @@
 										let addressComponent = results[0].address_components[i];
 										let addressType = addressComponent.types[0];
 										if ('postal_code' === addressType) {
-											self.postal_code = addressComponent.short_name;
+											// @TODO disabled this feature temp
+											// self.postal_code = addressComponent.short_name;
 										}
 									}
 								}
@@ -128,7 +129,10 @@
 			},
 			handleSubmit() {
 				this.$store.commit('SET_ZIP_CODE', this.tempZipCode);
-				if (this.tempZipCode === this.postal_code) {
+
+				// @TODO disable this temp
+				// if (this.tempZipCode === this.postal_code) {
+				if (this.tempZipCode === 'neverMatch') {
 					if (this.formatted_address.length) {
 						this.$store.commit('SET_FORMATTED_ADDRESS', this.formatted_address);
 					}

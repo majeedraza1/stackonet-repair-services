@@ -100,7 +100,9 @@
 				this.$router.push('/select-time');
 			}
 
-			if (this.geo_address) {
+			// @TODO disable this temp
+			// if (this.geo_address) {
+			if (this.geo_address === 'neverMatch') {
 				if (this.formatted_address) {
 					this.addressTemp = this.formatted_address;
 				}
@@ -129,21 +131,7 @@
 
 
 			address.addEventListener('focus', function () {
-
 				address.setAttribute('autocomplete', 'noop-' + Date.now());
-
-				if (navigator.geolocation) {
-					navigator.geolocation.getCurrentPosition(function (position) {
-						let geolocation = {
-							lat: position.coords.latitude,
-							lng: position.coords.longitude
-						};
-						let circle = new google.maps.Circle(
-							{center: geolocation, radius: position.coords.accuracy}
-						);
-						this.autocomplete.setBounds(circle.getBounds());
-					});
-				}
 			});
 		},
 		methods: {
