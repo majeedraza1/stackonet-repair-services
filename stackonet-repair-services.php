@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Stackonet Toolkit for Phone Repairs ASAP
  * Description: Stackonet Toolkit for Phone Repairs ASAP
- * Version: 1.1.1
+ * Version: 1.1.2
  * Author: Stackonet Services (Pvt.) Ltd.
  * Author URI: http://www.stackonet.com/
  * Requires at least: 4.9
@@ -36,7 +36,7 @@ final class Stackonet_Repair_Services {
 	 *
 	 * @var string
 	 */
-	private $version = '1.1.1';
+	private $version = '1.1.2';
 
 	/**
 	 * Holds various class instances

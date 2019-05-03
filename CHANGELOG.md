@@ -1,3 +1,7 @@
+#### 1.1.2 - May 3, 2019
+* Fix - Fix re-schedule page not working.
+* Fix - Disabled geolocation feature on zip and user address step.
+
 #### 1.1.1 - May 2, 2019
 * Add - Add auto complete zip from browser zip for phone repair.
 * Add - Add "Front Glass" issue on pricing page.
