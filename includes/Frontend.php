@@ -141,6 +141,13 @@ class Frontend {
 		$_reschedule_date = $order->get_meta( '_reschedule_date_time', true );
 		$_reschedule_date = is_array( $_reschedule_date ) ? $_reschedule_date : [];
 
+		if ( empty( $_reschedule_date ) ) {
+			$service_date = $order->get_meta( '_preferred_service_date', true );
+			$time_range   = $order->get_meta( '_preferred_service_time_range', true );
+
+			$_reschedule_date = [ [ 'date' => $service_date, 'time' => $time_range ], ];
+		}
+
 		$data = [
 			'order_id'   => $order_id,
 			'token'      => $token,
