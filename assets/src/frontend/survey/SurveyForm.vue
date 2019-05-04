@@ -2,6 +2,41 @@
 	<div class="stackonet-survey-form">
 
 		<div class="form-field">
+			<label for="device_status_not_pertain">Brands</label>
+			<br>
+			<div class="shapla-device-box is-active" v-for="(_brand, index) in brands" :key="index">
+				<div class="shapla-device-box__content hoverable">
+					<div>{{_brand}}</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-field">
+			<label for="device_status_not_pertain">Gadgets</label>
+			<br>
+			<div class="shapla-device-box is-active" v-for="(_gadget,index) in gadgets" :key="index">
+				<div class="shapla-device-box__content hoverable">
+					<div>{{_gadget}}</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-field">
+			<div class="shapla-device-box is-active">
+				<div class="shapla-device-box__content hoverable">
+					<div>Low End Model?</div>
+				</div>
+			</div>
+
+			<div class="shapla-device-box is-active">
+				<div class="shapla-device-box__content hoverable">
+					<div>High End Model?</div>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="form-field">
 			<label for="device_status_not_pertain">
 				<input id="device_status_not_pertain" type="radio" value="not-pertain" v-model="device_status">
 				Product or service does not pertain to them.
@@ -44,6 +79,22 @@
 			</modal>
 		</div>
 
+		<div class="form-field">
+			<label>Images</label><br>
+			<button @click="openLogoModal = true">Add Images</button>
+
+			<media-modal
+				title="Choose Custom Logo"
+				:active="openLogoModal"
+				:images="attachments"
+				:image="attachment"
+				:options="dropzoneOptions"
+				@upload="dropzoneSuccess"
+				@selected="chooseImage"
+				@close="openLogoModal = false"
+			></media-modal>
+		</div>
+
 		<big-button @click="handleSubmit">Submit</big-button>
 
 		<div class="loading-container" :class="{'is-active':loading}">
@@ -70,13 +121,25 @@
 	import mdlModal from '../../material-design-lite/modal/mdlModal';
 	import mdlButton from '../../material-design-lite/button/mdlButton';
 	import gMapAutocomplete from '../components/gMapAutocomplete'
+	import MediaModal from '../components/MediaModal'
 
 	export default {
 		name: "SurveyForm",
-		components: {AnimatedInput, BigButton, mdlRadio, mdlSpinner, modal, gMapAutocomplete, mdlModal, mdlButton},
+		components: {
+			AnimatedInput,
+			BigButton,
+			mdlRadio,
+			mdlSpinner,
+			modal,
+			gMapAutocomplete,
+			mdlModal,
+			mdlButton,
+			MediaModal
+		},
 		data() {
 			return {
 				loading: true,
+				openLogoModal: false,
 				open_address_modal: false,
 				open_thank_you_model: false,
 				device_status: '',
@@ -85,9 +148,22 @@
 				addresses: [],
 				address_object: {},
 				formatted_address: '',
+				attachments: [],
+				attachment: {},
+				brands: ['Apple', 'Samsung', 'LG'],
+				gadgets: ['Phone', 'Tablet', 'Computer'],
 			}
 		},
 		computed: {
+			dropzoneOptions() {
+				return {
+					url: window.PhoneRepairs.rest_root + '/logo',
+					maxFilesize: 5,
+					headers: {
+						"X-WP-Nonce": window.PhoneRepairs.rest_nonce
+					}
+				}
+			},
 			map_api_key() {
 				return window.PhoneRepairs.map_api_key;
 			},
@@ -148,6 +224,12 @@
 			}
 		},
 		methods: {
+			dropzoneSuccess(file, response) {
+				// this.$store.dispatch('setAttachments', response.data);
+			},
+			chooseImage(attachment) {
+				// this.$store.commit('SET_ATTACHMENT', attachment);
+			},
 			changeGeoLocation(data) {
 				this.address_object = data.address;
 				this.formatted_address = data.formatted_address;
@@ -192,11 +274,17 @@
 
 <style lang="scss">
 	@import "../../material-design-lite/ripple/ripple";
+	@import "~dropzone/dist/dropzone.css";
 
 	.stackonet-survey-form {
 		margin: 100px auto;
 		max-width: 600px;
 		// position: relative;
+
+		.shapla-device-box__content {
+			height: 60px;
+			border: 1px solid rgba(#000, 0.2);
+		}
 
 		.form-field,
 		.g-map-autocomplete {

@@ -1,0 +1,105 @@
+<template>
+	<div class="wp-frontend-media-modal">
+		<modal :active="active" @close="closeModal" :title="title">
+			<columns desktop>
+				<column :desktop="6">
+
+				</column>
+				<column :desktop="6">
+					<div class="attachment-list mdl-list" v-if="images.length">
+						<div class="mdl-list__item" :class="{'is-active':attachment === image}"
+							 v-for="attachment in images" v-if="attachment.title" @click="chooseMedia(attachment)">
+							<div class="mdl-list__item-primary-content">
+								<img class="mdl-list__item-avatar" :src="attachment.attachment_url"
+									 :alt="attachment.title">
+								<span v-text="attachment.title"></span>
+							</div>
+							<div class="mdl-list__item-secondary-action" @click="deleteMedia(attachment)">
+								<delete-icon></delete-icon>
+							</div>
+						</div>
+					</div>
+				</column>
+			</columns>
+			<div slot="foot">
+				<button class="button" @click="closeModal">Close</button>
+			</div>
+		</modal>
+	</div>
+</template>
+
+<script>
+	import vue2Dropzone from 'vue2-dropzone'
+	import modal from '../../shapla/modal/modal';
+	import columns from '../../shapla/columns/columns';
+	import column from '../../shapla/columns/column';
+	import deleteIcon from '../../shapla/delete/deleteIcon';
+
+	export default {
+		name: "MediaModal",
+		components: {vue2Dropzone, modal, deleteIcon, columns, column},
+		props: {
+			active: {type: Boolean, default: false},
+			title: {type: String, default: "Edit Images"},
+			images: {type: Array},
+			image: {type: Object},
+			options: {type: Object, required: false},
+		},
+		methods: {
+			chooseMedia(attachment) {
+				this.$emit('selected', attachment);
+			},
+			closeModal() {
+				this.$emit('close');
+			},
+			deleteMedia(attachment) {
+				if (confirm('Are you sure to delete this item?')) {
+					this.$emit('delete', attachment);
+				}
+			},
+			upload(file, response) {
+				// this.$emit('upload', file, response);
+				// this.$refs.wpFrontendMediaModal.removeFile(file);
+			}
+		}
+	}
+</script>
+
+<style lang="scss">
+	.wp-frontend-media-modal {
+
+		.shapla-columns {
+			align-items: flex-start !important;
+		}
+
+		.dz-message {
+			margin: 0 !important;
+		}
+
+		.mdl-list {
+			padding: 0;
+		}
+
+		.mdl-list__item {
+			border: 1px solid rgba(#000, 0.2);
+			margin-bottom: 1rem;
+			cursor: pointer;
+
+			&.is-active,
+			&:hover {
+				border-color: #fdd835;
+			}
+
+			&.is-active {
+				border-width: 2px;
+			}
+		}
+
+		@media screen and (min-width: 1000px) {
+			.shapla-modal-content,
+			.shapla-modal-card {
+				width: 900px;
+			}
+		}
+	}
+</style>

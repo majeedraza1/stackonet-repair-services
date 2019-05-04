@@ -174,6 +174,7 @@ final class Stackonet_Repair_Services {
 			$this->container['rest-phones']           = Stackonet\REST\PhoneController::init();
 			$this->container['rest-track-status']     = Stackonet\REST\TrackStatusController::init();
 			$this->container['rest-survey']           = Stackonet\REST\SurveyController::init();
+			$this->container['rest-logo']             = Stackonet\REST\LogoController::init();
 		}
 
 		if ( $this->is_request( 'ajax' ) ) {
