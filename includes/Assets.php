@@ -78,34 +78,38 @@ class Assets {
 	 */
 	public function get_scripts() {
 		$scripts = [
+			'stackonet-vendors'                     => [
+				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/vendors.js',
+				'in_footer' => true
+			],
 			'stackonet-repair-services-frontend'    => [
 				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/frontend.js',
-				'deps'      => [ 'jquery' ],
+				'deps'      => [ 'jquery', 'stackonet-vendors' ],
 				'in_footer' => true
 			],
 			'stackonet-repair-services-account'     => [
 				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/my-account.js',
-				'deps'      => [ 'jquery' ],
+				'deps'      => [ 'jquery', 'stackonet-vendors' ],
 				'in_footer' => true
 			],
 			'stackonet-repair-services-admin'       => [
 				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/admin.js',
-				'deps'      => [ 'jquery', 'wp-color-picker' ],
+				'deps'      => [ 'jquery', 'wp-color-picker', 'stackonet-vendors' ],
 				'in_footer' => true
 			],
 			'stackonet-repair-services-rent-center' => [
 				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/admin-rent-center.js',
-				'deps'      => [ 'jquery' ],
+				'deps'      => [ 'jquery', 'stackonet-vendors' ],
 				'in_footer' => true
 			],
 			'frontend-rent-center'                  => [
 				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/frontend-rent-center.js',
-				'deps'      => [],
+				'deps'      => [ 'stackonet-vendors' ],
 				'in_footer' => true
 			],
 			'admin-survey'                          => [
 				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/admin-survey.js',
-				'deps'      => [ 'jquery' ],
+				'deps'      => [ 'jquery', 'stackonet-vendors' ],
 				'in_footer' => true
 			]
 		];

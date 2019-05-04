@@ -5,11 +5,12 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 const autoprefixer = require('autoprefixer');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
-
+const package = require('./package.json');
 const config = require('./config.json');
 
 let plugins = [];
 let entryPoints = {
+	vendors: Object.keys(package.dependencies),
 	admin: [
 		'./assets/src/admin/main.js',
 		'./assets/scss/admin.scss'
@@ -17,12 +18,12 @@ let entryPoints = {
 	'admin-rent-center': [
 		'./assets/src/admin/rent-a-center/main.js',
 	],
+	'admin-survey': [
+		'./assets/src/admin/survey/main.js',
+	],
 	'frontend-rent-center': [
 		'./assets/src/frontend/rent-a-center/main.js',
 		'./assets/scss/frontend-rent-center.scss'
-	],
-	'admin-survey': [
-		'./assets/src/admin/survey/main.js',
 	],
 	frontend: [
 		'./assets/src/frontend/main.js',
@@ -108,7 +109,17 @@ module.exports = (env, argv) => ({
 		minimizer: [
 			new UglifyJsPlugin({cache: true, parallel: true, sourceMap: false}),
 			new OptimizeCSSAssetsPlugin({})
-		]
+		],
+		splitChunks: {
+			cacheGroups: {
+				vendors: {
+					test: /[\\/]node_modules[\\/]/,
+					name: 'vendors',
+					enforce: true,
+					chunks: 'all'
+				}
+			}
+		}
 	},
 	resolve: {
 		alias: {

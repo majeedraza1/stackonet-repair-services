@@ -274,7 +274,6 @@
 
 <style lang="scss">
 	@import "../../material-design-lite/ripple/ripple";
-	@import "~dropzone/dist/dropzone.css";
 
 	.stackonet-survey-form {
 		margin: 100px auto;
