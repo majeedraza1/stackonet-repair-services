@@ -28,7 +28,7 @@
 				</column>
 				<column :desktop="6">
 					<div class="attachment-list mdl-list" v-if="images.length">
-						<div class="mdl-list__item" :class="{'is-active':attachment === image}"
+						<div class="mdl-list__item" :class="{'is-active': isActive(attachment)}"
 							 v-for="attachment in images" v-if="attachment.title" @click="chooseMedia(attachment)">
 							<div class="mdl-list__item-primary-content">
 								<img class="mdl-list__item-avatar" :src="attachment.attachment_url"
@@ -64,7 +64,7 @@
 			title: {type: String, default: "Edit Images"},
 			images: {type: Array, default: () => []},
 			image: {
-				type: Object, default: () => {
+				type: [Object, Array], default: () => {
 				}
 			},
 			options: {
@@ -73,6 +73,16 @@
 			},
 		},
 		methods: {
+			isActive(attachment) {
+				if (Array.isArray(this.image)) {
+					return this.image.indexOf(attachment) !== -1;
+				}
+				if (typeof this.image === "object") {
+					return this.image === attachment;
+				}
+
+				return false;
+			},
 			chooseMedia(attachment) {
 				this.$emit('selected', attachment);
 			},

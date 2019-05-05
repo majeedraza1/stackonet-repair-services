@@ -2,7 +2,7 @@
 	<div class="stackonet-survey-form">
 
 		<div class="form-field">
-			<label for="device_status_not_pertain">Brands</label>
+			<label>Brands</label>
 			<br>
 			<div class="shapla-device-box is-active" v-for="(_brand, index) in brands" :key="index">
 				<div class="shapla-device-box__content hoverable" :class="{'is-active':_brand === brand}"
@@ -13,7 +13,7 @@
 		</div>
 
 		<div class="form-field">
-			<label for="device_status_not_pertain">Gadgets</label>
+			<label>Gadgets</label>
 			<br>
 			<div class="shapla-device-box is-active" v-for="(_gadget,index) in gadgets" :key="index">
 				<div class="shapla-device-box__content hoverable" :class="{'is-active':_gadget === gadget}"
@@ -78,13 +78,24 @@
 
 		<div class="form-field">
 			<label>Images</label><br>
-			<button @click="openLogoModal = true">Add Images</button>
+			<p>
+				<button @click="openLogoModal = true">Add Images</button>
+			</p>
+			<columns>
+				<column :tablet="4" v-for="_image in images">
+					<div class="mdl-box mdl-shadow--2dp">
+						<image-container square>
+							<img :src="_image.thumbnail.src" alt="">
+						</image-container>
+					</div>
+				</column>
+			</columns>
 
 			<media-modal
 				title="Choose Custom Logo"
 				:active="openLogoModal"
 				:images="attachments"
-				:image="attachment"
+				:image="images"
 				:options="dropzoneOptions"
 				@upload="dropzoneSuccess"
 				@selected="chooseImage"
@@ -98,10 +109,10 @@
 			<mdl-spinner :active="loading"></mdl-spinner>
 		</div>
 
-		<mdl-modal :active="open_thank_you_model" type="box" @close="open_thank_you_model = false">
+		<mdl-modal :active="open_thank_you_model" type="box" @close="closeThankYouModel">
 			<div class="mdl-box mdl-shadow--2dp">
 				<h3>Data has been submitted successfully.</h3>
-				<mdl-button @click="open_thank_you_model = false">Close</mdl-button>
+				<mdl-button @click="closeThankYouModel">Close</mdl-button>
 			</div>
 		</mdl-modal>
 
@@ -113,6 +124,9 @@
 	import AnimatedInput from '../../components/AnimatedInput';
 	import BigButton from '../../components/BigButton';
 	import modal from '../../shapla/modal/modal';
+	import imageContainer from '../../shapla/image/image';
+	import columns from '../../shapla/columns/columns';
+	import column from '../../shapla/columns/column';
 	import mdlRadio from '../../material-design-lite/radio/mdlRadio';
 	import mdlSpinner from '../../material-design-lite/spinner/mdlSpinner';
 	import mdlModal from '../../material-design-lite/modal/mdlModal';
@@ -131,7 +145,10 @@
 			gMapAutocomplete,
 			mdlModal,
 			mdlButton,
-			MediaModal
+			MediaModal,
+			imageContainer,
+			columns,
+			column
 		},
 		data() {
 			return {
@@ -147,6 +164,7 @@
 				formatted_address: '',
 				attachments: [],
 				attachment: {},
+				images: [],
 				brands: ['Apple', 'Samsung', 'LG'],
 				gadgets: ['Phone', 'Tablet', 'Computer'],
 				statuses: [
@@ -231,6 +249,10 @@
 			}
 		},
 		methods: {
+			closeThankYouModel() {
+				this.open_thank_you_model = false;
+				window.location.reload();
+			},
 			chooseBrand(brand) {
 				this.brand = brand;
 			},
@@ -250,7 +272,12 @@
 				this.attachments.unshift(response.data);
 			},
 			chooseImage(attachment) {
-				this.attachment = attachment;
+				let index = this.images.indexOf(attachment);
+				if (index === -1) {
+					this.images.push(attachment);
+				} else {
+					this.images.splice(index, 1);
+				}
 			},
 			getImages() {
 				let self = this;
@@ -284,15 +311,22 @@
 					return;
 				}
 				this.loading = true;
+				let images_ids = self.images.map(image => {
+					return image.image_id;
+				});
+				let data = {
+					brand: self.brand,
+					gadget: self.gadget,
+					model: self.model,
+					device_status: self.device_status,
+					latitude: self.latitude,
+					longitude: self.longitude,
+					address: self.c_address_object,
+					full_address: self.formatted_address,
+					images_ids: images_ids,
+				};
 				axios
-					.post(PhoneRepairs.rest_root + '/survey',
-						{
-							device_status: self.device_status,
-							latitude: self.latitude,
-							longitude: self.longitude,
-							address: self.c_address_object,
-							full_address: self.formatted_address,
-						},
+					.post(PhoneRepairs.rest_root + '/survey', data,
 						{
 							headers: {'X-WP-Nonce': window.PhoneRepairs.rest_nonce},
 						})

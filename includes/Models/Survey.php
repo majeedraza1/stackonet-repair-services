@@ -26,6 +26,10 @@ class Survey extends DatabaseModel {
 	 */
 	protected $default_data = [
 		'id'            => 0,
+		'brand'         => '',
+		'gadget'        => '',
+		'model'         => '',
+		'images_ids'    => '',
 		'latitude'      => '',
 		'longitude'     => '',
 		'full_address'  => '',
@@ -158,8 +162,9 @@ class Survey extends DatabaseModel {
 		$items = [];
 		if ( $results ) {
 			foreach ( $results as $result ) {
-				$result['address'] = maybe_unserialize( $result['address'] );
-				$items[]           = new self( $result );
+				$result['address']    = maybe_unserialize( $result['address'] );
+				$result['images_ids'] = maybe_unserialize( $result['images_ids'] );
+				$items[]              = new self( $result );
 			}
 		}
 
@@ -221,8 +226,9 @@ class Survey extends DatabaseModel {
 			$items = $wpdb->get_results( $query, ARRAY_A );
 			if ( $items ) {
 				foreach ( $items as $item ) {
-					$item['address'] = maybe_unserialize( $item['address'] );
-					$phones[]        = new self( $item );
+					$item['address']    = maybe_unserialize( $item['address'] );
+					$item['images_ids'] = maybe_unserialize( $item['images_ids'] );
+					$phones[]           = new self( $item );
 				}
 			}
 			wp_cache_add( $cache_key, $phones, $this->cache_group );
@@ -241,7 +247,8 @@ class Survey extends DatabaseModel {
 	public function find_by_id( $id ) {
 		$item = parent::find_by_id( $id );
 		if ( $item ) {
-			$item['address'] = maybe_unserialize( $item['address'] );
+			$item['address']    = maybe_unserialize( $item['address'] );
+			$item['images_ids'] = maybe_unserialize( $item['images_ids'] );
 
 			return new self( $item );
 		}
@@ -304,5 +311,14 @@ class Survey extends DatabaseModel {
             ) $collate;";
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $table_schema );
+
+		if ( 'yes' != get_option( 'stackonet_survey_table_updated' ) ) {
+			$new_schema = "ALTER TABLE {$table_name} ADD `brand` VARCHAR(100) NULL DEFAULT NULL AFTER `id`,
+					ADD `gadget` VARCHAR(100) NULL DEFAULT NULL AFTER `brand`,
+					ADD `model` VARCHAR(100) NULL DEFAULT NULL AFTER `gadget`,
+					ADD `images_ids` TEXT NULL DEFAULT NULL AFTER `model`;";
+			dbDelta( $new_schema );
+			update_option( 'stackonet_survey_table_updated', 'yes' );
+		}
 	}
 }

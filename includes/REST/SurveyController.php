@@ -102,9 +102,17 @@ class SurveyController extends ApiController {
 		$longitude     = $request->get_param( 'longitude' );
 		$full_address  = $request->get_param( 'full_address' );
 		$address       = $request->get_param( 'address' );
+		$brand         = $request->get_param( 'brand' );
+		$gadget        = $request->get_param( 'gadget' );
+		$model         = $request->get_param( 'model' );
+		$images_ids    = $request->get_param( 'images_ids' );
 
 		$survey = new Survey();
 		$id     = $survey->create( [
+			'brand'         => $brand,
+			'gadget'        => $gadget,
+			'model'         => $model,
+			'images_ids'    => $images_ids,
 			'latitude'      => $latitude,
 			'longitude'     => $longitude,
 			'full_address'  => $full_address,

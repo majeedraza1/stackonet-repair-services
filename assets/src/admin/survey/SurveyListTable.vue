@@ -53,8 +53,8 @@
 				columns: [
 					{key: 'full_address', label: 'Address'},
 					{key: 'device_status', label: 'Status'},
-					{key: 'latitude', label: 'Latitude'},
-					{key: 'longitude', label: 'Longitude'},
+					{key: 'brand', label: 'Brand'},
+					{key: 'gadget', label: 'Gadget'},
 					{key: 'display_name', label: 'Created By'},
 					{key: 'created_at', label: 'Date'},
 				],
