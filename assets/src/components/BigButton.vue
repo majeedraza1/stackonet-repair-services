@@ -31,10 +31,10 @@
 <style lang="scss">
 	.big-button-wrapper {
 		.big-button {
-			background-color: #12ffcd;
+			background-color: #f58730;
 			border-radius: 5px;
 			border-width: 0;
-			color: #0161c7;
+			color: #fff;
 			cursor: pointer;
 			font-size: 18px;
 			line-height: 1.2 !important;

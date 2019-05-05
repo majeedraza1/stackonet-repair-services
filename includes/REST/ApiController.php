@@ -2,9 +2,15 @@
 
 namespace Stackonet\REST;
 
+use DateTime;
+use DateTimeZone;
+use Exception;
+use WP_REST_Controller;
+use WP_REST_Response;
+
 defined( 'ABSPATH' ) || exit;
 
-class ApiController extends \WP_REST_Controller {
+class ApiController extends WP_REST_Controller {
 
 	/**
 	 * HTTP status code.
@@ -57,10 +63,10 @@ class ApiController extends \WP_REST_Controller {
 	 * @param int $status Optional. HTTP status code. Default 200.
 	 * @param array $headers Optional. HTTP header map. Default empty array.
 	 *
-	 * @return \WP_REST_Response
+	 * @return WP_REST_Response
 	 */
 	public function respond( $data = null, $status = 200, $headers = array() ) {
-		return new \WP_REST_Response( $data, $status, $headers );
+		return new WP_REST_Response( $data, $status, $headers );
 	}
 
 	/**
@@ -70,7 +76,7 @@ class ApiController extends \WP_REST_Controller {
 	 * @param string $message
 	 * @param mixed $data
 	 *
-	 * @return \WP_REST_Response
+	 * @return WP_REST_Response
 	 */
 	public function respondWithError( $code = null, $message = null, $data = null ) {
 		if ( 1 === func_num_args() && is_array( $code ) ) {
@@ -102,7 +108,7 @@ class ApiController extends \WP_REST_Controller {
 	 * @param string $message
 	 * @param array $headers
 	 *
-	 * @return \WP_REST_Response
+	 * @return WP_REST_Response
 	 */
 	public function respondWithSuccess( $data = null, $message = null, $headers = array() ) {
 		if ( 1 === func_num_args() && is_string( $data ) ) {
@@ -135,7 +141,7 @@ class ApiController extends \WP_REST_Controller {
 	 * @param mixed $data
 	 * @param string $message
 	 *
-	 * @return \WP_REST_Response
+	 * @return WP_REST_Response
 	 */
 	public function respondOK( $data = null, $message = null ) {
 		return $this->setStatusCode( 200 )->respondWithSuccess( $data, $message );
@@ -149,7 +155,7 @@ class ApiController extends \WP_REST_Controller {
 	 * @param mixed $data
 	 * @param string $message
 	 *
-	 * @return \WP_REST_Response
+	 * @return WP_REST_Response
 	 */
 	public function respondCreated( $data = null, $message = null ) {
 		return $this->setStatusCode( 201 )->respondWithSuccess( $data, $message );
@@ -169,7 +175,7 @@ class ApiController extends \WP_REST_Controller {
 	 * @param mixed $data
 	 * @param string $message
 	 *
-	 * @return \WP_REST_Response
+	 * @return WP_REST_Response
 	 */
 	public function respondAccepted( $data = null, $message = null ) {
 		return $this->setStatusCode( 202 )->respondWithSuccess( $data, $message );
@@ -185,7 +191,7 @@ class ApiController extends \WP_REST_Controller {
 	 * @param mixed $data
 	 * @param string $message
 	 *
-	 * @return \WP_REST_Response
+	 * @return WP_REST_Response
 	 */
 	public function respondNoContent( $data = null, $message = null ) {
 		return $this->setStatusCode( 204 )->respondWithSuccess( $data, $message );
@@ -203,7 +209,7 @@ class ApiController extends \WP_REST_Controller {
 	 * @param string $message
 	 * @param mixed $data
 	 *
-	 * @return \WP_REST_Response
+	 * @return WP_REST_Response
 	 */
 	public function respondBadRequest( $code = null, $message = null, $data = null ) {
 		return $this->setStatusCode( 400 )->respondWithError( $code, $message, $data );
@@ -217,7 +223,7 @@ class ApiController extends \WP_REST_Controller {
 	 * @param string $message
 	 * @param mixed $data
 	 *
-	 * @return \WP_REST_Response
+	 * @return WP_REST_Response
 	 */
 	public function respondUnauthorized( $code = null, $message = null, $data = null ) {
 		if ( empty( $code ) ) {
@@ -239,7 +245,7 @@ class ApiController extends \WP_REST_Controller {
 	 * @param string $message
 	 * @param mixed $data
 	 *
-	 * @return \WP_REST_Response
+	 * @return WP_REST_Response
 	 */
 	public function respondForbidden( $code = null, $message = null, $data = null ) {
 		if ( empty( $code ) ) {
@@ -263,7 +269,7 @@ class ApiController extends \WP_REST_Controller {
 	 * @param string $message
 	 * @param mixed $data
 	 *
-	 * @return \WP_REST_Response
+	 * @return WP_REST_Response
 	 */
 	public function respondNotFound( $code = null, $message = null, $data = null ) {
 		if ( empty( $code ) ) {
@@ -285,7 +291,7 @@ class ApiController extends \WP_REST_Controller {
 	 * @param string $message
 	 * @param mixed $data
 	 *
-	 * @return \WP_REST_Response
+	 * @return WP_REST_Response
 	 */
 	public function respondUnprocessableEntity( $code = null, $message = null, $data = null ) {
 		return $this->setStatusCode( 422 )->respondWithError( $code, $message, $data );
@@ -299,7 +305,7 @@ class ApiController extends \WP_REST_Controller {
 	 * @param string $message
 	 * @param mixed $data
 	 *
-	 * @return \WP_REST_Response
+	 * @return WP_REST_Response
 	 */
 	public function respondInternalServerError( $code = null, $message = null, $data = null ) {
 		return $this->setStatusCode( 500 )->respondWithError( $code, $message, $data );
@@ -308,24 +314,25 @@ class ApiController extends \WP_REST_Controller {
 	/**
 	 * Format date for REST Response
 	 *
-	 * @param string|int|\DateTime $date
+	 * @param string|int|DateTime $date
 	 * @param string $type
 	 *
-	 * @return \DateTime|int|string
+	 * @return DateTime|int|string
+	 * @throws Exception
 	 */
 	public static function formatDate( $date, $type = 'iso' ) {
-		if ( ! $date instanceof \DateTime ) {
-			$date = new \DateTime( $date );
+		if ( ! $date instanceof DateTime ) {
+			$date = new DateTime( $date );
 
 			$timezone = get_option( 'timezone_string' );
-			if ( in_array( $timezone, \DateTimeZone::listIdentifiers() ) ) {
-				$date->setTimezone( new \DateTimeZone( $timezone ) );
+			if ( in_array( $timezone, DateTimeZone::listIdentifiers() ) ) {
+				$date->setTimezone( new DateTimeZone( $timezone ) );
 			}
 		}
 
 		// Format ISO 8601 date
 		if ( 'iso' == $type ) {
-			return $date->format( \DateTime::ISO8601 );
+			return $date->format( DateTime::ISO8601 );
 		}
 
 		if ( 'mysql' == $type ) {

@@ -5,7 +5,8 @@
 			<label for="device_status_not_pertain">Brands</label>
 			<br>
 			<div class="shapla-device-box is-active" v-for="(_brand, index) in brands" :key="index">
-				<div class="shapla-device-box__content hoverable">
+				<div class="shapla-device-box__content hoverable" :class="{'is-active':_brand === brand}"
+					 @click="chooseBrand(_brand)">
 					<div>{{_brand}}</div>
 				</div>
 			</div>
@@ -15,7 +16,8 @@
 			<label for="device_status_not_pertain">Gadgets</label>
 			<br>
 			<div class="shapla-device-box is-active" v-for="(_gadget,index) in gadgets" :key="index">
-				<div class="shapla-device-box__content hoverable">
+				<div class="shapla-device-box__content hoverable" :class="{'is-active':_gadget === gadget}"
+					 @click="chooseGadget(_gadget)">
 					<div>{{_gadget}}</div>
 				</div>
 			</div>
@@ -23,13 +25,15 @@
 
 		<div class="form-field">
 			<div class="shapla-device-box is-active">
-				<div class="shapla-device-box__content hoverable">
+				<div class="shapla-device-box__content hoverable" :class="{'is-active':'low' === model}"
+					 @click="chooseModel('low')">
 					<div>Low End Model?</div>
 				</div>
 			</div>
 
 			<div class="shapla-device-box is-active">
-				<div class="shapla-device-box__content hoverable">
+				<div class="shapla-device-box__content hoverable" :class="{'is-active':'high' === model}"
+					 @click="chooseModel('high')">
 					<div>High End Model?</div>
 				</div>
 			</div>
@@ -37,22 +41,15 @@
 		</div>
 
 		<div class="form-field">
-			<label for="device_status_not_pertain">
-				<input id="device_status_not_pertain" type="radio" value="not-pertain" v-model="device_status">
-				Product or service does not pertain to them.
-			</label>
-		</div>
-		<div class="form-field">
-			<label for="device_status_affordable">
-				<input id="device_status_affordable" type="radio" value="affordable" v-model="device_status">
-				Device can be fixed at an affordable price.
-			</label>
-		</div>
-		<div class="form-field">
-			<label for="device_status_not_affordable">
-				<input id="device_status_not_affordable" type="radio" value="not-affordable" v-model="device_status">
-				Device cannot be fixed at an affordable price.
-			</label>
+			<label>Status</label>
+			<div v-for="_status in statuses" :key="_status.value">
+				<div class="shapla-device-box">
+					<div class="shapla-device-box__content hoverable" @click="chooseStatus(_status.value)"
+						 :class="{'is-active':_status.value === device_status}" style="width: 100%">
+						<div class="shapla-device-box__label" v-html="_status.label"></div>
+					</div>
+				</div>
+			</div>
 		</div>
 
 		<div class="form-field">
@@ -152,6 +149,15 @@
 				attachment: {},
 				brands: ['Apple', 'Samsung', 'LG'],
 				gadgets: ['Phone', 'Tablet', 'Computer'],
+				statuses: [
+					{label: 'Product or service does not pertain to them.', value: 'not-pertain'},
+					{label: 'Device can be fixed at an affordable price.', value: 'affordable'},
+					{label: 'Device cannot be fixed at an affordable price.', value: 'not-affordable'},
+				],
+				brand: '',
+				gadget: '',
+				model: '',
+				images_ids: '',
 			}
 		},
 		computed: {
@@ -197,6 +203,7 @@
 		mounted() {
 			let self = this;
 			this.loading = false;
+			this.getImages();
 			if (navigator.geolocation) {
 				navigator.geolocation.getCurrentPosition(function (position) {
 					self.latitude = position.coords.latitude;
@@ -224,11 +231,41 @@
 			}
 		},
 		methods: {
+			chooseBrand(brand) {
+				this.brand = brand;
+			},
+			chooseGadget(gadget) {
+				this.gadget = gadget;
+			},
+			chooseModel(model) {
+				this.model = model;
+			},
+			chooseImagesIDs(images_ids) {
+				this.images_ids = images_ids;
+			},
+			chooseStatus(status) {
+				this.device_status = status;
+			},
 			dropzoneSuccess(file, response) {
-				// this.$store.dispatch('setAttachments', response.data);
+				this.attachments.unshift(response.data);
 			},
 			chooseImage(attachment) {
-				// this.$store.commit('SET_ATTACHMENT', attachment);
+				this.attachment = attachment;
+			},
+			getImages() {
+				let self = this;
+				self.loading = true;
+				axios
+					.get(PhoneRepairs.rest_root + '/logo', {},
+						{headers: {'X-WP-Nonce': window.PhoneRepairs.rest_nonce},})
+					.then((response) => {
+						self.loading = false;
+						self.attachments = response.data.data;
+					})
+					.catch((error) => {
+						self.loading = false;
+						alert('Some thing went wrong. Please try again.');
+					});
 			},
 			changeGeoLocation(data) {
 				this.address_object = data.address;
@@ -274,6 +311,7 @@
 
 <style lang="scss">
 	@import "../../material-design-lite/ripple/ripple";
+	@import "../../material-design-lite/list/list";
 
 	.stackonet-survey-form {
 		margin: 100px auto;

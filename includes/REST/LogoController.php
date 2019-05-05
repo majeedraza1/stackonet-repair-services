@@ -5,6 +5,7 @@ namespace Stackonet\REST;
 use Exception;
 use Stackonet\Supports\Attachment;
 use Stackonet\Supports\UploadedFile;
+use WP_Post;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -35,18 +36,46 @@ class LogoController extends ApiController {
 	 * Registers the routes for the objects of the controller.
 	 */
 	public function register_routes() {
-		register_rest_route( $this->namespace, '/logo', array(
-			array(
-				'methods'  => WP_REST_Server::CREATABLE,
-				'callback' => array( $this, 'upload_logo' ),
-			),
-		) );
-		register_rest_route( $this->namespace, '/logo/(?P<id>\d+)', array(
-			array(
-				'methods'  => WP_REST_Server::DELETABLE,
-				'callback' => array( $this, 'delete_logo' ),
-			),
-		) );
+		register_rest_route( $this->namespace, '/logo', [
+			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_items' ], ],
+			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'upload_logo' ], ],
+		] );
+		register_rest_route( $this->namespace, '/logo/(?P<id>\d+)', [
+			[ 'methods' => WP_REST_Server::DELETABLE, 'callback' => [ $this, 'delete_logo' ], ],
+		] );
+	}
+
+	/**
+	 * Retrieves a collection of items.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
+	 */
+	public function get_items( $request ) {
+		$author = get_current_user_id();
+
+		$args        = array(
+			'posts_per_page' => 25,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+			'post_type'      => 'attachment',
+			'post_status'    => 'inherit',
+			'author'         => $author,
+		);
+		$posts_array = get_posts( $args );
+
+		if ( ! count( $posts_array ) ) {
+			return $this->respondNotFound();
+		}
+
+		$response = [];
+
+		foreach ( $posts_array as $item ) {
+			$response[] = $this->prepare_item_for_response( $item->ID, $request );
+		}
+
+		return $this->respondOK( $response );
 	}
 
 	/**
@@ -58,6 +87,11 @@ class LogoController extends ApiController {
 	 * @throws Exception
 	 */
 	public function upload_logo( WP_REST_Request $request ) {
+
+		if ( ! current_user_can( 'add_survey' ) ) {
+			return $this->respondUnauthorized();
+		}
+
 		$files = UploadedFile::getUploadedFiles();
 
 		if ( ! isset( $files['file'] ) ) {
@@ -71,25 +105,42 @@ class LogoController extends ApiController {
 		$attachments = Attachment::upload( $files['file'] );
 		$ids         = wp_list_pluck( $attachments, 'attachment_id' );
 
-		$image_id       = $ids[0];
-		$attachment_url = wp_get_attachment_url( $image_id );
-		$image          = wp_get_attachment_image_src( $image_id, 'thumbnail' );
-		$full_image     = wp_get_attachment_image_src( $image_id, 'full' );
-		$title          = get_the_title( $image_id );
+		$image_id = $ids[0];
 
 		$token = wp_generate_password( 20, false, false );
 		update_post_meta( $image_id, '_delete_token', $token );
 
+		$response = $this->prepare_item_for_response( $image_id, $request );
+
+		return $this->respondOK( $response );
+	}
+
+	/**
+	 * Prepares the item for the REST response.
+	 *
+	 * @param mixed $item WordPress representation of the item.
+	 * @param WP_REST_Request $request Request object.
+	 *
+	 * @return array
+	 */
+	public function prepare_item_for_response( $item, $request ) {
+		$image_id       = $item;
+		$title          = get_the_title( $image_id );
+		$token          = get_post_meta( $image_id, '_delete_token', true );
+		$attachment_url = wp_get_attachment_url( $image_id );
+		$image          = wp_get_attachment_image_src( $image_id, 'thumbnail' );
+		$full_image     = wp_get_attachment_image_src( $image_id, 'full' );
+
 		$response = [
 			'image_id'       => $image_id,
-			'token'          => $token,
 			'title'          => $title,
+			'token'          => $token,
 			'attachment_url' => $attachment_url,
 			'thumbnail'      => [ 'src' => $image[0], 'width' => $image[1], 'height' => $image[2], ],
 			'full'           => [ 'src' => $full_image[0], 'width' => $full_image[1], 'height' => $full_image[2], ],
 		];
 
-		return $this->respondOK( $response );
+		return $response;
 	}
 
 	/**
@@ -101,14 +152,14 @@ class LogoController extends ApiController {
 		$id    = $request->get_param( 'id' );
 		$token = $request->get_param( 'token' );
 
-		if ( self::can_delete_logo( $id, $token ) ) {
-			return $this->respondUnauthorized();
-		}
-
 		$_post = get_post( $id );
 
-		if ( ! $_post instanceof \WP_Post ) {
+		if ( ! $_post instanceof WP_Post ) {
 			return $this->respondNotFound( null, 'Image not found!' );
+		}
+
+		if ( self::can_delete_logo( $_post, $token ) ) {
+			return $this->respondUnauthorized();
 		}
 
 		wp_delete_post( $id, true );
@@ -119,14 +170,26 @@ class LogoController extends ApiController {
 	/**
 	 * If current user can delete media
 	 *
-	 * @param int $post_id
+	 * @param WP_Post $post
 	 * @param string $token
 	 *
 	 * @return bool
 	 */
-	private static function can_delete_logo( $post_id, $token = '' ) {
-		$delete_token = get_post_meta( $post_id, '_delete_token', true );
+	private static function can_delete_logo( $post, $token = '' ) {
+		$delete_token = get_post_meta( $post->ID, '_delete_token', true );
 
-		return current_user_can( 'manage_options' ) || ( $token == $delete_token );
+		if ( current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		if ( $token == $delete_token ) {
+			return true;
+		}
+
+		if ( get_current_user_id() == $post->post_author ) {
+			return true;
+		}
+
+		return false;
 	}
 }
