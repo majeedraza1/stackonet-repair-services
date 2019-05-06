@@ -298,6 +298,10 @@ class Survey extends DatabaseModel {
 
 		$table_schema = "CREATE TABLE IF NOT EXISTS {$table_name} (
                 `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+                `brand` VARCHAR(100) DEFAULT NULL,
+                `gadget` VARCHAR(100) DEFAULT NULL,
+                `model` VARCHAR(100) DEFAULT NULL,
+                `images_ids` TEXT DEFAULT NULL,
                 `latitude` varchar(50) DEFAULT NULL,
                 `longitude` varchar(50) DEFAULT NULL,
                 `full_address` TEXT DEFAULT NULL,
@@ -312,13 +316,34 @@ class Survey extends DatabaseModel {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $table_schema );
 
-		if ( 'yes' != get_option( 'stackonet_survey_table_updated' ) ) {
-			$new_schema = "ALTER TABLE {$table_name} ADD `brand` VARCHAR(100) NULL DEFAULT NULL AFTER `id`,
-					ADD `gadget` VARCHAR(100) NULL DEFAULT NULL AFTER `brand`,
-					ADD `model` VARCHAR(100) NULL DEFAULT NULL AFTER `gadget`,
-					ADD `images_ids` TEXT NULL DEFAULT NULL AFTER `model`;";
-			dbDelta( $new_schema );
-			update_option( 'stackonet_survey_table_updated', 'yes' );
+		$this->add_table_columns();
+	}
+
+	/**
+	 * Add new columns to table
+	 */
+	public function add_table_columns() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . $this->table;
+		$version    = get_option( 'stackonet_survey_table_version' );
+		$version    = ! empty( $version ) ? $version : '1.0.0';
+
+		if ( version_compare( $version, '1.1.0', '<' ) ) {
+			$row = $wpdb->get_row( "SELECT * FROM {$table_name}", ARRAY_A );
+			if ( ! isset( $row['brand'] ) ) {
+				$wpdb->query( "ALTER TABLE {$table_name} ADD `brand` VARCHAR(100) NULL DEFAULT NULL AFTER `id`" );
+			}
+			if ( ! isset( $row['gadget'] ) ) {
+				$wpdb->query( "ALTER TABLE {$table_name} ADD `gadget` VARCHAR(100) NULL DEFAULT NULL AFTER `brand`" );
+			}
+			if ( ! isset( $row['model'] ) ) {
+				$wpdb->query( "ALTER TABLE {$table_name} ADD `model` VARCHAR(100) NULL DEFAULT NULL AFTER `gadget`" );
+			}
+			if ( ! isset( $row['images_ids'] ) ) {
+				$wpdb->query( "ALTER TABLE {$table_name} ADD `images_ids` TEXT NULL DEFAULT NULL AFTER `model`" );
+			}
+
+			update_option( 'stackonet_survey_table_version', '1.1.0' );
 		}
 	}
 }
