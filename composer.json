@@ -1,0 +1,15 @@
+{
+	"name": "sayful/stackonet-repair-services",
+	"description": "Stackonet Toolkit for Phone Repairs ASAP",
+	"type": "project",
+	"require": {
+		"kunalvarma05/dropbox-php-sdk": "^0.2.1"
+	},
+	"authors": [
+		{
+			"name": "Sayful Islam",
+			"email": "sayful.islam001@gmail.com"
+		}
+	],
+	"minimum-stability": "stable"
+}

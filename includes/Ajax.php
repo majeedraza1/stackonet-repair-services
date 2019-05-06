@@ -3,6 +3,9 @@
 namespace Stackonet;
 
 use Exception;
+use Kunnu\Dropbox\Dropbox;
+use Kunnu\Dropbox\DropboxApp;
+use Kunnu\Dropbox\DropboxFile;
 use Stackonet\Models\Device;
 use Stackonet\Models\DeviceIssue;
 use Stackonet\Models\Phone;
@@ -14,9 +17,7 @@ use Stackonet\Supports\Logger;
 use Stackonet\Supports\Utils;
 use WC_Data_Exception;
 use WC_Order;
-use WC_Order_Item_Coupon;
 use WC_Order_Item_Fee;
-use WC_Tax;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -80,6 +81,8 @@ class Ajax {
 			add_action( 'wp_ajax_batch_delete_phones', [ self::$instance, 'delete_phones' ] );
 			add_action( 'wp_ajax_add_phone_note', [ self::$instance, 'add_phone_note' ] );
 			add_action( 'wp_ajax_download_phones_csv', [ self::$instance, 'download_phones_csv' ] );
+			// Dropbox
+			add_action( 'wp_ajax_dropbox', [ self::$instance, 'dropbox' ] );
 		}
 
 		return self::$instance;
@@ -87,6 +90,30 @@ class Ajax {
 
 	public function stackonet_test() {
 		var_dump( 'working' );
+		die();
+	}
+
+	public function dropbox() {
+		$authCode      = 'W8EvBDtxcrMAAAAAAAATO28t-GgqmeLB1mtH0lTzNkc';
+		$accessToken   = 'W8EvBDtxcrMAAAAAAAATPEmHT-DQeUT34QoPx-sgh8V6pDkXqbSsFSTJKCoofmDw';
+		$dropboxUserId = '148709892';
+
+		$app     = new DropboxApp( '68vxtory55yy12f', '7isfxoqyisaxgol', $accessToken );
+		$dropbox = new Dropbox( $app );
+
+		$upload_dir = wp_upload_dir();
+		$sourcePath = join( DIRECTORY_SEPARATOR, array(
+			$upload_dir['basedir'],
+			'2019',
+			'05',
+			'17862721_1897233890563443_7961772230382887999_n.jpg'
+		) );
+
+		Logger::log( $sourcePath );
+
+		$dropboxFile = DropboxFile::createByPath( $sourcePath, DropboxFile::MODE_READ );
+
+		$file = $dropbox->upload( $dropboxFile, "/My-Hello-World.jpg", [ 'autorename' => true ] );
 		die();
 	}
 

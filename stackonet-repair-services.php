@@ -151,6 +151,11 @@ final class Stackonet_Repair_Services {
 	 * @throws Exception
 	 */
 	public function init_classes() {
+		// Load autoload file
+		if ( file_exists( STACKONET_REPAIR_SERVICES_PATH . '/vendor/autoload.php' ) ) {
+			include_once STACKONET_REPAIR_SERVICES_PATH . '/vendor/autoload.php';
+		}
+
 		$this->container['assets']         = Stackonet\Assets::init();
 		$this->container['twilio']         = Stackonet\Integrations\Twilio::init();
 		$this->container['woocommerce']    = Stackonet\Integrations\WooCommerce::init();
