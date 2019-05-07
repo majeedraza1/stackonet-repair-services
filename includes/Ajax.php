@@ -84,8 +84,7 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$authUrl = ( new DropboxHelper() )->get_auth_url();
-		var_dump( $authUrl );
+		var_dump( 'working' );
 		die();
 	}
 

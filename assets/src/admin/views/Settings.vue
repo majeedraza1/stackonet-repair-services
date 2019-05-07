@@ -54,7 +54,8 @@
 							<td>
 								<input type="number" id="order_reminder_minutes" class="regular-text"
 									   v-model="settings.order_reminder_minutes"/>
-								<p class="description">Enter order reminder time in minutes. Example, enter 1440 for For 24 hours.</p>
+								<p class="description">Enter order reminder time in minutes. Example, enter 1440 for For
+									24 hours.</p>
 							</td>
 						</tr>
 					</table>
@@ -110,6 +111,44 @@
 							</td>
 						</tr>
 					</table>
+					<h2 class="title">Dropbox</h2>
+					<p>
+						To get dropbox client id and secret, go to
+						<a href="https://www.dropbox.com/developers" target="_blank">Dropbox App Console</a> and choose
+						an app that you want to use.
+					</p>
+					<table class="form-table">
+						<tr>
+							<th scope="row">
+								<label for="dropbox_client_id">App key</label>
+							</th>
+							<td>
+								<input type="text" id="dropbox_client_id" class="regular-text"
+									   v-model="settings.dropbox_client_id">
+								<p class="description">Enter dropbox client id.</p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">
+								<label for="dropbox_client_secret">App secret</label>
+							</th>
+							<td>
+								<input type="text" id="dropbox_client_secret" class="regular-text"
+									   v-model="settings.dropbox_client_secret">
+								<p class="description">Enter dropbox client Secret.</p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">
+								<label for="dropbox_access_token">Access Token</label>
+							</th>
+							<td>
+								<input type="text" id="dropbox_access_token" class="regular-text"
+									   v-model="settings.dropbox_access_token">
+								<p class="description"> Enter dropbox Access Token. </p>
+							</td>
+						</tr>
+					</table>
 				</mdl-tab>
 			</mdl-tabs>
 		</div>
@@ -136,6 +175,9 @@
 					reschedule_page_id: '',
 					order_reminder_minutes: '',
 					google_map_key: '',
+					dropbox_client_id: '',
+					dropbox_client_secret: '',
+					dropbox_access_token: '',
 					service_times: {
 						Monday: {start_time: '', end_time: '',},
 						Tuesday: {start_time: '', end_time: '',},

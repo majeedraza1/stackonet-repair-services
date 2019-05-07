@@ -27,6 +27,9 @@ class Settings {
 		'reschedule_page_id'     => '',
 		'order_reminder_minutes' => '',
 		'google_map_key'         => '',
+		'dropbox_client_id'      => '',
+		'dropbox_client_secret'  => '',
+		'dropbox_access_token'   => '',
 		'service_times'          => [
 			'Monday'    => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 			'Tuesday'   => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
@@ -60,6 +63,42 @@ class Settings {
 		$map_key = 'google_map_key';
 
 		return ! empty( $options[ $map_key ] ) ? wp_strip_all_tags( $options[ $map_key ] ) : '';
+	}
+
+	/**
+	 * Get map api key
+	 *
+	 * @return string
+	 */
+	public static function get_dropbox_key() {
+		$options = self::get_option();
+		$key     = 'dropbox_client_id';
+
+		return ! empty( $options[ $key ] ) ? $options[ $key ] : '';
+	}
+
+	/**
+	 * Get map api key
+	 *
+	 * @return string
+	 */
+	public static function get_dropbox_secret() {
+		$options = self::get_option();
+		$key     = 'dropbox_client_secret';
+
+		return ! empty( $options[ $key ] ) ? $options[ $key ] : '';
+	}
+
+	/**
+	 * Get map api key
+	 *
+	 * @return string
+	 */
+	public static function get_dropbox_access_token() {
+		$options = self::get_option();
+		$key     = 'dropbox_access_token';
+
+		return ! empty( $options[ $key ] ) ? $options[ $key ] : '';
 	}
 
 	/**

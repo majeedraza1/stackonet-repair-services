@@ -6,6 +6,7 @@ use Kunnu\Dropbox\Dropbox;
 use Kunnu\Dropbox\DropboxApp;
 use Kunnu\Dropbox\DropboxFile;
 use Kunnu\Dropbox\Models\FileMetadata;
+use Stackonet\Models\Settings;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -37,12 +38,14 @@ class DropboxHelper {
 	private $dropbox;
 
 	public function __construct() {
-		$this->client_id     = '68vxtory55yy12f';
-		$this->client_secret = '7isfxoqyisaxgol';
-		$this->access_token  = 'W8EvBDtxcrMAAAAAAAATPEmHT-DQeUT34QoPx-sgh8V6pDkXqbSsFSTJKCoofmDw';
+		$this->client_id     = Settings::get_dropbox_key();
+		$this->client_secret = Settings::get_dropbox_secret();
+		$this->access_token  = Settings::get_dropbox_access_token();
 
-		$this->config  = new DropboxApp( $this->client_id, $this->client_secret, $this->access_token );
-		$this->dropbox = new Dropbox( $this->config );
+		if ( ! empty( $this->client_id ) && ! empty( $this->client_secret ) ) {
+			$this->config  = new DropboxApp( $this->client_id, $this->client_secret, $this->access_token );
+			$this->dropbox = new Dropbox( $this->config );
+		}
 	}
 
 	/**
@@ -50,11 +53,14 @@ class DropboxHelper {
 	 *
 	 * @param string $source_path
 	 *
-	 * @return FileMetadata
+	 * @return FileMetadata|bool
 	 */
 	public function upload( $source_path ) {
 		$fileName    = basename( $source_path );
 		$dropboxFile = DropboxFile::createByPath( $source_path, DropboxFile::MODE_READ );
+		if ( ! $this->dropbox instanceof Dropbox ) {
+			return false;
+		}
 
 		return $this->dropbox->upload( $dropboxFile, "/" . $fileName, [ 'autorename' => true ] );
 	}
@@ -69,6 +75,10 @@ class DropboxHelper {
 	 * @return string
 	 */
 	public function get_auth_url( $redirectUri = null, array $params = [], $urlState = null ) {
+		if ( ! $this->dropbox instanceof Dropbox ) {
+			return '';
+		}
+
 		return $this->get_dropbox()->getAuthHelper()->getAuthUrl( $redirectUri, $params, $urlState );
 	}
 
