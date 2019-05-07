@@ -1,3 +1,8 @@
+#### 1.1.3 - May 7, 2019
+* Feature - Add image upload functionality on survey page.
+* Feature - Add functionality to add upload file to dropbox.
+* Add - Add new survey table columns 'brand", 'gadget', 'model', 'images_ids'
+
 #### 1.1.2 - May 3, 2019
 * Fix - Fix re-schedule page not working.
 * Fix - Disabled geolocation feature on zip and user address step.
