@@ -92,7 +92,7 @@
 			</columns>
 
 			<media-modal
-				title="Choose Custom Logo"
+				title="Upload image"
 				:active="openLogoModal"
 				:images="attachments"
 				:image="images"
@@ -270,6 +270,8 @@
 			},
 			dropzoneSuccess(file, response) {
 				this.attachments.unshift(response.data);
+				this.images.push(response.data);
+				this.openLogoModal = false;
 			},
 			chooseImage(attachment) {
 				let index = this.images.indexOf(attachment);
@@ -351,6 +353,16 @@
 		margin: 100px auto;
 		max-width: 600px;
 		// position: relative;
+
+		.shapla-column {
+			&.column--dropzone {
+				width: 100%;
+			}
+
+			&.column--media-list {
+				display: none;
+			}
+		}
 
 		.shapla-device-box__content {
 			height: 60px;

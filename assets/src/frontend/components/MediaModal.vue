@@ -2,7 +2,7 @@
 	<div class="wp-frontend-media-modal">
 		<modal :active="active" @close="closeModal" :title="title">
 			<columns desktop>
-				<column :desktop="6">
+				<column :desktop="6" class="column--dropzone">
 					<vue2-dropzone ref="wpFrontendMediaModal" id="dropzone" :options="options" :useCustomSlot="true"
 								   @vdropzone-success="upload">
 						<div class="dz-default dz-message">
@@ -26,7 +26,7 @@
 						</div>
 					</vue2-dropzone>
 				</column>
-				<column :desktop="6">
+				<column :desktop="6" class="column--media-list">
 					<div class="attachment-list mdl-list" v-if="images.length">
 						<div class="mdl-list__item" :class="{'is-active': isActive(attachment)}"
 							 v-for="attachment in images" v-if="attachment.title" @click="chooseMedia(attachment)">
