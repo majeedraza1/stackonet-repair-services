@@ -32,16 +32,33 @@
 				<span v-if="'not-pertain' === data.row.device_status">Not Pertain</span>
 			</template>
 		</wp-list-table>
+		<modal :active="has_active_item" title="Survey Info" @close="activeItem = {}">
+			<list-item label="ID">{{activeItem.id}}</list-item>
+			<list-item label="Brand">{{activeItem.brand}}</list-item>
+			<list-item label="Model">{{activeItem.model}}</list-item>
+			<list-item label="Gadget">{{activeItem.gadget}}</list-item>
+			<list-item label="Full Address">{{activeItem.full_address}}</list-item>
+			<list-item label="Latitude">{{activeItem.latitude}}</list-item>
+			<list-item label="Longitude">{{activeItem.longitude}}</list-item>
+			<list-item label="Images">
+				<div v-for="_image in activeItem.images" style="max-width: 100px;">
+					<image-container><img :src="_image.thumbnail.src" :alt="_image.title"></image-container>
+				</div>
+			</list-item>
+		</modal>
 	</div>
 </template>
 
 <script>
 	import axios from 'axios';
 	import wpListTable from '../../wp/wpListTable.vue'
+	import ListItem from '../../components/ListItem.vue'
+	import modal from '../../shapla/modal/modal'
+	import imageContainer from '../../shapla/image/image'
 
 	export default {
 		name: "SurveyListTable",
-		components: {wpListTable},
+		components: {wpListTable, modal, ListItem, imageContainer},
 		data() {
 			return {
 				loading: false,
@@ -64,7 +81,8 @@
 					{key: 'not-affordable', label: 'Not Affordable', count: 0, active: false},
 					{key: 'not-pertain', label: 'Not Pertain', count: 0, active: false},
 					{key: 'trash', label: 'Trash', count: 0, active: false},
-				]
+				],
+				activeItem: {},
 			}
 		},
 		mounted() {
@@ -73,6 +91,9 @@
 			}
 		},
 		computed: {
+			has_active_item() {
+				return !!Object.keys(this.activeItem).length;
+			},
 			statuses() {
 				let _status = [], self = this;
 				self.default_statuses.forEach(status => {
@@ -88,6 +109,7 @@
 				}
 
 				return [
+					{key: 'view', label: 'View'},
 					{key: 'trash', label: 'Trash'}
 				];
 			},
@@ -130,6 +152,7 @@
 			},
 			onActionClick(action, item) {
 				if ('view' === action) {
+					this.activeItem = item;
 				}
 				if ('trash' === action && window.confirm('Are you sure move this item to trash?')) {
 					this.trashAction(item, 'trash');

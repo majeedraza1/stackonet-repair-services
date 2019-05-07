@@ -255,7 +255,7 @@ class Admin {
 	 */
 	public function init_survey_hooks() {
 		wp_enqueue_style( 'stackonet-repair-services-admin' );
-//		wp_enqueue_style( 'admin-survey' );
+		wp_enqueue_style( 'admin-survey' );
 		wp_enqueue_script( 'admin-survey' );
 	}
 }

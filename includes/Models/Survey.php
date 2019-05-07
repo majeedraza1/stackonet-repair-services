@@ -54,6 +54,11 @@ class Survey extends DatabaseModel {
 	private $author;
 
 	/**
+	 * @var array
+	 */
+	private $images = [];
+
+	/**
 	 * Get available status
 	 *
 	 * @return array
@@ -76,6 +81,57 @@ class Survey extends DatabaseModel {
 		$data['id']     = intval( $data['id'] );
 		$data['author'] = [
 			'display_name' => $this->get_author_display_name(),
+		];
+		$data['images'] = $this->get_images();
+
+		return $data;
+	}
+
+	/**
+	 * Get survey images
+	 *
+	 * @return array
+	 */
+	public function get_images() {
+		if ( empty( $this->images ) ) {
+			$images_ids = $this->get( 'images_ids' );
+			if ( is_array( $images_ids ) ) {
+				$images = [];
+				foreach ( $images_ids as $image_id ) {
+					$images[] = $this->get_image_by_id( $image_id );
+				}
+				$this->images = array_values( array_filter( $images ) );
+			}
+		}
+
+		return $this->images;
+	}
+
+	/**
+	 * Get image by image id
+	 *
+	 * @param int $image_id
+	 *
+	 * @return array
+	 */
+	public function get_image_by_id( $image_id ) {
+		$title          = get_the_title( $image_id );
+		$token          = get_post_meta( $image_id, '_delete_token', true );
+		$attachment_url = wp_get_attachment_url( $image_id );
+		$image          = wp_get_attachment_image_src( $image_id, 'thumbnail' );
+		$full_image     = wp_get_attachment_image_src( $image_id, 'full' );
+
+		if ( ! filter_var( $full_image[0], FILTER_VALIDATE_URL ) ) {
+			return [];
+		}
+
+		$data = [
+			'image_id'       => $image_id,
+			'title'          => $title,
+			'token'          => $token,
+			'attachment_url' => $attachment_url,
+			'thumbnail'      => [ 'src' => $image[0], 'width' => $image[1], 'height' => $image[2], ],
+			'full'           => [ 'src' => $full_image[0], 'width' => $full_image[1], 'height' => $full_image[2], ],
 		];
 
 		return $data;

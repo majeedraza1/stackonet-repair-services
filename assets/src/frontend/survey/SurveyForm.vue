@@ -82,7 +82,7 @@
 				<button @click="openLogoModal = true">Add Images</button>
 			</p>
 			<columns>
-				<column :tablet="4" v-for="_image in images">
+				<column :tablet="4" v-for="_image in images" :key="_image.id">
 					<div class="mdl-box mdl-shadow--2dp">
 						<image-container square>
 							<img :src="_image.thumbnail.src" alt="">
