@@ -114,22 +114,20 @@
 	}
 }
 
-@media (min-width: 1250px) {
-	.hoverable {
-		border: 2px solid transparent;
-		box-sizing: border-box;
-		transition: all 0.4s ease-in-out 0s;
+.hoverable {
+	border: 2px solid transparent;
+	box-sizing: border-box;
+	transition: all 0.4s ease-in-out 0s;
 
-		&.is-active {
-			background: rgba(249, 167, 59, 0.65);
-			border-color: #f58730;
-			color: #fff;
-		}
+	&.is-active {
+		background: rgba(249, 167, 59, 0.65);
+		border-color: #f58730;
+		color: #fff;
+	}
 
-		&:not(.is-active):not(.is-disabled):not(:disabled):hover {
-			background: rgba(249, 167, 59, 0.65);
-			border-color: #f58730;
-			color: #fff;
-		}
+	&:not(.is-active):not(.is-disabled):not(:disabled):hover {
+		background: rgba(249, 167, 59, 0.65);
+		border-color: #f58730;
+		color: #fff;
 	}
 }
