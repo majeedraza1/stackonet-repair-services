@@ -30,6 +30,7 @@ class Survey extends DatabaseModel {
 		'gadget'        => '',
 		'model'         => '',
 		'images_ids'    => '',
+		'tips_amount'   => '',
 		'latitude'      => '',
 		'longitude'     => '',
 		'full_address'  => '',
@@ -358,6 +359,7 @@ class Survey extends DatabaseModel {
                 `gadget` VARCHAR(100) DEFAULT NULL,
                 `model` VARCHAR(100) DEFAULT NULL,
                 `images_ids` TEXT DEFAULT NULL,
+                `tips_amount` VARCHAR(100) DEFAULT NULL,
                 `latitude` varchar(50) DEFAULT NULL,
                 `longitude` varchar(50) DEFAULT NULL,
                 `full_address` TEXT DEFAULT NULL,
@@ -384,7 +386,7 @@ class Survey extends DatabaseModel {
 		$version    = get_option( 'stackonet_survey_table_version' );
 		$version    = ! empty( $version ) ? $version : '1.0.0';
 
-		if ( version_compare( $version, '1.1.0', '<' ) ) {
+		if ( version_compare( $version, '1.1.1', '<' ) ) {
 			$row = $wpdb->get_row( "SELECT * FROM {$table_name}", ARRAY_A );
 			if ( ! isset( $row['brand'] ) ) {
 				$wpdb->query( "ALTER TABLE {$table_name} ADD `brand` VARCHAR(100) NULL DEFAULT NULL AFTER `id`" );
@@ -398,8 +400,11 @@ class Survey extends DatabaseModel {
 			if ( ! isset( $row['images_ids'] ) ) {
 				$wpdb->query( "ALTER TABLE {$table_name} ADD `images_ids` TEXT NULL DEFAULT NULL AFTER `model`" );
 			}
+			if ( ! isset( $row['tips_amount'] ) ) {
+				$wpdb->query( "ALTER TABLE {$table_name} ADD `tips_amount` VARCHAR(100) NULL DEFAULT NULL AFTER `images_ids`" );
+			}
 
-			update_option( 'stackonet_survey_table_version', '1.1.0' );
+			update_option( 'stackonet_survey_table_version', '1.1.1' );
 		}
 	}
 }

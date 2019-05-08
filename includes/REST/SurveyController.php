@@ -106,6 +106,7 @@ class SurveyController extends ApiController {
 		$gadget        = $request->get_param( 'gadget' );
 		$model         = $request->get_param( 'model' );
 		$images_ids    = $request->get_param( 'images_ids' );
+		$tips_amount   = $request->get_param( 'tips_amount' );
 
 		$survey = new Survey();
 		$id     = $survey->create( [
@@ -118,6 +119,7 @@ class SurveyController extends ApiController {
 			'full_address'  => $full_address,
 			'address'       => $address,
 			'device_status' => $device_status,
+			'tips_amount'   => $tips_amount,
 		] );
 
 		if ( $id ) {

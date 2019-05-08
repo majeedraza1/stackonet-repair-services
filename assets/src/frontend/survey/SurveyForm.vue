@@ -3,65 +3,70 @@
 
 		<div class="form-field">
 			<label>Brands</label>
-			<br>
-			<div class="shapla-device-box is-active" v-for="(_brand, index) in brands" :key="index">
-				<div class="shapla-device-box__content hoverable" :class="{'is-active':_brand === brand}"
-					 @click="chooseBrand(_brand)">
-					<div>{{_brand}}</div>
-				</div>
-			</div>
+			<columns mobile multiline centered>
+				<column :mobile="6" :tablet="4" v-for="(_brand, index) in brands" :key="index">
+					<div class="shapla-survey-box hoverable" :class="{'is-active':_brand === brand}"
+						 @click="chooseBrand(_brand)">
+						<div>{{_brand}}</div>
+					</div>
+				</column>
+			</columns>
 		</div>
 
 		<div class="form-field">
 			<label>Gadgets</label>
-			<br>
-			<div class="shapla-device-box is-active" v-for="(_gadget,index) in gadgets" :key="index">
-				<div class="shapla-device-box__content hoverable" :class="{'is-active':_gadget === gadget}"
-					 @click="chooseGadget(_gadget)">
-					<div>{{_gadget}}</div>
-				</div>
-			</div>
+			<columns mobile multiline centered>
+				<column :mobile="6" :tablet="4" v-for="(_gadget, index) in gadgets" :key="index">
+					<div class="shapla-survey-box hoverable" :class="{'is-active':_gadget === gadget}"
+						 @click="chooseGadget(_gadget)">
+						<div>{{_gadget}}</div>
+					</div>
+				</column>
+			</columns>
 		</div>
 
 		<div class="form-field">
-			<div class="shapla-device-box is-active">
-				<div class="shapla-device-box__content hoverable" :class="{'is-active':'low' === model}"
-					 @click="chooseModel('low')">
-					<div>Low End Model?</div>
-				</div>
-			</div>
 
-			<div class="shapla-device-box is-active">
-				<div class="shapla-device-box__content hoverable" :class="{'is-active':'high' === model}"
-					 @click="chooseModel('high')">
-					<div>High End Model?</div>
-				</div>
-			</div>
+			<columns mobile multiline centered>
+				<column :mobile="6" :tablet="6">
+					<div class="shapla-survey-box hoverable" :class="{'is-active':'low' === model}"
+						 @click="chooseModel('low')">
+						<div>Low End Model?</div>
+					</div>
+				</column>
+				<column :mobile="6" :tablet="6">
+					<div class="shapla-survey-box hoverable" :class="{'is-active':'high' === model}"
+						 @click="chooseModel('high')">
+						<div>High End Model?</div>
+					</div>
+				</column>
+			</columns>
 
 		</div>
 
 		<div class="form-field">
 			<label>Status</label>
-			<div v-for="_status in statuses" :key="_status.value">
-				<div class="shapla-device-box">
-					<div class="shapla-device-box__content hoverable" @click="chooseStatus(_status.value)"
-						 :class="{'is-active':_status.value === device_status}" style="width: 100%">
-						<div class="shapla-device-box__label" v-html="_status.label"></div>
+			<columns mobile multiline centered>
+				<column :mobile="12" :tablet="12" v-for="_status in statuses" :key="_status.value">
+					<div class="shapla-survey-box hoverable" @click="chooseStatus(_status.value)"
+						 :class="{'is-active':_status.value === device_status}">
+						<div>{{_status.label}}</div>
 					</div>
-				</div>
-			</div>
+				</column>
+			</columns>
 		</div>
 
 		<div class="form-field">
 			<label>If a barber could come to you in 1-2 hours anywhere, home, work, etc. What would you pay with tip for
 				such a service?</label>
-			<div v-for="_charge in [49, 59, 69, 79, 89, 99]">
-				<div class="shapla-device-box">
-					<div class="shapla-device-box__content hoverable">
-						<div class="shapla-device-box__label">${{_charge}}</div>
+			<columns mobile multiline centered>
+				<column :mobile="6" :tablet="4" v-for="_charge in tips_amounts" :key="_charge">
+					<div class="shapla-survey-box hoverable" @click="chooseTipsAmount(_charge)"
+						 :class="{'is-active':_charge === tips_amount}">
+						<div>${{_charge}}</div>
 					</div>
-				</div>
-			</div>
+				</column>
+			</columns>
 		</div>
 
 		<div class="form-field">
@@ -89,11 +94,11 @@
 		</div>
 
 		<div class="form-field">
-			<label>Images</label><br>
+			<label>Images</label>
 			<p>
 				<button @click="openLogoModal = true">Add Images</button>
 			</p>
-			<columns>
+			<columns multiline>
 				<column :tablet="4" v-for="_image in images" :key="_image.id">
 					<div class="mdl-box mdl-shadow--2dp">
 						<image-container square>
@@ -188,7 +193,8 @@
 				gadget: '',
 				model: '',
 				images_ids: '',
-				_amount: [49, 59, 69, 79, 89, 99],
+				tips_amount: '',
+				tips_amounts: [49, 59, 69, 79, 89, 99],
 			}
 		},
 		computed: {
@@ -281,6 +287,9 @@
 			chooseStatus(status) {
 				this.device_status = status;
 			},
+			chooseTipsAmount(amount) {
+				this.tips_amount = amount;
+			},
 			dropzoneSuccess(file, response) {
 				this.attachments.unshift(response.data);
 				this.images.push(response.data);
@@ -339,6 +348,7 @@
 					address: self.c_address_object,
 					full_address: self.formatted_address,
 					images_ids: images_ids,
+					tips_amount: self.tips_amount,
 				};
 				axios
 					.post(PhoneRepairs.rest_root + '/survey', data,
@@ -367,6 +377,14 @@
 		max-width: 600px;
 		// position: relative;
 
+		.shapla-survey-box {
+			border: 1px solid rgba(#000, 0.2);
+			border-radius: 6px;
+			cursor: pointer;
+			padding: 15px;
+			text-align: center;
+		}
+
 		.shapla-column {
 			&.column--dropzone {
 				width: 100%;
@@ -382,7 +400,15 @@
 			border: 1px solid rgba(#000, 0.2);
 		}
 
-		.form-field,
+		.form-field {
+			margin-bottom: 3rem;
+
+			label {
+				display: block;
+				margin-bottom: 1rem;
+			}
+		}
+
 		.g-map-autocomplete {
 			margin-bottom: 1rem;
 		}

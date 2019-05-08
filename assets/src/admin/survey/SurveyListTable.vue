@@ -40,6 +40,7 @@
 			<list-item label="Full Address">{{activeItem.full_address}}</list-item>
 			<list-item label="Latitude">{{activeItem.latitude}}</list-item>
 			<list-item label="Longitude">{{activeItem.longitude}}</list-item>
+			<list-item label="Tips Amount">{{activeItem.tips_amount}}</list-item>
 			<list-item label="Images">
 				<div v-for="_image in activeItem.images" style="max-width: 100px;">
 					<image-container><img :src="_image.thumbnail.src" :alt="_image.title"></image-container>
