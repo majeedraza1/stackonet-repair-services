@@ -13,6 +13,7 @@ let entryPoints = {
 	vendors: Object.keys(package.dependencies),
 	admin: [
 		'./assets/src/admin/main.js',
+		'./assets/src/admin/become-a-tech/main.js',
 		'./assets/scss/admin.scss'
 	],
 	'admin-rent-center': [
@@ -32,6 +33,7 @@ let entryPoints = {
 		'./assets/src/frontend/reschedule/main.js',
 		'./assets/src/frontend/survey/main.js',
 		'./assets/src/frontend/manager-registration/main.js',
+		'./assets/src/frontend/become-a-tech/main.js',
 		'./assets/scss/frontend.scss'
 	],
 	'my-account': [
