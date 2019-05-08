@@ -53,6 +53,18 @@
 		</div>
 
 		<div class="form-field">
+			<label>If a barber could come to you in 1-2 hours anywhere, home, work, etc. What would you pay with tip for
+				such a service?</label>
+			<div v-for="_charge in [49, 59, 69, 79, 89, 99]">
+				<div class="shapla-device-box">
+					<div class="shapla-device-box__content hoverable">
+						<div class="shapla-device-box__label">${{_charge}}</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-field">
 			<g-map-autocomplete geolocation :value="formatted_address" @change="changeGeoLocation"></g-map-autocomplete>
 
 			<p>
@@ -176,6 +188,7 @@
 				gadget: '',
 				model: '',
 				images_ids: '',
+				_amount: [49, 59, 69, 79, 89, 99],
 			}
 		},
 		computed: {
