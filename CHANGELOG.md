@@ -1,3 +1,8 @@
+#### 1.1.4 - May 8, 2019
+* Fix - Fix survey page active item not focusing on mobile device.
+* Add - Add new field tips amount for survey.
+* Tweak - Make survey page responsive.
+
 #### 1.1.3 - May 7, 2019
 * Feature - Add image upload functionality on survey page.
 * Feature - Add functionality to add upload file to dropbox.
