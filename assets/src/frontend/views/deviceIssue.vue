@@ -67,7 +67,7 @@
 			return {}
 		},
 		computed: {
-			...mapState(['screenCracked', 'device', 'issues', 'issueDescription']),
+			...mapState(['screenCracked', 'device', 'deviceModel', 'issues', 'issueDescription']),
 			isScreenCracked() {
 				return !!(this.screenCracked && (this.screenCracked === 'no' || this.screenCracked === 'multiple'));
 			},
@@ -79,11 +79,31 @@
 				return [];
 			},
 			multi_issues() {
-				if (this.device && this.device.multi_issues) {
-					return this.device.multi_issues;
+
+				if (!(this.device && this.device.multi_issues)) {
+					return [];
 				}
 
-				return [];
+				let brokenPrice = this.deviceModel.broken_screen_price;
+
+				let issues = this.device.multi_issues.map(issue => {
+					if (issue.title === 'Broken Screen') {
+						issue.price = brokenPrice;
+					}
+
+					return issue;
+				});
+
+				if (brokenPrice) {
+					issues.unshift({
+						id: '',
+						title: 'Front Glass',
+						price: brokenPrice,
+						description: 'Glass price is subject to undamaged display.',
+					});
+				}
+
+				return issues;
 			},
 			showContinueButton() {
 				return (this.issues && this.issues.length);

@@ -178,9 +178,7 @@ class Frontend {
 	 * @return false|string
 	 */
 	public function repair_services( $attrs ) {
-		$attrs = shortcode_atts( array(
-			'group' => '',
-		), $attrs, 'stackonet_repair_service' );
+		$attrs = shortcode_atts( array( 'group' => '', ), $attrs, 'stackonet_repair_service' );
 		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
 
 		ob_start();
@@ -200,9 +198,7 @@ class Frontend {
 	 * @return string
 	 */
 	public function repair_services_pricing( $atts ) {
-		$atts = shortcode_atts( array(
-			'page_id' => 0,
-		), $atts, 'stackonet_repair_service_pricing' );
+		$atts = shortcode_atts( array( 'page_id' => 0, ), $atts, 'stackonet_repair_service_pricing' );
 
 		$cta_url = '';
 		if ( ! empty( $atts['page_id'] ) ) {
