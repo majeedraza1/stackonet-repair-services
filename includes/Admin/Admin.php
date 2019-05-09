@@ -32,6 +32,7 @@ class Admin {
 			add_action( 'admin_menu', [ self::$instance, 'add_menu' ] );
 			add_action( 'admin_menu', [ self::$instance, 'add_rent_a_center_menu' ] );
 			add_action( 'admin_menu', [ self::$instance, 'add_survey_menu' ] );
+			add_action( 'admin_menu', [ self::$instance, 'add_become_technician_menu' ] );
 
 			// Add decoration product data on Checkout(after), Email and Order Detail Page
 			add_action( 'woocommerce_order_item_meta_start', [ self::$instance, 'order_item_meta_start' ], 10, 3 );
@@ -257,5 +258,38 @@ class Admin {
 		wp_enqueue_style( 'stackonet-repair-services-admin' );
 		wp_enqueue_style( 'admin-survey' );
 		wp_enqueue_script( 'admin-survey' );
+	}
+
+	public function add_become_technician_menu() {
+		global $submenu;
+		$capability = 'manage_options';
+		$slug       = 'become-technician';
+
+		$hook = add_menu_page( __( 'Become A Technician', 'stackonet-repair-services' ), __( 'Become A Technician', 'stackonet-repair-services' ),
+			$capability, $slug, [ self::$instance, 'become_technician_callback' ], 'dashicons-admin-post', 8 );
+
+		$menus = [
+			[ 'title' => __( 'Technicians', 'stackonet-repair-services' ), 'slug' => '#/' ],
+		];
+
+		if ( current_user_can( $capability ) ) {
+			foreach ( $menus as $menu ) {
+				$submenu[ $slug ][] = [ $menu['title'], $capability, 'admin.php?page=' . $slug . $menu['slug'] ];
+			}
+		}
+
+		add_action( 'load-' . $hook, [ self::$instance, 'init_technician_hooks' ] );
+	}
+
+	public function become_technician_callback() {
+		echo '<div class="wrap"><div id="admin-stackonet-become-technician"></div></div>';
+	}
+
+	/**
+	 * Admin menu page scripts
+	 */
+	public function init_technician_hooks() {
+		wp_enqueue_style( 'stackonet-repair-services-admin' );
+		wp_enqueue_script( 'stackonet-repair-services-admin' );
 	}
 }

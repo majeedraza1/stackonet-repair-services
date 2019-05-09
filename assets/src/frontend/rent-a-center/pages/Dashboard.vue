@@ -10,7 +10,7 @@
 								 alt="">
 						</image-container>
 					</div>
-					<div class="user__display_name">Saif Al Araf</div>
+					<div class="user__display_name">Majeed Raza</div>
 					<div class="user__role">Lead Developer</div>
 				</div>
 

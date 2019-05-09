@@ -10,10 +10,10 @@ jQuery.ajaxSetup({
 });
 axios.defaults.headers.common['X-WP-Nonce'] = window.stackonetSettings.nonce;
 
-let element = document.querySelector('#admin-stackonet-become-tech');
+let element = document.querySelector('#admin-stackonet-become-technician');
 if (element) {
 	new Vue({el: element, render: h => h(BecomeTechListTable)});
 }
 
 // fix the admin menu for the slug "become-tech"
-menuFix('become-tech');
+menuFix('become-technician');

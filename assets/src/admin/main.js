@@ -10,12 +10,10 @@ jQuery.ajaxSetup({
 	}
 });
 
-new Vue({
-	el: '#vue-wp-starter',
-	store: store,
-	router: router,
-	render: h => h(App)
-});
+let element = document.querySelector('#vue-wp-starter');
+if (element) {
+	new Vue({el: element, store: store, router: router, render: h => h(App)});
+}
 
 // fix the admin menu for the slug "vue-wp-starter"
 menuFix('phone-repairs');
