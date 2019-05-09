@@ -38,6 +38,7 @@ class Frontend {
 			add_shortcode( 'stackonet_reschedule_order', [ self::$instance, 'reschedule_order' ] );
 			add_shortcode( 'stackonet_rent_a_center', [ self::$instance, 'rent_a_center' ] );
 			add_shortcode( 'stackonet_survey_form', [ self::$instance, 'survey_form' ] );
+			add_shortcode( 'stackonet_become_technician', [ self::$instance, 'become_technician' ] );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
 		}
 
@@ -75,6 +76,7 @@ class Frontend {
 			'stackonet_reschedule_order',
 			'stackonet_manager_registration_form',
 			'stackonet_survey_form',
+			'stackonet_become_technician',
 		];
 
 		global $post;
@@ -116,6 +118,15 @@ class Frontend {
 		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
 
 		return '<div id="stackonet_survey_form"></div>';
+	}
+
+	/**
+	 * Become a technician form
+	 *
+	 * @return string
+	 */
+	public function become_technician() {
+		return '<div id="stackonet_become_technician"></div>';
 	}
 
 	/**

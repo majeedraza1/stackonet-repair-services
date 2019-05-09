@@ -47,7 +47,23 @@ class Survey extends DatabaseModel {
 	 *
 	 * @var array
 	 */
-	protected $data_format = [ '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ];
+	protected $data_format = [
+		'%d',
+		'%s',
+		'%s',
+		'%s',
+		'%s',
+		'%s',
+		'%s',
+		'%s',
+		'%s',
+		'%s',
+		'%s',
+		'%s',
+		'%s',
+		'%s',
+		'%s'
+	];
 
 	/**
 	 * @var bool|WP_User

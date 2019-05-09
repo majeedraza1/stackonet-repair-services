@@ -52,17 +52,18 @@ class DropboxHelper {
 	 * Upload a File to Dropbox
 	 *
 	 * @param string $source_path
+	 * @param string $path
 	 *
 	 * @return FileMetadata|bool
 	 */
-	public function upload( $source_path ) {
+	public function upload( $source_path, $path = "/" ) {
 		$fileName    = basename( $source_path );
 		$dropboxFile = DropboxFile::createByPath( $source_path, DropboxFile::MODE_READ );
 		if ( ! $this->dropbox instanceof Dropbox ) {
 			return false;
 		}
 
-		return $this->dropbox->upload( $dropboxFile, "/" . $fileName, [ 'autorename' => true ] );
+		return $this->dropbox->upload( $dropboxFile, $path . $fileName, [ 'autorename' => true ] );
 	}
 
 	/**

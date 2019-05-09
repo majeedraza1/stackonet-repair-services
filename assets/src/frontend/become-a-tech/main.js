@@ -1,10 +1,10 @@
 import Vue from 'vue';
-import BecomeTech from './BecomeTech';
+import BecomeTechnician from './BecomeTechnician';
 
-let element = document.querySelector('#stackonet_become_a_tech');
+let element = document.querySelector('#stackonet_become_technician');
 if (element) {
 	new Vue({
 		el: element,
-		render: h => h(BecomeTech)
+		render: h => h(BecomeTechnician)
 	});
 }
