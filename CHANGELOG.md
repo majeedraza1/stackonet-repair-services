@@ -1,3 +1,6 @@
+#### 1.1.5 - May 10, 2019
+* Add - Add become a technician frontend and admin functionality with dropbox resume upload.
+
 #### 1.1.4 - May 8, 2019
 * Fix - Fix survey page active item not focusing on mobile device.
 * Add - Add new field tips amount for survey.
