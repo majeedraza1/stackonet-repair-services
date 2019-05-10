@@ -30,6 +30,12 @@
 			<list-item label="Email">{{activeItem.email}}</list-item>
 			<list-item label="Phone">{{activeItem.phone}}</list-item>
 			<list-item label="Date">{{activeItem.created_at}}</list-item>
+			<list-item label="Resume">
+				<a :href="activeItem.resume_url" target="_blank">{{activeItem.resume_title}}</a>
+			</list-item>
+			<div slot="foot">
+				<button @click="activeItem = {}">Close</button>
+			</div>
 		</modal>
 	</div>
 </template>

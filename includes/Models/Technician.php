@@ -45,6 +45,42 @@ class Technician extends DatabaseModel {
 	protected $data_format = [ '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ];
 
 	/**
+	 * Array representation of the class
+	 *
+	 * @return array
+	 */
+	public function to_array() {
+		$data                 = parent::to_array();
+		$data['resume_url']   = $this->resume_url();
+		$data['resume_title'] = $this->resume_title();
+
+		return $data;
+	}
+
+	/**
+	 * Get resume title
+	 *
+	 * @return string
+	 */
+	public function resume_title() {
+		$resume_id = $this->get( 'resume_id' );
+		$title     = get_the_title( $resume_id );
+
+		return $title;
+	}
+
+	/**
+	 * Get resume URL
+	 * @return false|string
+	 */
+	public function resume_url() {
+		$resume_id = $this->get( 'resume_id' );
+		$url       = wp_get_attachment_url( $resume_id );
+
+		return $url;
+	}
+
+	/**
 	 * Get available status
 	 *
 	 * @return array
