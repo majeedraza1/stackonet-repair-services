@@ -126,7 +126,7 @@
 		padding: 20px 0 10px;
 		width: 100%;
 		background: #fff;
-		margin: 0 auto 20px;
+		margin: 0 auto 20px !important;
 		border-radius: 6px;
 		border: 1px solid rgba(#000, 0.2);
 

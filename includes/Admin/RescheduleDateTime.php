@@ -58,6 +58,20 @@ class RescheduleDateTime {
 	public function add_meta_boxes() {
 		add_meta_box( 're_schedule_date_time', 'Re-Schedule Date',
 			[ $this, 're_schedule_date_time_callback' ], 'shop_order', 'side', 'low' );
+		add_meta_box( 'customer_signature', 'Customer eSignature',
+			[ $this, 'customer_signature_callback' ], 'shop_order', 'side', 'low' );
+	}
+
+	/**
+	 * Customer eSignature callback
+	 *
+	 * @param WP_Post $post
+	 */
+	public function customer_signature_callback( $post ) {
+		$_signature_image = get_post_meta( $post->ID, '_signature_image', true );
+		if ( ! empty( $_signature_image ) ) {
+			echo '<img src="' . $_signature_image . '" />';
+		}
 	}
 
 	/**

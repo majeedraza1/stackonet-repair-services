@@ -78,6 +78,10 @@ class Ajax {
 			add_action( 'wp_ajax_batch_delete_phones', [ self::$instance, 'delete_phones' ] );
 			add_action( 'wp_ajax_add_phone_note', [ self::$instance, 'add_phone_note' ] );
 			add_action( 'wp_ajax_download_phones_csv', [ self::$instance, 'download_phones_csv' ] );
+
+			// Terms and conditions
+			add_action( 'wp_ajax_terms_and_conditions', [ self::$instance, 'terms_and_conditions' ] );
+			add_action( 'wp_ajax_nopriv_terms_and_conditions', [ self::$instance, 'terms_and_conditions' ] );
 		}
 
 		return self::$instance;
@@ -85,6 +89,22 @@ class Ajax {
 
 	public function stackonet_test() {
 		var_dump( 'working' );
+		die();
+	}
+
+	public function terms_and_conditions() {
+		$terms_page_id = wc_terms_and_conditions_page_id();
+
+		if ( ! $terms_page_id ) {
+			die( '' );
+		}
+
+		$page = get_post( $terms_page_id );
+
+		if ( $page && 'publish' === $page->post_status && $page->post_content && ! has_shortcode( $page->post_content, 'woocommerce_checkout' ) ) {
+			echo wp_kses_post( wc_format_content( $page->post_content ) );
+		}
+
 		die();
 	}
 
@@ -494,6 +514,7 @@ class Ajax {
 		$address           = isset( $_POST['address'] ) && is_array( $_POST['address'] ) ? $_POST['address'] : [];
 		$instructions      = isset( $_POST['instructions'] ) ? sanitize_text_field( $_POST['instructions'] ) : '';
 		$additionalAddress = isset( $_POST['additional_address'] ) ? sanitize_text_field( $_POST['additional_address'] ) : '';
+		$signature         = isset( $_POST['signature'] ) ? wp_strip_all_tags( $_POST['signature'] ) : '';
 
 		// Now we create the order
 		$order = new WC_Order();
@@ -562,6 +583,7 @@ class Ajax {
 		$order->add_meta_data( '_preferred_service_date', $date );
 		$order->add_meta_data( '_preferred_service_time_range', $time_range );
 		$order->add_meta_data( '_additional_address', $additionalAddress );
+		$order->add_meta_data( '_signature_image', $signature );
 
 		// Add device data for SMS
 		$order->add_meta_data( '_device_id', $device_id );

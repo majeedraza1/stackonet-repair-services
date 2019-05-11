@@ -13,6 +13,7 @@ import userDetails from './views/userDetails.vue';
 import unsupportedZipCode from './views/unsupportedZipCode.vue';
 import unsupportedZipCodeThankyou from './views/unsupportedZipCodeThankyou.vue';
 import unsupportedService from './views/unsupportedService.vue';
+import termsAndConditions from './views/termsAndConditions.vue';
 
 Vue.use(VueRouter);
 
@@ -28,6 +29,7 @@ const routes = [
 	{path: '/select-time', name: 'select-time', component: timing},
 	{path: '/user-address', name: 'user-address', component: userAddress},
 	{path: '/user-details', name: 'user-details', component: userDetails},
+	{path: '/terms-and-conditions', name: 'terms-and-conditions', component: termsAndConditions},
 	{path: '/thank-you', name: 'thank-you', component: thankyou},
 	{path: '/thankyou', name: 'thankyou', component: unsupportedZipCodeThankyou},
 ];
