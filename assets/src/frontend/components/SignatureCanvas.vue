@@ -110,17 +110,17 @@
 				if (e.target === canvas) {
 					e.preventDefault();
 				}
-			}, false);
+			}, {capture: false, passive: false});
 			document.body.addEventListener("touchend", function (e) {
 				if (e.target === canvas) {
 					e.preventDefault();
 				}
-			}, false);
+			}, {capture: false, passive: false});
 			document.body.addEventListener("touchmove", function (e) {
 				if (e.target === canvas) {
 					e.preventDefault();
 				}
-			}, false);
+			}, {capture: false, passive: false});
 
 			// Get the position of the mouse relative to the canvas
 			function getMousePos(canvasDom, mouseEvent) {
