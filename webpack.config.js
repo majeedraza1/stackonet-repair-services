@@ -14,17 +14,9 @@ let entryPoints = {
 	admin: [
 		'./assets/src/admin/main.js',
 		'./assets/src/admin/become-a-tech/main.js',
-		'./assets/scss/admin.scss'
-	],
-	'admin-rent-center': [
 		'./assets/src/admin/rent-a-center/main.js',
-	],
-	'admin-survey': [
 		'./assets/src/admin/survey/main.js',
-	],
-	'frontend-rent-center': [
-		'./assets/src/frontend/rent-a-center/main.js',
-		'./assets/scss/frontend-rent-center.scss'
+		'./assets/src/scss/admin.scss'
 	],
 	frontend: [
 		'./assets/src/frontend/main.js',
@@ -34,11 +26,11 @@ let entryPoints = {
 		'./assets/src/frontend/survey/main.js',
 		'./assets/src/frontend/manager-registration/main.js',
 		'./assets/src/frontend/become-a-tech/main.js',
-		'./assets/scss/frontend.scss'
-	],
-	'my-account': [
 		'./assets/src/frontend/my-account/main.js',
-		'./assets/scss/my-account.scss',
+		'./assets/src/frontend/rent-a-center/main.js',
+		'./assets/src/scss/frontend.scss',
+		'./assets/src/scss/my-account.scss',
+		'./assets/src/scss/frontend-rent-center.scss',
 	],
 };
 

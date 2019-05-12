@@ -78,40 +78,20 @@ class Assets {
 	 */
 	public function get_scripts() {
 		$scripts = [
-			'stackonet-vendors'                     => [
+			'stackonet-vendors'                  => [
 				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/vendors.js',
 				'in_footer' => true
 			],
-			'stackonet-repair-services-frontend'    => [
+			'stackonet-repair-services-frontend' => [
 				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/frontend.js',
 				'deps'      => [ 'jquery', 'stackonet-vendors' ],
 				'in_footer' => true
 			],
-			'stackonet-repair-services-account'     => [
-				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/my-account.js',
-				'deps'      => [ 'jquery', 'stackonet-vendors' ],
-				'in_footer' => true
-			],
-			'stackonet-repair-services-admin'       => [
+			'stackonet-repair-services-admin'    => [
 				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/admin.js',
 				'deps'      => [ 'jquery', 'wp-color-picker', 'stackonet-vendors' ],
 				'in_footer' => true
 			],
-			'stackonet-repair-services-rent-center' => [
-				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/admin-rent-center.js',
-				'deps'      => [ 'jquery', 'stackonet-vendors' ],
-				'in_footer' => true
-			],
-			'frontend-rent-center'                  => [
-				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/frontend-rent-center.js',
-				'deps'      => [ 'stackonet-vendors' ],
-				'in_footer' => true
-			],
-			'admin-survey'                          => [
-				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/admin-survey.js',
-				'deps'      => [ 'jquery', 'stackonet-vendors' ],
-				'in_footer' => true
-			]
 		];
 
 		return $scripts;
@@ -124,24 +104,12 @@ class Assets {
 	 */
 	public function get_styles() {
 		$styles = [
-			'stackonet-repair-services-frontend'    => [
+			'stackonet-repair-services-frontend' => [
 				'src' => STACKONET_REPAIR_SERVICES_ASSETS . '/css/frontend.css'
 			],
-			'stackonet-repair-services-account'     => [
-				'src' => STACKONET_REPAIR_SERVICES_ASSETS . '/css/my-account.css'
-			],
-			'stackonet-repair-services-admin'       => [
+			'stackonet-repair-services-admin'    => [
 				'src'  => STACKONET_REPAIR_SERVICES_ASSETS . '/css/admin.css',
 				'deps' => [ 'wp-color-picker' ],
-			],
-			'stackonet-repair-services-rent-center' => [
-				'src' => STACKONET_REPAIR_SERVICES_ASSETS . '/css/admin-rent-center.css',
-			],
-			'frontend-rent-center'                  => [
-				'src' => STACKONET_REPAIR_SERVICES_ASSETS . '/css/frontend-rent-center.css',
-			],
-			'admin-survey'                          => [
-				'src' => STACKONET_REPAIR_SERVICES_ASSETS . '/css/admin-survey.css',
 			],
 		];
 

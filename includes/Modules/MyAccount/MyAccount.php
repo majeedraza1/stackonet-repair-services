@@ -59,9 +59,9 @@ class MyAccount {
 	 */
 	public function load_my_account_scripts() {
 		if ( function_exists( 'is_account_page' ) && is_account_page() ) {
-			wp_enqueue_script( 'stackonet-repair-services-account' );
-			wp_enqueue_style( 'stackonet-repair-services-account' );
-			wp_localize_script( 'stackonet-repair-services-account', 'StackonetRentCenter', [
+			wp_enqueue_script( 'stackonet-repair-services-frontend' );
+			wp_enqueue_style( 'stackonet-repair-services-frontend' );
+			wp_localize_script( 'stackonet-repair-services-frontend', 'StackonetRentCenter', [
 				'phone_statuses' => Phone::available_status(),
 			] );
 		}

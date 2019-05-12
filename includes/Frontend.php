@@ -77,6 +77,7 @@ class Frontend {
 			'stackonet_manager_registration_form',
 			'stackonet_survey_form',
 			'stackonet_become_technician',
+			'stackonet_rent_a_center',
 		];
 
 		global $post;
@@ -99,9 +100,6 @@ class Frontend {
 	 * @return string
 	 */
 	public function rent_a_center() {
-		wp_enqueue_style( 'frontend-rent-center' );
-		wp_enqueue_script( 'frontend-rent-center' );
-
 		return '<div id="stackonet_rent_a_center"></div>';
 	}
 

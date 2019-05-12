@@ -220,8 +220,7 @@ class Admin {
 	 */
 	public function init_rent_a_center_hooks() {
 		wp_enqueue_style( 'stackonet-repair-services-admin' );
-		wp_enqueue_style( 'stackonet-repair-services-rent-center' );
-		wp_enqueue_script( 'stackonet-repair-services-rent-center' );
+		wp_enqueue_script( 'stackonet-repair-services-admin' );
 		wp_localize_script( 'jquery', 'StackonetRentCenter', [
 			'phone_statuses'         => Phone::available_status(),
 			'unique_store_addresses' => Phone::unique_store_address(),
@@ -264,10 +263,12 @@ class Admin {
 	 */
 	public function init_survey_hooks() {
 		wp_enqueue_style( 'stackonet-repair-services-admin' );
-		wp_enqueue_style( 'admin-survey' );
-		wp_enqueue_script( 'admin-survey' );
+		wp_enqueue_script( 'stackonet-repair-services-admin' );
 	}
 
+	/**
+	 * Become a technician menu
+	 */
 	public function add_become_technician_menu() {
 		global $submenu;
 		$capability = 'manage_options';
@@ -289,6 +290,9 @@ class Admin {
 		add_action( 'load-' . $hook, [ self::$instance, 'init_technician_hooks' ] );
 	}
 
+	/**
+	 * Become a technician menu callback
+	 */
 	public function become_technician_callback() {
 		echo '<div class="wrap"><div id="admin-stackonet-become-technician"></div></div>';
 	}
