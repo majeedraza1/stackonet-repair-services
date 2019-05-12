@@ -49,6 +49,16 @@
 						</tr>
 						<tr>
 							<th scope="row">
+								<label for="terms_and_conditions">Terms and conditions Page</label>
+							</th>
+							<td>
+								<input type="text" id="terms_and_conditions" class="regular-text"
+									   v-model="settings.terms_and_conditions_page_id"/>
+								<p class="description">Choose terms and conditions page.</p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">
 								<label for="order_reminder_minutes">Order Reminder Time</label>
 							</th>
 							<td>
@@ -173,6 +183,7 @@
 					support_email: '',
 					business_address: '',
 					reschedule_page_id: '',
+					terms_and_conditions_page_id: '',
 					order_reminder_minutes: '',
 					google_map_key: '',
 					dropbox_client_id: '',

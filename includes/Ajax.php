@@ -10,7 +10,6 @@ use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
 use Stackonet\Models\Testimonial;
 use Stackonet\Models\UnsupportedArea;
-use Stackonet\Supports\DropboxHelper;
 use Stackonet\Supports\Utils;
 use WC_Data_Exception;
 use WC_Order;
@@ -93,7 +92,7 @@ class Ajax {
 	}
 
 	public function terms_and_conditions() {
-		$terms_page_id = wc_terms_and_conditions_page_id();
+		$terms_page_id = Settings::get_terms_and_conditions_page_id();
 
 		if ( ! $terms_page_id ) {
 			die( '' );

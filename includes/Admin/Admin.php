@@ -7,6 +7,7 @@ use Stackonet\Models\Settings;
 use WC_Order_Item;
 use WC_Order_Item_Product;
 use WC_Product;
+use WP_Post;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -49,10 +50,17 @@ class Admin {
 	 * Admin scripts
 	 */
 	public function admin_scripts() {
+		/** @var WP_Post[] $pages */
+		$pages  = get_pages();
+		$_pages = [];
+		foreach ( $pages as $page ) {
+			$_pages[] = [ 'id' => $page->ID, 'title' => $page->post_title ];
+		}
 		wp_localize_script( 'jquery', 'stackonetSettings', array(
 			'root'     => esc_url_raw( rest_url( 'stackonet/v1' ) ),
 			'nonce'    => wp_create_nonce( 'wp_rest' ),
 			'settings' => Settings::get_settings(),
+			'pages'    => $_pages,
 		) );
 	}
 
