@@ -4,7 +4,7 @@
 		<section-title>Terms and Conditions</section-title>
 
 		<div class="terms-and-conditions-content">
-			<div class="terms-and-conditions-content-inner" v-html="terms_and_conditions"></div>
+			<div class="terms-and-conditions-content-inner" v-html="terms"></div>
 		</div>
 
 		<div class="terms-and-conditions-signature-content">
@@ -52,6 +52,13 @@
 				'device', 'deviceModel', 'deviceColor', 'issues', 'issueDescription', 'date', 'timeRange',
 				'firstName', 'lastName', 'phone', 'emailAddress', 'addressObject', 'instructions', 'additionalAddress'
 			]),
+			terms() {
+				let content = this.terms_and_conditions;
+				content = content.replace('{{first_name}}', this.firstName);
+				content = content.replace('{{last_name}}', this.lastName);
+
+				return content;
+			},
 		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
