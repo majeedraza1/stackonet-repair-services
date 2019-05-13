@@ -70,6 +70,14 @@
 		</div>
 
 		<div class="form-field">
+			<animated-input label="Email" type="email" v-model="email"></animated-input>
+		</div>
+
+		<div class="form-field">
+			<animated-input label="Phone" type="tel" v-model="phone"></animated-input>
+		</div>
+
+		<div class="form-field">
 			<g-map-autocomplete geolocation :value="formatted_address" @change="changeGeoLocation"></g-map-autocomplete>
 
 			<p>
@@ -176,6 +184,8 @@
 				device_status: '',
 				latitude: '',
 				longitude: '',
+				email: '',
+				phone: '',
 				addresses: [],
 				address_object: {},
 				formatted_address: '',
@@ -349,6 +359,8 @@
 					full_address: self.formatted_address,
 					images_ids: images_ids,
 					tips_amount: self.tips_amount,
+					email: self.email,
+					phone: self.phone,
 				};
 				axios
 					.post(PhoneRepairs.rest_root + '/survey', data,

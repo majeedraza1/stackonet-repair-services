@@ -116,7 +116,30 @@
 					</columns>
 				</div>
 				<div class="section-total-damaged-devices">
-					<div class="section-title">Total Damaged Devices</div>
+					<box>
+						<div class="section-title">Total Damaged Devices</div>
+						<div class="damaged-devices-list">
+							<div class="damaged-devices-list__item" v-for="num in [1,2,3,4,5]">
+								<div class="damaged-devices-list__sl">1st</div>
+								<div class="damaged-devices-list__avatar">
+									<image-container square>
+										<img class="is-rounded"
+											 src="http://phonerepairsasap.test/wp-content/uploads/2017/03/1.jpg"
+											 alt="">
+									</image-container>
+								</div>
+								<div class="damaged-devices-list__name">
+									Sayful Islam
+								</div>
+								<div class="damaged-devices-list__store-name">
+									Stackonet
+								</div>
+								<div class="damaged-devices-list__phones">
+									31 Phones
+								</div>
+							</div>
+						</div>
+					</box>
 				</div>
 			</column>
 			<column :tablet="3">

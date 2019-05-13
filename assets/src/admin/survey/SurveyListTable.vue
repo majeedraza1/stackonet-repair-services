@@ -37,6 +37,8 @@
 			<list-item label="Brand">{{activeItem.brand}}</list-item>
 			<list-item label="Model">{{activeItem.model}}</list-item>
 			<list-item label="Gadget">{{activeItem.gadget}}</list-item>
+			<list-item label="Email">{{activeItem.email}}</list-item>
+			<list-item label="Phone">{{activeItem.phone}}</list-item>
 			<list-item label="Full Address">{{activeItem.full_address}}</list-item>
 			<list-item label="Latitude">{{activeItem.latitude}}</list-item>
 			<list-item label="Longitude">{{activeItem.longitude}}</list-item>

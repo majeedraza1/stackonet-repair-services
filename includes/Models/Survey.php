@@ -36,6 +36,8 @@ class Survey extends DatabaseModel {
 		'full_address'  => '',
 		'address'       => '',
 		'device_status' => '',
+		'email'         => '',
+		'phone'         => '',
 		'created_by'    => '',
 		'created_at'    => '',
 		'updated_at'    => '',
@@ -49,6 +51,8 @@ class Survey extends DatabaseModel {
 	 */
 	protected $data_format = [
 		'%d',
+		'%s',
+		'%s',
 		'%s',
 		'%s',
 		'%s',
@@ -381,6 +385,8 @@ class Survey extends DatabaseModel {
                 `full_address` TEXT DEFAULT NULL,
                 `address` LONGTEXT DEFAULT NULL,
                 `device_status` varchar(50) DEFAULT NULL,
+                `email` varchar(100) DEFAULT NULL,
+                `phone` varchar(20) DEFAULT NULL,
                 `created_by` bigint(20) DEFAULT NULL,
                 `created_at` datetime DEFAULT NULL,
                 `updated_at` datetime DEFAULT NULL,
@@ -402,7 +408,7 @@ class Survey extends DatabaseModel {
 		$version    = get_option( 'stackonet_survey_table_version' );
 		$version    = ! empty( $version ) ? $version : '1.0.0';
 
-		if ( version_compare( $version, '1.1.1', '<' ) ) {
+		if ( version_compare( $version, '1.1.2', '<' ) ) {
 			$row = $wpdb->get_row( "SELECT * FROM {$table_name}", ARRAY_A );
 			if ( ! isset( $row['brand'] ) ) {
 				$wpdb->query( "ALTER TABLE {$table_name} ADD `brand` VARCHAR(100) NULL DEFAULT NULL AFTER `id`" );
@@ -419,8 +425,14 @@ class Survey extends DatabaseModel {
 			if ( ! isset( $row['tips_amount'] ) ) {
 				$wpdb->query( "ALTER TABLE {$table_name} ADD `tips_amount` VARCHAR(100) NULL DEFAULT NULL AFTER `images_ids`" );
 			}
+			if ( ! isset( $row['email'] ) ) {
+				$wpdb->query( "ALTER TABLE {$table_name} ADD `email` VARCHAR(100) NULL DEFAULT NULL AFTER `device_status`" );
+			}
+			if ( ! isset( $row['phone'] ) ) {
+				$wpdb->query( "ALTER TABLE {$table_name} ADD `phone` VARCHAR(20) NULL DEFAULT NULL AFTER `email`" );
+			}
 
-			update_option( 'stackonet_survey_table_version', '1.1.1' );
+			update_option( 'stackonet_survey_table_version', '1.1.2' );
 		}
 	}
 }

@@ -40,3 +40,45 @@
 
 	}
 }
+
+.damaged-devices-list {
+	&__item {
+		align-items: center;
+		border: 1px solid rgba(#000, .12);
+		border-radius: 6px;
+		display: flex;
+
+		&:not(:last-child) {
+			margin-bottom: 1rem;
+		}
+
+		> * {
+			padding: 0.5rem;
+		}
+	}
+
+	&__sl {
+		width: 32px;
+		text-align: center;
+	}
+
+	&__avatar {
+		width: 48px;
+	}
+
+	&__name {
+		width: calc(50% - (90px));
+	}
+
+	&__store-name {
+		width: calc(50% - (90px));
+	}
+
+	&__phones {
+		width: 100px;
+		background: #f1f1f1;
+		margin: 1rem;
+		border-radius: 100px;
+		text-align: center;
+	}
+}
