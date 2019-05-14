@@ -140,7 +140,12 @@
 				return !!(this.deviceColor && this.deviceColor.title);
 			},
 			subtotal() {
-				return this.issues.reduce((prev, next) => prev + next.price, 0);
+				if (this.issues.length < 1) {
+					return 0;
+				}
+				let subtotal = this.issues.reduce((prev, next) => prev + next.price, 0);
+
+				return this.round(subtotal, 2);
 			},
 			discount() {
 				if (this.issues.length < 2) {
