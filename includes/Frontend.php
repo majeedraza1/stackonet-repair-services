@@ -38,6 +38,7 @@ class Frontend {
 			add_shortcode( 'stackonet_reschedule_order', [ self::$instance, 'reschedule_order' ] );
 			add_shortcode( 'stackonet_rent_a_center', [ self::$instance, 'rent_a_center' ] );
 			add_shortcode( 'stackonet_survey_form', [ self::$instance, 'survey_form' ] );
+			add_shortcode( 'stackonet_spot_appointment', [ self::$instance, 'spot_appointment' ] );
 			add_shortcode( 'stackonet_become_technician', [ self::$instance, 'become_technician' ] );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
 		}
@@ -76,6 +77,7 @@ class Frontend {
 			'stackonet_reschedule_order',
 			'stackonet_manager_registration_form',
 			'stackonet_survey_form',
+			'stackonet_spot_appointment',
 			'stackonet_become_technician',
 			'stackonet_rent_a_center',
 		];
@@ -116,6 +118,21 @@ class Frontend {
 		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
 
 		return '<div id="stackonet_survey_form"></div>';
+	}
+
+	/**
+	 * Survey form
+	 *
+	 * @return string
+	 */
+	public function spot_appointment() {
+		if ( ! current_user_can( 'add_survey' ) ) {
+			return '<div>Please login to view this form.</div>';
+		}
+
+		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
+
+		return '<div id="stackonet_spot_appointment"></div>';
 	}
 
 	/**

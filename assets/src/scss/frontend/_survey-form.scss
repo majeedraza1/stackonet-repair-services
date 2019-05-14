@@ -1,0 +1,76 @@
+.stackonet-survey-form {
+	margin: 100px auto;
+	max-width: 600px;
+	// position: relative;
+
+	.shapla-survey-box {
+		border: 1px solid rgba(#000, 0.2);
+		border-radius: 6px;
+		cursor: pointer;
+		padding: 15px;
+		text-align: center;
+	}
+
+	.shapla-column {
+		&.column--dropzone {
+			width: 100%;
+		}
+
+		&.column--media-list {
+			display: none;
+		}
+	}
+
+	.shapla-device-box__content {
+		height: 60px;
+		border: 1px solid rgba(#000, 0.2);
+	}
+
+	.form-field {
+		margin-bottom: 3rem;
+
+		label {
+			display: block;
+			margin-bottom: 1rem;
+		}
+	}
+
+	.g-map-autocomplete {
+		margin-bottom: 1rem;
+	}
+
+	.loading-container {
+		&.is-active {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			background: rgba(#000, 0.5);
+			z-index: 10;
+		}
+	}
+
+	.stackonet-section-title {
+		text-align: center;
+		margin-bottom: 1em;
+	}
+
+	.formatted-address-list_item {
+		border: 1px solid rgba(#000, 0.2);
+		cursor: pointer;
+		margin: 1em 0;
+		padding: 0.5rem 1rem;
+
+		&:not(.is-active):hover {
+			border-color: #f58730;
+		}
+
+		&.is-active {
+			border-color: #f58730;
+		}
+	}
+}

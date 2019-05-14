@@ -128,6 +128,32 @@
 			></media-modal>
 		</div>
 
+		<div class="form-field">
+			<label>Appointment Date and Time</label>
+			<columns>
+				<column>
+					<select v-model="appointment_date">
+						<option value="">Choose Date</option>
+						<option v-for="_date in dateRanges" :value="_date.date"
+								v-html="getFormattedDateTime(_date.date)"></option>
+					</select>
+				</column>
+				<column>
+					<select v-model="appointment_time">
+						<option value="">Choose Time</option>
+					</select>
+				</column>
+			</columns>
+		</div>
+
+		<div class="form-field">
+			<animated-input v-model="store_name" label="Name of Store"></animated-input>
+		</div>
+
+		<div class="form-field">
+			<animated-input type="textarea" v-model="note" label="Note (optional)"></animated-input>
+		</div>
+
 		<big-button @click="handleSubmit">Submit</big-button>
 
 		<div class="loading-container" :class="{'is-active':loading}">
@@ -160,7 +186,7 @@
 	import MediaModal from '../components/MediaModal'
 
 	export default {
-		name: "SurveyForm",
+		name: "SpotAppointment",
 		components: {
 			AnimatedInput,
 			BigButton,
@@ -205,6 +231,10 @@
 				images_ids: '',
 				tips_amount: '',
 				tips_amounts: [49, 59, 69, 79, 89, 99],
+				appointment_date: '',
+				appointment_time: '',
+				note: '',
+				store_name: '',
 			}
 		},
 		computed: {
@@ -219,6 +249,12 @@
 			},
 			map_api_key() {
 				return window.PhoneRepairs.map_api_key;
+			},
+			dateRanges() {
+				return window.Stackonet.dateRanges;
+			},
+			timeRanges() {
+				return window.Stackonet.timeRanges;
 			},
 			c_address_object() {
 				let place = this.address_object;
@@ -278,6 +314,21 @@
 			}
 		},
 		methods: {
+			getFormattedDateTime(date) {
+				let _date = new Date(date);
+
+				let days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+				let dayName = days[_date.getDay()];
+
+				let number = _date.getDate();
+				let dateNumber = number.length === 1 ? '0' + number : number;
+
+				let monthNames = ["January", "February", "March", "April", "May", "June",
+					"July", "August", "September", "October", "November", "December"
+				];
+
+				return dayName + ', ' + dateNumber + ' ' + monthNames[_date.getMonth()];
+			},
 			closeThankYouModel() {
 				this.open_thank_you_model = false;
 				window.location.reload();
@@ -380,6 +431,6 @@
 	}
 </script>
 
-<style lang="scss">
+<style scoped>
 
 </style>
