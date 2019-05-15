@@ -34,6 +34,7 @@ class Admin {
 			add_action( 'admin_menu', [ self::$instance, 'add_rent_a_center_menu' ] );
 			add_action( 'admin_menu', [ self::$instance, 'add_survey_menu' ] );
 			add_action( 'admin_menu', [ self::$instance, 'add_become_technician_menu' ] );
+			add_action( 'admin_menu', [ self::$instance, 'add_spot_appointment_menu' ] );
 
 			// Add decoration product data on Checkout(after), Email and Order Detail Page
 			add_action( 'woocommerce_order_item_meta_start', [ self::$instance, 'order_item_meta_start' ], 10, 3 );
@@ -301,6 +302,45 @@ class Admin {
 	 * Admin menu page scripts
 	 */
 	public function init_technician_hooks() {
+		wp_enqueue_style( 'stackonet-repair-services-admin' );
+		wp_enqueue_script( 'stackonet-repair-services-admin' );
+	}
+
+	/**
+	 * Become a technician menu
+	 */
+	public function add_spot_appointment_menu() {
+		global $submenu;
+		$capability = 'manage_options';
+		$slug       = 'spot-appointment';
+
+		$hook = add_menu_page( __( 'Spot Appointment', 'stackonet-repair-services' ), __( 'Spot Appointment', 'stackonet-repair-services' ),
+			$capability, $slug, [ self::$instance, 'spot_appointment_callback' ], 'dashicons-admin-post', 8 );
+
+		$menus = [
+			[ 'title' => __( 'Appointment', 'stackonet-repair-services' ), 'slug' => '#/' ],
+		];
+
+		if ( current_user_can( $capability ) ) {
+			foreach ( $menus as $menu ) {
+				$submenu[ $slug ][] = [ $menu['title'], $capability, 'admin.php?page=' . $slug . $menu['slug'] ];
+			}
+		}
+
+		add_action( 'load-' . $hook, [ self::$instance, 'init_spot_appointment_hooks' ] );
+	}
+
+	/**
+	 * Become a technician menu callback
+	 */
+	public function spot_appointment_callback() {
+		echo '<div class="wrap"><div id="admin-stackonet-spot-appointment"></div></div>';
+	}
+
+	/**
+	 * Admin menu page scripts
+	 */
+	public function init_spot_appointment_hooks() {
 		wp_enqueue_style( 'stackonet-repair-services-admin' );
 		wp_enqueue_script( 'stackonet-repair-services-admin' );
 	}

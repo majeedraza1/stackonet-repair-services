@@ -1,6 +1,6 @@
 <template>
-	<div>
-		<h1 class="wp-heading-inline">Technicians</h1>
+	<div class="stackonet-admin-spot-appointment">
+		<h1 class="wp-heading-inline">Spot Appointment</h1>
 		<div class="clear"></div>
 
 		<wp-list-table
@@ -10,9 +10,9 @@
 			:actions="actions"
 			:bulk-actions="bulkActions"
 			index="id"
-			action-column="first_name"
+			action-column="full_address"
 			:show-search="false"
-			search-key="technician"
+			search-key="survey"
 			:statuses="statuses"
 			:total-items="pagination.totalCount"
 			:total-pages="pagination.pageCount"
@@ -22,33 +22,42 @@
 			@bulk:apply="onBulkAction"
 			@status:change="changeStatus"
 			@pagination="paginate"
-		/>
-		<modal :active="has_active_item" title="Technician Info" @close="activeItem = {}">
+		>
+			<template slot="display_name" slot-scope="data">
+				<span>{{data.row.author.display_name}}</span>
+			</template>
+		</wp-list-table>
+		<modal :active="has_active_item" title="Survey Info" @close="activeItem = {}">
 			<list-item label="ID">{{activeItem.id}}</list-item>
-			<list-item label="First Name">{{activeItem.first_name}}</list-item>
-			<list-item label="Last Name">{{activeItem.last_name}}</list-item>
+			<list-item label="Gadget">{{activeItem.gadget}}</list-item>
+			<list-item label="Device">{{activeItem.device}}</list-item>
+			<list-item label="Device Model">{{activeItem.device_model}}</list-item>
+			<list-item label="Device Issues">{{activeIssueNames}}</list-item>
+			<list-item label="Appointment Date">{{activeItem.appointment_date}}</list-item>
+			<list-item label="Appointment Time">{{activeItem.appointment_time}}</list-item>
 			<list-item label="Email">{{activeItem.email}}</list-item>
 			<list-item label="Phone">{{activeItem.phone}}</list-item>
-			<list-item label="Date">{{activeItem.created_at}}</list-item>
-			<list-item label="Resume">
-				<a :href="activeItem.resume_url" target="_blank">{{activeItem.resume_title}}</a>
+			<list-item label="Store Name">{{activeItem.store_name}}</list-item>
+			<list-item label="Full Address">{{activeItem.full_address}}</list-item>
+			<list-item label="Images">
+				<div v-for="_image in activeItem.images" style="max-width: 100px;">
+					<image-container><img :src="_image.thumbnail.src" :alt="_image.title"></image-container>
+				</div>
 			</list-item>
-			<div slot="foot">
-				<button @click="activeItem = {}">Close</button>
-			</div>
+			<list-item label="Note">{{activeItem.note}}</list-item>
 		</modal>
 	</div>
 </template>
 
 <script>
 	import axios from 'axios';
-	import wpListTable from '../../wp/wpListTable.vue';
-	import ListItem from '../../components/ListItem.vue';
-	import modal from '../../shapla/modal/modal';
-	import imageContainer from '../../shapla/image/image';
+	import wpListTable from '../../wp/wpListTable.vue'
+	import ListItem from '../../components/ListItem.vue'
+	import modal from '../../shapla/modal/modal'
+	import imageContainer from '../../shapla/image/image'
 
 	export default {
-		name: "BecomeTechListTable",
+		name: "SpotAppointment",
 		components: {wpListTable, modal, ListItem, imageContainer},
 		data() {
 			return {
@@ -59,10 +68,10 @@
 				counts: {},
 				pagination: {},
 				columns: [
-					{key: 'first_name', label: 'First Name'},
-					{key: 'last_name', label: 'Last Name'},
-					{key: 'email', label: 'Email'},
-					{key: 'phone', label: 'Phone'},
+					{key: 'full_address', label: 'Address'},
+					{key: 'brand', label: 'Brand'},
+					{key: 'gadget', label: 'Gadget'},
+					{key: 'display_name', label: 'Created By'},
 					{key: 'created_at', label: 'Date'},
 				],
 				default_statuses: [
@@ -107,12 +116,19 @@
 					return [{key: 'trash', label: 'Move to Trash'}];
 				}
 			},
+			activeIssueNames() {
+				if (typeof this.activeItem.device_issues === "undefined") {
+					return '';
+				}
+				let names = this.activeItem.device_issues.map(issue => issue.title);
+				return names.join(', ');
+			}
 		},
 		methods: {
 			getItems() {
 				let self = this;
 				axios
-					.get(stackonetSettings.root + `/technician?status=${self.status}&paged=${self.currentPage}`)
+					.get(stackonetSettings.root + `/spot-appointment?status=${self.status}&paged=${self.currentPage}`)
 					.then((response) => {
 						let data = response.data.data;
 						self.items = data.items;
@@ -123,6 +139,7 @@
 						console.log(error);
 					});
 			},
+
 			changeStatus(status) {
 				this.currentPage = 1;
 				this.status = status.key;
@@ -169,7 +186,7 @@
 				let self = this;
 				self.loading = true;
 				axios
-					.post(stackonetSettings.root + '/technician/delete', {
+					.post(stackonetSettings.root + '/spot-appointment/delete', {
 						id: item.id,
 						action: action
 					})
@@ -186,7 +203,7 @@
 				let self = this;
 				self.loading = true;
 				axios
-					.post(stackonetSettings.root + '/technician/batch_delete', {
+					.post(stackonetSettings.root + '/spot-appointment/batch_delete', {
 						ids: ids,
 						action: action
 					})
@@ -203,6 +220,23 @@
 	}
 </script>
 
-<style scoped>
+<style lang="scss">
+	.stackonet-admin-spot-appointment {
+		.mdl-list-item {
+			display: block;
+			margin: 1rem 0;
 
+			&-label {
+				display: inline-block;
+				font-weight: bold;
+				min-width: 120px;
+			}
+
+			&-separator {
+				width: 30px;
+				display: inline-block;
+				text-align: center;
+			}
+		}
+	}
 </style>

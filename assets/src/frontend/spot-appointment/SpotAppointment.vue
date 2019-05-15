@@ -14,18 +14,6 @@
 		</div>
 
 		<div class="form-field">
-			<label>Brands</label>
-			<columns mobile multiline centered>
-				<column :mobile="6" :tablet="4" v-for="(_brand, index) in brands" :key="index">
-					<div class="shapla-survey-box hoverable" :class="{'is-active':_brand === brand}"
-						 @click="chooseBrand(_brand)">
-						<div>{{_brand}}</div>
-					</div>
-				</column>
-			</columns>
-		</div>
-
-		<div class="form-field">
 			<label>Choose device</label>
 			<columns mobile multiline centered>
 				<column :mobile="6" :tablet="4" v-for="(_device, index) in devices" :key="index">

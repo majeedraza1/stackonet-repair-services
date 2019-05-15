@@ -347,7 +347,28 @@ class Appointment extends DatabaseModel {
 	 * @return array
 	 */
 	public function count_records() {
-		return [];
+		global $wpdb;
+		$table  = $wpdb->prefix . $this->table;
+		$status = self::available_status();
+		$counts = wp_cache_get( 'spot_appointment_records_count', $this->cache_group );
+		if ( false === $counts ) {
+			$query   = "SELECT status, COUNT( * ) AS num_entries FROM {$table} WHERE deleted_at IS NULL";
+			$query   .= " GROUP BY status";
+			$results = $wpdb->get_results( $query, ARRAY_A );
+			foreach ( $status as $key => $life_stage ) {
+				$counts[ $key ] = 0;
+			}
+			foreach ( $results as $row ) {
+				$counts[ $row['status'] ] = intval( $row['num_entries'] );
+			}
+			$counts['all']   = array_sum( $counts );
+			$query           = "SELECT COUNT( * ) AS num_entries FROM {$table} WHERE deleted_at IS NOT NULL";
+			$results         = $wpdb->get_row( $query, ARRAY_A );
+			$counts['trash'] = intval( $results['num_entries'] );
+			wp_cache_set( 'spot_appointment_records_count', $counts, $this->cache_group );
+		}
+
+		return $counts;
 	}
 
 	/**
