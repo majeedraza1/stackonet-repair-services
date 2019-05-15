@@ -347,10 +347,11 @@ class Frontend {
 	public static function service_data() {
 		$data = self::dynamic_data();
 
-		$data['devices']     = Device::get_devices();
-		$data["serviceArea"] = ServiceArea::get_zip_codes();
-		$data['dateRanges']  = Settings::get_service_dates_ranges();
-		$data['timeRanges']  = Settings::get_service_times_ranges();
+		$data['devices']         = Device::get_devices();
+		$data["serviceArea"]     = ServiceArea::get_zip_codes();
+		$data['dateRanges']      = Settings::get_service_dates_ranges();
+		$data['timeRanges']      = Settings::get_service_times_ranges();
+		$data['todayTimeRanges'] = Settings::get_today_times_ranges();
 
 		$data['icons'] = [
 			'check'            => STACKONET_REPAIR_SERVICES_ASSETS . '/img/icon-check.png',

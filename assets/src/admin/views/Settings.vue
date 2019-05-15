@@ -85,6 +85,20 @@
 							</td>
 						</tr>
 					</table>
+					<h2 class="title">Time Settings</h2>
+					<table class="form-table">
+						<tr>
+							<th scope="row">
+								<label for="minimum_time_difference">Minimum time difference</label>
+							</th>
+							<td>
+								<input type="number" id="minimum_time_difference"
+									   v-model="settings.minimum_time_difference">
+								<p class="description">Set minimum time interval in minutes between order time and
+									service request time.</p>
+							</td>
+						</tr>
+					</table>
 					<h2 class="title">Public Holidays</h2>
 					<table class="form-table">
 						<tr>
@@ -189,6 +203,7 @@
 					dropbox_client_id: '',
 					dropbox_client_secret: '',
 					dropbox_access_token: '',
+					minimum_time_difference: '',
 					service_times: {
 						Monday: {start_time: '', end_time: '',},
 						Tuesday: {start_time: '', end_time: '',},

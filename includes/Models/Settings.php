@@ -31,6 +31,7 @@ class Settings {
 		'dropbox_client_id'            => '',
 		'dropbox_client_secret'        => '',
 		'dropbox_access_token'         => '',
+		'minimum_time_difference'      => '',
 		'service_times'                => [
 			'Monday'    => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 			'Tuesday'   => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
@@ -173,6 +174,52 @@ class Settings {
 		}
 
 		return $days;
+	}
+
+	/**
+	 * Get today times ranges
+	 *
+	 * @return array
+	 * @throws Exception
+	 */
+	public static function get_today_times_ranges() {
+		$current_time  = current_time( 'timestamp' );
+		$options       = self::get_option();
+		$service_times = ! empty( $options['service_times'] ) ? $options['service_times'] : [];
+		$dayName       = date( 'l', $current_time );
+		$times_ranges  = isset( $service_times[ $dayName ] ) ? $service_times[ $dayName ] : [];
+
+		$start_time = $times_ranges['start_time'];
+		$end_time   = $times_ranges['end_time'];
+
+		$difference      = ! empty( $options['minimum_time_difference'] ) ? intval( $options['minimum_time_difference'] ) : 0;
+		$_time           = $current_time + ( $difference * 60 );
+		$rounded_seconds = round( $_time / 3600 ) * 3600;
+		$_start_time     = date( 'H:i', $rounded_seconds );
+
+		if ( intval( $_start_time ) > intval( $start_time ) ) {
+			$start_time = $_start_time;
+		}
+
+		$start = date( 'Y-m-d', time() ) . ' ' . $start_time;
+		$end   = date( 'Y-m-d', time() ) . ' ' . $end_time;
+
+		$date1 = new DateTime( $start );
+		$date2 = new DateTime( $end );
+
+		$interval = new DateInterval( 'PT1H' );
+		/** @var DateTime[] $period */
+		$period = new DatePeriod( $date1, $interval, $date2 );
+
+		$_times = [];
+
+		foreach ( $period as $day ) {
+			$_h1 = $day->format( 'ha' );
+			$day->modify( '+ 1 hour' );
+			$_times[] = sprintf( '%s - %s', $_h1, $day->format( 'ha' ) );
+		}
+
+		return $_times;
 	}
 
 	/**

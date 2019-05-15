@@ -1,5 +1,5 @@
 <template>
-	<div class="stackonet-survey-form">
+	<div class="stackonet-survey-form stackonet-spot-appointment">
 
 		<div class="form-field">
 			<label>Brands</label>
@@ -20,50 +20,6 @@
 					<div class="shapla-survey-box hoverable" :class="{'is-active':_gadget === gadget}"
 						 @click="chooseGadget(_gadget)">
 						<div>{{_gadget}}</div>
-					</div>
-				</column>
-			</columns>
-		</div>
-
-		<div class="form-field">
-
-			<columns mobile multiline centered>
-				<column :mobile="6" :tablet="6">
-					<div class="shapla-survey-box hoverable" :class="{'is-active':'low' === model}"
-						 @click="chooseModel('low')">
-						<div>Low End Model?</div>
-					</div>
-				</column>
-				<column :mobile="6" :tablet="6">
-					<div class="shapla-survey-box hoverable" :class="{'is-active':'high' === model}"
-						 @click="chooseModel('high')">
-						<div>High End Model?</div>
-					</div>
-				</column>
-			</columns>
-
-		</div>
-
-		<div class="form-field">
-			<label>Status</label>
-			<columns mobile multiline centered>
-				<column :mobile="12" :tablet="12" v-for="_status in statuses" :key="_status.value">
-					<div class="shapla-survey-box hoverable" @click="chooseStatus(_status.value)"
-						 :class="{'is-active':_status.value === device_status}">
-						<div>{{_status.label}}</div>
-					</div>
-				</column>
-			</columns>
-		</div>
-
-		<div class="form-field">
-			<label>If a barber could come to you in 1-2 hours anywhere, home, work, etc. What would you pay with tip for
-				such a service?</label>
-			<columns mobile multiline centered>
-				<column :mobile="6" :tablet="4" v-for="_charge in tips_amounts" :key="_charge">
-					<div class="shapla-survey-box hoverable" @click="chooseTipsAmount(_charge)"
-						 :class="{'is-active':_charge === tips_amount}">
-						<div>${{_charge}}</div>
 					</div>
 				</column>
 			</columns>
@@ -128,6 +84,57 @@
 			></media-modal>
 		</div>
 
+		<div class="form-field stackonet-pricing-section">
+			<pricing-accordion
+				label="Choose device"
+				:selected-issue="device.device_title"
+				:active="activeDeviceAccordion"
+				@toggle="activeDeviceAccordion = !activeDeviceAccordion"
+			>
+				<div class="device-item-container">
+					<div class="device-item"
+						 v-for="_device in devices"
+						 @click="chooseDevice(_device)"
+						 v-html="_device.device_title"
+					></div>
+				</div>
+			</pricing-accordion>
+			<pricing-accordion
+				label="Select your model"
+				:selected-issue="device_model.title"
+				:active="activeModelAccordion"
+				@toggle="activeModelAccordion = !activeModelAccordion"
+			>
+				<div class="device-item-container">
+					<div class="device-item"
+						 v-for="_model in devices_models"
+						 @click="chooseDeviceModel(_model)"
+						 v-html="_model.title"
+					></div>
+				</div>
+			</pricing-accordion>
+			<pricing-accordion
+				label="Choose issue(s)"
+				multiple
+				:selected-issues="selectedIssueNames"
+				:active="activeIssuesAccordion"
+				@toggle="activeIssuesAccordion = !activeIssuesAccordion"
+			>
+				<div class="device-item" v-for="_issue in _issues"
+					 @click="chooseIssue(_issue)">
+					<div class="device-item__inner" :class="issueClass(_issue)">
+						<div class="device-item__icon">+</div>
+						<div class="device-item__content">
+							<div class="device-item__title">{{_issue.title}}</div>
+							<div class="device-item__description"
+								 v-if="_issue.description">{{_issue.description}}
+							</div>
+						</div>
+					</div>
+				</div>
+			</pricing-accordion>
+		</div>
+
 		<div class="form-field">
 			<label>Appointment Date and Time</label>
 			<columns>
@@ -141,13 +148,14 @@
 				<column>
 					<select v-model="appointment_time">
 						<option value="">Choose Time</option>
+						<option v-for="_time in times" :value="_time">{{_time}}</option>
 					</select>
 				</column>
 			</columns>
 		</div>
 
 		<div class="form-field">
-			<animated-input v-model="store_name" label="Name of Store"></animated-input>
+			<animated-input v-model="store_name" label="Name of Store" autocomplete="organization"></animated-input>
 		</div>
 
 		<div class="form-field">
@@ -174,6 +182,7 @@
 	import axios from 'axios'
 	import AnimatedInput from '../../components/AnimatedInput';
 	import BigButton from '../../components/BigButton';
+	import PricingAccordion from '../../components/PricingAccordion';
 	import modal from '../../shapla/modal/modal';
 	import imageContainer from '../../shapla/image/image';
 	import columns from '../../shapla/columns/columns';
@@ -199,7 +208,8 @@
 			MediaModal,
 			imageContainer,
 			columns,
-			column
+			column,
+			PricingAccordion
 		},
 		data() {
 			return {
@@ -207,6 +217,9 @@
 				openLogoModal: false,
 				open_address_modal: false,
 				open_thank_you_model: false,
+				activeDeviceAccordion: false,
+				activeModelAccordion: false,
+				activeIssuesAccordion: false,
 				device_status: '',
 				latitude: '',
 				longitude: '',
@@ -235,6 +248,11 @@
 				appointment_time: '',
 				note: '',
 				store_name: '',
+				device: {},
+				devices_models: [],
+				device_model: {},
+				issues: [],
+				selectedIssues: [],
 			}
 		},
 		computed: {
@@ -250,11 +268,21 @@
 			map_api_key() {
 				return window.PhoneRepairs.map_api_key;
 			},
+			devices() {
+				return window.Stackonet.devices;
+			},
 			dateRanges() {
 				return window.Stackonet.dateRanges;
 			},
 			timeRanges() {
 				return window.Stackonet.timeRanges;
+			},
+			times() {
+				let _date = this.dateRanges.find((element) => element.date === this.appointment_date);
+				if (typeof _date === "undefined") {
+					return [];
+				}
+				return this.timeRanges[_date.day];
 			},
 			c_address_object() {
 				let place = this.address_object;
@@ -282,6 +310,31 @@
 
 				return placeData;
 			},
+			_issues() {
+				let brokenPrice = this.device_model.broken_screen_price;
+				let issues = this.issues.map(issue => {
+					if (issue.title === 'Broken Screen') {
+						issue.price = brokenPrice;
+					}
+
+					return issue;
+				});
+
+				if (brokenPrice) {
+					issues.unshift({
+						id: '',
+						title: 'Front Glass',
+						price: brokenPrice,
+						description: 'Glass price is subject to undamaged display.',
+					});
+				}
+
+				return issues;
+			},
+			selectedIssueNames() {
+				let names = this.selectedIssues.map(issue => issue.title);
+				return names.join(', ');
+			}
 		},
 		mounted() {
 			let self = this;
@@ -314,6 +367,19 @@
 			}
 		},
 		methods: {
+			chooseDevice(device) {
+				this.device = device;
+				this.devices_models = device.device_models;
+				this.device_model = device.device_models[0];
+				this.issues = device.multi_issues;
+				this.activeDeviceAccordion = false;
+				this.selectedIssues = [];
+			},
+			chooseDeviceModel(model) {
+				this.device_model = model;
+				this.activeModelAccordion = false;
+				this.selectedIssues = [];
+			},
 			getFormattedDateTime(date) {
 				let _date = new Date(date);
 
@@ -389,6 +455,25 @@
 				this.address_object = address;
 				this.formatted_address = address.formatted_address;
 			},
+			chooseIssue(issue) {
+				let issues = this.selectedIssues, index = issues.indexOf(issue);
+				if (-1 === index) {
+					issues.push(issue);
+				} else {
+					issues.splice(index, 1);
+				}
+
+				this.selectedIssues = issues;
+			},
+			issueClass(issue) {
+				let issues = this.selectedIssues,
+					index = issues.indexOf(issue),
+					isSelected = -1 !== index;
+				return {
+					'selected-issue': isSelected,
+					'disabled-issue': !isSelected,
+				}
+			},
 			handleSubmit() {
 				let self = this;
 				if (self.device_status.length < 1) {
@@ -413,24 +498,20 @@
 					email: self.email,
 					phone: self.phone,
 				};
-				axios
-					.post(PhoneRepairs.rest_root + '/survey', data,
-						{
-							headers: {'X-WP-Nonce': window.PhoneRepairs.rest_nonce},
-						})
-					.then((response) => {
-						self.loading = false;
-						self.open_thank_you_model = true;
-					})
-					.catch((error) => {
-						self.loading = false;
-						alert('Some thing went wrong. Please try again.');
-					});
+				alert('We are working on it.')
 			}
 		}
 	}
 </script>
 
-<style scoped>
+<style lang="scss">
+	.stackonet-spot-appointment {
+		select {
+			width: 100%;
+		}
 
+		.pricing-accordion {
+			min-width: 100%;
+		}
+	}
 </style>

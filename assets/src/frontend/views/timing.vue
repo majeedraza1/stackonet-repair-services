@@ -12,7 +12,7 @@
 
 			<template v-for="(_date, index) in dateRanges">
 				<template v-if="index === 0">
-					<div class="shapla-date-time-box" @click="updateDate(_date)">
+					<div class="shapla-date-time-box" @click="updateTodayDate(_date)">
 						<div class="shapla-date-time-box__content"
 							 :class="{'is-active': tempDate.date === _date.date }">
 							<div class="shapla-date-time-box__day">Today</div>
@@ -36,7 +36,16 @@
 		<div v-if="tempDate.note" v-html="tempDate.note" class="holiday-note"></div>
 
 		<div class="select-time-time-picker-wrapper">
-			<template v-for="(times, dayName) in timeRanges">
+			<template v-if="isToday">
+				<div class="shapla-device-box shapla-device-box--time" v-for="time in todayTimeRanges">
+					<div class="shapla-device-box__content hoverable"
+						 :class="{'is-active': tempTime === time}"
+						 @click="setTimeRange(time)">
+						<div v-text="time"></div>
+					</div>
+				</div>
+			</template>
+			<template v-for="(times, dayName) in timeRanges" v-else>
 				<template v-if="dayName === tempDate.day">
 					<div class="shapla-device-box shapla-device-box--time" v-for="time in times">
 						<div :disabled="isHoliday"
@@ -73,8 +82,10 @@
 		components: {BigButton, SectionTitle, SectionInfo, SectionHelp},
 		data() {
 			return {
+				isToday: true,
 				dateRanges: [],
 				timeRanges: [],
+				todayTimeRanges: [],
 				tempDate: {
 					date: '',
 					day: '',
@@ -88,8 +99,9 @@
 			this.$store.commit('SET_SHOW_CART', true);
 			this.dateRanges = window.Stackonet.dateRanges;
 			this.timeRanges = window.Stackonet.timeRanges;
+			this.todayTimeRanges = window.Stackonet.todayTimeRanges;
 			this.tempDate = this.dateRanges[0];
-			this.tempTime = this.timeRanges[this.tempDate.day][0];
+			this.tempTime = this.todayTimeRanges[0];
 
 			// If no models, redirect one step back
 			if (!this.hasIssues) {
@@ -112,8 +124,15 @@
 			setTimeRange(time) {
 				this.tempTime = time;
 			},
+			updateTodayDate(date) {
+				this.tempDate = date;
+				this.tempTime = this.timeRanges[this.tempDate.day][0];
+				this.isToday = true;
+			},
 			updateDate(date) {
 				this.tempDate = date;
+				this.tempTime = this.timeRanges[this.tempDate.day][0];
+				this.isToday = false;
 			},
 			getDayFromDate(time) {
 				let days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
