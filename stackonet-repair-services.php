@@ -181,6 +181,7 @@ final class Stackonet_Repair_Services {
 			$this->container['rest-survey']           = Stackonet\REST\SurveyController::init();
 			$this->container['rest-logo']             = Stackonet\REST\LogoController::init();
 			$this->container['rest-technician']       = Stackonet\REST\TechnicianController::init();
+			$this->container['rest-appointment']      = Stackonet\REST\SpotAppointmentController::init();
 		}
 
 		if ( $this->is_request( 'ajax' ) ) {
@@ -220,6 +221,8 @@ final class Stackonet_Repair_Services {
 		$survey->create_table();
 		$technician = new Stackonet\Models\Technician();
 		$technician->create_table();
+		$appointment = new Stackonet\Models\Appointment();
+		$appointment->create_table();
 
 		do_action( 'phone_repairs_asap_activation' );
 	}

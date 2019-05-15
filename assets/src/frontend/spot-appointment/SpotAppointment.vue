@@ -2,18 +2,6 @@
 	<div class="stackonet-survey-form stackonet-spot-appointment">
 
 		<div class="form-field">
-			<label>Brands</label>
-			<columns mobile multiline centered>
-				<column :mobile="6" :tablet="4" v-for="(_brand, index) in brands" :key="index">
-					<div class="shapla-survey-box hoverable" :class="{'is-active':_brand === brand}"
-						 @click="chooseBrand(_brand)">
-						<div>{{_brand}}</div>
-					</div>
-				</column>
-			</columns>
-		</div>
-
-		<div class="form-field">
 			<label>Gadgets</label>
 			<columns mobile multiline centered>
 				<column :mobile="6" :tablet="4" v-for="(_gadget, index) in gadgets" :key="index">
@@ -26,11 +14,92 @@
 		</div>
 
 		<div class="form-field">
+			<label>Brands</label>
+			<columns mobile multiline centered>
+				<column :mobile="6" :tablet="4" v-for="(_brand, index) in brands" :key="index">
+					<div class="shapla-survey-box hoverable" :class="{'is-active':_brand === brand}"
+						 @click="chooseBrand(_brand)">
+						<div>{{_brand}}</div>
+					</div>
+				</column>
+			</columns>
+		</div>
+
+		<div class="form-field">
+			<label>Choose device</label>
+			<columns mobile multiline centered>
+				<column :mobile="6" :tablet="4" v-for="(_device, index) in devices" :key="index">
+					<div class="shapla-survey-box hoverable" :class="{'is-active':_device === device}"
+						 @click="chooseDevice(_device)">
+						<div v-html="_device.device_title"></div>
+					</div>
+				</column>
+			</columns>
+		</div>
+
+		<div class="form-field">
+			<label>Choose device model</label>
+			<columns mobile multiline centered>
+				<column :mobile="6" :tablet="4" v-for="(_model, index) in devices_models" :key="index">
+					<div class="shapla-survey-box hoverable" :class="{'is-active':_model === device_model}"
+						 @click="chooseDeviceModel(_model)">
+						<div v-html="_model.title"></div>
+					</div>
+				</column>
+			</columns>
+		</div>
+
+		<div class="form-field">
+			<label>Choose issue(s)</label>
+			<columns mobile multiline centered>
+				<column :mobile="6" :tablet="4" v-for="(_issue, index) in _issues" :key="index">
+					<div class="shapla-survey-box hoverable"
+						 :class="{'is-active':-1 !== selectedIssues.indexOf(_issue)}"
+						 @click="chooseIssue(_issue)">
+						<div v-html="_issue.title"></div>
+					</div>
+				</column>
+			</columns>
+		</div>
+
+		<div class="form-field">
+			<label>Appointment Date</label>
+			<columns mobile multiline centered>
+				<template v-for="(_date, index) in dateRanges">
+					<column :mobile="6" :tablet="4" :key="index" v-if="index !== 0">
+						<div class="shapla-survey-box hoverable"
+							 :class="{'is-active': _date.date === appointment_date}"
+							 @click="chooseDate(_date.date)">
+							<div v-html="getFormattedDateTime(_date.date)"></div>
+						</div>
+					</column>
+				</template>
+			</columns>
+		</div>
+
+		<div class="form-field">
+			<label>Appointment Time</label>
+			<columns mobile multiline centered>
+				<column :mobile="6" :tablet="4" v-for="(_time, index) in times" :key="index">
+					<div class="shapla-survey-box hoverable"
+						 :class="{'is-active': _time === appointment_time}"
+						 @click="chooseTime(_time)">
+						<div v-html="_time"></div>
+					</div>
+				</column>
+			</columns>
+		</div>
+
+		<div class="form-field">
 			<animated-input label="Email" type="email" v-model="email"></animated-input>
 		</div>
 
 		<div class="form-field">
 			<animated-input label="Phone" type="tel" v-model="phone"></animated-input>
+		</div>
+
+		<div class="form-field">
+			<animated-input v-model="store_name" label="Name of Store" autocomplete="organization"></animated-input>
 		</div>
 
 		<div class="form-field">
@@ -82,80 +151,6 @@
 				@selected="chooseImage"
 				@close="openLogoModal = false"
 			></media-modal>
-		</div>
-
-		<div class="form-field stackonet-pricing-section">
-			<pricing-accordion
-				label="Choose device"
-				:selected-issue="device.device_title"
-				:active="activeDeviceAccordion"
-				@toggle="activeDeviceAccordion = !activeDeviceAccordion"
-			>
-				<div class="device-item-container">
-					<div class="device-item"
-						 v-for="_device in devices"
-						 @click="chooseDevice(_device)"
-						 v-html="_device.device_title"
-					></div>
-				</div>
-			</pricing-accordion>
-			<pricing-accordion
-				label="Select your model"
-				:selected-issue="device_model.title"
-				:active="activeModelAccordion"
-				@toggle="activeModelAccordion = !activeModelAccordion"
-			>
-				<div class="device-item-container">
-					<div class="device-item"
-						 v-for="_model in devices_models"
-						 @click="chooseDeviceModel(_model)"
-						 v-html="_model.title"
-					></div>
-				</div>
-			</pricing-accordion>
-			<pricing-accordion
-				label="Choose issue(s)"
-				multiple
-				:selected-issues="selectedIssueNames"
-				:active="activeIssuesAccordion"
-				@toggle="activeIssuesAccordion = !activeIssuesAccordion"
-			>
-				<div class="device-item" v-for="_issue in _issues"
-					 @click="chooseIssue(_issue)">
-					<div class="device-item__inner" :class="issueClass(_issue)">
-						<div class="device-item__icon">+</div>
-						<div class="device-item__content">
-							<div class="device-item__title">{{_issue.title}}</div>
-							<div class="device-item__description"
-								 v-if="_issue.description">{{_issue.description}}
-							</div>
-						</div>
-					</div>
-				</div>
-			</pricing-accordion>
-		</div>
-
-		<div class="form-field">
-			<label>Appointment Date and Time</label>
-			<columns>
-				<column>
-					<select v-model="appointment_date">
-						<option value="">Choose Date</option>
-						<option v-for="_date in dateRanges" :value="_date.date"
-								v-html="getFormattedDateTime(_date.date)"></option>
-					</select>
-				</column>
-				<column>
-					<select v-model="appointment_time">
-						<option value="">Choose Time</option>
-						<option v-for="_time in times" :value="_time">{{_time}}</option>
-					</select>
-				</column>
-			</columns>
-		</div>
-
-		<div class="form-field">
-			<animated-input v-model="store_name" label="Name of Store" autocomplete="organization"></animated-input>
 		</div>
 
 		<div class="form-field">
@@ -217,9 +212,6 @@
 				openLogoModal: false,
 				open_address_modal: false,
 				open_thank_you_model: false,
-				activeDeviceAccordion: false,
-				activeModelAccordion: false,
-				activeIssuesAccordion: false,
 				device_status: '',
 				latitude: '',
 				longitude: '',
@@ -377,8 +369,15 @@
 			},
 			chooseDeviceModel(model) {
 				this.device_model = model;
+				this.model = model.title;
 				this.activeModelAccordion = false;
 				this.selectedIssues = [];
+			},
+			chooseDate(date) {
+				this.appointment_date = date;
+			},
+			chooseTime(time) {
+				this.appointment_time = time;
 			},
 			getFormattedDateTime(date) {
 				let _date = new Date(date);
@@ -466,9 +465,7 @@
 				this.selectedIssues = issues;
 			},
 			issueClass(issue) {
-				let issues = this.selectedIssues,
-					index = issues.indexOf(issue),
-					isSelected = -1 !== index;
+				let isSelected = -1 !== this.selectedIssues.indexOf(issue);
 				return {
 					'selected-issue': isSelected,
 					'disabled-issue': !isSelected,
@@ -476,29 +473,40 @@
 			},
 			handleSubmit() {
 				let self = this;
-				if (self.device_status.length < 1) {
-					alert('Please choose an option.');
-					return;
-				}
 				this.loading = true;
 				let images_ids = self.images.map(image => {
 					return image.image_id;
 				});
 				let data = {
-					brand: self.brand,
 					gadget: self.gadget,
-					model: self.model,
-					device_status: self.device_status,
-					latitude: self.latitude,
-					longitude: self.longitude,
-					address: self.c_address_object,
-					full_address: self.formatted_address,
-					images_ids: images_ids,
-					tips_amount: self.tips_amount,
+					brand: self.brand,
+					device: self.device.device_title,
+					device_model: self.model,
+					device_issues: self.selectedIssues,
+					appointment_date: self.appointment_date,
+					appointment_time: self.appointment_time,
 					email: self.email,
 					phone: self.phone,
+					store_name: self.store_name,
+					full_address: self.formatted_address,
+					address: self.c_address_object,
+					images_ids: images_ids,
+					note: self.note,
 				};
-				alert('We are working on it.')
+
+				axios
+					.post(PhoneRepairs.rest_root + '/spot-appointment', data,
+						{
+							headers: {'X-WP-Nonce': window.PhoneRepairs.rest_nonce},
+						})
+					.then((response) => {
+						self.loading = false;
+						self.open_thank_you_model = true;
+					})
+					.catch((error) => {
+						self.loading = false;
+						alert('Some thing went wrong. Please try again.');
+					});
 			}
 		}
 	}
