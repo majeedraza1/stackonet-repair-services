@@ -241,7 +241,8 @@
 					url: window.PhoneRepairs.rest_root + '/logo',
 					maxFilesize: 5,
 					headers: {
-						"X-WP-Nonce": window.PhoneRepairs.rest_nonce
+						"X-WP-Nonce": window.PhoneRepairs.rest_nonce,
+						"X-Dropbox-Path": '/spot-appointment/'
 					}
 				}
 			},

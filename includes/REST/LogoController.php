@@ -107,8 +107,14 @@ class LogoController extends ApiController {
 		$ids         = wp_list_pluck( $attachments, 'attachment_id' );
 		$files_paths = wp_list_pluck( $attachments, 'attachment_path' );
 
+		$path         = "/";
+		$dropbox_path = $request->get_header( 'X-Dropbox-Path' );
+		if ( ! empty( $dropbox_path ) ) {
+			$path = $dropbox_path;
+		}
+
 		foreach ( $files_paths as $files_path ) {
-			( new DropboxHelper() )->upload( $files_path );
+			( new DropboxHelper() )->upload( $files_path, $path );
 		}
 
 		$image_id = $ids[0];
