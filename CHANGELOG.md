@@ -1,3 +1,12 @@
+#### 1.1.6 - May 16, 2019
+* Feature - Add spot appointment frontend and admin functionality.
+* Feature - Add eSignature functionality on cart.
+* Add - Add terms and conditions page with admin settings.
+* Add - Add phone and email field on survey page.
+* Tweak - Make time selection after the current time.
+* Tweak - Remove strict address validation from checkout.
+* Fix - Fix subtotal decimal depth more than two.
+
 #### 1.1.5 - May 10, 2019
 * Add - Add become a technician frontend and admin functionality with dropbox resume upload.
 
