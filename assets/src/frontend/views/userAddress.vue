@@ -25,6 +25,7 @@
 				></animated-input>
 
 				<animated-input
+					type="textarea"
 					id="instructions"
 					v-model="instructionsTemp"
 					label="Add instructions (optional)"
@@ -38,6 +39,10 @@
 				</div>
 				<div>
 					<big-button :disabled="!canContinue" @click="handleContinue">Continue</big-button>
+				</div>
+
+				<div class="address-extra-info">
+					If the system doesn't generate the proper address. Please add your full address on Add Instructions.
 				</div>
 			</form>
 		</div>
@@ -87,7 +92,7 @@
 				return !!(this.date && this.date.length);
 			},
 			canContinue() {
-				return !!(this.newZipCode && !this.showZipCodeError);
+				return !!(this.newZipCode);
 			}
 		},
 		mounted() {
@@ -221,5 +226,10 @@
 		text-align: center;
 		font-size: 13px;
 		color: red;
+	}
+
+	.address-extra-info {
+		margin-top: 2rem;
+		text-align: center;
 	}
 </style>
