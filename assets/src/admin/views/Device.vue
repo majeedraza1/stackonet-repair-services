@@ -25,7 +25,8 @@
 					<td>
 						<input name="device_group" type="text" id="device_group" class="regular-text"
 							   v-model="device_group">
-						<p class="description">Device group use to group similar device. Only user a-z,0-9 characters.</p>
+						<p class="description">Device group use to group similar device. Only user a-z,0-9
+							characters.</p>
 					</td>
 				</tr>
 				<tr>
@@ -42,54 +43,56 @@
 			<p>
 				<button class="button" @click="addNewDeviceModel">Add New</button>
 			</p>
-			<template v-for="(model, index) in device_models">
-				<accordion :title="model.title" :active="false">
-					<div class="columns">
-						<div class="column is-3">
-							<p>
-								<strong>Model Name</strong>
-								<input type="text" class="widefat" v-model="model.title">
-							</p>
-							<p>
-								<strong>Screen Broken Price</strong>
-								<small>(If provided, this will overwrite device issue value.)</small>
-								<input type="number" class="widefat" v-model="model.broken_screen_price">
-							</p>
+			<draggable v-model="device_models">
+				<template v-for="(model, index) in device_models">
+					<accordion :title="model.title" :active="false">
+						<div class="columns">
+							<div class="column is-3">
+								<p>
+									<strong>Model Name</strong>
+									<input type="text" class="widefat" v-model="model.title">
+								</p>
+								<p>
+									<strong>Screen Broken Price</strong>
+									<small>(If provided, this will overwrite device issue value.)</small>
+									<input type="number" class="widefat" v-model="model.broken_screen_price">
+								</p>
+							</div>
+							<div class="column is-9">
+								<strong>Colors</strong>
+								<table class="rs-table">
+									<thead>
+									<tr>
+										<td>Title</td>
+										<td>Subtitle</td>
+										<td>Color</td>
+									</tr>
+									</thead>
+									<tbody>
+									<tr v-for="(color, colorIndex) in model.colors" :key="colorIndex">
+										<td>
+											<label class="screen-reader-text">Color Title</label>
+											<input type="text" class="widefat" v-model="color.title">
+										</td>
+										<td>
+											<label class="screen-reader-text">Color Subtitle</label>
+											<input type="text" class="widefat" v-model="color.subtitle">
+										</td>
+										<td>
+											<label class="screen-reader-text">Color Code</label>
+											<color-picker v-model="color.color"></color-picker>
+										</td>
+									</tr>
+									</tbody>
+								</table>
+								<p>
+									<button class="button" @click="addColor(model, index)">Add Color</button>
+								</p>
+							</div>
 						</div>
-						<div class="column is-9">
-							<strong>Colors</strong>
-							<table class="rs-table">
-								<thead>
-								<tr>
-									<td>Title</td>
-									<td>Subtitle</td>
-									<td>Color</td>
-								</tr>
-								</thead>
-								<tbody>
-								<tr v-for="(color, colorIndex) in model.colors" :key="colorIndex">
-									<td>
-										<label class="screen-reader-text">Color Title</label>
-										<input type="text" class="widefat" v-model="color.title">
-									</td>
-									<td>
-										<label class="screen-reader-text">Color Subtitle</label>
-										<input type="text" class="widefat" v-model="color.subtitle">
-									</td>
-									<td>
-										<label class="screen-reader-text">Color Code</label>
-										<color-picker v-model="color.color"></color-picker>
-									</td>
-								</tr>
-								</tbody>
-							</table>
-							<p>
-								<button class="button" @click="addColor(model, index)">Add Color</button>
-							</p>
-						</div>
-					</div>
-				</accordion>
-			</template>
+					</accordion>
+				</template>
+			</draggable>
 		</accordion>
 		<accordion :active="true" title="Device Issue">
 			<div class="columns">
@@ -191,6 +194,7 @@
 </template>
 
 <script>
+	import draggable from 'vuedraggable';
 	import Accordion from '../../components/Accordion.vue';
 	import MediaUploader from '../../components/MediaUploader.vue';
 	import BackgroundImage from '../../components/BackgroundImage.vue';
@@ -202,7 +206,17 @@
 
 	export default {
 		name: "Device",
-		components: {Accordion, MediaUploader, BackgroundImage, ColorPicker, mdlModal, mdlCheckbox, mdlFab, Delete},
+		components: {
+			Accordion,
+			MediaUploader,
+			BackgroundImage,
+			ColorPicker,
+			mdlModal,
+			mdlCheckbox,
+			mdlFab,
+			Delete,
+			draggable
+		},
 		data() {
 			return {
 				id: 0,
