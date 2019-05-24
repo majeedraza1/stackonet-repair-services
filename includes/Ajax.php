@@ -3,6 +3,7 @@
 namespace Stackonet;
 
 use Exception;
+use Stackonet\Integrations\SupportTicket;
 use Stackonet\Models\Device;
 use Stackonet\Models\DeviceIssue;
 use Stackonet\Models\Phone;
@@ -615,6 +616,9 @@ class Ajax {
 		if ( $has_discount ) {
 			$this->add_order_discount( $order->get_id(), 'Fixed Discount (15%)', '15%' );
 		}
+
+		// Create support ticket from order
+		( new SupportTicket() )->order_to_support_ticket( $order );
 
 		do_action( 'stackonet_order_created', $order );
 
