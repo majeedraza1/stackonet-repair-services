@@ -5,6 +5,7 @@ namespace Stackonet\Models;
 use DateTime;
 use Exception;
 use Stackonet\Abstracts\BackgroundProcess;
+use Stackonet\Integrations\SupportTicket;
 use Stackonet\Integrations\Twilio;
 use Stackonet\RescheduleAdminEmail;
 use Stackonet\RescheduleCustomerEmail;
@@ -93,6 +94,8 @@ class Reschedule extends BackgroundProcess {
 		$dates[] = $data;
 
 		update_post_meta( $order->get_id(), '_reschedule_date_time', $dates );
+
+		( new SupportTicket() )->order_reschedule_to_support_ticket( $order, $data );
 
 		do_action( 'save_order_reschedule', $order, $data );
 	}

@@ -101,6 +101,169 @@ class SupportTicket extends DatabaseModel {
 	protected $valid_thread_types = [ 'report', 'log', 'reply' ];
 
 	/**
+	 * @var null
+	 */
+	public static $instance = null;
+
+	/**
+	 * @return SupportTicket
+	 */
+	public static function init() {
+		if ( is_null( self::$instance ) ) {
+			self::$instance = new self;
+
+			add_action( 'wpsc_get_gerneral_settings', [ self::$instance, 'settings' ] );
+			add_action( 'wpsc_set_gerneral_settings', [ self::$instance, 'save_settings' ] );
+		}
+
+		return self::$instance;
+	}
+
+	public function save_settings() {
+		$order_ticket_category = isset( $_POST['wpsc_default_order_ticket_category'] ) ? sanitize_text_field( $_POST['wpsc_default_order_ticket_category'] ) : '';
+		update_option( 'wpsc_default_order_ticket_category', $order_ticket_category );
+		$order_ticket_category = isset( $_POST['wpsc_default_contact_form_ticket_category'] ) ? sanitize_text_field( $_POST['wpsc_default_contact_form_ticket_category'] ) : '';
+		update_option( 'wpsc_default_contact_form_ticket_category', $order_ticket_category );
+	}
+
+	public function settings() {
+		$categories = get_terms( [
+			'taxonomy'   => 'wpsc_categories',
+			'hide_empty' => false,
+			'orderby'    => 'meta_value_num',
+			'order'      => 'ASC',
+			'meta_query' => array( 'order_clause' => array( 'key' => 'wpsc_category_load_order' ) ),
+		] );
+		?>
+		<div class="form-group">
+			<label
+				for="wpsc_default_order_ticket_category"><?php _e( 'Default ticket category for order', 'supportcandy' ); ?></label>
+			<p class="help-block"><?php _e( 'This category will get applied for newly created ticket.', 'supportcandy' ); ?></p>
+			<select class="form-control" name="wpsc_default_order_ticket_category"
+			        id="wpsc_default_order_ticket_category">
+				<?php
+				$wpsc_default_ticket_category = get_option( 'wpsc_default_order_ticket_category' );
+				foreach ( $categories as $category ) :
+					$selected = $wpsc_default_ticket_category == $category->term_id ? 'selected="selected"' : '';
+					echo '<option ' . $selected . ' value="' . $category->term_id . '">' . $category->name . '</option>';
+				endforeach;
+				?>
+			</select>
+		</div>
+		<div class="form-group">
+			<label
+				for="wpsc_default_order_ticket_category"><?php _e( 'Default ticket category for contact form', 'supportcandy' ); ?></label>
+			<p class="help-block"><?php _e( 'This category will get applied for newly created ticket.', 'supportcandy' ); ?></p>
+			<select class="form-control" name="wpsc_default_contact_form_ticket_category"
+			        id="wpsc_default_contact_form_ticket_category">
+				<?php
+				$wpsc_default_ticket_category = get_option( 'wpsc_default_contact_form_ticket_category' );
+				foreach ( $categories as $category ) :
+					$selected = $wpsc_default_ticket_category == $category->term_id ? 'selected="selected"' : '';
+					echo '<option ' . $selected . ' value="' . $category->term_id . '">' . $category->name . '</option>';
+				endforeach;
+				?>
+			</select>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Create support ticket
+	 *
+	 * @param array $data
+	 * @param string $content
+	 * @param string $thread_type
+	 *
+	 * @return int
+	 * @throws Exception
+	 */
+	public function create_support_ticket( array $data, $content = '', $thread_type = 'report' ) {
+		$data = wp_parse_args( $data, [
+			'ticket_subject'   => '',
+			'customer_name'    => '',
+			'customer_email'   => '',
+			'user_type'        => 'guest',
+			'ticket_status'    => get_option( 'wpsc_default_ticket_status' ),
+			'ticket_category'  => get_option( 'wpsc_default_ticket_category' ),
+			'ticket_priority'  => get_option( 'wpsc_default_ticket_priority' ),
+			'ip_address'       => isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '',
+			'agent_created'    => 0,
+			'ticket_auth_code' => bin2hex( random_bytes( 5 ) ),
+			'active'           => '1'
+		] );
+
+		$ticket_id = $this->create( $data );
+
+		$this->update_metadata( $ticket_id, 'assigned_agent', '0' );
+
+		$this->add_ticket_info( $ticket_id, [
+			'thread_type'    => $thread_type,
+			'customer_name'  => $data['customer_name'],
+			'customer_email' => $data['customer_email'],
+			'post_content'   => $content,
+			'agent_created'  => $data['agent_created'],
+		] );
+
+		return $ticket_id;
+	}
+
+	/**
+	 * @param int $ticket_id
+	 * @param array $data
+	 * @param array $attachments
+	 */
+	public function add_ticket_info( $ticket_id, array $data, $attachments = [] ) {
+		$data = wp_parse_args( $data, [
+			'thread_type'    => 'report',
+			'customer_name'  => '',
+			'customer_email' => '',
+			'post_content'   => '',
+			'agent_created'  => 0,
+		] );
+
+		$post_id = wp_insert_post( [
+			'post_type'      => $this->post_type,
+			'post_status'    => 'publish',
+			'comment_status' => 'closed',
+			'ping_status'    => 'closed',
+			'post_author'    => $data['agent_created'],
+			'post_content'   => $data['post_content'],
+		] );
+
+		if ( $post_id ) {
+			update_post_meta( $post_id, 'ticket_id', $ticket_id );
+			update_post_meta( $post_id, 'thread_type', $data['thread_type'] );
+			update_post_meta( $post_id, 'customer_name', $data['customer_name'] );
+			update_post_meta( $post_id, 'customer_email', $data['customer_email'] );
+			update_post_meta( $post_id, 'attachments', $attachments );
+		}
+	}
+
+	/**
+	 * @param WC_Order $order
+	 * @param array $data
+	 */
+	public function order_reschedule_to_support_ticket( WC_Order $order, array $data ) {
+		$support_ticket_id = $order->get_meta( '_support_ticket_id' );
+		$created_by        = ( $data['created_by'] === 'admin' ) ? 'Admin' : 'Customer';
+
+		ob_start();
+		echo "Order has been reschedule by <strong>{$created_by}</strong>. New date and time are<br>";
+		echo "Date: <strong>{$data['date']}</strong><br>";
+		echo "Time: <strong>{$data['time']}</strong>";
+		$post_content = ob_get_clean();
+
+		$this->add_ticket_info( $support_ticket_id, [
+			'thread_type'    => 'note',
+			'customer_name'  => $order->get_formatted_billing_full_name(),
+			'customer_email' => $order->get_billing_email(),
+			'post_content'   => $post_content,
+			'agent_created'  => 0,
+		] );
+	}
+
+	/**
 	 * Create support ticket from order
 	 *
 	 * @param WC_Order $order
@@ -108,12 +271,6 @@ class SupportTicket extends DatabaseModel {
 	 * @throws Exception
 	 */
 	public function order_to_support_ticket( WC_Order $order ) {
-		$default_status      = get_option( 'wpsc_default_ticket_status' );
-		$ticket_category     = get_option( 'wpsc_default_ticket_category' );
-		$ticket_priority     = get_option( 'wpsc_default_ticket_priority' );
-		$ip_address          = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
-		$agent_created_value = 0;
-
 		$_device_title  = $order->get_meta( '_device_title' );
 		$_device_model  = $order->get_meta( '_device_model' );
 		$_device_color  = $order->get_meta( '_device_color' );
@@ -126,23 +283,6 @@ class SupportTicket extends DatabaseModel {
 		$date     = $dateTime->format( get_option( 'date_format' ) );
 
 		$ticket_subject = $_device_title . ' ' . $_device_model . ' - ' . implode( ', ', $_device_issues );
-
-
-		$ticket_id = $this->create( [
-			'ticket_subject'   => $ticket_subject,
-			'ticket_status'    => $default_status,
-			'customer_name'    => $order->get_formatted_billing_full_name(),
-			'customer_email'   => $order->get_billing_email(),
-			'user_type'        => $order->get_customer_id() ? 'user' : 'guest',
-			'ticket_category'  => $ticket_category,
-			'ticket_priority'  => $ticket_priority,
-			'ip_address'       => $ip_address,
-			'agent_created'    => $agent_created_value,
-			'ticket_auth_code' => bin2hex( random_bytes( 5 ) ),
-			'active'           => '1'
-		] );
-
-		$this->update_metadata( $ticket_id, 'assigned_agent', '0' );
 
 		$order_url = add_query_arg( [ 'post' => $order->get_id(), 'action' => 'edit' ], admin_url( 'post.php' ) );
 
@@ -177,7 +317,7 @@ class SupportTicket extends DatabaseModel {
 				       href="<?php echo $order->get_shipping_address_map_url(); ?>"><?php echo $address; ?></a></td>
 			</tr>
 			<tr>
-				<td>Preferred Date & Time: </td>
+				<td>Preferred Date & Time:</td>
 				<td><strong><?php echo $date . ', ' . $service_time; ?></strong></td>
 			</tr>
 		</table>
@@ -216,22 +356,16 @@ class SupportTicket extends DatabaseModel {
 		<?php
 		$post_content = ob_get_clean();
 
-		$post_id = wp_insert_post( [
-			'post_author'    => $order->get_customer_id(),
-			'post_type'      => $this->post_type,
-			'post_status'    => 'publish',
-			'comment_status' => 'closed',
-			'ping_status'    => 'closed',
-			'post_content'   => $post_content,
-		] );
+		$ticket_id = $this->create_support_ticket( [
+			'ticket_subject'  => $ticket_subject,
+			'customer_name'   => $order->get_formatted_billing_full_name(),
+			'customer_email'  => $order->get_billing_email(),
+			'user_type'       => $order->get_customer_id() ? 'user' : 'guest',
+			'ticket_category' => get_option( 'wpsc_default_order_ticket_category' ),
+		], $post_content );
 
-		if ( $post_id ) {
-			update_post_meta( $post_id, 'ticket_id', $ticket_id );
-			update_post_meta( $post_id, 'thread_type', 'report' );
-			update_post_meta( $post_id, 'customer_name', $order->get_formatted_billing_full_name() );
-			update_post_meta( $post_id, 'customer_email', $order->get_billing_email() );
-			update_post_meta( $post_id, 'attachments', [] );
-		}
+		$order->add_meta_data( '_support_ticket_id', $ticket_id );
+		$order->save_meta_data();
 	}
 
 	/**
@@ -262,7 +396,7 @@ class SupportTicket extends DatabaseModel {
 	 * @return array
 	 */
 	public function count_records() {
-		// TODO: Implement count_records() method.
+		return [];
 	}
 
 	/**
@@ -271,6 +405,6 @@ class SupportTicket extends DatabaseModel {
 	 * @return void
 	 */
 	public function create_table() {
-		// TODO: Implement create_table() method.
+		return;
 	}
 }

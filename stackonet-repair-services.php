@@ -84,6 +84,8 @@ final class Stackonet_Repair_Services {
 
 			add_action( 'phone_repairs_asap_activation', [ self::$instance, 'add_custom_role' ] );
 
+			add_action( 'dialog_contact_form/actions', [ self::$instance, 'add_action' ] );
+
 			// Register plugin activation activity
 			register_activation_hook( __FILE__, array( self::$instance, 'activation' ) );
 		}
@@ -161,6 +163,7 @@ final class Stackonet_Repair_Services {
 		$this->container['woocommerce']    = Stackonet\Integrations\WooCommerce::init();
 		$this->container['reschedule']     = new Stackonet\Models\Reschedule();
 		$this->container['order_reminder'] = Stackonet\Models\OrderReminder::init();
+		$this->container['support_ticket'] = Stackonet\Integrations\SupportTicket::init();
 
 		$this->container['my_account'] = Stackonet\Modules\MyAccount\MyAccount::init();
 
@@ -272,6 +275,15 @@ final class Stackonet_Repair_Services {
 				$manager_role->add_cap( $cap, $grant );
 			}
 		}
+	}
+
+	/**
+	 * Add our custom action to action manager
+	 *
+	 * @param \DialogContactForm\Collections\Actions $actions
+	 */
+	public function add_action( $actions ) {
+		$actions->set( 'support_ticket', Stackonet\Integrations\ContactFormToSupportTicket::class );
 	}
 
 	/**
