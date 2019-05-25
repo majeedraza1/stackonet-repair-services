@@ -40,6 +40,7 @@ class Frontend {
 			add_shortcode( 'stackonet_survey_form', [ self::$instance, 'survey_form' ] );
 			add_shortcode( 'stackonet_spot_appointment', [ self::$instance, 'spot_appointment' ] );
 			add_shortcode( 'stackonet_become_technician', [ self::$instance, 'become_technician' ] );
+			add_shortcode( 'stackonet_support_ticket', [ self::$instance, 'support_ticket' ] );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
 		}
 
@@ -80,6 +81,7 @@ class Frontend {
 			'stackonet_spot_appointment',
 			'stackonet_become_technician',
 			'stackonet_rent_a_center',
+			'stackonet_support_ticket',
 		];
 
 		global $post;
@@ -142,6 +144,15 @@ class Frontend {
 	 */
 	public function become_technician() {
 		return '<div id="stackonet_become_technician"></div>';
+	}
+
+	/**
+	 * Become a technician form
+	 *
+	 * @return string
+	 */
+	public function support_ticket() {
+		return '<div id="stackonet_support_ticket"></div>';
 	}
 
 	/**

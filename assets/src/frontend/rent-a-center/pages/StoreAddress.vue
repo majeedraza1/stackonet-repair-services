@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<columns multiline mobile centered>
-			<column :mobile="12" :tablet="6" :desktop="4" v-for="index in [1,10,30,44,5658,6,7,8,9]">
+			<column :mobile="12" :tablet="6" :desktop="4" v-for="index in [1,10,30,44,5658,6,7,8,9]" :key="index">
 
 				<div class="store-address-box">
 					<div class="store-address-box__heading">

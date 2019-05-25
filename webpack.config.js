@@ -30,6 +30,7 @@ let entryPoints = {
 		'./assets/src/frontend/my-account/main.js',
 		'./assets/src/frontend/rent-a-center/main.js',
 		'./assets/src/frontend/spot-appointment/main.js',
+		'./assets/src/frontend/support-ticket/main.js',
 		'./assets/src/scss/frontend.scss',
 		'./assets/src/scss/my-account.scss',
 		'./assets/src/scss/frontend-rent-center.scss',
