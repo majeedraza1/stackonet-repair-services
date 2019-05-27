@@ -3,7 +3,7 @@
 namespace Stackonet;
 
 use Exception;
-use Stackonet\Integrations\SupportTicket;
+use Stackonet\Modules\SupportTicket\SupportTicket;
 use Stackonet\Models\Device;
 use Stackonet\Models\DeviceIssue;
 use Stackonet\Models\Phone;

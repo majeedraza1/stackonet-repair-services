@@ -1,13 +1,12 @@
 <?php
 
-
-namespace Stackonet\Integrations;
-
+namespace Stackonet\Modules\SupportTicket;
 
 use DialogContactForm\Abstracts\Action;
 use DialogContactForm\Supports\Config;
 use Exception;
-use Stackonet\Supports\Logger;
+
+defined( 'ABSPATH' ) or exit;
 
 class ContactFormToSupportTicket extends Action {
 	/**

@@ -50,7 +50,7 @@
 
 <script>
 	export default {
-		name: "wpPagination",
+		name: "mdlPagination",
 		props: {
 			total_items: {type: Number, required: true, default: 0},
 			per_page: {type: Number, required: true, default: 20},

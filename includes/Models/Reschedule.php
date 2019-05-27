@@ -5,7 +5,7 @@ namespace Stackonet\Models;
 use DateTime;
 use Exception;
 use Stackonet\Abstracts\BackgroundProcess;
-use Stackonet\Integrations\SupportTicket;
+use Stackonet\Modules\SupportTicket\SupportTicket;
 use Stackonet\Integrations\Twilio;
 use Stackonet\RescheduleAdminEmail;
 use Stackonet\RescheduleCustomerEmail;

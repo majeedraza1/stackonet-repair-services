@@ -7,6 +7,7 @@ use Stackonet\Models\Device;
 use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
 use Stackonet\Models\Testimonial;
+use Stackonet\Modules\SupportTicket\SupportTicket;
 use WC_Order;
 use WP_Post;
 
@@ -152,6 +153,32 @@ class Frontend {
 	 * @return string
 	 */
 	public function support_ticket() {
+		$data = [];
+
+		$_statuses        = ( new SupportTicket() )->get_ticket_statuses_terms();
+		$data['statuses'] = [ [ 'key' => 'all', 'label' => 'All Statuses', 'count' => 0, 'active' => true ] ];
+		foreach ( $_statuses as $status ) {
+			$data['statuses'][] = [ 'key' => $status->term_id, 'label' => $status->name, 'count' => 0, ];
+		}
+		$data['statuses'][] = [ 'key' => 'trash', 'label' => 'Trash', 'count' => 0, 'active' => false ];
+
+
+		$_categories        = ( new SupportTicket() )->get_categories_terms();
+		$data['categories'] = [ [ 'key' => 'all', 'label' => 'All Categories', 'count' => 0, 'active' => true ] ];
+		foreach ( $_categories as $status ) {
+			$data['categories'][] = [ 'key' => $status->term_id, 'label' => $status->name, 'count' => 0, ];
+		}
+
+		$_priorities        = ( new SupportTicket() )->get_priorities_terms();
+		$data['priorities'] = [ [ 'key' => 'all', 'label' => 'All Priorities', 'count' => 0, 'active' => true ] ];
+		foreach ( $_priorities as $status ) {
+			$data['priorities'][] = [ 'key' => $status->term_id, 'label' => $status->name, 'count' => 0, ];
+		}
+
+		$data['count_trash'] = ( new SupportTicket() )->count_trash_records();
+
+		wp_localize_script( 'stackonet-repair-services-frontend', 'SupportTickets', $data );
+
 		return '<div id="stackonet_support_ticket"></div>';
 	}
 

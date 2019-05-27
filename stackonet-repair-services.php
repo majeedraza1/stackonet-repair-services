@@ -158,14 +158,15 @@ final class Stackonet_Repair_Services {
 			include_once STACKONET_REPAIR_SERVICES_PATH . '/vendor/autoload.php';
 		}
 
-		$this->container['assets']         = Stackonet\Assets::init();
-		$this->container['twilio']         = Stackonet\Integrations\Twilio::init();
-		$this->container['woocommerce']    = Stackonet\Integrations\WooCommerce::init();
-		$this->container['reschedule']     = new Stackonet\Models\Reschedule();
-		$this->container['order_reminder'] = Stackonet\Models\OrderReminder::init();
-		$this->container['support_ticket'] = Stackonet\Integrations\SupportTicket::init();
+		$this->container['assets']           = Stackonet\Assets::init();
+		$this->container['twilio']           = Stackonet\Integrations\Twilio::init();
+		$this->container['woocommerce']      = Stackonet\Integrations\WooCommerce::init();
+		$this->container['mercantile-theme'] = Stackonet\Integrations\MercantileTheme::init();
+		$this->container['reschedule']       = new Stackonet\Models\Reschedule();
+		$this->container['order_reminder']   = Stackonet\Models\OrderReminder::init();
 
-		$this->container['my_account'] = Stackonet\Modules\MyAccount\MyAccount::init();
+		$this->container['my_account']     = Stackonet\Modules\MyAccount\MyAccount::init();
+		$this->container['support_ticket'] = Stackonet\Modules\SupportTicket\SupportTicketManager::init();
 
 		if ( $this->is_request( 'admin' ) ) {
 			$this->container['reschedule-date-time'] = Stackonet\Admin\RescheduleDateTime::init();
@@ -283,7 +284,7 @@ final class Stackonet_Repair_Services {
 	 * @param \DialogContactForm\Collections\Actions $actions
 	 */
 	public function add_action( $actions ) {
-		$actions->set( 'support_ticket', Stackonet\Integrations\ContactFormToSupportTicket::class );
+		$actions->set( 'support_ticket', \Stackonet\Modules\SupportTicket\ContactFormToSupportTicket::class );
 	}
 
 	/**

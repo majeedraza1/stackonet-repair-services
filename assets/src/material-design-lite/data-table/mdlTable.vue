@@ -1,64 +1,81 @@
 <template>
-	<table :class="tableClasses">
+	<div class="mdl-data-table-container">
+		<div class="mdl-table-nav-top">
+			<div class="mdl-table-nav-top__left">
+				<mdl-bulk-actions :actions="bulkActions" :active="!!checkedItems.length" v-model="bulkLocal"
+								  @bulk:click="handleBulkAction"></mdl-bulk-actions>
 
-		<thead>
-		<tr>
-			<th v-if="showCb" class="check-column">
-				<label class="screen-reader-text" for="cb-select-all-1">Select All</label>
-				<mdl-checkbox id="cb-select-all-1" v-model="selectAll"></mdl-checkbox>
-			</th>
-			<th v-for="column in columns" :class="getHeadColumnClass(column.key, column)">
-				<template v-if="!isSortable(column)">
-					{{ column.label }}
-				</template>
-				<a href="#" v-else @click.prevent="handleSortBy(column.key)">
-					<span>{{ column.label }}</span>
-					<span class="sorting-indicator"></span>
-				</a>
-			</th>
-		</tr>
-		</thead>
+				<div class="mdl-table-nav-top__filters">
+					<slot name="filters"></slot>
+				</div>
+			</div>
+			<div class="mdl-table-nav-top__right">
+				<mdl-pagination :current_page="currentPage" :per_page="perPage" :total_items="itemsTotal"
+								@pagination="goToPage" size="medium"></mdl-pagination>
+			</div>
+		</div>
+		<table :class="tableClasses">
+			<thead>
+			<tr>
+				<th v-if="showCb" class="check-column">
+					<label class="screen-reader-text" for="cb-select-all-1">Select All</label>
+					<mdl-checkbox id="cb-select-all-1" v-model="selectAll"></mdl-checkbox>
+				</th>
+				<th v-for="column in columns" :class="getHeadColumnClass(column.key, column)">
+					<template v-if="!isSortable(column)">
+						{{ column.label }}
+					</template>
+					<a href="#" v-else @click.prevent="handleSortBy(column.key)">
+						<span>{{ column.label }}</span>
+						<span class="sorting-indicator"></span>
+					</a>
+				</th>
+			</tr>
+			</thead>
 
-		<tbody>
-		<template v-if="rows.length">
-			<tr v-for="row in rows" :key="row[index]" :class="{'is-selected':checkedItems.includes(row[index])}">
-				<td scope="row" class="check-column" v-if="showCb">
-					<mdl-checkbox :value="row[index]" v-model="checkedItems"></mdl-checkbox>
-				</td>
-				<td v-for="column in columns" :class="getBodyColumnClass(column)" :data-colname="column.label">
+			<tbody>
+			<template v-if="rows.length">
+				<tr v-for="row in rows" :key="row[index]" :class="{'is-selected':checkedItems.includes(row[index])}">
+					<td scope="row" class="check-column" v-if="showCb">
+						<mdl-checkbox :value="row[index]" v-model="checkedItems"></mdl-checkbox>
+					</td>
+					<td v-for="column in columns" :class="getBodyColumnClass(column)" :data-colname="column.label">
 
-					<slot :name="column.key" :row="row">
-						{{ row[column.key] }}
-					</slot>
+						<slot :name="column.key" :row="row">
+							{{ row[column.key] }}
+						</slot>
 
-					<div v-if="actionColumn === column.key && hasActions" class="row-actions">
-						<slot name="row-actions" :row="row">
+						<div v-if="actionColumn === column.key && hasActions" class="row-actions">
+							<slot name="row-actions" :row="row">
                   				<span v-for="action in actions" :class="action.key">
                     				<a href="#" @click.prevent="actionClicked(action.key, row)">{{ action.label }}</a>
 									<template v-if="!hideActionSeparator(action.key)"> | </template>
                   				</span>
-						</slot>
-					</div>
-					<button type="button" class="toggle-row" v-if="actionColumn === column.key && hasActions">
-						<span class="screen-reader-text">Show more details</span>
-					</button>
-				</td>
+							</slot>
+						</div>
+						<button type="button" class="toggle-row" v-if="actionColumn === column.key && hasActions">
+							<span class="screen-reader-text">Show more details</span>
+						</button>
+					</td>
+				</tr>
+			</template>
+			<tr v-else>
+				<td :colspan="colspan" style="text-align: center">{{ notFound }}</td>
 			</tr>
-		</template>
-		<tr v-else>
-			<td :colspan="colspan">{{ notFound }}</td>
-		</tr>
-		</tbody>
-	</table>
+			</tbody>
+		</table>
+	</div>
 </template>
 
 <script>
 	import mdlCheckbox from '../checkbox/mdlCheckbox';
+	import mdlBulkActions from './mdlBulkActions'
+	import mdlPagination from './mdlPagination'
 
 	export default {
 		name: "mdlTable",
 
-		components: {mdlCheckbox},
+		components: {mdlCheckbox, mdlBulkActions, mdlPagination},
 
 		props: {
 			rows: {type: Array, required: true,},
@@ -223,13 +240,36 @@
 <style lang="scss">
 	@import "data-table";
 
-	th.check-column, td.check-column {
-		width: 70px;
-	}
+	.mdl-data-table-container {
+		th.check-column, td.check-column {
+			width: 70px;
+		}
 
-	thead {
-		tr {
-			background: rgba(32, 33, 36, 0.059);
+		.mdl-table-nav-top {
+			align-items: flex-end;
+			display: flex;
+			justify-content: space-between;
+			margin-bottom: 10px;
+			margin-top: 10px;
+			width: 100%;
+
+			&__left {
+				display: flex;
+			}
+
+			&__action,
+			&__filters {
+				display: flex;
+
+				> * {
+					margin-right: 5px;
+				}
+			}
+
+			select {
+				line-height: 1.2;
+				padding: 3px 10px;
+			}
 		}
 	}
 </style>

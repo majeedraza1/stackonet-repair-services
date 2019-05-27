@@ -1,12 +1,14 @@
 <?php
 
-namespace Stackonet\Integrations;
+namespace Stackonet\Modules\SupportTicket;
 
 use DateTime;
 use Exception;
 use Stackonet\Abstracts\DatabaseModel;
 use Stackonet\Supports\Utils;
 use WC_Order;
+use WP_Term;
+use WP_User;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -35,13 +37,6 @@ class SupportTicket extends DatabaseModel {
 	 * @var array
 	 */
 	protected $data = [];
-
-	/**
-	 * The primary key for the model.
-	 *
-	 * @var string
-	 */
-	protected $primaryKey = 'id';
 
 	/**
 	 * @var string
@@ -101,71 +96,67 @@ class SupportTicket extends DatabaseModel {
 	protected $valid_thread_types = [ 'report', 'log', 'reply' ];
 
 	/**
-	 * @var null
+	 * Array representation of the class
+	 *
+	 * @return array
 	 */
-	public static $instance = null;
+	public function to_array() {
+		$data               = parent::to_array();
+		$data['status']     = $this->get_ticket_status();
+		$data['category']   = $this->get_ticket_category();
+		$data['priority']   = $this->get_ticket_priority();
+		$data['created_by'] = $this->get_agent_created();
 
-	/**
-	 * @return SupportTicket
-	 */
-	public static function init() {
-		if ( is_null( self::$instance ) ) {
-			self::$instance = new self;
+		return $data;
+	}
 
-			add_action( 'wpsc_get_gerneral_settings', [ self::$instance, 'settings' ] );
-			add_action( 'wpsc_set_gerneral_settings', [ self::$instance, 'save_settings' ] );
+	public function get_agent_created() {
+		$agent_created = $this->get( 'agent_created' );
+
+		if ( is_numeric( $agent_created ) ) {
+			$user = get_user_by( 'id', $agent_created );
+			if ( $user instanceof WP_User ) {
+				return $user->display_name;
+			}
 		}
 
-		return self::$instance;
+		return 'None';
 	}
 
-	public function save_settings() {
-		$order_ticket_category = isset( $_POST['wpsc_default_order_ticket_category'] ) ? sanitize_text_field( $_POST['wpsc_default_order_ticket_category'] ) : '';
-		update_option( 'wpsc_default_order_ticket_category', $order_ticket_category );
-		$order_ticket_category = isset( $_POST['wpsc_default_contact_form_ticket_category'] ) ? sanitize_text_field( $_POST['wpsc_default_contact_form_ticket_category'] ) : '';
-		update_option( 'wpsc_default_contact_form_ticket_category', $order_ticket_category );
+	/**
+	 * Get ticket status
+	 *
+	 * @return array
+	 */
+	public function get_ticket_status() {
+		$ticket_status = $this->get( 'ticket_status' );
+		$terms         = get_term_by( 'id', $ticket_status, 'wpsc_statuses' );
+
+		return $terms->to_array();
 	}
 
-	public function settings() {
-		$categories = get_terms( [
-			'taxonomy'   => 'wpsc_categories',
-			'hide_empty' => false,
-			'orderby'    => 'meta_value_num',
-			'order'      => 'ASC',
-			'meta_query' => array( 'order_clause' => array( 'key' => 'wpsc_category_load_order' ) ),
-		] );
-		?>
-		<div class="form-group">
-			<label
-				for="wpsc_default_order_ticket_category"><?php _e( 'Default ticket category for order', 'supportcandy' ); ?></label>
-			<p class="help-block"><?php _e( 'This category will get applied for newly created ticket.', 'supportcandy' ); ?></p>
-			<select class="form-control" name="wpsc_default_order_ticket_category"
-			        id="wpsc_default_order_ticket_category">
-				<?php
-				$wpsc_default_ticket_category = get_option( 'wpsc_default_order_ticket_category' );
-				foreach ( $categories as $category ) :
-					$selected = $wpsc_default_ticket_category == $category->term_id ? 'selected="selected"' : '';
-					echo '<option ' . $selected . ' value="' . $category->term_id . '">' . $category->name . '</option>';
-				endforeach;
-				?>
-			</select>
-		</div>
-		<div class="form-group">
-			<label
-				for="wpsc_default_order_ticket_category"><?php _e( 'Default ticket category for contact form', 'supportcandy' ); ?></label>
-			<p class="help-block"><?php _e( 'This category will get applied for newly created ticket.', 'supportcandy' ); ?></p>
-			<select class="form-control" name="wpsc_default_contact_form_ticket_category"
-			        id="wpsc_default_contact_form_ticket_category">
-				<?php
-				$wpsc_default_ticket_category = get_option( 'wpsc_default_contact_form_ticket_category' );
-				foreach ( $categories as $category ) :
-					$selected = $wpsc_default_ticket_category == $category->term_id ? 'selected="selected"' : '';
-					echo '<option ' . $selected . ' value="' . $category->term_id . '">' . $category->name . '</option>';
-				endforeach;
-				?>
-			</select>
-		</div>
-		<?php
+	/**
+	 * Get ticket category
+	 *
+	 * @return array
+	 */
+	public function get_ticket_category() {
+		$ticket_status = $this->get( 'ticket_category' );
+		$terms         = get_term_by( 'id', $ticket_status, 'wpsc_categories' );
+
+		return $terms->to_array();
+	}
+
+	/**
+	 * Get ticket priority
+	 *
+	 * @return array
+	 */
+	public function get_ticket_priority() {
+		$ticket_status = $this->get( 'ticket_priority' );
+		$terms         = get_term_by( 'id', $ticket_status, 'wpsc_priorities' );
+
+		return $terms->to_array();
 	}
 
 	/**
@@ -390,13 +381,196 @@ class SupportTicket extends DatabaseModel {
 		$wpdb->insert( $table, $data );
 	}
 
+
+	/**
+	 * Find multiple records from database
+	 *
+	 * @param array $args
+	 *
+	 * @return array
+	 */
+	public function find( $args = [] ) {
+		$per_page     = isset( $args['per_page'] ) ? absint( $args['per_page'] ) : $this->perPage;
+		$paged        = isset( $args['paged'] ) ? absint( $args['paged'] ) : 1;
+		$current_page = $paged < 1 ? 1 : $paged;
+		$offset       = ( $current_page - 1 ) * $per_page;
+		$orderby      = $this->primaryKey;
+		if ( isset( $args['orderby'] ) && in_array( $args['orderby'], array_keys( $this->default_data ) ) ) {
+			$orderby = $args['orderby'];
+		}
+		$order         = isset( $args['order'] ) && 'ASC' == $args['order'] ? 'ASC' : 'DESC';
+		$ticket_status = isset( $args['ticket_status'] ) ? $args['ticket_status'] : 'all';
+
+		global $wpdb;
+		$table = $wpdb->prefix . $this->table;
+
+		$query = "SELECT * FROM {$table} WHERE 1=1";
+
+		if ( isset( $args[ $this->created_by ] ) && is_numeric( $args[ $this->created_by ] ) ) {
+			$query .= $wpdb->prepare( " AND {$this->created_by} = %d", intval( $args[ $this->created_by ] ) );
+		}
+
+		if ( is_numeric( $ticket_status ) ) {
+			$query .= $wpdb->prepare( " AND ticket_status = %d", intval( $ticket_status ) );
+		}
+
+		if ( isset( $args['ticket_category'] ) && is_numeric( $args['ticket_category'] ) ) {
+			$query .= $wpdb->prepare( " AND ticket_category = %d", intval( $args['ticket_category'] ) );
+		}
+
+		if ( isset( $args['ticket_priority'] ) && is_numeric( $args['ticket_priority'] ) ) {
+			$query .= $wpdb->prepare( " AND ticket_priority = %d", intval( $args['ticket_priority'] ) );
+		}
+
+		if ( 'trash' == $ticket_status ) {
+			$query .= " AND active = 0";
+		} else {
+			$query .= " AND active = 1";
+		}
+
+		$query   .= " ORDER BY {$orderby} {$order}";
+		$query   .= $wpdb->prepare( " LIMIT %d OFFSET %d", $per_page, $offset );
+		$results = $wpdb->get_results( $query, ARRAY_A );
+
+		$data = [];
+		foreach ( $results as $result ) {
+			$data[] = new self( $result );
+		}
+
+		return $data;
+	}
+
+
+	/**
+	 * Delete data
+	 *
+	 * @param int $id
+	 *
+	 * @return bool
+	 */
+	public function delete( $id = 0 ) {
+		global $wpdb;
+		$table = $wpdb->prefix . $this->table;
+
+		return ( false !== $wpdb->delete( $table, [ $this->primaryKey => $id ], $this->primaryKeyType ) );
+	}
+
+	/**
+	 * Send an item to trash
+	 *
+	 * @param int $id
+	 *
+	 * @return bool
+	 */
+	public function trash( $id ) {
+		global $wpdb;
+		$table = $wpdb->prefix . $this->table;
+		$query = $wpdb->update( $table, [ 'active' => 0 ], [ $this->primaryKey => $id ]
+		);
+
+		return ( false !== $query );
+	}
+
+	/**
+	 * Restore an item from trash
+	 *
+	 * @param int $id
+	 *
+	 * @return bool
+	 */
+	public function restore( $id ) {
+		global $wpdb;
+		$table = $wpdb->prefix . $this->table;
+		$query = $wpdb->update( $table, [ 'active' => 1 ], [ $this->primaryKey => $id ] );
+
+		return ( false !== $query );
+	}
+
 	/**
 	 * Count total records from the database
 	 *
 	 * @return array
 	 */
 	public function count_records() {
-		return [];
+		global $wpdb;
+		$table    = $wpdb->prefix . $this->table;
+		$statuses = $this->get_ticket_statuses_terms();
+		$counts   = wp_cache_get( 'support_tickets_count', $this->cache_group );
+		if ( false === $counts ) {
+			$query   = "SELECT ticket_status, COUNT( * ) AS num_entries FROM {$table} WHERE active = 1";
+			$query   .= " GROUP BY ticket_status";
+			$results = $wpdb->get_results( $query, ARRAY_A );
+
+			foreach ( $statuses as $status ) {
+				$counts[ $status->term_id ] = 0;
+			}
+
+			foreach ( $results as $row ) {
+				$counts[ $row['ticket_status'] ] = intval( $row['num_entries'] );
+			}
+			$counts['all']   = array_sum( $counts );
+			$counts['trash'] = $this->count_trash_records();
+
+			wp_cache_set( 'support_tickets_count', $counts, $this->cache_group );
+		}
+
+		return $counts;
+	}
+
+	/**
+	 * Cont trash records
+	 *
+	 * @return int
+	 */
+	public function count_trash_records() {
+		global $wpdb;
+		$table   = $wpdb->prefix . $this->table;
+		$query   = "SELECT COUNT( * ) AS num_entries FROM {$table} WHERE active = 0";
+		$results = $wpdb->get_row( $query, ARRAY_A );
+
+		return intval( $results['num_entries'] );
+	}
+
+	/**
+	 * Get ticket statuses term
+	 *
+	 * @return WP_Term[]
+	 */
+	public function get_ticket_statuses_terms() {
+		$terms = get_terms( array(
+			'taxonomy'   => 'wpsc_statuses',
+			'hide_empty' => false,
+		) );
+
+		return $terms;
+	}
+
+	/**
+	 * Get ticket statuses term
+	 *
+	 * @return WP_Term[]
+	 */
+	public function get_categories_terms() {
+		$terms = get_terms( array(
+			'taxonomy'   => 'wpsc_categories',
+			'hide_empty' => false,
+		) );
+
+		return $terms;
+	}
+
+	/**
+	 * Get ticket statuses term
+	 *
+	 * @return WP_Term[]
+	 */
+	public function get_priorities_terms() {
+		$terms = get_terms( array(
+			'taxonomy'   => 'wpsc_priorities',
+			'hide_empty' => false,
+		) );
+
+		return $terms;
 	}
 
 	/**
