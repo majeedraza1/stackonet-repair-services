@@ -7,6 +7,7 @@ use Exception;
 use Stackonet\Abstracts\DatabaseModel;
 use Stackonet\Supports\Utils;
 use WC_Order;
+use WP_Post;
 use WP_Term;
 use WP_User;
 
@@ -30,6 +31,11 @@ class SupportTicket extends DatabaseModel {
 	 * @var string
 	 */
 	protected $post_type = 'wpsc_ticket_thread';
+
+	/**
+	 * @var string
+	 */
+	protected $cache_group = 'support_ticket';
 
 	/**
 	 * Object data
@@ -96,20 +102,129 @@ class SupportTicket extends DatabaseModel {
 	protected $valid_thread_types = [ 'report', 'log', 'reply' ];
 
 	/**
+	 * @var bool
+	 */
+	protected $assigned_agent_read = false;
+
+	/**
+	 * @var array
+	 */
+	protected $assigned_agents_ids = [];
+
+	/**
+	 * @var array
+	 */
+	protected $assigned_agents = [];
+
+	/**
 	 * Array representation of the class
 	 *
 	 * @return array
+	 * @throws Exception
 	 */
 	public function to_array() {
-		$data               = parent::to_array();
-		$data['status']     = $this->get_ticket_status();
-		$data['category']   = $this->get_ticket_category();
-		$data['priority']   = $this->get_ticket_priority();
-		$data['created_by'] = $this->get_agent_created();
+		$data                    = parent::to_array();
+		$data['customer_url']    = get_avatar_url( $this->get( 'customer_email' ) );
+		$data['status']          = $this->get_ticket_status();
+		$data['category']        = $this->get_ticket_category();
+		$data['priority']        = $this->get_ticket_priority();
+		$data['created_by']      = $this->get_agent_created();
+		$data['assigned_agents'] = $this->get_assigned_agents();
+		$data['updated']         = $this->update_at();
 
 		return $data;
 	}
 
+	public function get_ticket_id() {
+		return intval( $this->get( 'id' ) );
+	}
+
+	/**
+	 * Get ticket threads
+	 *
+	 * @return WP_Post[]
+	 */
+	public function get_ticket_threads() {
+		$args = array(
+			'post_type'      => 'wpsc_ticket_thread',
+			'post_status'    => 'publish',
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+			'posts_per_page' => - 1,
+			'meta_query'     => array(
+				'relation'   => 'AND',
+				array(
+					'key'     => 'ticket_id',
+					'value'   => $this->get_ticket_id(),
+					'compare' => '='
+				),
+				'meta_query' => array(),
+			)
+		);
+
+		$_threads = get_posts( $args );
+		$threads  = [];
+
+		foreach ( $_threads as $thread ) {
+			$ticket_id      = get_post_meta( $thread->ID, 'ticket_id', true );
+			$thread_type    = get_post_meta( $thread->ID, 'thread_type', true );
+			$customer_name  = get_post_meta( $thread->ID, 'customer_name', true );
+			$customer_email = get_post_meta( $thread->ID, 'customer_email', true );
+			$_attachments   = get_post_meta( $thread->ID, 'attachments', true );
+
+			$attachments = [];
+			if ( is_array( $_attachments ) && count( $_attachments ) ) {
+				foreach ( $_attachments as $attachment_id ) {
+
+					$save_file_name = get_term_meta( $attachment_id, 'save_file_name', true );
+					$is_image       = (bool) get_term_meta( $attachment_id, 'is_image', true );
+
+					$upload_dir   = wp_upload_dir();
+					$file_url     = $upload_dir['baseurl'] . '/wpsc/' . $save_file_name;
+					$download_url = $is_image ? $file_url : site_url( '/' ) . '?wpsc_attachment=' . $attachment_id . '&tid=' . $ticket_id . '&tac=' . 0;
+
+					$attachments[] = [
+						'filename'       => get_term_meta( $attachment_id, 'filename', true ),
+						'active'         => (bool) get_term_meta( $attachment_id, 'active', true ),
+						'is_image'       => $is_image,
+						'save_file_name' => $save_file_name,
+						'time_uploaded'  => get_term_meta( $attachment_id, 'time_uploaded', true ),
+						'download_url'   => $download_url,
+					];
+				}
+			}
+
+			$human_time = human_time_diff( strtotime( $thread->post_date_gmt ) );
+
+			$threads[] = [
+				'thread_id'           => $thread->ID,
+				'thread_content'      => $thread->post_content,
+				'thread_date'         => $thread->post_date_gmt,
+				'human_time'          => $human_time,
+				'thread_type'         => $thread_type,
+				'customer_name'       => $customer_name,
+				'customer_email'      => $customer_email,
+				'customer_avatar_url' => get_avatar_url( $customer_email ),
+				'attachments'         => $attachments,
+			];
+		}
+
+		return $threads;
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function update_at() {
+		$date_updated = $this->get( 'date_updated' );
+		$dateTime     = new DateTime( $date_updated );
+
+		return $dateTime->format( get_option( 'date_format' ) );
+	}
+
+	/**
+	 * @return string
+	 */
 	public function get_agent_created() {
 		$agent_created = $this->get( 'agent_created' );
 
@@ -157,6 +272,61 @@ class SupportTicket extends DatabaseModel {
 		$terms         = get_term_by( 'id', $ticket_status, 'wpsc_priorities' );
 
 		return $terms->to_array();
+	}
+
+	/**
+	 * Get assigned agents
+	 *
+	 * @return array
+	 */
+	public function get_assigned_agents() {
+		$ids = $this->get_assigned_agents_ids();
+		if ( ! count( $ids ) ) {
+			return [];
+		}
+
+		if ( empty( $this->assigned_agents ) ) {
+			foreach ( $ids as $id ) {
+				$user = get_user_by( 'id', $id );
+				if ( ! $user instanceof WP_User ) {
+					continue;
+				}
+
+				$this->assigned_agents[] = [
+					'id'           => $user->ID,
+					'email'        => $user->user_email,
+					'display_name' => $user->display_name,
+					'avatar_url'   => get_avatar_url( $user->user_email ),
+				];
+			}
+		}
+
+		return $this->assigned_agents;
+	}
+
+	/**
+	 * Get assigned agents ids
+	 *
+	 * @return array
+	 */
+	public function get_assigned_agents_ids() {
+		if ( ! $this->assigned_agent_read ) {
+			$ticket_id = $this->get( 'id' );
+			$_agents   = $this->get_metadata( $ticket_id, 'assigned_agent' );
+			if ( empty( $_agents ) ) {
+				return [];
+			}
+
+			foreach ( $_agents as $agent ) {
+				$user                        = get_term_meta( $agent );
+				$user_id                     = isset( $user['user_id'][0] ) ? intval( $user['user_id'][0] ) : 0;
+				$this->assigned_agents_ids[] = $user_id;
+			}
+
+			$this->assigned_agent_read = true;
+		}
+
+		return $this->assigned_agents_ids;
 	}
 
 	/**
@@ -360,6 +530,30 @@ class SupportTicket extends DatabaseModel {
 	}
 
 	/**
+	 * Get ticket meta
+	 *
+	 * @param int $ticket_id
+	 * @param string $meta_key
+	 *
+	 * @return array
+	 */
+	public function get_metadata( $ticket_id, $meta_key ) {
+		global $wpdb;
+		$table = $wpdb->prefix . $this->meta_table;
+
+		$ticket_meta = array();
+		$sql         = $wpdb->prepare( "SELECT meta_value FROM {$table} WHERE ticket_id= %d AND meta_key = %s", $ticket_id, $meta_key );
+		$results     = $wpdb->get_results( $sql );
+		if ( $results ) {
+			foreach ( $results as $result ) {
+				$ticket_meta[] = stripslashes( $result->meta_value );
+			}
+		}
+
+		return $ticket_meta;
+	}
+
+	/**
 	 * Update ticket metadata
 	 *
 	 * @param int $ticket_id
@@ -438,6 +632,19 @@ class SupportTicket extends DatabaseModel {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Find record by id
+	 *
+	 * @param int $id
+	 *
+	 * @return array|self
+	 */
+	public function find_by_id( $id ) {
+		$item = parent::find_by_id( $id );
+
+		return new self( $item );
 	}
 
 

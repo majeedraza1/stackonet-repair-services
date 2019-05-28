@@ -271,5 +271,27 @@
 				padding: 3px 10px;
 			}
 		}
+
+		.row-actions {
+			visibility: hidden;
+
+			.trash,
+			.delete {
+				color: #a00;
+
+				a {
+					color: currentColor;
+				}
+			}
+		}
+
+		tr:hover .row-actions {
+			visibility: visible;
+		}
+
+		// Temp
+		.toggle-row {
+			display: none;
+		}
 	}
 </style>

@@ -2,6 +2,7 @@
 
 namespace Stackonet\Modules\SupportTicket;
 
+use Exception;
 use Stackonet\REST\ApiController;
 use WP_Error;
 use WP_REST_Request;
@@ -40,6 +41,14 @@ class SupportTicketController extends ApiController {
 	public function register_routes() {
 		register_rest_route( $this->namespace, '/support-ticket', [
 			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_items' ], ],
+		] );
+
+		register_rest_route( $this->namespace, '/support-ticket/(?P<id>\d+)', [
+			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_item' ] ],
+		] );
+
+		register_rest_route( $this->namespace, '/support-ticket/(?P<id>\d+)/thread', [
+			[ 'methods' => WP_REST_Server::DELETABLE, 'callback' => [ $this, 'delete_thread' ] ],
 		] );
 
 		register_rest_route( $this->namespace, '/support-ticket/delete', [
@@ -95,6 +104,29 @@ class SupportTicketController extends ApiController {
 		$response = [ 'items' => $items, 'counts' => $counts, 'pagination' => $pagination ];
 
 		return $this->respondOK( $response );
+	}
+
+	/**
+	 * Retrieves one item from the collection.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
+	 * @throws Exception
+	 */
+	public function get_item( $request ) {
+		if ( ! current_user_can( 'read' ) ) {
+			return $this->respondUnauthorized();
+		}
+
+		$id = (int) $request->get_param( 'id' );
+
+		$supportTicket = new SupportTicket;
+		$item          = $supportTicket->find_by_id( $id );
+		$data          = $item->to_array();
+		$threads       = $item->get_ticket_threads();
+
+		return $this->respondOK( [ 'ticket' => $data, 'threads' => $threads ] );
 	}
 
 	/**
@@ -172,6 +204,19 @@ class SupportTicketController extends ApiController {
 				$class->delete( $id );
 			}
 		}
+
+		return $this->respondOK( "Support tickets has been deleted" );
+	}
+
+	/**
+	 * Deletes multiple items from the collection.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
+	 */
+	public function delete_thread( $request ) {
+		$id = $request->get_param( 'id' );
 
 		return $this->respondOK( "Support tickets has been deleted" );
 	}

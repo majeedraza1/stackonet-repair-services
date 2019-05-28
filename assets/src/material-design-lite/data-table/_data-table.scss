@@ -20,7 +20,7 @@
 	position: relative;
 	border: $data-table-dividers;
 	border-collapse: collapse;
-	white-space: nowrap;
+	// white-space: nowrap;
 	font-size: $data-table-font-size;
 	background-color: unquote("rgb(#{$color-white})");
 

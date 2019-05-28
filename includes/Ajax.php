@@ -88,7 +88,9 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		var_dump( 'working' );
+		$supportTicket = new SupportTicket();
+		$dd            = $supportTicket->find_by_id( 42 );
+		var_dump( $dd->get_ticket_threads() );
 		die();
 	}
 

@@ -153,9 +153,10 @@ class Frontend {
 	 * @return string
 	 */
 	public function support_ticket() {
-		$data = [];
+		$data          = [];
+		$supportTicket = new SupportTicket();
 
-		$_statuses        = ( new SupportTicket() )->get_ticket_statuses_terms();
+		$_statuses        = $supportTicket->get_ticket_statuses_terms();
 		$data['statuses'] = [ [ 'key' => 'all', 'label' => 'All Statuses', 'count' => 0, 'active' => true ] ];
 		foreach ( $_statuses as $status ) {
 			$data['statuses'][] = [ 'key' => $status->term_id, 'label' => $status->name, 'count' => 0, ];
@@ -163,23 +164,29 @@ class Frontend {
 		$data['statuses'][] = [ 'key' => 'trash', 'label' => 'Trash', 'count' => 0, 'active' => false ];
 
 
-		$_categories        = ( new SupportTicket() )->get_categories_terms();
+		$_categories        = $supportTicket->get_categories_terms();
 		$data['categories'] = [ [ 'key' => 'all', 'label' => 'All Categories', 'count' => 0, 'active' => true ] ];
 		foreach ( $_categories as $status ) {
 			$data['categories'][] = [ 'key' => $status->term_id, 'label' => $status->name, 'count' => 0, ];
 		}
 
-		$_priorities        = ( new SupportTicket() )->get_priorities_terms();
+		$_priorities        = $supportTicket->get_priorities_terms();
 		$data['priorities'] = [ [ 'key' => 'all', 'label' => 'All Priorities', 'count' => 0, 'active' => true ] ];
 		foreach ( $_priorities as $status ) {
 			$data['priorities'][] = [ 'key' => $status->term_id, 'label' => $status->name, 'count' => 0, ];
 		}
 
-		$data['count_trash'] = ( new SupportTicket() )->count_trash_records();
+		$data['count_trash'] = $supportTicket->count_trash_records();
 
 		wp_localize_script( 'stackonet-repair-services-frontend', 'SupportTickets', $data );
+		add_action( 'wp_footer', [ $this, 'tinymce_script' ], 9 );
 
 		return '<div id="stackonet_support_ticket"></div>';
+	}
+
+
+	public function tinymce_script() {
+		echo '<script type="text/javascript" src="' . includes_url( 'js/tinymce/tinymce.min.js' ) . '"></script>';
 	}
 
 	/**
