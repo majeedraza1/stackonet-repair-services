@@ -2,7 +2,7 @@
 	<div class="stackont-single-support-ticket-container">
 
 		<div class="stackont-single-support-ticket-actions">
-			<mdl-button type="raised" color="primary">
+			<mdl-button type="raised" color="primary" @click="openNewTicket">
 				<icon><i class="fa fa-plus" aria-hidden="true"></i></icon>
 				New Ticket
 			</mdl-button>
@@ -252,12 +252,16 @@
 		},
 		mounted() {
 			let id = this.$route.params.id;
+			this.$store.commit('SET_LOADING_STATUS', false);
 			if (id) {
 				this.id = parseInt(id);
 				this.getItem();
 			}
 		},
 		methods: {
+			openNewTicket() {
+				this.$router.push({name: 'NewSupportTicket'});
+			},
 			addNote() {
 				this.addThread('note', this.content);
 			},
@@ -300,20 +304,19 @@
 			},
 			updateAssignAgents() {
 				let self = this;
-				let ids = self.support_agents_ids;
-				self.loading = true;
+				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
 					.post(PhoneRepairs.rest_root + '/support-ticket/' + self.id + '/agent', {
 						agents_ids: self.support_agents_ids,
 					})
 					.then((response) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 						self.activeAgentModal = false;
 						self.support_agents_ids = [];
 						self.getItem();
 					})
 					.catch((error) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 					});
 			},
 			openThreadEditor(thread) {
@@ -328,7 +331,7 @@
 			},
 			updateTicketStatus() {
 				let self = this;
-				self.loading = true;
+				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
 					.put(PhoneRepairs.rest_root + '/support-ticket/' + self.id, {
 						ticket_category: self.ticket_category,
@@ -336,7 +339,7 @@
 						ticket_status: self.ticket_status,
 					})
 					.then((response) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 						self.activeStatusModal = false;
 						self.ticket_subject = '';
 						self.ticket_status = '';
@@ -344,73 +347,73 @@
 						self.getItem();
 					})
 					.catch((error) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 					});
 			},
 			updateSubject() {
 				let self = this;
-				self.loading = true;
+				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
 					.put(PhoneRepairs.rest_root + '/support-ticket/' + self.id, {
 						ticket_subject: self.ticket_subject,
 					})
 					.then((response) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 						self.activeTitleModal = false;
 						self.ticket_subject = '';
 						self.getItem();
 					})
 					.catch((error) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 					});
 			},
 			addThread(thread_type, thread_content) {
 				let self = this;
-				self.loading = true;
+				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
 					.post(PhoneRepairs.rest_root + '/support-ticket/' + self.id + '/thread/', {
 						thread_type: thread_type,
 						thread_content: thread_content,
 					})
 					.then((response) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 						self.content = '';
 						self.getItem();
 					})
 					.catch((error) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 					});
 			},
 			updateThread() {
 				let self = this;
-				self.loading = true;
+				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
 					.put(PhoneRepairs.rest_root + '/support-ticket/' + self.id + '/thread/' + self.activeThread.thread_id, {
 						post_content: self.activeThreadContent,
 					})
 					.then((response) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 						self.activeThreadModal = false;
 						self.activeThread = {};
 						self.activeThreadContent = '';
 						self.getItem();
 					})
 					.catch((error) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 					});
 			},
 			deleteThread(thread) {
 				let self = this;
 				if (confirm('Are you sure to delete this thread?')) {
-					self.loading = true;
+					self.$store.commit('SET_LOADING_STATUS', true);
 					axios
 						.delete(PhoneRepairs.rest_root + '/support-ticket/' + self.id + '/thread/' + thread.thread_id)
 						.then((response) => {
-							self.loading = false;
+							self.$store.commit('SET_LOADING_STATUS', false);
 							self.getItem();
 						})
 						.catch((error) => {
-							self.loading = false;
+							self.$store.commit('SET_LOADING_STATUS', false);
 						});
 				}
 			},
@@ -425,16 +428,16 @@
 			},
 			getItem() {
 				let self = this;
-				self.loading = true;
+				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
 					.get(PhoneRepairs.rest_root + '/support-ticket/' + self.id)
 					.then((response) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 						self.item = response.data.data.ticket;
 						self.threads = response.data.data.threads;
 					})
 					.catch((error) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 					});
 			}
 		}

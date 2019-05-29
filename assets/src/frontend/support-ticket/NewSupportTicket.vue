@@ -1,0 +1,143 @@
+<template>
+	<div class="stackont-support-ticket-container stackont-support-ticket-container--new">
+
+		<div class="display-flex justify-space-between">
+			<div class="flex-item">
+				<mdl-button type="raised" color="default" @click="ticketList">
+					<icon><i class="fa fa-list" aria-hidden="true"></i></icon>
+					Ticket List
+				</mdl-button>
+			</div>
+		</div>
+
+		<columns multiline>
+
+			<column :desktop="6">
+				<div class="form-field">
+					<label for="customer_name">Name</label>
+					<input type="text" id="customer_name" v-model="name">
+				</div>
+			</column>
+
+			<column :desktop="6">
+				<div class="form-field">
+					<label for="email_address">Email Address</label>
+					<input type="text" id="email_address" v-model="email_address">
+				</div>
+			</column>
+
+			<column :desktop="12">
+				<div class="form-field">
+					<label for="ticket_subject">Subject</label>
+					<input type="text" id="ticket_subject" v-model="ticket_subject">
+				</div>
+			</column>
+
+			<column :desktop="12">
+				<div class="form-field">
+					<label for="ticket_description">Description</label>
+					<editor id="ticket_description" :init="mce" v-model="ticket_content"></editor>
+				</div>
+			</column>
+
+			<column :desktop="6">
+				<div class="form-field">
+					<label for="ticket_category">Category *</label>
+					<select id="ticket_category" v-model="ticket_category">
+						<option v-for="_category in categories" :value="_category.term_id"
+								v-html="_category.name"></option>
+					</select>
+				</div>
+			</column>
+
+			<column :desktop="6">
+				<div class="form-field">
+					<label for="ticket_priority">Priority *</label>
+					<select id="ticket_priority" v-model="ticket_priority">
+						<option v-for="_priority in priorities" :value="_priority.term_id"
+								v-html="_priority.name"></option>
+					</select>
+				</div>
+			</column>
+
+			<column :desktop="12">
+				<div class="form-field">
+					<mdl-button type="raised" color="primary" @click="submitTicket">Submit Ticket</mdl-button>
+				</div>
+			</column>
+		</columns>
+
+	</div>
+</template>
+
+<script>
+	import {mapGetters} from 'vuex';
+	import Editor from '@tinymce/tinymce-vue'
+	import MdlButton from "../../material-design-lite/button/mdlButton";
+	import Icon from "../../shapla/icon/icon";
+	import Columns from "../../shapla/columns/columns";
+	import Column from "../../shapla/columns/column";
+
+	export default {
+		name: "NewSupportTicket",
+		components: {Column, Columns, Icon, MdlButton, Editor},
+		data() {
+			return {
+				name: '',
+				email_address: '',
+				ticket_subject: '',
+				ticket_content: '',
+				ticket_category: '',
+				ticket_priority: '',
+			}
+		},
+		computed: {
+			...mapGetters(['categories', 'priorities', 'statuses', 'support_agents']),
+			mce() {
+				return {
+					branding: false,
+					plugins: 'lists link paste wpemoji',
+					toolbar: 'undo redo bold italic underline strikethrough bullist numlist link unlink table inserttable',
+					min_height: 150,
+					inline: false,
+					menubar: false,
+					statusbar: true
+				}
+			},
+		},
+		mounted() {
+			this.$store.commit('SET_LOADING_STATUS', false);
+		},
+		methods: {
+			ticketList() {
+				this.$router.push({name: 'SupportTicketList'});
+			},
+			submitTicket() {
+				alert('Save functionality is not ready yet.');
+			}
+		}
+	}
+</script>
+
+<style lang="scss">
+	.stackont-support-ticket-container {
+		&--new {
+			max-width: 800px;
+			margin-left: auto;
+			margin-right: auto;
+		}
+
+		.form-field {
+			display: block;
+
+			label {
+				display: block;
+			}
+
+			input, select {
+				display: block;
+				width: 100%;
+			}
+		}
+	}
+</style>

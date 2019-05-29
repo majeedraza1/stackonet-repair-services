@@ -2,7 +2,10 @@
 	<div class="stackont-support-ticket-container" style="margin: 100px auto;">
 		<div class="display-flex justify-space-between">
 			<div class="flex-item">
-				<mdl-button type="raised" color="primary" @click="newTicketModel = true">+ New Ticket</mdl-button>
+				<mdl-button type="raised" color="primary" @click="openNewTicket">
+					<icon><i class="fa fa-plus" aria-hidden="true"></i></icon>
+					New Ticket
+				</mdl-button>
 			</div>
 			<div class="flex-item">
 				<mdl-button type="raised" color="default" @click="openTrash">Trash ({{count_trash}})</mdl-button>
@@ -75,10 +78,11 @@
 	import wpPagination from '../../wp/wpPagination'
 	import wpBulkActions from '../../wp/wpBulkActions'
 	import modal from '../../shapla/modal/modal'
+	import Icon from "../../shapla/icon/icon";
 
 	export default {
 		name: "SupportTicketList",
-		components: {mdlTable, mdlButton, wpStatusList, wpPagination, wpBulkActions, modal},
+		components: {Icon, mdlTable, mdlButton, wpStatusList, wpPagination, wpBulkActions, modal},
 		data() {
 			return {
 				loading: false,
@@ -108,6 +112,7 @@
 			}
 		},
 		mounted() {
+			this.$store.commit('SET_LOADING_STATUS', false);
 			if (!this.items.length) {
 				this.getItems();
 			}
@@ -145,6 +150,9 @@
 			},
 		},
 		methods: {
+			openNewTicket() {
+				this.$router.push({name: 'NewSupportTicket'});
+			},
 			getAssignedAgents(data) {
 				if (data.length < 1) return 'None';
 
@@ -176,10 +184,12 @@
 			},
 			getItems() {
 				let self = this;
+				self.$store.commit('SET_LOADING_STATUS', true);
 				let parms = `ticket_status=${self.status}&ticket_category=${self.category}&ticket_priority=${self.priority}&paged=${self.currentPage}`;
 				axios
 					.get(PhoneRepairs.rest_root + `/support-ticket?${parms}`)
 					.then((response) => {
+						self.$store.commit('SET_LOADING_STATUS', false);
 						let data = response.data.data;
 						self.items = data.items;
 						self.counts = data.counts;
@@ -206,7 +216,7 @@
 			},
 			trashAction(item, action) {
 				let self = this;
-				self.loading = true;
+				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
 					.post(PhoneRepairs.rest_root + '/support-ticket/delete', {
 						id: item.id,
@@ -214,10 +224,10 @@
 					})
 					.then((response) => {
 						self.getItems();
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 					})
 					.catch((error) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 					});
 			},
 			onBulkAction(action, items) {
@@ -237,7 +247,7 @@
 			},
 			batchTrashAction(ids, action) {
 				let self = this;
-				self.loading = true;
+				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
 					.post(PhoneRepairs.rest_root + '/support-ticket/batch_delete', {
 						ids: ids,
@@ -245,11 +255,11 @@
 					})
 					.then((response) => {
 						self.getItems();
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 					})
 					.catch((error) => {
 						console.log(error);
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 					});
 			}
 		}
