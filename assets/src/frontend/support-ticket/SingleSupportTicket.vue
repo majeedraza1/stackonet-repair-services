@@ -2,8 +2,14 @@
 	<div class="stackont-single-support-ticket-container">
 
 		<div class="stackont-single-support-ticket-actions">
-			<mdl-button type="raised" color="primary">+ New Ticket</mdl-button>
-			<mdl-button type="raised" color="default" @click="ticketList">Ticket List</mdl-button>
+			<mdl-button type="raised" color="primary">
+				<icon><i class="fa fa-plus" aria-hidden="true"></i></icon>
+				New Ticket
+			</mdl-button>
+			<mdl-button type="raised" color="default" @click="ticketList">
+				<icon><i class="fa fa-list" aria-hidden="true"></i></icon>
+				Ticket List
+			</mdl-button>
 		</div>
 
 		<columns>
@@ -13,14 +19,14 @@
 
 					<div class="stackont-single-ticket__heading">
 						<h4 class="stackont-single-ticket__title">[Ticket #{{item.id}}] {{item.ticket_subject}}</h4>
-						<icon><i class="fa fa-pencil-square-o" aria-hidden="true"></i></icon>
+						<icon><i @click="openTitleModal" class="fa fa-pencil-square-o" aria-hidden="true"></i></icon>
 					</div>
 
 					<div>
 						<editor :init="mce" v-model="content"></editor>
 						<div style="text-align: right;margin-top:10px;" v-show="content.length">
-							<mdl-button type="raised" color="default">Add Note</mdl-button>
-							<mdl-button type="raised" color="primary">Submit Reply</mdl-button>
+							<mdl-button type="raised" color="default" @click="addNote">Add Note</mdl-button>
+							<mdl-button type="raised" color="primary" @click="submitReply">Submit Reply</mdl-button>
 						</div>
 					</div>
 
@@ -90,12 +96,33 @@
 				<div class="shapla-box shapla-widget-box">
 					<div class="shapla-widget-box__heading">
 						<h5 class="shapla-widget-box__title">Status</h5>
-						<a href="#"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+						<icon>
+							<i @click="openStatusModal" class="fa fa-pencil-square-o" aria-hidden="true"></i>
+						</icon>
 					</div>
 					<div class="shapla-widget-box__content" v-if="Object.keys(item).length">
 						<list-item label="Status">{{item.status.name}}</list-item>
 						<list-item label="Category">{{item.category.name}}</list-item>
 						<list-item label="Priority">{{item.priority.name}}</list-item>
+					</div>
+				</div>
+
+				<div class="shapla-box shapla-widget-box">
+					<div class="shapla-widget-box__heading">
+						<h5 class="shapla-widget-box__title">Assign Agent(s)</h5>
+						<icon>
+							<i @click="openAssignAgentModal" class="fa fa-pencil-square-o" aria-hidden="true"></i>
+						</icon>
+					</div>
+					<div class="shapla-widget-box__content">
+						<span class="shapla-chip shapla-chip--contact" v-for="_agent in item.assigned_agents">
+							<span class="shapla-chip__contact">
+								<image-container>
+									<img :src="_agent.avatar_url" width="32" height="32">
+								</image-container>
+							</span>
+							<span class="shapla-chip__text">{{_agent.display_name}}</span>
+						</span>
 					</div>
 				</div>
 
@@ -115,23 +142,6 @@
 					</div>
 				</div>
 
-				<div class="shapla-box shapla-widget-box">
-					<div class="shapla-widget-box__heading">
-						<h5 class="shapla-widget-box__title">Assign Agent(s)</h5>
-						<a href="#"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
-					</div>
-					<div class="shapla-widget-box__content">
-						<span class="shapla-chip shapla-chip--contact" v-for="_agent in item.assigned_agents">
-							<span class="shapla-chip__contact">
-								<image-container>
-									<img :src="_agent.avatar_url" width="32" height="32">
-								</image-container>
-							</span>
-							<span class="shapla-chip__text">{{_agent.display_name}}</span>
-						</span>
-					</div>
-				</div>
-
 			</column>
 		</columns>
 
@@ -141,11 +151,58 @@
 				<mdl-button @click="updateThread">Save</mdl-button>
 			</template>
 		</modal>
+
+		<modal :active="activeStatusModal" title="Change Ticket Status" @close="activeStatusModal = false">
+			<list-item label="Status">
+				<select v-model="ticket_status">
+					<option :value="_category.term_id" v-for="_category in statuses">{{_category.name}}</option>
+				</select>
+			</list-item>
+			<list-item label="Category">
+				<select v-model="ticket_category">
+					<option :value="_category.term_id" v-for="_category in categories">{{_category.name}}</option>
+				</select>
+			</list-item>
+			<list-item label="Priority">
+				<select v-model="ticket_priority">
+					<option :value="_category.term_id" v-for="_category in priorities">{{_category.name}}</option>
+				</select>
+			</list-item>
+			<template slot="foot">
+				<mdl-button @click="updateTicketStatus">Save</mdl-button>
+			</template>
+		</modal>
+
+		<modal :active="activeAgentModal" title="Change Assign Agent(s)" @close="activeAgentModal = false">
+			<template v-for="_agent in support_agents">
+				<div class="support_agents-chip">
+					<div class="shapla-chip shapla-chip--contact" @click="updateAgent(_agent)"
+						 :class="{'is-active':support_agents_ids.indexOf(_agent.id) !== -1}">
+						<div class="shapla-chip__contact">
+							<image-container>
+								<img :src="_agent.avatar_url" width="32" height="32">
+							</image-container>
+						</div>
+						<span class="shapla-chip__text">{{_agent.display_name}} - {{_agent.role_label}}</span>
+					</div>
+				</div>
+			</template>
+			<template slot="foot">
+				<mdl-button @click="updateAssignAgents">Save</mdl-button>
+			</template>
+		</modal>
+		<modal :active="activeTitleModal" title="Change Ticket Subject" @close="activeTitleModal = false">
+			<textarea v-model="ticket_subject" style="width: 100%;"></textarea>
+			<template slot="foot">
+				<mdl-button @click="updateSubject">Save</mdl-button>
+			</template>
+		</modal>
 	</div>
 </template>
 
 <script>
 	import axios from 'axios';
+	import {mapGetters} from 'vuex';
 	import Editor from '@tinymce/tinymce-vue'
 	import mdlButton from '../../material-design-lite/button/mdlButton'
 	import ListItem from '../../components/ListItem'
@@ -161,9 +218,18 @@
 		data() {
 			return {
 				loading: false,
+				activeStatusModal: false,
+				activeAgentModal: false,
 				activeThreadModal: false,
+				activeTitleModal: false,
 				activeThread: {},
 				activeThreadContent: '',
+				ticket_subject: '',
+				ticket_category: '',
+				ticket_priority: '',
+				ticket_status: '',
+				support_agents_ids: [],
+				threadType: '',
 				id: 0,
 				content: '',
 				item: {},
@@ -171,6 +237,7 @@
 			}
 		},
 		computed: {
+			...mapGetters(['categories', 'priorities', 'statuses', 'support_agents']),
 			mce() {
 				return {
 					branding: false,
@@ -191,6 +258,64 @@
 			}
 		},
 		methods: {
+			addNote() {
+				this.addThread('note', this.content);
+			},
+			submitReply() {
+				if (confirm('Are you sure?')) {
+					this.addThread('reply', this.content);
+				}
+			},
+			openTitleModal() {
+				this.ticket_subject = this.item.ticket_subject;
+				this.activeTitleModal = true;
+			},
+			openStatusModal() {
+				this.activeStatusModal = true;
+				this.ticket_category = this.item.ticket_category;
+				this.ticket_priority = this.item.ticket_priority;
+				this.ticket_status = this.item.ticket_status;
+			},
+			openAssignAgentModal() {
+				let ids = this.assigned_agents_ids();
+				this.activeAgentModal = true;
+				this.support_agents_ids = ids;
+			},
+			assigned_agents_ids() {
+				if (this.item.assigned_agents.length < 1) {
+					return [];
+				}
+
+				return this.item.assigned_agents.map(item => {
+					return item.id;
+				});
+			},
+			updateAgent(agent) {
+				let index = this.support_agents_ids.indexOf(agent.id);
+				if (-1 !== index) {
+					this.support_agents_ids.splice(index, 1);
+				} else {
+					this.support_agents_ids.push(agent.id);
+				}
+			},
+			updateAssignAgents() {
+				let self = this;
+				let ids = self.support_agents_ids;
+				self.loading = true;
+				axios
+					.post(PhoneRepairs.rest_root + '/support-ticket/' + self.id + '/agent', {
+						agents_ids: self.support_agents_ids,
+					})
+					.then((response) => {
+						self.loading = false;
+						self.activeAgentModal = false;
+						self.support_agents_ids = [];
+						self.getItem();
+					})
+					.catch((error) => {
+						self.loading = false;
+					});
+			},
 			openThreadEditor(thread) {
 				this.activeThreadModal = true;
 				this.activeThread = thread;
@@ -201,15 +326,92 @@
 				this.activeThread = {};
 				this.activeThreadContent = '';
 			},
+			updateTicketStatus() {
+				let self = this;
+				self.loading = true;
+				axios
+					.put(PhoneRepairs.rest_root + '/support-ticket/' + self.id, {
+						ticket_category: self.ticket_category,
+						ticket_priority: self.ticket_priority,
+						ticket_status: self.ticket_status,
+					})
+					.then((response) => {
+						self.loading = false;
+						self.activeStatusModal = false;
+						self.ticket_subject = '';
+						self.ticket_status = '';
+						self.ticket_priority = '';
+						self.getItem();
+					})
+					.catch((error) => {
+						self.loading = false;
+					});
+			},
+			updateSubject() {
+				let self = this;
+				self.loading = true;
+				axios
+					.put(PhoneRepairs.rest_root + '/support-ticket/' + self.id, {
+						ticket_subject: self.ticket_subject,
+					})
+					.then((response) => {
+						self.loading = false;
+						self.activeTitleModal = false;
+						self.ticket_subject = '';
+						self.getItem();
+					})
+					.catch((error) => {
+						self.loading = false;
+					});
+			},
+			addThread(thread_type, thread_content) {
+				let self = this;
+				self.loading = true;
+				axios
+					.post(PhoneRepairs.rest_root + '/support-ticket/' + self.id + '/thread/', {
+						thread_type: thread_type,
+						thread_content: thread_content,
+					})
+					.then((response) => {
+						self.loading = false;
+						self.content = '';
+						self.getItem();
+					})
+					.catch((error) => {
+						self.loading = false;
+					});
+			},
 			updateThread() {
-				this.activeThreadModal = false;
-				this.activeThread = {};
-				this.activeThreadContent = '';
-				alert('It is not ready yet.');
+				let self = this;
+				self.loading = true;
+				axios
+					.put(PhoneRepairs.rest_root + '/support-ticket/' + self.id + '/thread/' + self.activeThread.thread_id, {
+						post_content: self.activeThreadContent,
+					})
+					.then((response) => {
+						self.loading = false;
+						self.activeThreadModal = false;
+						self.activeThread = {};
+						self.activeThreadContent = '';
+						self.getItem();
+					})
+					.catch((error) => {
+						self.loading = false;
+					});
 			},
 			deleteThread(thread) {
+				let self = this;
 				if (confirm('Are you sure to delete this thread?')) {
-					alert('It is not ready yet.');
+					self.loading = true;
+					axios
+						.delete(PhoneRepairs.rest_root + '/support-ticket/' + self.id + '/thread/' + thread.thread_id)
+						.then((response) => {
+							self.loading = false;
+							self.getItem();
+						})
+						.catch((error) => {
+							self.loading = false;
+						});
 				}
 			},
 			threadClass(thread_type) {
@@ -265,6 +467,36 @@
 				padding: 0;
 				font-size: 20px;
 				margin: 0 0 1em;
+			}
+		}
+
+		.mdl-list-item {
+			align-items: center;
+			display: flex;
+			justify-content: flex-start;
+
+			&:not(:last-child) {
+				margin-bottom: 5px;
+				padding-bottom: 5px;
+			}
+
+			&-label {
+				width: 80px;
+			}
+
+			&-separator {
+				text-align: center;
+				width: 20px;
+			}
+		}
+
+		.support_agents-chip {
+			padding: 10px;
+			cursor: pointer;
+
+			.shapla-chip.is-active {
+				background: #f68638;
+				color: #fff;
 			}
 		}
 	}

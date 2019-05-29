@@ -3,6 +3,7 @@
 namespace Stackonet;
 
 use Exception;
+use Stackonet\Modules\SupportTicket\SupportAgent;
 use Stackonet\Modules\SupportTicket\SupportTicket;
 use Stackonet\Models\Device;
 use Stackonet\Models\DeviceIssue;
@@ -11,6 +12,7 @@ use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
 use Stackonet\Models\Testimonial;
 use Stackonet\Models\UnsupportedArea;
+use Stackonet\Modules\SupportTicket\TicketCategory;
 use Stackonet\Supports\Utils;
 use WC_Data_Exception;
 use WC_Order;
@@ -88,9 +90,12 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$supportTicket = new SupportTicket();
-		$dd            = $supportTicket->find_by_id( 42 );
-		var_dump( $dd->get_ticket_threads() );
+		$terms = SupportAgent::get_all();
+		foreach ( $terms as $term ) {
+			$meta       = get_term_meta( $term->get( 'term_id' ) );
+			$agent_name = get_term_meta( $term->term_id, 'label', true );
+			var_dump( $term );
+		}
 		die();
 	}
 

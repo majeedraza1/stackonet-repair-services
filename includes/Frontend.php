@@ -7,7 +7,11 @@ use Stackonet\Models\Device;
 use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
 use Stackonet\Models\Testimonial;
+use Stackonet\Modules\SupportTicket\SupportAgent;
 use Stackonet\Modules\SupportTicket\SupportTicket;
+use Stackonet\Modules\SupportTicket\TicketCategory;
+use Stackonet\Modules\SupportTicket\TicketPriority;
+use Stackonet\Modules\SupportTicket\TicketStatus;
 use WC_Order;
 use WP_Post;
 
@@ -177,6 +181,11 @@ class Frontend {
 		}
 
 		$data['count_trash'] = $supportTicket->count_trash_records();
+
+		$data['ticket_categories'] = TicketCategory::get_all();
+		$data['ticket_statuses']   = TicketStatus::get_all();
+		$data['ticket_priorities'] = TicketPriority::get_all();
+		$data['support_agents']    = SupportAgent::get_all();
 
 		wp_localize_script( 'stackonet-repair-services-frontend', 'SupportTickets', $data );
 		add_action( 'wp_footer', [ $this, 'tinymce_script' ], 9 );

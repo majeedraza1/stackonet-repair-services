@@ -662,6 +662,42 @@ class SupportTicket extends DatabaseModel {
 		return ( false !== $wpdb->delete( $table, [ $this->primaryKey => $id ], $this->primaryKeyType ) );
 	}
 
+	public function update_agent( array $agents_ids ) {
+		global $wpdb;
+		$table     = $wpdb->prefix . $this->meta_table;
+		$meta_key  = 'assigned_agent';
+		$ticket_id = $this->get( 'id' );
+
+		$sql     = $wpdb->prepare( "SELECT * FROM {$table} WHERE ticket_id= %d AND meta_key = %s", $ticket_id, $meta_key );
+		$results = $wpdb->get_results( $sql );
+		if ( count( $results ) ) {
+			foreach ( $results as $result ) {
+				$wpdb->delete( $table, [ 'id' => $result->id ], '%d' );
+			}
+		}
+
+		$agents = SupportAgent::get_all();
+		foreach ( $agents as $agent ) {
+			foreach ( $agents_ids as $agents_id ) {
+				if ( $agent->get_user()->ID == $agents_id ) {
+					$this->update_metadata( $ticket_id, $meta_key, $agent->get( 'term_id' ) );
+				}
+			}
+		}
+	}
+
+
+	/**
+	 * Delete data
+	 *
+	 * @param int $thread_id
+	 *
+	 * @return bool
+	 */
+	public function delete_thread( $thread_id = 0 ) {
+		return wp_delete_post( $thread_id ) instanceof WP_Post;
+	}
+
 	/**
 	 * Send an item to trash
 	 *
