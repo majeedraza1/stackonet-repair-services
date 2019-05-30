@@ -8,8 +8,7 @@
 				</mdl-button>
 			</div>
 			<div class="flex-item">
-				<mdl-button type="raised" color="default" @click="openTrash">Trash ({{count_trash}})</mdl-button>
-				<mdl-button type="raised" color="default">Export Excel</mdl-button>
+				<mdl-button type="raised" color="default" @click="exportExcel">Export Excel</mdl-button>
 			</div>
 		</div>
 
@@ -177,10 +176,8 @@
 				this.currentPage = page;
 				this.getItems();
 			},
-			openTrash() {
-				this.status = 'trash';
-				this.getItems();
-				// this.status = 'all';
+			exportExcel() {
+				alert('We are working on it.');
 			},
 			getItems() {
 				let self = this;
@@ -268,11 +265,20 @@
 
 <style lang="scss">
 	.stackont-support-ticket-container {
-		td.manage-column.manage-ticket_subject {
-			max-width: 250px;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			white-space: nowrap;
+
+		@media only screen and (max-width: 767px) {
+			.mdl-data-table tr td.manage-column.manage-id {
+				display: none !important;
+			}
+		}
+
+		@media only screen and (min-width: 768px) {
+			td.manage-column.manage-ticket_subject {
+				max-width: 250px;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
 		}
 
 		td.manage-updated {

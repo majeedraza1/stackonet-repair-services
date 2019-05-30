@@ -15,14 +15,14 @@
 			<column :desktop="6">
 				<div class="form-field">
 					<label for="customer_name">Name</label>
-					<input type="text" id="customer_name" v-model="name">
+					<input type="text" id="customer_name" v-model="customer_name">
 				</div>
 			</column>
 
 			<column :desktop="6">
 				<div class="form-field">
 					<label for="email_address">Email Address</label>
-					<input type="text" id="email_address" v-model="email_address">
+					<input type="text" id="email_address" v-model="customer_email">
 				</div>
 			</column>
 
@@ -62,7 +62,9 @@
 
 			<column :desktop="12">
 				<div class="form-field">
-					<mdl-button type="raised" color="primary" @click="submitTicket">Submit Ticket</mdl-button>
+					<mdl-button type="raised" color="primary" :disabled="!canSubmit" @click="submitTicket">Submit
+						Ticket
+					</mdl-button>
 				</div>
 			</column>
 		</columns>
@@ -72,6 +74,7 @@
 
 <script>
 	import {mapGetters} from 'vuex';
+	import axios from 'axios'
 	import Editor from '@tinymce/tinymce-vue'
 	import MdlButton from "../../material-design-lite/button/mdlButton";
 	import Icon from "../../shapla/icon/icon";
@@ -83,8 +86,8 @@
 		components: {Column, Columns, Icon, MdlButton, Editor},
 		data() {
 			return {
-				name: '',
-				email_address: '',
+				customer_name: '',
+				customer_email: '',
 				ticket_subject: '',
 				ticket_content: '',
 				ticket_category: '',
@@ -92,7 +95,7 @@
 			}
 		},
 		computed: {
-			...mapGetters(['categories', 'priorities', 'statuses', 'support_agents']),
+			...mapGetters(['categories', 'priorities', 'statuses', 'support_agents', 'display_name', 'user_email']),
 			mce() {
 				return {
 					branding: false,
@@ -104,16 +107,46 @@
 					statusbar: true
 				}
 			},
+			isValidEmail() {
+				return !!(this.customer_email.length && this.validateEmail(this.customer_email));
+			},
+			canSubmit() {
+				return !!(this.customer_name.length > 2 && this.isValidEmail &&
+					this.ticket_subject.length > 3 && this.ticket_content.length > 5);
+			}
 		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
+			this.customer_name = this.display_name;
+			this.customer_email = this.user_email;
 		},
 		methods: {
+			validateEmail(email) {
+				let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+				return re.test(String(email).toLowerCase());
+			},
 			ticketList() {
 				this.$router.push({name: 'SupportTicketList'});
 			},
 			submitTicket() {
-				alert('Save functionality is not ready yet.');
+				let self = this;
+				axios
+					.post(PhoneRepairs.rest_root + '/support-ticket', {
+						customer_name: self.customer_name,
+						customer_email: self.customer_email,
+						ticket_subject: self.ticket_subject,
+						ticket_content: self.ticket_content,
+						ticket_category: self.ticket_category,
+						ticket_priority: self.ticket_priority,
+					})
+					.then((response) => {
+						self.$store.commit('SET_LOADING_STATUS', false);
+						let id = response.data.data.ticket_id;
+						this.$router.push({name: 'SingleSupportTicket', params: {id: id}});
+					})
+					.catch((error) => {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					});
 			}
 		}
 	}

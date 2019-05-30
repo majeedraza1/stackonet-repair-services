@@ -135,6 +135,9 @@ class SupportTicket extends DatabaseModel {
 		return $data;
 	}
 
+	/**
+	 * @return int
+	 */
 	public function get_ticket_id() {
 		return intval( $this->get( 'id' ) );
 	}
@@ -145,71 +148,7 @@ class SupportTicket extends DatabaseModel {
 	 * @return WP_Post[]
 	 */
 	public function get_ticket_threads() {
-		$args = array(
-			'post_type'      => 'wpsc_ticket_thread',
-			'post_status'    => 'publish',
-			'orderby'        => 'date',
-			'order'          => 'DESC',
-			'posts_per_page' => - 1,
-			'meta_query'     => array(
-				'relation'   => 'AND',
-				array(
-					'key'     => 'ticket_id',
-					'value'   => $this->get_ticket_id(),
-					'compare' => '='
-				),
-				'meta_query' => array(),
-			)
-		);
-
-		$_threads = get_posts( $args );
-		$threads  = [];
-
-		foreach ( $_threads as $thread ) {
-			$ticket_id      = get_post_meta( $thread->ID, 'ticket_id', true );
-			$thread_type    = get_post_meta( $thread->ID, 'thread_type', true );
-			$customer_name  = get_post_meta( $thread->ID, 'customer_name', true );
-			$customer_email = get_post_meta( $thread->ID, 'customer_email', true );
-			$_attachments   = get_post_meta( $thread->ID, 'attachments', true );
-
-			$attachments = [];
-			if ( is_array( $_attachments ) && count( $_attachments ) ) {
-				foreach ( $_attachments as $attachment_id ) {
-
-					$save_file_name = get_term_meta( $attachment_id, 'save_file_name', true );
-					$is_image       = (bool) get_term_meta( $attachment_id, 'is_image', true );
-
-					$upload_dir   = wp_upload_dir();
-					$file_url     = $upload_dir['baseurl'] . '/wpsc/' . $save_file_name;
-					$download_url = $is_image ? $file_url : site_url( '/' ) . '?wpsc_attachment=' . $attachment_id . '&tid=' . $ticket_id . '&tac=' . 0;
-
-					$attachments[] = [
-						'filename'       => get_term_meta( $attachment_id, 'filename', true ),
-						'active'         => (bool) get_term_meta( $attachment_id, 'active', true ),
-						'is_image'       => $is_image,
-						'save_file_name' => $save_file_name,
-						'time_uploaded'  => get_term_meta( $attachment_id, 'time_uploaded', true ),
-						'download_url'   => $download_url,
-					];
-				}
-			}
-
-			$human_time = human_time_diff( strtotime( $thread->post_date_gmt ) );
-
-			$threads[] = [
-				'thread_id'           => $thread->ID,
-				'thread_content'      => $thread->post_content,
-				'thread_date'         => $thread->post_date_gmt,
-				'human_time'          => $human_time,
-				'thread_type'         => $thread_type,
-				'customer_name'       => $customer_name,
-				'customer_email'      => $customer_email,
-				'customer_avatar_url' => get_avatar_url( $customer_email ),
-				'attachments'         => $attachments,
-			];
-		}
-
-		return $threads;
+		return ( new TicketThread() )->find_by_ticket_id( $this->get_ticket_id() );
 	}
 
 	/**
@@ -247,7 +186,11 @@ class SupportTicket extends DatabaseModel {
 		$ticket_status = $this->get( 'ticket_status' );
 		$terms         = get_term_by( 'id', $ticket_status, 'wpsc_statuses' );
 
-		return $terms->to_array();
+		if ( $terms instanceof WP_Term ) {
+			return $terms->to_array();
+		}
+
+		return [];
 	}
 
 	/**
@@ -258,8 +201,11 @@ class SupportTicket extends DatabaseModel {
 	public function get_ticket_category() {
 		$ticket_status = $this->get( 'ticket_category' );
 		$terms         = get_term_by( 'id', $ticket_status, 'wpsc_categories' );
+		if ( $terms instanceof WP_Term ) {
+			return $terms->to_array();
+		}
 
-		return $terms->to_array();
+		return [];
 	}
 
 	/**
@@ -271,7 +217,11 @@ class SupportTicket extends DatabaseModel {
 		$ticket_status = $this->get( 'ticket_priority' );
 		$terms         = get_term_by( 'id', $ticket_status, 'wpsc_priorities' );
 
-		return $terms->to_array();
+		if ( $terms instanceof WP_Term ) {
+			return $terms->to_array();
+		}
+
+		return [];
 	}
 
 	/**
@@ -344,14 +294,14 @@ class SupportTicket extends DatabaseModel {
 			'ticket_subject'   => '',
 			'customer_name'    => '',
 			'customer_email'   => '',
-			'user_type'        => 'guest',
+			'user_type'        => get_current_user_id() ? 'user' : 'guest',
 			'ticket_status'    => get_option( 'wpsc_default_ticket_status' ),
 			'ticket_category'  => get_option( 'wpsc_default_ticket_category' ),
 			'ticket_priority'  => get_option( 'wpsc_default_ticket_priority' ),
 			'ip_address'       => isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '',
 			'agent_created'    => 0,
 			'ticket_auth_code' => bin2hex( random_bytes( 5 ) ),
-			'active'           => '1'
+			'active'           => 1
 		] );
 
 		$ticket_id = $this->create( $data );
@@ -455,6 +405,23 @@ class SupportTicket extends DatabaseModel {
 		?>
 		<table>
 			<tr>
+				<td>Name:</td>
+				<td><strong><?php echo $order->get_formatted_billing_full_name() ?></strong></td>
+			</tr>
+			<tr>
+				<td>Phone:</td>
+				<td><strong><?php echo $order->get_billing_phone() ?></strong></td>
+			</tr>
+			<tr>
+				<td> Customer Address:</td>
+				<td><a target="_blank"
+				       href="<?php echo $order->get_shipping_address_map_url(); ?>"><?php echo $address; ?></a></td>
+			</tr>
+			<tr>
+				<td>Preferred Date & Time:</td>
+				<td><strong><?php echo $date . ', ' . $service_time; ?></strong></td>
+			</tr>
+			<tr>
 				<td>Order ID:</td>
 				<td><strong>#<?php echo $order->get_id() ?></strong></td>
 			</tr>
@@ -471,15 +438,6 @@ class SupportTicket extends DatabaseModel {
 				<td> Order URL:</td>
 				<td><a target="_blank" href="<?php echo $order_url; ?>"><strong><?php echo $order_url; ?></strong></a>
 				</td>
-			</tr>
-			<tr>
-				<td> Customer Address:</td>
-				<td><a target="_blank"
-				       href="<?php echo $order->get_shipping_address_map_url(); ?>"><?php echo $address; ?></a></td>
-			</tr>
-			<tr>
-				<td>Preferred Date & Time:</td>
-				<td><strong><?php echo $date . ', ' . $service_time; ?></strong></td>
 			</tr>
 		</table>
 		<hr>

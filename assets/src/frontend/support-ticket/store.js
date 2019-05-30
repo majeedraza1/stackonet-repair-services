@@ -33,5 +33,11 @@ export default new Vuex.Store({
 		support_agents() {
 			return SupportTickets.support_agents;
 		},
+		display_name() {
+			return SupportTickets.user.display_name;
+		},
+		user_email() {
+			return SupportTickets.user.user_email;
+		},
 	},
 });

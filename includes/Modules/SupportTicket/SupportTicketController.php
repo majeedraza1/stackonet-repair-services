@@ -42,6 +42,7 @@ class SupportTicketController extends ApiController {
 	public function register_routes() {
 		register_rest_route( $this->namespace, '/support-ticket', [
 			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_items' ], ],
+			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'create_item' ], ],
 		] );
 
 		register_rest_route( $this->namespace, '/support-ticket/(?P<id>\d+)', [
@@ -118,6 +119,81 @@ class SupportTicketController extends ApiController {
 	}
 
 	/**
+	 * Creates one item from the collection.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
+	 * @throws Exception
+	 */
+	public function create_item( $request ) {
+		if ( ! current_user_can( 'read' ) ) {
+			return $this->respondUnauthorized();
+		}
+
+		$params          = $request->get_params();
+		$customer_name   = $request->get_param( 'customer_name' );
+		$customer_email  = $request->get_param( 'customer_email' );
+		$ticket_subject  = $request->get_param( 'ticket_subject' );
+		$ticket_content  = $request->get_param( 'ticket_content' );
+		$ticket_priority = $request->get_param( 'ticket_priority' );
+		$ticket_category = $request->get_param( 'ticket_category' );
+
+		if ( empty( $ticket_subject ) || empty( $ticket_content ) ) {
+			return $this->respondUnprocessableEntity( null, 'Ticket subject and content is required.' );
+		}
+
+		$user = wp_get_current_user();
+
+		if ( ! filter_var( $customer_email, FILTER_VALIDATE_EMAIL ) ) {
+			$customer_email = $user->user_email;
+		}
+
+		if ( empty( $customer_name ) ) {
+			$customer_name = $user->display_name;
+		}
+
+		$data = [
+			'ticket_subject'   => $ticket_subject,
+			'customer_name'    => $customer_name,
+			'customer_email'   => $customer_email,
+			'user_type'        => 'guest',
+			'ticket_status'    => get_option( 'wpsc_default_ticket_status' ),
+			'ticket_category'  => get_option( 'wpsc_default_ticket_category' ),
+			'ticket_priority'  => get_option( 'wpsc_default_ticket_priority' ),
+			'ip_address'       => isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '',
+			'agent_created'    => 0,
+			'ticket_auth_code' => bin2hex( random_bytes( 5 ) ),
+			'active'           => 1
+		];
+
+		if ( is_numeric( $ticket_priority ) ) {
+			$data['ticket_priority'] = $ticket_priority;
+		}
+
+		if ( is_numeric( $ticket_category ) ) {
+			$data['ticket_category'] = $ticket_category;
+		}
+
+		$SupportTicket = new SupportTicket;
+		$ticket_id     = $SupportTicket->create( $data );
+		if ( $ticket_id ) {
+			$SupportTicket->update_metadata( $ticket_id, 'assigned_agent', '0' );
+			( new TicketThread() )->create( [
+				'ticket_id'      => $ticket_id,
+				'post_content'   => $ticket_content,
+				'customer_name'  => $customer_name,
+				'customer_email' => $customer_email,
+				'thread_type'    => 'report',
+			] );
+
+			return $this->respondCreated( [ 'ticket_id' => $ticket_id ] );
+		}
+
+		return $this->respondInternalServerError();
+	}
+
+	/**
 	 * Retrieves one item from the collection.
 	 *
 	 * @param WP_REST_Request $request Full data about the request.
@@ -132,12 +208,15 @@ class SupportTicketController extends ApiController {
 
 		$id = (int) $request->get_param( 'id' );
 
-		$supportTicket = new SupportTicket;
-		$item          = $supportTicket->find_by_id( $id );
-		$data          = $item->to_array();
-		$threads       = $item->get_ticket_threads();
+		$supportTicket = ( new SupportTicket )->find_by_id( $id );
+		if ( ! $supportTicket instanceof SupportTicket ) {
+			return $this->respondNotFound();
+		}
 
-		return $this->respondOK( [ 'ticket' => $data, 'threads' => $threads ] );
+		$ticket  = $supportTicket->to_array();
+		$threads = ( new TicketThread() )->find_by_ticket_id( $id );
+
+		return $this->respondOK( [ 'ticket' => $ticket, 'threads' => $threads ] );
 	}
 
 	/**

@@ -53,13 +53,19 @@
                   				</span>
 							</slot>
 						</div>
-						<button type="button" class="toggle-row" v-if="actionColumn === column.key && hasActions">
+						<button type="button" class="toggle-row" v-if="actionColumn === column.key && hasActions"
+								@click="toggleRow($event)">
 							<span class="screen-reader-text">Show more details</span>
+							<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+								 viewBox="0 0 20 20">
+								<path class="triangle-down" d="M5 6h10l-5 9-5-9z"></path>
+								<path class="triangle-up" d="M15 14h-10l5-9 5 9z"></path>
+							</svg>
 						</button>
 					</td>
 				</tr>
 			</template>
-			<tr v-else>
+			<tr v-else class="no-items">
 				<td :colspan="colspan" style="text-align: center">{{ notFound }}</td>
 			</tr>
 			</tbody>
@@ -112,6 +118,7 @@
 				return {
 					'mdl-data-table': true,
 					'mdl-js-data-table': true,
+					'mdl-data-table--responsive': true,
 				}
 			},
 
@@ -192,6 +199,17 @@
 				]
 			},
 
+			toggleRow(event) {
+				let el = event.target, tr = el.closest('tr'), table = el.closest('table');
+				table.querySelectorAll('tr').forEach(element => {
+					if (element.classList.contains('is-expanded') && element !== tr) {
+						element.classList.remove('is-expanded');
+					}
+				});
+
+				tr.classList.toggle('is-expanded');
+			},
+
 			hideActionSeparator(action) {
 				return action === this.actions[this.actions.length - 1].key;
 			},
@@ -241,13 +259,11 @@
 	@import "data-table";
 
 	.mdl-data-table-container {
-		th.check-column, td.check-column {
-			width: 70px;
-		}
 
 		.mdl-table-nav-top {
 			align-items: flex-end;
 			display: flex;
+			flex-wrap: wrap;
 			justify-content: space-between;
 			margin-bottom: 10px;
 			margin-top: 10px;
@@ -255,11 +271,13 @@
 
 			&__left {
 				display: flex;
+				flex-wrap: wrap;
 			}
 
 			&__action,
 			&__filters {
 				display: flex;
+				flex-wrap: wrap;
 
 				> * {
 					margin-right: 5px;
@@ -269,6 +287,10 @@
 			select {
 				line-height: 1.2;
 				padding: 3px 10px;
+			}
+
+			select, button {
+				margin-bottom: 5px;
 			}
 		}
 
@@ -292,6 +314,137 @@
 		// Temp
 		.toggle-row {
 			display: none;
+		}
+
+		@media only screen and (min-width: 768px) {
+			th.check-column,
+			td.check-column {
+				width: 70px;
+			}
+		}
+	}
+
+	// Mobile
+	@media only screen and (max-width: 767px) {
+
+		button.toggle-row {
+			background: none;
+			border: none;
+			display: inline-block !important;
+			text-align: center;
+			line-height: 1;
+
+			position: absolute;
+			right: 8px;
+			top: 10px;
+			padding: 0;
+			width: 40px;
+			height: 40px;
+			outline: 0;
+			background: 0 0;
+		}
+
+		.triangle-up {
+			display: none;
+		}
+
+		table.mdl-data-table--responsive {
+
+			tr:not(.inline-edit-row):not(.no-items) td.column-primary ~ td:not(.check-column) {
+				display: none;
+			}
+
+			tr:not(.inline-edit-row):not(.no-items) td.column-primary ~ td:not(.check-column) {
+				// padding: 3px 8px 3px 35%;
+			}
+
+			tr.is-expanded td {
+				display: block !important;
+
+				.triangle-up {
+					display: block;
+				}
+
+				.triangle-down {
+					display: none;
+				}
+			}
+
+			thead,
+			tbody th {
+				display: none;
+			}
+
+			tbody {
+				tr:first-child {
+					td:first-child {
+						border-top: 0;
+					}
+				}
+
+				tr:last-child {
+					td:last-child {
+						border-bottom: 0;
+					}
+				}
+
+				tr {
+
+					&:hover {
+						background-color: #fff;
+					}
+
+					td {
+						&.column-primary {
+							height: auto;
+							padding-right: 40px;
+						}
+					}
+				}
+			}
+
+			tr {
+				td {
+					border-top: none;
+					border-bottom: none;
+					display: block;
+					text-align: right;
+
+					&:not(.column-primary).mdl-data-table__cell--non-numeric {
+						text-align: right;
+					}
+
+					&.check-column {
+						// display: table-cell;
+						// padding: 8px 0 8px 16px;
+						// width: 30px;
+					}
+
+					&.check-column:after {
+						content: ' ';
+					}
+
+					&:not(.check-column):not(.column-primary)::before {
+						content: attr(data-colname) ' : ';
+						font-weight: bold;
+						float: left;
+					}
+
+					&.product-remove,
+					&.download-actions,
+					&.actions {
+						&::before {
+							display: none;
+						}
+					}
+				}
+
+				&:nth-child( 2n ) {
+					td {
+						background-color: rgba(0, 0, 0, 0.025);
+					}
+				}
+			}
 		}
 	}
 </style>

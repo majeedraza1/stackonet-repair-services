@@ -157,6 +157,12 @@ class Frontend {
 	 * @return string
 	 */
 	public function support_ticket() {
+		if ( ! current_user_can( 'read' ) ) {
+			$login_url = wp_login_url( get_permalink() );
+			$html      = '<p>You need to <a href="' . esc_url( $login_url ) . '">Log in</a>.</p>';
+
+			return $html;
+		}
 		$data          = [];
 		$supportTicket = new SupportTicket();
 
@@ -186,6 +192,12 @@ class Frontend {
 		$data['ticket_statuses']   = TicketStatus::get_all();
 		$data['ticket_priorities'] = TicketPriority::get_all();
 		$data['support_agents']    = SupportAgent::get_all();
+
+		$user         = wp_get_current_user();
+		$data['user'] = [
+			'display_name' => $user->display_name,
+			'user_email'   => $user->user_email,
+		];
 
 		wp_localize_script( 'stackonet-repair-services-frontend', 'SupportTickets', $data );
 		add_action( 'wp_footer', [ $this, 'tinymce_script' ], 9 );
