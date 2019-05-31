@@ -59,6 +59,18 @@
 				All fields marked with <abbr class="required" title="Required">*</abbr> are required.
 			</column>
 		</columns>
+
+		<modal :active="activeThankYouModal" type="box" @close="activeThankYouModal = false"
+			   class="support-ticket-thankyou-modal">
+			<div class="shapla-box">
+				<p>Thank you for submitting! <br>We will get back to you soon. </p>
+				<mdl-button @click="activeThankYouModal = false">Close</mdl-button>
+			</div>
+		</modal>
+
+		<div class="support-ticket-loader" :class="{'is-active':loading}">
+			<mdl-spinner :active="loading"></mdl-spinner>
+		</div>
 	</div>
 </template>
 
@@ -68,10 +80,12 @@
 	import MdlButton from "../../material-design-lite/button/mdlButton";
 	import Columns from "../../shapla/columns/columns";
 	import Column from "../../shapla/columns/column";
+	import Modal from "../../shapla/modal/modal";
+	import MdlSpinner from "../../material-design-lite/spinner/mdlSpinner";
 
 	export default {
 		name: "SupportTicketForm",
-		components: {Column, Columns, MdlButton, Editor},
+		components: {MdlSpinner, Modal, Column, Columns, MdlButton, Editor},
 		mounted() {
 			if (window.CustomerSupportTickets) {
 				this.categories = CustomerSupportTickets.categories;
@@ -82,6 +96,7 @@
 		data() {
 			return {
 				loading: false,
+				activeThankYouModal: false,
 				customer_name: '',
 				customer_email: '',
 				phone_number: '',
@@ -130,7 +145,11 @@
 					})
 					.then((response) => {
 						self.loading = false;
-						let id = response.data.data.ticket_id;
+						self.activeThankYouModal = true;
+						self.phone_number = '';
+						self.ticket_category = '';
+						self.ticket_subject = '';
+						self.ticket_content = '';
 					})
 					.catch((error) => {
 						self.loading = false;
@@ -154,6 +173,30 @@
 
 		abbr.required {
 			color: #f68638;
+		}
+
+		.support-ticket-thankyou-modal {
+			.shapla-box {
+				font-size: 20px;
+				text-align: center;
+
+				.mdl-button {
+					margin-top: 20px;
+				}
+			}
+		}
+
+		.support-ticket-loader.is-active {
+			display: flex;
+			z-index: 100000;
+			width: 100%;
+			height: 100%;
+			position: fixed;
+			background: rgba(#fff, 0.6);
+			top: 0;
+			left: 0;
+			justify-content: center;
+			align-items: center;
 		}
 	}
 </style>
