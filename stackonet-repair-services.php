@@ -36,7 +36,7 @@ final class Stackonet_Repair_Services {
 	 *
 	 * @var string
 	 */
-	private $version = '1.1.6-a1';
+	private $version = '1.1.6-a2';
 
 	/**
 	 * Holds various class instances
@@ -405,7 +405,6 @@ final class Stackonet_Repair_Services {
  * Since everything within the plugin is registered via hooks,
  * then kicking off the plugin from this point in the file does
  * not affect the page life cycle.
- * @throws Exception
  */
 function stackonet_repair_services() {
 	return Stackonet_Repair_Services::init();

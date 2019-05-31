@@ -358,7 +358,7 @@
 				// padding: 3px 8px 3px 35%;
 			}
 
-			tr.is-expanded td {
+			tr.is-expanded td:not(.check-column) {
 				display: block !important;
 
 				.triangle-up {
@@ -368,6 +368,14 @@
 				.triangle-down {
 					display: none;
 				}
+			}
+
+			td.check-column {
+				display: none !important;
+			}
+
+			tr .row-actions {
+				visibility: visible !important;
 			}
 
 			thead,

@@ -44,25 +44,40 @@
 
 							<template v-else>
 								<div :class="threadClass(thread.thread_type)">
-									<div class="shapla-thread__avatar">
-										<image-container>
-											<img :src="thread.customer_avatar_url" width="32" height="32">
-										</image-container>
-									</div>
 									<div class="shapla-thread__content">
 										<div class="shapla-thread__content-top">
-											<div style="display: flex;align-items: center;">
+
+											<div class="shapla-thread__content-align-left">
+												<div class="shapla-thread__avatar">
+													<image-container>
+														<img :src="thread.customer_avatar_url" width="32" height="32">
+													</image-container>
+												</div>
+
+												<div>
+													<div style="display: flex;align-items: center;">
 												<span
 													class="shapla-thread__customer_name">{{thread.customer_name}}</span>
-												<small class="shapla-thread__time">&nbsp;
-													<template v-if="thread.thread_type === 'note'">added note</template>
-													<template v-else-if="thread.thread_type === 'reply'">replied
-													</template>
-													<template v-else>reported</template>
-													{{thread.human_time}} ago
-												</small>
+														<small class="shapla-thread__time">&nbsp;
+															<template v-if="thread.thread_type === 'note'">added note
+															</template>
+															<template v-else-if="thread.thread_type === 'reply'">replied
+															</template>
+															<template v-else>reported</template>
+															{{thread.human_time}} ago
+														</small>
+													</div>
+													<span class="shapla-thread__customer_email">{{thread.customer_email}}</span>
+												</div>
 											</div>
-											<span class="shapla-thread__customer_email">{{thread.customer_email}}</span>
+
+											<div class="shapla-thread__content-align-right shapla-thread__actions">
+												<icon medium><i @click="openThreadEditor(thread)"
+																class="fa fa-pencil-square-o"
+																aria-hidden="true"></i></icon>
+												<icon medium><i @click="deleteThread(thread)" class="fa fa-trash-o"
+																aria-hidden="true"></i></icon>
+											</div>
 										</div>
 										<div v-html="thread.thread_content"></div>
 										<div class="shapla-thread__content-attachment" v-if="thread.attachments.length">
@@ -75,12 +90,6 @@
 												</tr>
 											</table>
 										</div>
-									</div>
-									<div class="shapla-thread__actions">
-										<icon medium><i @click="openThreadEditor(thread)" class="fa fa-pencil-square-o"
-														aria-hidden="true"></i></icon>
-										<icon medium><i @click="deleteThread(thread)" class="fa fa-trash-o"
-														aria-hidden="true"></i></icon>
 									</div>
 								</div>
 							</template>
@@ -601,6 +610,7 @@
 
 			.shapla-thread__avatar {
 				width: 50px;
+				margin-right: 10px;
 			}
 
 			.shapla-thread__actions {
@@ -612,8 +622,6 @@
 			}
 
 			.shapla-thread__content {
-				padding-left: 16px;
-				padding-right: 16px;
 				width: calc(100% - 100px);
 
 				table {
@@ -622,16 +630,30 @@
 
 				&-top {
 					border-bottom: 1px solid rgba(#000, 0.2);
-					padding-bottom: 10px;
 					display: flex;
-					flex-direction: column;
 					margin-bottom: 10px;
+					padding-bottom: 10px;
+				}
+
+				&-align-left,
+				&-align-right {
+				}
+
+				&-align-left {
+					display: flex;
+					flex-grow: 1;
 				}
 			}
 		}
 
 		&__time {
 			display: block;
+		}
+	}
+
+	.table--support-order {
+		td {
+			padding: 8px;
 		}
 	}
 </style>

@@ -87,6 +87,7 @@ class Frontend {
 			'stackonet_become_technician',
 			'stackonet_rent_a_center',
 			'stackonet_support_ticket',
+			'stackonet_support_ticket_form',
 		];
 
 		global $post;

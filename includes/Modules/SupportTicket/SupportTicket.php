@@ -403,7 +403,7 @@ class SupportTicket extends DatabaseModel {
 
 		ob_start();
 		?>
-		<table>
+		<table class="table--support-order">
 			<tr>
 				<td>Name:</td>
 				<td><strong><?php echo $order->get_formatted_billing_full_name() ?></strong></td>
