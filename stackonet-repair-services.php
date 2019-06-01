@@ -36,7 +36,7 @@ final class Stackonet_Repair_Services {
 	 *
 	 * @var string
 	 */
-	private $version = '1.1.6-a2';
+	private $version = '1.1.6-a4';
 
 	/**
 	 * Holds various class instances

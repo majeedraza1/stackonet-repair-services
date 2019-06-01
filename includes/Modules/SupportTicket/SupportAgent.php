@@ -132,4 +132,11 @@ class SupportAgent extends AbstractModel {
 
 		return $terms;
 	}
+
+	/**
+	 * @return int
+	 */
+	public function get_user_id() {
+		return $this->user_id;
+	}
 }

@@ -123,14 +123,15 @@ class SupportTicket extends DatabaseModel {
 	 * @throws Exception
 	 */
 	public function to_array() {
-		$data                    = parent::to_array();
-		$data['customer_url']    = get_avatar_url( $this->get( 'customer_email' ) );
-		$data['status']          = $this->get_ticket_status();
-		$data['category']        = $this->get_ticket_category();
-		$data['priority']        = $this->get_ticket_priority();
-		$data['created_by']      = $this->get_agent_created();
-		$data['assigned_agents'] = $this->get_assigned_agents();
-		$data['updated']         = $this->update_at();
+		$data                       = parent::to_array();
+		$data['customer_url']       = get_avatar_url( $this->get( 'customer_email' ) );
+		$data['status']             = $this->get_ticket_status();
+		$data['category']           = $this->get_ticket_category();
+		$data['priority']           = $this->get_ticket_priority();
+		$data['created_by']         = $this->get_agent_created();
+		$data['assigned_agents']    = $this->get_assigned_agents();
+		$data['updated']            = $this->update_at();
+		$data['updated_human_time'] = $this->updated_human_time();
 
 		return $data;
 	}
@@ -159,6 +160,17 @@ class SupportTicket extends DatabaseModel {
 		$dateTime     = new DateTime( $date_updated );
 
 		return $dateTime->format( get_option( 'date_format' ) );
+	}
+
+	/**
+	 * @return string
+	 * @throws Exception
+	 */
+	public function updated_human_time() {
+		$date_updated = $this->get( 'date_updated' );
+		$dateTime     = new DateTime( $date_updated );
+
+		return human_time_diff( $dateTime->getTimestamp() ) . ' ago';
 	}
 
 	/**
@@ -262,15 +274,14 @@ class SupportTicket extends DatabaseModel {
 	public function get_assigned_agents_ids() {
 		if ( ! $this->assigned_agent_read ) {
 			$ticket_id = $this->get( 'id' );
-			$_agents   = $this->get_metadata( $ticket_id, 'assigned_agent' );
-			if ( empty( $_agents ) ) {
+			$terms_ids = $this->get_metadata( $ticket_id, 'assigned_agent' );
+			if ( empty( $terms_ids ) ) {
 				return [];
 			}
 
-			foreach ( $_agents as $agent ) {
-				$user                        = get_term_meta( $agent );
-				$user_id                     = isset( $user['user_id'][0] ) ? intval( $user['user_id'][0] ) : 0;
-				$this->assigned_agents_ids[] = $user_id;
+			foreach ( $terms_ids as $terms_id ) {
+				$user_id                     = get_term_meta( $terms_id, 'user_id', true );
+				$this->assigned_agents_ids[] = is_numeric( $user_id ) ? intval( $user_id ) : 0;
 			}
 
 			$this->assigned_agent_read = true;

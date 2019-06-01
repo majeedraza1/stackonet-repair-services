@@ -98,7 +98,7 @@
 					{key: 'created_by', label: 'Assigned Agent', numeric: false},
 					{key: 'ticket_category', label: 'Category', numeric: false},
 					{key: 'ticket_priority', label: 'Priority', numeric: false},
-					{key: 'updated', label: 'Updated', numeric: false},
+					{key: 'updated_human_time', label: 'Updated', numeric: false},
 				],
 				items: [],
 				counts: [],
@@ -177,7 +177,9 @@
 				this.getItems();
 			},
 			exportExcel() {
-				alert('We are working on it.');
+
+				let url = `${PhoneRepairs.ajaxurl}?action=download_support_ticket&ticket_status=${this.status}&ticket_category=${this.category}&ticket_priority=${this.priority}`;
+				window.location.href = url;
 			},
 			getItems() {
 				let self = this;
