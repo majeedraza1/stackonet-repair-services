@@ -52,7 +52,7 @@ class AppointmentToSupportTicket {
 					if ( $index !== 0 ) {
 						echo '<br>';
 					}
-					echo '<a target="_blank" href="' . $image['attachment_url'] . '">' . $image['title'] . '</a>';
+					echo '<img src="' . $image['full']['src'] . '"  alt="' . $image['title'] . '"/>';
 				}
 				echo '</td>';
 			}
@@ -70,5 +70,19 @@ class AppointmentToSupportTicket {
 		];
 
 		( new SupportTicket )->create_support_ticket( $_data, $content );
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public static function current_appointment_to_support_ticket() {
+		$option = get_option( 'init_appointment_to_support_ticket' );
+		if ( 'yes' != $option ) {
+			$appoints = ( new Appointment() )->find( [ 'per_page' => 100, ] );
+			foreach ( $appoints as $appoint ) {
+				static::process( $appoint );
+			}
+			update_option( 'init_appointment_to_support_ticket', 'yes' );
+		}
 	}
 }

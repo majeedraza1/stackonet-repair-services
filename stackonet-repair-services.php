@@ -228,6 +228,8 @@ final class Stackonet_Repair_Services {
 		$appointment = new Stackonet\Models\Appointment();
 		$appointment->create_table();
 
+		Stackonet\Modules\SupportTicket\AppointmentToSupportTicket::current_appointment_to_support_ticket();
+
 		do_action( 'phone_repairs_asap_activation' );
 	}
 

@@ -73,10 +73,12 @@
 
 											<div class="shapla-thread__content-align-right shapla-thread__actions">
 												<icon medium>
-													<span @click="openThreadEditor(thread)" class="dashicons dashicons-edit"></span>
+													<span @click="openThreadEditor(thread)"
+														  class="dashicons dashicons-edit"></span>
 												</icon>
 												<icon medium>
-													<span @click="deleteThread(thread)" class="dashicons dashicons-trash"></span>
+													<span @click="deleteThread(thread)"
+														  class="dashicons dashicons-trash"></span>
 												</icon>
 											</div>
 										</div>
@@ -121,7 +123,7 @@
 					<div class="shapla-widget-box__heading">
 						<h5 class="shapla-widget-box__title">Assign Agent(s)</h5>
 						<icon>
-							<span @click="openAssignAgentModal"  class="dashicons dashicons-edit"></span>
+							<span @click="openAssignAgentModal" class="dashicons dashicons-edit"></span>
 						</icon>
 					</div>
 					<div class="shapla-widget-box__content">
@@ -655,6 +657,11 @@
 	.table--support-order {
 		td {
 			padding: 8px;
+		}
+
+		img {
+			max-width: 200px;
+			height: auto;
 		}
 	}
 </style>
