@@ -5,6 +5,7 @@ namespace Stackonet\REST;
 use Exception;
 use Stackonet\Supports\Attachment;
 use Stackonet\Supports\DropboxHelper;
+use Stackonet\Supports\Logger;
 use Stackonet\Supports\UploadedFile;
 use WP_Post;
 use WP_REST_Request;
@@ -114,7 +115,11 @@ class LogoController extends ApiController {
 		}
 
 		foreach ( $files_paths as $files_path ) {
-			( new DropboxHelper() )->upload( $files_path, $path );
+			try {
+				( new DropboxHelper() )->upload( $files_path, $path );
+			} catch ( Exception $exception ) {
+				Logger::log( $exception->getMessage() );
+			}
 		}
 
 		$image_id = $ids[0];

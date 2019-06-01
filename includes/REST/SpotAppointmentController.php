@@ -2,7 +2,9 @@
 
 namespace Stackonet\REST;
 
+use Exception;
 use Stackonet\Models\Appointment;
+use Stackonet\Modules\SupportTicket\AppointmentToSupportTicket;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -91,6 +93,7 @@ class SpotAppointmentController extends ApiController {
 	 * @param WP_REST_Request $request Full data about the request.
 	 *
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
+	 * @throws Exception
 	 */
 	public function create_item( $request ) {
 		if ( ! current_user_can( 'read' ) ) {
@@ -102,6 +105,7 @@ class SpotAppointmentController extends ApiController {
 
 		if ( $id ) {
 			$response = $appointment->find_by_id( $id );
+			AppointmentToSupportTicket::process( $response );
 
 			return $this->respondOK( $response );
 		}
