@@ -4,6 +4,11 @@ namespace Stackonet\Admin;
 
 use Stackonet\Models\Phone;
 use Stackonet\Models\Settings;
+use Stackonet\Modules\SupportTicket\SupportAgent;
+use Stackonet\Modules\SupportTicket\SupportTicket;
+use Stackonet\Modules\SupportTicket\TicketCategory;
+use Stackonet\Modules\SupportTicket\TicketPriority;
+use Stackonet\Modules\SupportTicket\TicketStatus;
 use WC_Order_Item;
 use WC_Order_Item_Product;
 use WC_Product;
@@ -35,6 +40,7 @@ class Admin {
 			add_action( 'admin_menu', [ self::$instance, 'add_survey_menu' ] );
 			add_action( 'admin_menu', [ self::$instance, 'add_become_technician_menu' ] );
 			add_action( 'admin_menu', [ self::$instance, 'add_spot_appointment_menu' ] );
+			add_action( 'admin_menu', [ self::$instance, 'add_support_tickets_menu' ], 9 );
 
 			// Add decoration product data on Checkout(after), Email and Order Detail Page
 			add_action( 'woocommerce_order_item_meta_start', [ self::$instance, 'order_item_meta_start' ], 10, 3 );
@@ -343,5 +349,86 @@ class Admin {
 	public function init_spot_appointment_hooks() {
 		wp_enqueue_style( 'stackonet-repair-services-admin' );
 		wp_enqueue_script( 'stackonet-repair-services-admin' );
+	}
+
+	public function add_support_tickets_menu() {
+
+		global $submenu;
+		$capability = 'manage_options';
+		$slug       = 'wpsc-tickets';
+
+		$hook = add_menu_page( __( 'Support', 'stackonet-repair-services' ), __( 'Support', 'stackonet-repair-services' ),
+			$capability, $slug, [ self::$instance, 'support_tickets_callback' ], 'dashicons-admin-post', 8 );
+
+		$menus = [
+			[ 'title' => __( 'Support', 'stackonet-repair-services' ), 'slug' => '#/' ],
+		];
+
+		if ( current_user_can( $capability ) ) {
+			foreach ( $menus as $menu ) {
+				// $submenu[ $slug ][] = [ $menu['title'], $capability, 'admin.php?page=' . $slug . $menu['slug'] ];
+			}
+		}
+
+		add_action( 'load-' . $hook, [ self::$instance, 'init_support_tickets_hooks' ] );
+	}
+
+	/**
+	 * Become a technician menu callback
+	 */
+	public function support_tickets_callback() {
+		add_action( 'admin_footer', [ $this, 'tinymce_script' ], 9 );
+		echo '<div class="wrap"><div id="admin-stackonet-support-tickets"></div></div>';
+	}
+
+	/**
+	 * Admin menu page scripts
+	 */
+	public function init_support_tickets_hooks() {
+		wp_enqueue_style( 'stackonet-repair-services-admin' );
+		wp_enqueue_script( 'stackonet-repair-services-admin' );
+
+		$data          = [];
+		$supportTicket = new SupportTicket();
+
+		$_statuses        = $supportTicket->get_ticket_statuses_terms();
+		$data['statuses'] = [ [ 'key' => 'all', 'label' => 'All Statuses', 'count' => 0, 'active' => true ] ];
+		foreach ( $_statuses as $status ) {
+			$data['statuses'][] = [ 'key' => $status->term_id, 'label' => $status->name, 'count' => 0, ];
+		}
+		$data['statuses'][] = [ 'key' => 'trash', 'label' => 'Trash', 'count' => 0, 'active' => false ];
+
+
+		$_categories        = $supportTicket->get_categories_terms();
+		$data['categories'] = [ [ 'key' => 'all', 'label' => 'All Categories', 'count' => 0, 'active' => true ] ];
+		foreach ( $_categories as $status ) {
+			$data['categories'][] = [ 'key' => $status->term_id, 'label' => $status->name, 'count' => 0, ];
+		}
+
+		$_priorities        = $supportTicket->get_priorities_terms();
+		$data['priorities'] = [ [ 'key' => 'all', 'label' => 'All Priorities', 'count' => 0, 'active' => true ] ];
+		foreach ( $_priorities as $status ) {
+			$data['priorities'][] = [ 'key' => $status->term_id, 'label' => $status->name, 'count' => 0, ];
+		}
+
+		$data['count_trash'] = $supportTicket->count_trash_records();
+
+		$data['ticket_categories'] = TicketCategory::get_all();
+		$data['ticket_statuses']   = TicketStatus::get_all();
+		$data['ticket_priorities'] = TicketPriority::get_all();
+		$data['support_agents']    = SupportAgent::get_all();
+
+		$user         = wp_get_current_user();
+		$data['user'] = [
+			'display_name' => $user->display_name,
+			'user_email'   => $user->user_email,
+		];
+
+		wp_localize_script( 'stackonet-repair-services-admin', 'SupportTickets', $data );
+	}
+
+
+	public function tinymce_script() {
+		echo '<script type="text/javascript" src="' . includes_url( 'js/tinymce/tinymce.min.js' ) . '"></script>';
 	}
 }

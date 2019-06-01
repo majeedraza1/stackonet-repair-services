@@ -90,12 +90,7 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$terms = SupportAgent::get_all();
-		foreach ( $terms as $term ) {
-			$meta       = get_term_meta( $term->get( 'term_id' ) );
-			$agent_name = get_term_meta( $term->term_id, 'label', true );
-			var_dump( $term );
-		}
+		var_dump( 'working fine' );
 		die();
 	}
 

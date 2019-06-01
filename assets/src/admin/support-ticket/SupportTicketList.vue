@@ -1,18 +1,11 @@
 <template>
-	<div class="stackont-support-ticket-container" style="margin: 100px auto;">
-		<div class="display-flex justify-space-between">
-			<div class="flex-item">
-				<mdl-button type="raised" color="primary" @click="openNewTicket">
-					<icon><i class="fa fa-plus" aria-hidden="true"></i></icon>
-					New Ticket
-				</mdl-button>
-			</div>
-			<div class="flex-item">
-				<mdl-button type="raised" color="default" @click="exportExcel">Export Excel</mdl-button>
-			</div>
-		</div>
+	<div class="stackont-support-ticket-container">
+		<h1 class="wp-heading-inline">Support</h1>
+		<a href="#" class="page-title-action" @click.prevent="openNewTicket">New Ticket</a>
+		<button class="button button-primary" style="float: right;" @click="exportExcel">Export Excel</button>
+		<div class="clear"></div>
 
-		<mdl-table
+		<wp-list-table
 			action-column="ticket_subject"
 			:columns="columns"
 			:rows="items"
@@ -25,6 +18,7 @@
 			@action:click="onActionClick"
 			@bulk:apply="onBulkAction"
 			@pagination="paginate"
+			:show-search="false"
 		>
 			<template slot="created_by" slot-scope="data" class="button--status">
 				<span v-html="getAssignedAgents(data.row.assigned_agents)"></span>
@@ -57,27 +51,21 @@
 						{{_status.label}}
 					</option>
 				</select>
-				<mdl-button type="raised" color="default" @click="clearFilter">Clear Filter</mdl-button>
+				<button class="button" @click="clearFilter">Clear Filter</button>
 			</template>
-		</mdl-table>
-		<wp-pagination :current_page="pagination.currentPage" :per_page="pagination.limit"
-					   :total_items="pagination.totalCount" size="medium" @pagination="paginate"></wp-pagination>
+		</wp-list-table>
 	</div>
 </template>
 
 <script>
 	import axios from 'axios';
-	import mdlTable from '../../material-design-lite/data-table/mdlTable'
-	import mdlButton from '../../material-design-lite/button/mdlButton'
-	import wpStatusList from '../../wp/wpStatusList'
-	import wpPagination from '../../wp/wpPagination'
-	import wpBulkActions from '../../wp/wpBulkActions'
-	import modal from '../../shapla/modal/modal'
+	import WpListTable from "../../wp/wpListTable";
+	import MdlButton from "../../material-design-lite/button/mdlButton";
 	import Icon from "../../shapla/icon/icon";
 
 	export default {
 		name: "SupportTicketList",
-		components: {Icon, mdlTable, mdlButton, wpStatusList, wpPagination, wpBulkActions, modal},
+		components: {Icon, MdlButton, WpListTable},
 		data() {
 			return {
 				loading: false,
@@ -85,8 +73,8 @@
 				default_categories: [],
 				default_priorities: [],
 				columns: [
-					{key: 'id', label: 'ID', numeric: true},
 					{key: 'ticket_subject', label: 'Subject', numeric: false},
+					{key: 'id', label: 'Ticket ID', numeric: true},
 					{key: 'ticket_status', label: 'Status', numeric: false},
 					{key: 'customer_name', label: 'Name', numeric: false},
 					{key: 'customer_email', label: 'Email Address', numeric: false},
@@ -173,7 +161,7 @@
 			},
 			exportExcel() {
 
-				let url = `${PhoneRepairs.ajaxurl}?action=download_support_ticket&ticket_status=${this.status}&ticket_category=${this.category}&ticket_priority=${this.priority}`;
+				let url = `${ajaxurl}?action=download_support_ticket&ticket_status=${this.status}&ticket_category=${this.category}&ticket_priority=${this.priority}`;
 				window.location.href = url;
 			},
 			getItems() {
@@ -181,7 +169,7 @@
 				self.$store.commit('SET_LOADING_STATUS', true);
 				let parms = `ticket_status=${self.status}&ticket_category=${self.category}&ticket_priority=${self.priority}&paged=${self.currentPage}`;
 				axios
-					.get(PhoneRepairs.rest_root + `/support-ticket?${parms}`)
+					.get(stackonetSettings.root + `/support-ticket?${parms}`)
 					.then((response) => {
 						self.$store.commit('SET_LOADING_STATUS', false);
 						let data = response.data.data;
@@ -212,7 +200,7 @@
 				let self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.post(PhoneRepairs.rest_root + '/support-ticket/delete', {
+					.post(stackonetSettings.root + '/support-ticket/delete', {
 						id: item.id,
 						action: action
 					})
@@ -243,7 +231,7 @@
 				let self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.post(PhoneRepairs.rest_root + '/support-ticket/batch_delete', {
+					.post(stackonetSettings.root + '/support-ticket/batch_delete', {
 						ids: ids,
 						action: action
 					})
@@ -260,40 +248,6 @@
 	}
 </script>
 
-<style lang="scss">
-	.stackont-support-ticket-container {
+<style scoped>
 
-		@media only screen and (max-width: 767px) {
-			.mdl-data-table tr td.manage-column.manage-id {
-				display: none !important;
-			}
-		}
-
-		@media only screen and (min-width: 768px) {
-			td.manage-column.manage-ticket_subject {
-				max-width: 250px;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				white-space: nowrap;
-			}
-		}
-
-		td.manage-updated {
-			white-space: nowrap;
-		}
-
-		thead {
-			tr {
-				background: rgba(32, 33, 36, 0.059);
-			}
-		}
-
-		.display-flex {
-			display: flex;
-		}
-
-		.justify-space-between {
-			justify-content: space-between;
-		}
-	}
 </style>
