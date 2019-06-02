@@ -418,11 +418,12 @@ class Admin {
 		$data['ticket_priorities'] = TicketPriority::get_all();
 		$data['support_agents']    = SupportAgent::get_all();
 
-		$user         = wp_get_current_user();
-		$data['user'] = [
+		$user           = wp_get_current_user();
+		$data['user']   = [
 			'display_name' => $user->display_name,
 			'user_email'   => $user->user_email,
 		];
+		$data['cities'] = ( new SupportTicket() )->find_all_cities();
 
 		wp_localize_script( 'stackonet-repair-services-admin', 'SupportTickets', $data );
 	}

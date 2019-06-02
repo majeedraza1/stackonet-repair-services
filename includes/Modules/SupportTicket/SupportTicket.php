@@ -70,6 +70,8 @@ class SupportTicket extends DatabaseModel {
 		'ticket_status'    => 0,
 		'customer_name'    => '',
 		'customer_email'   => '',
+		'customer_phone'   => '',
+		'city'             => '',
 		'ticket_subject'   => '',
 		'user_type'        => '',
 		'ticket_category'  => '',
@@ -363,142 +365,6 @@ class SupportTicket extends DatabaseModel {
 	}
 
 	/**
-	 * @param WC_Order $order
-	 * @param array $data
-	 */
-	public function order_reschedule_to_support_ticket( WC_Order $order, array $data ) {
-		$support_ticket_id = $order->get_meta( '_support_ticket_id' );
-		$created_by        = ( $data['created_by'] === 'admin' ) ? 'Admin' : 'Customer';
-
-		ob_start();
-		echo "Order has been reschedule by <strong>{$created_by}</strong>. New date and time are<br>";
-		echo "Date: <strong>{$data['date']}</strong><br>";
-		echo "Time: <strong>{$data['time']}</strong>";
-		$post_content = ob_get_clean();
-
-		$this->add_ticket_info( $support_ticket_id, [
-			'thread_type'    => 'note',
-			'customer_name'  => $order->get_formatted_billing_full_name(),
-			'customer_email' => $order->get_billing_email(),
-			'post_content'   => $post_content,
-			'agent_created'  => 0,
-		] );
-	}
-
-	/**
-	 * Create support ticket from order
-	 *
-	 * @param WC_Order $order
-	 *
-	 * @throws Exception
-	 */
-	public function order_to_support_ticket( WC_Order $order ) {
-		$_device_title  = $order->get_meta( '_device_title' );
-		$_device_model  = $order->get_meta( '_device_model' );
-		$_device_color  = $order->get_meta( '_device_color' );
-		$_device_issues = $order->get_meta( '_device_issues' );
-		$service_date   = $order->get_meta( '_preferred_service_date' );
-		$service_time   = $order->get_meta( '_preferred_service_time_range' );
-
-		$timezone = Utils::get_timezone();
-		$dateTime = new DateTime( $service_date, $timezone );
-		$date     = $dateTime->format( get_option( 'date_format' ) );
-
-		$ticket_subject = $_device_title . ' ' . $_device_model . ' - ' . implode( ', ', $_device_issues );
-
-		$order_url = add_query_arg( [ 'post' => $order->get_id(), 'action' => 'edit' ], admin_url( 'post.php' ) );
-
-		$address = $order->get_address( 'shipping' );
-		unset( $address['first_name'], $address['last_name'], $address['company'] );
-		$address = WC()->countries->get_formatted_address( $address, ', ' );
-
-		ob_start();
-		?>
-		<table class="table--support-order">
-			<tr>
-				<td>Name:</td>
-				<td><strong><?php echo $order->get_formatted_billing_full_name() ?></strong></td>
-			</tr>
-			<tr>
-				<td>Phone:</td>
-				<td><strong><?php echo $order->get_billing_phone() ?></strong></td>
-			</tr>
-			<tr>
-				<td> Customer Address:</td>
-				<td><a target="_blank"
-				       href="<?php echo $order->get_shipping_address_map_url(); ?>"><?php echo $address; ?></a></td>
-			</tr>
-			<tr>
-				<td>Preferred Date & Time:</td>
-				<td><strong><?php echo $date . ', ' . $service_time; ?></strong></td>
-			</tr>
-			<tr>
-				<td>Order ID:</td>
-				<td><strong>#<?php echo $order->get_id() ?></strong></td>
-			</tr>
-			<tr>
-				<td>Device:</td>
-				<td>
-					<strong>
-						<?php echo $_device_title; ?>
-						<?php echo $_device_model; ?> (<?php echo $_device_color; ?> )
-					</strong>
-				</td>
-			</tr>
-			<tr>
-				<td> Order URL:</td>
-				<td><a target="_blank" href="<?php echo $order_url; ?>"><strong><?php echo $order_url; ?></strong></a>
-				</td>
-			</tr>
-		</table>
-		<hr>
-		<p>Issues:</p>
-		<table class="table--issues" style="width: 100%;">
-			<tr>
-				<th>Issue</th>
-				<th>Total</th>
-				<th>Tax</th>
-			</tr>
-			<?php
-			$fees = $order->get_fees();
-			foreach ( $fees as $fee ) {
-				echo '<tr>
-					<td>' . $fee->get_name() . '</td>
-					<td>' . $fee->get_total() . '</td>
-					<td>' . $fee->get_total_tax() . '</td>
-				</tr>';
-			}
-			?>
-			<tr>
-				<td colspan="3">&nbsp;</td>
-			</tr>
-			<tr>
-				<td>&nbsp;</td>
-				<td>Tax:</td>
-				<td><strong><?php echo $order->get_total_tax(); ?></strong></td>
-			</tr>
-			<tr>
-				<td>&nbsp;</td>
-				<td>Total:</td>
-				<td><strong><?php echo $order->get_total(); ?></strong></td>
-			</tr>
-		</table>
-		<?php
-		$post_content = ob_get_clean();
-
-		$ticket_id = $this->create_support_ticket( [
-			'ticket_subject'  => $ticket_subject,
-			'customer_name'   => $order->get_formatted_billing_full_name(),
-			'customer_email'  => $order->get_billing_email(),
-			'user_type'       => $order->get_customer_id() ? 'user' : 'guest',
-			'ticket_category' => get_option( 'wpsc_default_order_ticket_category' ),
-		], $post_content );
-
-		$order->add_meta_data( '_support_ticket_id', $ticket_id );
-		$order->save_meta_data();
-	}
-
-	/**
 	 * Get ticket meta
 	 *
 	 * @param int $ticket_id
@@ -585,6 +451,10 @@ class SupportTicket extends DatabaseModel {
 			$query .= $wpdb->prepare( " AND ticket_priority = %d", intval( $args['ticket_priority'] ) );
 		}
 
+		if ( isset( $args['city'] ) && ! empty( $args['city'] ) && $args['city'] !== 'all' ) {
+			$query .= $wpdb->prepare( " AND city = %s", $args['city'] );
+		}
+
 		if ( 'trash' == $ticket_status ) {
 			$query .= " AND active = 0";
 		} else {
@@ -603,6 +473,23 @@ class SupportTicket extends DatabaseModel {
 		return $data;
 	}
 
+	public function find_all_cities() {
+		global $wpdb;
+		$table = $wpdb->prefix . $this->table;
+
+		$query = "SELECT DISTINCT city FROM {$table};";
+
+		$results = $wpdb->get_results( $query, ARRAY_A );
+
+		$cities = [];
+		if ( is_array( $results ) && count( $results ) ) {
+			$cities = wp_list_pluck( $results, 'city' );
+			$cities = array_filter( array_values( $cities ) );
+		}
+
+		return $cities;
+	}
+
 	/**
 	 * Find record by id
 	 *
@@ -616,21 +503,11 @@ class SupportTicket extends DatabaseModel {
 		return new self( $item );
 	}
 
-
 	/**
-	 * Delete data
+	 * Update support ticket agents
 	 *
-	 * @param int $id
-	 *
-	 * @return bool
+	 * @param array $agents_ids
 	 */
-	public function delete( $id = 0 ) {
-		global $wpdb;
-		$table = $wpdb->prefix . $this->table;
-
-		return ( false !== $wpdb->delete( $table, [ $this->primaryKey => $id ], $this->primaryKeyType ) );
-	}
-
 	public function update_agent( array $agents_ids ) {
 		global $wpdb;
 		$table     = $wpdb->prefix . $this->meta_table;
@@ -654,7 +531,6 @@ class SupportTicket extends DatabaseModel {
 			}
 		}
 	}
-
 
 	/**
 	 * Delete data
@@ -791,6 +667,57 @@ class SupportTicket extends DatabaseModel {
 	 * @return void
 	 */
 	public function create_table() {
-		return;
+		global $wpdb;
+		$table_name = $wpdb->prefix . $this->table;
+		$collate    = $wpdb->get_charset_collate();
+
+		$tables = "CREATE TABLE IF NOT EXISTS {$table_name} (
+			id bigint(20) NOT NULL AUTO_INCREMENT,
+			ticket_status integer,
+			customer_name TINYTEXT NULL DEFAULT NULL,
+			customer_email TINYTEXT NULL DEFAULT NULL,
+			customer_phone varchar(20) NULL DEFAULT NULL,
+			ticket_subject varchar(200) NULL DEFAULT NULL,
+			city varchar(100) NULL DEFAULT NULL,
+			user_type varchar(30) NULL DEFAULT NULL,
+			ticket_category integer,
+			ticket_priority integer,
+			date_created datetime,
+			date_updated datetime,
+			ip_address VARCHAR(30) NULL DEFAULT NULL,
+			agent_created INT NULL DEFAULT '0',
+			ticket_auth_code LONGTEXT NULL DEFAULT NULL,
+			active int(11) DEFAULT 1,
+			PRIMARY KEY  (id)
+		) $collate;";
+
+		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+		dbDelta( $tables );
+
+		$this->add_table_columns();
+	}
+
+	/**
+	 * Add new columns to table
+	 */
+	public function add_table_columns() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . $this->table;
+		$version    = get_option( 'stackonet_support_ticket_table_version' );
+		$version    = ! empty( $version ) ? $version : '1.0.0';
+
+		if ( version_compare( $version, '1.0.1', '<' ) ) {
+			$row = $wpdb->get_row( "SELECT * FROM {$table_name}", ARRAY_A );
+
+			if ( ! isset( $row['customer_phone'] ) ) {
+				$wpdb->query( "ALTER TABLE {$table_name} ADD `customer_phone` VARCHAR(20) NULL DEFAULT NULL AFTER `customer_email`" );
+			}
+
+			if ( ! isset( $row['city'] ) ) {
+				$wpdb->query( "ALTER TABLE {$table_name} ADD `city` VARCHAR(100) NULL DEFAULT NULL AFTER `ticket_subject`" );
+			}
+
+			update_option( 'stackonet_support_ticket_table_version', '1.0.1' );
+		}
 	}
 }

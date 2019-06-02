@@ -8,7 +8,6 @@ use WP_User;
 
 class SupportAgent extends AbstractModel {
 
-
 	/**
 	 * Taxonomy name
 	 *
@@ -103,6 +102,15 @@ class SupportAgent extends AbstractModel {
 	}
 
 	/**
+	 * Get agent user id
+	 *
+	 * @return int
+	 */
+	public function get_user_id() {
+		return $this->user_id;
+	}
+
+	/**
 	 * Get ticket statuses term
 	 *
 	 * @param array $args
@@ -131,12 +139,5 @@ class SupportAgent extends AbstractModel {
 		}
 
 		return $terms;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function get_user_id() {
-		return $this->user_id;
 	}
 }

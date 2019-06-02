@@ -3,6 +3,7 @@
 namespace Stackonet;
 
 use Exception;
+use Stackonet\Modules\SupportTicket\OrderToSupportTicket;
 use Stackonet\Modules\SupportTicket\SupportAgent;
 use Stackonet\Modules\SupportTicket\SupportTicket;
 use Stackonet\Models\Device;
@@ -620,7 +621,7 @@ class Ajax {
 		}
 
 		// Create support ticket from order
-		( new SupportTicket() )->order_to_support_ticket( $order );
+		OrderToSupportTicket::process( $order );
 
 		do_action( 'stackonet_order_created', $order );
 

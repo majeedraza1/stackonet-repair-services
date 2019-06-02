@@ -93,10 +93,12 @@ class SupportTicketController extends ApiController {
 		$ticket_priority = $request->get_param( 'ticket_priority' );
 		$per_page        = $request->get_param( 'per_page' );
 		$paged           = $request->get_param( 'paged' );
+		$city            = $request->get_param( 'city' );
 
 		$status          = ! empty( $status ) ? $status : 'all';
 		$ticket_category = ! empty( $ticket_category ) ? $ticket_category : 'all';
 		$ticket_priority = ! empty( $ticket_priority ) ? $ticket_priority : 'all';
+		$city            = ! empty( $city ) ? $city : 'all';
 		$per_page        = ! empty( $per_page ) ? absint( $per_page ) : 20;
 		$paged           = ! empty( $paged ) ? absint( $paged ) : 1;
 
@@ -108,6 +110,7 @@ class SupportTicketController extends ApiController {
 			'ticket_status'   => $status,
 			'ticket_category' => $ticket_category,
 			'ticket_priority' => $ticket_priority,
+			'city'            => $city,
 		] );
 		$counts = $supportTicket->count_records();
 

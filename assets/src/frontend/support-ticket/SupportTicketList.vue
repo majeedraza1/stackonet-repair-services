@@ -57,6 +57,11 @@
 						{{_status.label}}
 					</option>
 				</select>
+				<label for="filter-city" class="screen-reader-text">Filter by Priority</label>
+				<select id="filter-city" v-model="city" @change="changeStatus">
+					<option value="all">All Cities</option>
+					<option :value="_city" v-for="_city in cities">{{_city}}</option>
+				</select>
 				<mdl-button type="raised" color="default" @click="clearFilter">Clear Filter</mdl-button>
 			</template>
 		</mdl-table>
@@ -84,12 +89,14 @@
 				default_statuses: [],
 				default_categories: [],
 				default_priorities: [],
+				cities: [],
 				columns: [
 					{key: 'id', label: 'ID', numeric: true},
 					{key: 'ticket_subject', label: 'Subject', numeric: false},
 					{key: 'ticket_status', label: 'Status', numeric: false},
 					{key: 'customer_name', label: 'Name', numeric: false},
 					{key: 'customer_email', label: 'Email Address', numeric: false},
+					{key: 'customer_phone', label: 'Phone', numeric: false},
 					{key: 'created_by', label: 'Assigned Agent', numeric: false},
 					{key: 'ticket_category', label: 'Category', numeric: false},
 					{key: 'ticket_priority', label: 'Priority', numeric: false},
@@ -103,6 +110,7 @@
 				status: 'all',
 				category: 'all',
 				priority: 'all',
+				city: 'all',
 			}
 		},
 		mounted() {
@@ -114,6 +122,7 @@
 			this.default_categories = SupportTickets.categories;
 			this.default_priorities = SupportTickets.priorities;
 			this.count_trash = SupportTickets.count_trash;
+			this.cities = SupportTickets.cities;
 		},
 		computed: {
 			statuses() {
@@ -161,6 +170,7 @@
 				this.status = 'all';
 				this.category = 'all';
 				this.priority = 'all';
+				this.city = 'all';
 				this.getItems();
 			},
 			changeStatus() {
@@ -179,7 +189,7 @@
 			getItems() {
 				let self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
-				let parms = `ticket_status=${self.status}&ticket_category=${self.category}&ticket_priority=${self.priority}&paged=${self.currentPage}`;
+				let parms = `ticket_status=${self.status}&ticket_category=${self.category}&ticket_priority=${self.priority}&paged=${self.currentPage}&city=${self.city}`;
 				axios
 					.get(PhoneRepairs.rest_root + `/support-ticket?${parms}`)
 					.then((response) => {

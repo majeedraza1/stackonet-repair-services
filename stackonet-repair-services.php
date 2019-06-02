@@ -213,6 +213,7 @@ final class Stackonet_Repair_Services {
 
 	/**
 	 * Create tables on plugin activation
+	 * @throws Exception
 	 */
 	public function activation() {
 		$area = new Stackonet\Models\UnsupportedArea();
@@ -227,6 +228,8 @@ final class Stackonet_Repair_Services {
 		$technician->create_table();
 		$appointment = new Stackonet\Models\Appointment();
 		$appointment->create_table();
+		$support = new Stackonet\Modules\SupportTicket\SupportTicket;
+		$support->create_table();
 
 		Stackonet\Modules\SupportTicket\AppointmentToSupportTicket::current_appointment_to_support_ticket();
 
