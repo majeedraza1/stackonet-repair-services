@@ -7,6 +7,11 @@ use Stackonet\Models\Device;
 use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
 use Stackonet\Models\Testimonial;
+use Stackonet\Modules\SupportTicket\SupportAgent;
+use Stackonet\Modules\SupportTicket\SupportTicket;
+use Stackonet\Modules\SupportTicket\TicketCategory;
+use Stackonet\Modules\SupportTicket\TicketPriority;
+use Stackonet\Modules\SupportTicket\TicketStatus;
 use WC_Order;
 use WP_Post;
 
@@ -40,6 +45,7 @@ class Frontend {
 			add_shortcode( 'stackonet_survey_form', [ self::$instance, 'survey_form' ] );
 			add_shortcode( 'stackonet_spot_appointment', [ self::$instance, 'spot_appointment' ] );
 			add_shortcode( 'stackonet_become_technician', [ self::$instance, 'become_technician' ] );
+			add_shortcode( 'stackonet_support_ticket', [ self::$instance, 'support_ticket' ] );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
 		}
 
@@ -80,6 +86,8 @@ class Frontend {
 			'stackonet_spot_appointment',
 			'stackonet_become_technician',
 			'stackonet_rent_a_center',
+			'stackonet_support_ticket',
+			'stackonet_support_ticket_form',
 		];
 
 		global $post;
@@ -142,6 +150,66 @@ class Frontend {
 	 */
 	public function become_technician() {
 		return '<div id="stackonet_become_technician"></div>';
+	}
+
+	/**
+	 * Become a technician form
+	 *
+	 * @return string
+	 */
+	public function support_ticket() {
+		if ( ! current_user_can( 'read' ) ) {
+			$login_url = wp_login_url( get_permalink() );
+			$html      = '<p>You need to <a href="' . esc_url( $login_url ) . '">Log in</a>.</p>';
+
+			return $html;
+		}
+		$data          = [];
+		$supportTicket = new SupportTicket();
+
+		$_statuses        = $supportTicket->get_ticket_statuses_terms();
+		$data['statuses'] = [ [ 'key' => 'all', 'label' => 'All Statuses', 'count' => 0, 'active' => true ] ];
+		foreach ( $_statuses as $status ) {
+			$data['statuses'][] = [ 'key' => $status->term_id, 'label' => $status->name, 'count' => 0, ];
+		}
+		$data['statuses'][] = [ 'key' => 'trash', 'label' => 'Trash', 'count' => 0, 'active' => false ];
+
+
+		$_categories        = $supportTicket->get_categories_terms();
+		$data['categories'] = [ [ 'key' => 'all', 'label' => 'All Categories', 'count' => 0, 'active' => true ] ];
+		foreach ( $_categories as $status ) {
+			$data['categories'][] = [ 'key' => $status->term_id, 'label' => $status->name, 'count' => 0, ];
+		}
+
+		$_priorities        = $supportTicket->get_priorities_terms();
+		$data['priorities'] = [ [ 'key' => 'all', 'label' => 'All Priorities', 'count' => 0, 'active' => true ] ];
+		foreach ( $_priorities as $status ) {
+			$data['priorities'][] = [ 'key' => $status->term_id, 'label' => $status->name, 'count' => 0, ];
+		}
+
+		$data['count_trash'] = $supportTicket->count_trash_records();
+
+		$data['ticket_categories'] = TicketCategory::get_all();
+		$data['ticket_statuses']   = TicketStatus::get_all();
+		$data['ticket_priorities'] = TicketPriority::get_all();
+		$data['support_agents']    = SupportAgent::get_all();
+
+		$user           = wp_get_current_user();
+		$data['user']   = [
+			'display_name' => $user->display_name,
+			'user_email'   => $user->user_email,
+		];
+		$data['cities'] = $supportTicket->find_all_cities();
+
+		wp_localize_script( 'stackonet-repair-services-frontend', 'SupportTickets', $data );
+		add_action( 'wp_footer', [ $this, 'tinymce_script' ], 9 );
+
+		return '<div id="stackonet_support_ticket"></div>';
+	}
+
+
+	public function tinymce_script() {
+		echo '<script type="text/javascript" src="' . includes_url( 'js/tinymce/tinymce.min.js' ) . '"></script>';
 	}
 
 	/**

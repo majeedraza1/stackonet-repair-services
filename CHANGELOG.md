@@ -1,3 +1,10 @@
+#### 1.1.7 - Jun 1, 2019
+* Feature - Add frontend support ticket functionality with list table, new ticket and view option.
+* Tweak - Add functionality to make device sortable.
+* Add - Add functionality to add support ticket from order.
+* Add - Add functionality to add support ticket from contact form.
+* Add - Add mdl data table component.
+
 #### 1.1.6 - May 16, 2019
 * Feature - Add spot appointment frontend and admin functionality.
 * Feature - Add eSignature functionality on cart.

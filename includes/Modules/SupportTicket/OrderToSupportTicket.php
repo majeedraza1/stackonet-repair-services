@@ -1,0 +1,145 @@
+<?php
+
+namespace Stackonet\Modules\SupportTicket;
+
+use DateTime;
+use Exception;
+use Stackonet\Supports\Utils;
+use WC_Order;
+use WC_Order_Query;
+
+defined( 'ABSPATH' ) or exit;
+
+class OrderToSupportTicket {
+	/**
+	 * Process order to support ticket conversion
+	 *
+	 * @param WC_Order $order
+	 *
+	 * @throws Exception
+	 */
+	public static function process( WC_Order $order ) {
+		$_device_title  = $order->get_meta( '_device_title' );
+		$_device_model  = $order->get_meta( '_device_model' );
+		$_device_color  = $order->get_meta( '_device_color' );
+		$_device_issues = $order->get_meta( '_device_issues' );
+		$service_date   = $order->get_meta( '_preferred_service_date' );
+		$service_time   = $order->get_meta( '_preferred_service_time_range' );
+
+		$timezone = Utils::get_timezone();
+		$dateTime = new DateTime( $service_date, $timezone );
+		$date     = $dateTime->format( get_option( 'date_format' ) );
+
+		$ticket_subject = $_device_title . ' ' . $_device_model . ' - ' . implode( ', ', $_device_issues );
+
+		$order_url = add_query_arg( [ 'post' => $order->get_id(), 'action' => 'edit' ], admin_url( 'post.php' ) );
+
+		$address = $order->get_address( 'shipping' );
+		unset( $address['first_name'], $address['last_name'], $address['company'] );
+		$address = WC()->countries->get_formatted_address( $address, ', ' );
+
+		ob_start();
+		?>
+		<table class="table--support-order">
+			<tr>
+				<td>Name:</td>
+				<td><strong><?php echo $order->get_formatted_billing_full_name() ?></strong></td>
+			</tr>
+			<tr>
+				<td>Phone:</td>
+				<td><strong><?php echo $order->get_billing_phone() ?></strong></td>
+			</tr>
+			<tr>
+				<td> Customer Address:</td>
+				<td><a target="_blank"
+				       href="<?php echo $order->get_shipping_address_map_url(); ?>"><?php echo $address; ?></a></td>
+			</tr>
+			<tr>
+				<td>Preferred Date & Time:</td>
+				<td><strong><?php echo $date . ', ' . $service_time; ?></strong></td>
+			</tr>
+			<tr>
+				<td>Order ID:</td>
+				<td><strong>#<?php echo $order->get_id() ?></strong></td>
+			</tr>
+			<tr>
+				<td>Device:</td>
+				<td>
+					<strong>
+						<?php echo $_device_title; ?>
+						<?php echo $_device_model; ?> (<?php echo $_device_color; ?> )
+					</strong>
+				</td>
+			</tr>
+			<tr>
+				<td> Order URL:</td>
+				<td><a target="_blank" href="<?php echo $order_url; ?>"><strong><?php echo $order_url; ?></strong></a>
+				</td>
+			</tr>
+		</table>
+		<hr>
+		<p>Issues:</p>
+		<table class="table--issues" style="width: 100%;">
+			<tr>
+				<th>Issue</th>
+				<th>Total</th>
+				<th>Tax</th>
+			</tr>
+			<?php
+			$fees = $order->get_fees();
+			foreach ( $fees as $fee ) {
+				echo '<tr>
+					<td>' . $fee->get_name() . '</td>
+					<td>' . $fee->get_total() . '</td>
+					<td>' . $fee->get_total_tax() . '</td>
+				</tr>';
+			}
+			?>
+			<tr>
+				<td colspan="3">&nbsp;</td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td>Tax:</td>
+				<td><strong><?php echo $order->get_total_tax(); ?></strong></td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td>Total:</td>
+				<td><strong><?php echo $order->get_total(); ?></strong></td>
+			</tr>
+		</table>
+		<?php
+		$post_content = ob_get_clean();
+
+		$ticket_id = ( new SupportTicket() )->create_support_ticket( [
+			'ticket_subject'  => $ticket_subject,
+			'customer_name'   => $order->get_formatted_billing_full_name(),
+			'customer_email'  => $order->get_billing_email(),
+			'customer_phone'  => $order->get_billing_phone(),
+			'city'            => $order->get_billing_city(),
+			'user_type'       => $order->get_customer_id() ? 'user' : 'guest',
+			'ticket_category' => get_option( 'wpsc_default_order_ticket_category' ),
+		], $post_content );
+
+		$order->add_meta_data( '_support_ticket_id', $ticket_id );
+		$order->save_meta_data();
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public static function current_order_to_support_ticket() {
+		$option = get_option( 'init_order_to_support_ticket' );
+		if ( 'yes' != $option ) {
+			$query = new WC_Order_Query();
+			$query->set( 'limit', 100 );
+			$orders = $query->get_orders();
+
+			foreach ( $orders as $order ) {
+				static::process( $order );
+			}
+			update_option( 'init_order_to_support_ticket', 'yes' );
+		}
+	}
+}

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Stackonet Toolkit for Phone Repairs ASAP
  * Description: Stackonet Toolkit for Phone Repairs ASAP
- * Version: 1.1.6
+ * Version: 1.1.7
  * Author: Stackonet Services (Pvt.) Ltd.
  * Author URI: http://www.stackonet.com/
  * Requires at least: 4.9
@@ -36,7 +36,7 @@ final class Stackonet_Repair_Services {
 	 *
 	 * @var string
 	 */
-	private $version = '1.1.6';
+	private $version = '1.1.7';
 
 	/**
 	 * Holds various class instances
@@ -83,6 +83,8 @@ final class Stackonet_Repair_Services {
 			add_action( 'plugins_loaded', array( self::$instance, 'load_plugin_textdomain' ) );
 
 			add_action( 'phone_repairs_asap_activation', [ self::$instance, 'add_custom_role' ] );
+
+			add_action( 'dialog_contact_form/actions', [ self::$instance, 'add_action' ] );
 
 			// Register plugin activation activity
 			register_activation_hook( __FILE__, array( self::$instance, 'activation' ) );
@@ -156,13 +158,15 @@ final class Stackonet_Repair_Services {
 			include_once STACKONET_REPAIR_SERVICES_PATH . '/vendor/autoload.php';
 		}
 
-		$this->container['assets']         = Stackonet\Assets::init();
-		$this->container['twilio']         = Stackonet\Integrations\Twilio::init();
-		$this->container['woocommerce']    = Stackonet\Integrations\WooCommerce::init();
-		$this->container['reschedule']     = new Stackonet\Models\Reschedule();
-		$this->container['order_reminder'] = Stackonet\Models\OrderReminder::init();
+		$this->container['assets']           = Stackonet\Assets::init();
+		$this->container['twilio']           = Stackonet\Integrations\Twilio::init();
+		$this->container['woocommerce']      = Stackonet\Integrations\WooCommerce::init();
+		$this->container['mercantile-theme'] = Stackonet\Integrations\MercantileTheme::init();
+		$this->container['reschedule']       = new Stackonet\Models\Reschedule();
+		$this->container['order_reminder']   = Stackonet\Models\OrderReminder::init();
 
-		$this->container['my_account'] = Stackonet\Modules\MyAccount\MyAccount::init();
+		$this->container['my_account']     = Stackonet\Modules\MyAccount\MyAccount::init();
+		$this->container['support_ticket'] = Stackonet\Modules\SupportTicket\SupportTicketManager::init();
 
 		if ( $this->is_request( 'admin' ) ) {
 			$this->container['reschedule-date-time'] = Stackonet\Admin\RescheduleDateTime::init();
@@ -209,6 +213,7 @@ final class Stackonet_Repair_Services {
 
 	/**
 	 * Create tables on plugin activation
+	 * @throws Exception
 	 */
 	public function activation() {
 		$area = new Stackonet\Models\UnsupportedArea();
@@ -223,6 +228,10 @@ final class Stackonet_Repair_Services {
 		$technician->create_table();
 		$appointment = new Stackonet\Models\Appointment();
 		$appointment->create_table();
+		$support = new Stackonet\Modules\SupportTicket\SupportTicket;
+		$support->create_table();
+
+		Stackonet\Modules\SupportTicket\AppointmentToSupportTicket::current_appointment_to_support_ticket();
 
 		do_action( 'phone_repairs_asap_activation' );
 	}
@@ -272,6 +281,15 @@ final class Stackonet_Repair_Services {
 				$manager_role->add_cap( $cap, $grant );
 			}
 		}
+	}
+
+	/**
+	 * Add our custom action to action manager
+	 *
+	 * @param \DialogContactForm\Collections\Actions $actions
+	 */
+	public function add_action( $actions ) {
+		$actions->set( 'support_ticket', \Stackonet\Modules\SupportTicket\ContactFormToSupportTicket::class );
 	}
 
 	/**
@@ -392,7 +410,6 @@ final class Stackonet_Repair_Services {
  * Since everything within the plugin is registered via hooks,
  * then kicking off the plugin from this point in the file does
  * not affect the page life cycle.
- * @throws Exception
  */
 function stackonet_repair_services() {
 	return Stackonet_Repair_Services::init();

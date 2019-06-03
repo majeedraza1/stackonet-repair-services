@@ -46,7 +46,8 @@
 			},
 			labelClasses() {
 				return {
-					'mdl-js-ripple-effect': this.ripple
+					'mdl-js-ripple-effect': this.ripple,
+					'is-checked': this.shouldBeChecked,
 				}
 			}
 		},

@@ -98,7 +98,6 @@
 <script>
 	import BigButton from '../../components/BigButton';
 	import PricingAccordion from '../../components/PricingAccordion';
-	import {mapState} from 'vuex';
 
 	export default {
 		name: "Pricing",
@@ -110,10 +109,15 @@
 				activeModelAccordion: false,
 				activeIssuesAccordion: false,
 				cta_url: '',
+				loading: true,
+				devices: [],
+				devices_models: [],
+				device: {},
+				device_model: {},
+				issues: [],
 			}
 		},
 		computed: {
-			...mapState(['devices', 'device', 'devices_models', 'device_model', 'issues']),
 			icons() {
 				return window.Stackonet.icons;
 			},
@@ -176,7 +180,8 @@
 			}
 		},
 		mounted() {
-			this.$store.commit('SET_DEVICES', window.Stackonet.devices);
+			this.devices = window.Stackonet.devices;
+
 			this.defaultDevice();
 
 			let $ = window.jQuery;
@@ -194,23 +199,22 @@
 			},
 			defaultDevice() {
 				let device = this.devices[0];
-				console.log(device);
-				this.$store.commit('SET_DEVICE', device);
-				this.$store.commit('SET_DEVICES_MODELS', device.device_models);
-				this.$store.commit('SET_DEVICE_MODEL', device.device_models[0]);
-				this.$store.commit('SET_ISSUE', device.multi_issues);
+				this.device = device;
+				this.devices_models =device.device_models;
+				this.device_model = device.device_models[0];
+				this.device_issues = device.multi_issues;
 				this.selectedIssues = [];
 			},
 			chooseDevice(device) {
-				this.$store.commit('SET_DEVICE', device);
-				this.$store.commit('SET_DEVICES_MODELS', device.device_models);
-				this.$store.commit('SET_DEVICE_MODEL', device.device_models[0]);
-				this.$store.commit('SET_ISSUE', device.multi_issues);
+				this.device = device;
+				this.devices_models =device.device_models;
+				this.device_model = device.device_models[0];
+				this.device_issues = device.multi_issues;
 				this.activeDeviceAccordion = false;
 				this.selectedIssues = [];
 			},
 			chooseModel(model) {
-				this.$store.commit('SET_DEVICE_MODEL', model);
+				this.device_model = model;
 				this.activeModelAccordion = false;
 				this.selectedIssues = [];
 			},

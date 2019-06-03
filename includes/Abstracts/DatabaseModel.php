@@ -147,7 +147,7 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 	public function create( array $data ) {
 		global $wpdb;
 		$table        = $wpdb->prefix . $this->table;
-		$current_time = current_time( 'mysql' );
+		$current_time = current_time( 'mysql', true );
 
 		$_data = [];
 		foreach ( $this->default_data as $key => $default ) {

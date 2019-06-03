@@ -3,6 +3,9 @@
 namespace Stackonet;
 
 use Exception;
+use Stackonet\Modules\SupportTicket\OrderToSupportTicket;
+use Stackonet\Modules\SupportTicket\SupportAgent;
+use Stackonet\Modules\SupportTicket\SupportTicket;
 use Stackonet\Models\Device;
 use Stackonet\Models\DeviceIssue;
 use Stackonet\Models\Phone;
@@ -10,6 +13,7 @@ use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
 use Stackonet\Models\Testimonial;
 use Stackonet\Models\UnsupportedArea;
+use Stackonet\Modules\SupportTicket\TicketCategory;
 use Stackonet\Supports\Utils;
 use WC_Data_Exception;
 use WC_Order;
@@ -87,7 +91,7 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		var_dump( 'working' );
+		var_dump( 'working fine' );
 		die();
 	}
 
@@ -615,6 +619,9 @@ class Ajax {
 		if ( $has_discount ) {
 			$this->add_order_discount( $order->get_id(), 'Fixed Discount (15%)', '15%' );
 		}
+
+		// Create support ticket from order
+		OrderToSupportTicket::process( $order );
 
 		do_action( 'stackonet_order_created', $order );
 

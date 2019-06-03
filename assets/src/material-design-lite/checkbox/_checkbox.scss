@@ -37,6 +37,7 @@
 }
 
 .mdl-checkbox__input {
+	opacity: 0;
 	line-height: $checkbox-label-height;
 
 	.mdl-checkbox.is-upgraded & {
