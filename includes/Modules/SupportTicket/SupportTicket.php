@@ -473,6 +473,58 @@ class SupportTicket extends DatabaseModel {
 		return $data;
 	}
 
+	/**
+	 * Search phone
+	 *
+	 * @param array $args
+	 * @param array $fields
+	 *
+	 * @return array
+	 */
+	public function search( $args, $fields = [] ) {
+		global $wpdb;
+		$table         = $wpdb->prefix . $this->table;
+		$string        = isset( $args['search'] ) ? esc_sql( $args['search'] ) : '';
+		$fields        = empty( $fields ) ? array_keys( $this->default_data ) : $fields;
+		$ticket_status = ! empty( $args['ticket_status'] ) ? $args['ticket_status'] : 'all';
+
+		$cache_key = sprintf( 'support_ticket_search_%s', md5( json_encode( $args ) ) );
+		$phones    = wp_cache_get( $cache_key, $this->cache_group );
+		if ( false === $phones ) {
+			$query = "SELECT * FROM {$table} WHERE 1 = 1";
+
+			if ( isset( $args[ $this->created_by ] ) && is_numeric( $args[ $this->created_by ] ) ) {
+				$query .= $wpdb->prepare( " AND {$this->created_by} = %d", intval( $args[ $this->created_by ] ) );
+			}
+
+			if ( 'trash' == $ticket_status ) {
+				$query .= " AND active = 0";
+			} else {
+				$query .= " AND active = 1";
+			}
+
+			$total_fields = count( $fields );
+			foreach ( $fields as $index => $field ) {
+				if ( 0 === $index ) {
+					$query .= " AND ({$field} LIKE '%{$string}%'";
+				} elseif ( ( $total_fields - 1 ) === $index ) {
+					$query .= " OR {$field} LIKE '%{$string}%')";
+				} else {
+					$query .= " OR {$field} LIKE '%{$string}%'";
+				}
+			}
+			$items = $wpdb->get_results( $query, ARRAY_A );
+			if ( $items ) {
+				foreach ( $items as $item ) {
+					$phones[] = new self( $item );
+				}
+			}
+			wp_cache_add( $cache_key, $phones, $this->cache_group );
+		}
+
+		return $phones;
+	}
+
 	public function find_all_cities() {
 		global $wpdb;
 		$table = $wpdb->prefix . $this->table;

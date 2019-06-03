@@ -18,7 +18,8 @@
 			@action:click="onActionClick"
 			@bulk:apply="onBulkAction"
 			@pagination="paginate"
-			:show-search="false"
+			:show-search="true"
+			@search="search"
 		>
 			<template slot="created_by" slot-scope="data" class="button--status">
 				<span v-html="getAssignedAgents(data.row.assigned_agents)"></span>
@@ -99,6 +100,7 @@
 				category: 'all',
 				priority: 'all',
 				city: 'all',
+				query: '',
 			}
 		},
 		mounted() {
@@ -169,6 +171,10 @@
 				this.currentPage = page;
 				this.getItems();
 			},
+			search(query) {
+				this.query = query;
+				this.getItems();
+			},
 			exportExcel() {
 
 				let url = `${ajaxurl}?action=download_support_ticket&ticket_status=${this.status}&ticket_category=${this.category}&ticket_priority=${this.priority}`;
@@ -177,7 +183,7 @@
 			getItems() {
 				let self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
-				let parms = `ticket_status=${self.status}&ticket_category=${self.category}&ticket_priority=${self.priority}&paged=${self.currentPage}&city=${self.city}`;
+				let parms = `ticket_status=${self.status}&ticket_category=${self.category}&ticket_priority=${self.priority}&paged=${self.currentPage}&city=${self.city}&search=${self.query}`;
 				axios
 					.get(stackonetSettings.root + `/support-ticket?${parms}`)
 					.then((response) => {

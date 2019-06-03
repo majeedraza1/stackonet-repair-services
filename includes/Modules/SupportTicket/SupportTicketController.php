@@ -94,6 +94,7 @@ class SupportTicketController extends ApiController {
 		$per_page        = $request->get_param( 'per_page' );
 		$paged           = $request->get_param( 'paged' );
 		$city            = $request->get_param( 'city' );
+		$search          = $request->get_param( 'search' );
 
 		$status          = ! empty( $status ) ? $status : 'all';
 		$ticket_category = ! empty( $ticket_category ) ? $ticket_category : 'all';
@@ -104,14 +105,18 @@ class SupportTicketController extends ApiController {
 
 		$supportTicket = new SupportTicket;
 
-		$items  = $supportTicket->find( [
-			'paged'           => $paged,
-			'per_page'        => $per_page,
-			'ticket_status'   => $status,
-			'ticket_category' => $ticket_category,
-			'ticket_priority' => $ticket_priority,
-			'city'            => $city,
-		] );
+		if ( ! empty( $search ) ) {
+			$items = $supportTicket->search( [ 'search' => $search, ] );
+		} else {
+			$items = $supportTicket->find( [
+				'paged'           => $paged,
+				'per_page'        => $per_page,
+				'ticket_status'   => $status,
+				'ticket_category' => $ticket_category,
+				'ticket_priority' => $ticket_priority,
+				'city'            => $city,
+			] );
+		}
 		$counts = $supportTicket->count_records();
 
 		$pagination = $supportTicket->getPaginationMetadata( [

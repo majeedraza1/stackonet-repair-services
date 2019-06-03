@@ -7,7 +7,11 @@
 					New Ticket
 				</mdl-button>
 			</div>
-			<div class="flex-item">
+			<div class="flex-item display-flex">
+				<div>
+					<input type="search" v-model="query">
+					<button class="button" @click="search">Search</button>
+				</div>
 				<mdl-button type="raised" color="default" @click="exportExcel">Export Excel</mdl-button>
 			</div>
 		</div>
@@ -111,6 +115,7 @@
 				category: 'all',
 				priority: 'all',
 				city: 'all',
+				query: '',
 			}
 		},
 		mounted() {
@@ -181,15 +186,17 @@
 				this.currentPage = page;
 				this.getItems();
 			},
+			search() {
+				this.getItems();
+			},
 			exportExcel() {
-
 				let url = `${PhoneRepairs.ajaxurl}?action=download_support_ticket&ticket_status=${this.status}&ticket_category=${this.category}&ticket_priority=${this.priority}`;
 				window.location.href = url;
 			},
 			getItems() {
 				let self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
-				let parms = `ticket_status=${self.status}&ticket_category=${self.category}&ticket_priority=${self.priority}&paged=${self.currentPage}&city=${self.city}`;
+				let parms = `ticket_status=${self.status}&ticket_category=${self.category}&ticket_priority=${self.priority}&paged=${self.currentPage}&city=${self.city}&search=${self.query}`;
 				axios
 					.get(PhoneRepairs.rest_root + `/support-ticket?${parms}`)
 					.then((response) => {
