@@ -154,6 +154,55 @@
 					</div>
 				</div>
 
+				<div class="shapla-box shapla-widget-box">
+					<div class="shapla-widget-box__heading">
+						<h5 class="shapla-widget-box__title">SMS Messages</h5>
+					</div>
+					<div class="shapla-widget-box__content">
+						<fieldset>
+							<legend class="screen-reader-text"><span>Phone</span></legend>
+							<label for="ticket_twilio_sms_customer_phone">
+								<input type="checkbox" id="ticket_twilio_sms_customer_phone"
+									   v-model="ticket_twilio_sms_customer_phone">
+								<strong>Customer Phone: </strong> {{item.customer_phone}}
+							</label>
+						</fieldset>
+						<fieldset>
+							<legend class="screen-reader-text"><span>Phone</span></legend>
+							<label for="users_can_register">
+								<input type="checkbox" id="users_can_register"
+									   v-model="ticket_twilio_sms_enable_custom_phone">
+								<strong>Custom Phone: </strong>
+								<input type="text" v-model="ticket_twilio_sms_custom_phone"/>
+							</label>
+						</fieldset>
+						<p>
+							<icon>
+								<span @click="openTwilioAssignAgentModal" class="dashicons dashicons-edit"></span>
+							</icon>
+							<strong>Assign Agent(s)</strong><br>
+							<template v-for="_agent in support_agents">
+
+							<span class="shapla-chip shapla-chip--contact" v-if="twilio_support_agents_ids.indexOf(_agent.id) !== -1">
+							<span class="shapla-chip__contact">
+								<image-container>
+									<img :src="_agent.avatar_url" width="32" height="32">
+								</image-container>
+							</span>
+							<span class="shapla-chip__text">{{_agent.display_name}}</span>
+						</span>
+							</template>
+						</p>
+						<p><textarea type="text" name="ticket_twilio_sms" id="ticket_twilio_sms"
+									 v-model="ticket_twilio_sms_content"
+									 class="input-text" style="width: 100%;" rows="4" value=""></textarea></p>
+						<p><a class="button tips" id="wc_twilio_sms_order_send_message" @click="sendSms">Send SMS</a>
+							<span id="wc_twilio_sms_order_message_char_count"
+								  style="color: green; float: right; font-size: 16px;">{{ticket_twilio_sms_content.length}}</span>
+						</p>
+					</div>
+				</div>
+
 			</column>
 		</columns>
 
@@ -203,6 +252,26 @@
 				<mdl-button @click="updateAssignAgents">Save</mdl-button>
 			</template>
 		</modal>
+
+		<modal :active="activeTwilioAgentModal" title="Choose Assign Agent(s)" @close="activeTwilioAgentModal = false">
+			<template v-for="_agent in support_agents">
+				<div class="support_agents-chip">
+					<div class="shapla-chip shapla-chip--contact" @click="updateTwilioAgent(_agent)"
+						 :class="{'is-active':twilio_support_agents_ids.indexOf(_agent.id) !== -1}">
+						<div class="shapla-chip__contact">
+							<image-container>
+								<img :src="_agent.avatar_url" width="32" height="32">
+							</image-container>
+						</div>
+						<span class="shapla-chip__text">{{_agent.display_name}} - {{_agent.role_label}}</span>
+					</div>
+				</div>
+			</template>
+			<template slot="foot">
+				<mdl-button @click="activeTwilioAgentModal = false">Confirm</mdl-button>
+			</template>
+		</modal>
+
 		<modal :active="activeTitleModal" title="Change Ticket Subject" @close="activeTitleModal = false">
 			<textarea v-model="ticket_subject" style="width: 100%;"></textarea>
 			<template slot="foot">
@@ -235,6 +304,12 @@
 				activeThreadModal: false,
 				activeTitleModal: false,
 				activeThread: {},
+				activeTwilioAgentModal: false,
+				ticket_twilio_sms_customer_phone: true,
+				ticket_twilio_sms_enable_custom_phone: false,
+				ticket_twilio_sms_custom_phone: '',
+				ticket_twilio_sms_content: '',
+				twilio_support_agents_ids: [],
 				activeThreadContent: '',
 				ticket_subject: '',
 				ticket_category: '',
@@ -271,6 +346,34 @@
 			}
 		},
 		methods: {
+			sendSms() {
+				if (this.ticket_twilio_sms_content.length < 5) {
+					alert('Please add some content first.');
+					return;
+				}
+				let self = this;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				axios
+					.post(stackonetSettings.root + '/support-ticket/' + self.id + '/sms', {
+						content: self.ticket_twilio_sms_content,
+						send_to_customer: self.ticket_twilio_sms_customer_phone,
+						send_to_custom_number: self.ticket_twilio_sms_enable_custom_phone,
+						custom_phone: self.ticket_twilio_sms_custom_phone,
+						agents_ids: self.twilio_support_agents_ids,
+					})
+					.then((response) => {
+						self.$store.commit('SET_LOADING_STATUS', false);
+						self.ticket_twilio_sms_content = '';
+						self.ticket_twilio_sms_customer_phone = true;
+						self.ticket_twilio_sms_enable_custom_phone = false;
+						self.ticket_twilio_sms_custom_phone = '';
+						self.twilio_support_agents_ids = [];
+						alert('Message has been sent.');
+					})
+					.catch((error) => {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					});
+			},
 			openNewTicket() {
 				this.$router.push({name: 'NewSupportTicket'});
 			},
@@ -297,6 +400,9 @@
 				this.activeAgentModal = true;
 				this.support_agents_ids = ids;
 			},
+			openTwilioAssignAgentModal() {
+				this.activeTwilioAgentModal = true;
+			},
 			assigned_agents_ids() {
 				if (this.item.assigned_agents.length < 1) {
 					return [];
@@ -312,6 +418,14 @@
 					this.support_agents_ids.splice(index, 1);
 				} else {
 					this.support_agents_ids.push(agent.id);
+				}
+			},
+			updateTwilioAgent(agent) {
+				let index = this.twilio_support_agents_ids.indexOf(agent.id);
+				if (-1 !== index) {
+					this.twilio_support_agents_ids.splice(index, 1);
+				} else {
+					this.twilio_support_agents_ids.push(agent.id);
 				}
 			},
 			updateAssignAgents() {

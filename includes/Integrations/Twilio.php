@@ -54,7 +54,23 @@ class Twilio {
 	 */
 	public function init_dev_data() {
 		if ( defined( 'WP_DEBUG_LOCAL' ) && WP_DEBUG_LOCAL ) {
-			$this->admin_numbers = [ '+8801701309039' ];
+			$this->admin_numbers = [ '+918861721567' ];
+		}
+	}
+
+	public function send_support_ticket_sms( array $numbers, $message ) {
+		if ( ! function_exists( 'wc_twilio_sms' ) ) {
+			Logger::log( 'wc_twilio_sms is not available' );
+
+			return;
+		}
+
+		foreach ( $numbers as $to ) {
+			try {
+				$response = wc_twilio_sms()->get_api()->send( $to, $message );
+			} catch ( Exception $e ) {
+				Logger::log( $e->getMessage() );
+			}
 		}
 	}
 

@@ -3,6 +3,7 @@
 namespace Stackonet\Modules\SupportTicket;
 
 use Exception;
+use Stackonet\Integrations\Twilio;
 use Stackonet\REST\ApiController;
 use WP_Error;
 use WP_Post;
@@ -58,6 +59,10 @@ class SupportTicketController extends ApiController {
 			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_agent' ] ],
 		] );
 
+		register_rest_route( $this->namespace, '/support-ticket/(?P<id>\d+)/sms', [
+			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'send_sms' ] ],
+		] );
+
 		register_rest_route( $this->namespace, '/support-ticket/(?P<id>\d+)/thread', [
 			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'create_thread' ] ],
 		] );
@@ -74,6 +79,64 @@ class SupportTicketController extends ApiController {
 		register_rest_route( $this->namespace, '/support-ticket/batch_delete', [
 			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'delete_items' ] ],
 		] );
+	}
+
+	/**
+	 * Retrieves a collection of devices.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
+	 */
+	public function send_sms( $request ) {
+		if ( ! current_user_can( 'read' ) ) {
+			return $this->respondUnauthorized();
+		}
+
+		$id                    = (int) $request->get_param( 'id' );
+		$send_to_customer      = (bool) $request->get_param( 'send_to_customer' );
+		$send_to_custom_number = (bool) $request->get_param( 'send_to_custom_number' );
+		$custom_phone          = $request->get_param( 'custom_phone' );
+		$agents_ids            = $request->get_param( 'agents_ids' );
+		$content               = $request->get_param( 'content' );
+
+		if ( mb_strlen( $content ) < 5 ) {
+			return $this->respondUnprocessableEntity( null, 'Message content must be at least 5 characters.' );
+		}
+
+		$supportTicket = ( new SupportTicket )->find_by_id( $id );
+		if ( ! $supportTicket instanceof SupportTicket ) {
+			return $this->respondNotFound();
+		}
+
+		$customer_phone = $supportTicket->get( 'customer_phone' );
+
+		$phones = [];
+
+		if ( ! empty( $customer_phone ) && $send_to_customer ) {
+			$phones[] = $customer_phone;
+		}
+
+		if ( ! empty( $custom_phone ) && $send_to_custom_number ) {
+			$phones[] = $custom_phone;
+		}
+
+		if ( is_array( $agents_ids ) && count( $agents_ids ) ) {
+			foreach ( $agents_ids as $user_id ) {
+				$billing_phone = get_user_meta( $user_id, 'billing_phone', true );
+				if ( ! empty( $billing_phone ) ) {
+					$phones[] = $billing_phone;
+				}
+			}
+		}
+
+		if ( count( $phones ) < 1 ) {
+			return $this->respondUnprocessableEntity();
+		}
+
+		( new Twilio() )->send_support_ticket_sms( $phones, $content );
+
+		return $this->respondOK();
 	}
 
 	/**
