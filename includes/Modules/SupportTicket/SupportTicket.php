@@ -5,10 +5,12 @@ namespace Stackonet\Modules\SupportTicket;
 use DateTime;
 use Exception;
 use Stackonet\Abstracts\DatabaseModel;
+use Stackonet\Supports\Logger;
 use Stackonet\Supports\Utils;
 use WC_Order;
 use WP_Post;
 use WP_Term;
+use WP_Term_Query;
 use WP_User;
 
 defined( 'ABSPATH' ) or exit;
@@ -483,14 +485,23 @@ class SupportTicket extends DatabaseModel {
 	 */
 	public function search( $args, $fields = [] ) {
 		global $wpdb;
-		$table         = $wpdb->prefix . $this->table;
-		$string        = isset( $args['search'] ) ? esc_sql( $args['search'] ) : '';
-		$fields        = empty( $fields ) ? array_keys( $this->default_data ) : $fields;
-		$ticket_status = ! empty( $args['ticket_status'] ) ? $args['ticket_status'] : 'all';
+		$table           = $wpdb->prefix . $this->table;
+		$string          = isset( $args['search'] ) ? esc_sql( $args['search'] ) : '';
+		$fields          = empty( $fields ) ? array_keys( $this->default_data ) : $fields;
+		$ticket_status   = ! empty( $args['ticket_status'] ) ? $args['ticket_status'] : 'all';
+		$ticket_category = ! empty( $args['ticket_category'] ) ? $args['ticket_category'] : 'all';
+		$orderby         = $this->primaryKey;
+		if ( isset( $args['orderby'] ) && in_array( $args['orderby'], array_keys( $this->default_data ) ) ) {
+			$orderby = $args['orderby'];
+		}
+		$order = isset( $args['order'] ) && 'ASC' == $args['order'] ? 'ASC' : 'DESC';
 
 		$cache_key = sprintf( 'support_ticket_search_%s', md5( json_encode( $args ) ) );
-		$phones    = wp_cache_get( $cache_key, $this->cache_group );
-		if ( false === $phones ) {
+		$tickets   = wp_cache_get( $cache_key, $this->cache_group );
+		if ( false === $tickets ) {
+
+			$terms_ids = $this->search_terms( $string );
+
 			$query = "SELECT * FROM {$table} WHERE 1 = 1";
 
 			if ( isset( $args[ $this->created_by ] ) && is_numeric( $args[ $this->created_by ] ) ) {
@@ -513,18 +524,69 @@ class SupportTicket extends DatabaseModel {
 					$query .= " OR {$field} LIKE '%{$string}%'";
 				}
 			}
+
+			if ( is_numeric( $ticket_category ) && $ticket_category > 1 ) {
+				$query .= $wpdb->prepare( " AND ticket_category = %d", intval( $ticket_category ) );
+			} else {
+				if ( count( $terms_ids ) ) {
+					$terms_fields = [ 'ticket_status', 'ticket_category', 'ticket_priority' ];
+
+					foreach ( $terms_fields as $index => $field ) {
+						foreach ( $terms_ids as $term_id ) {
+							$query .= $wpdb->prepare( " OR {$field} = %d", $term_id );
+						}
+					}
+				}
+			}
+
+			$query .= " ORDER BY {$orderby} {$order}";
+
 			$items = $wpdb->get_results( $query, ARRAY_A );
 			if ( $items ) {
 				foreach ( $items as $item ) {
-					$phones[] = new self( $item );
+					$tickets[] = new self( $item );
 				}
 			}
-			wp_cache_add( $cache_key, $phones, $this->cache_group );
+			wp_cache_add( $cache_key, $tickets, $this->cache_group );
 		}
 
-		return $phones;
+		return $tickets;
 	}
 
+	/**
+	 * @param string $query
+	 * @param bool $object
+	 *
+	 * @return array|WP_Term[]
+	 */
+	public function search_terms( $query = '', $object = false ) {
+		if ( empty( $query ) ) {
+			return [];
+		}
+		// WP_Term_Query arguments
+		$args = array(
+			'taxonomy'   => array( 'wpsc_categories', 'wpsc_priorities', 'wpsc_statuses' ),
+			'hide_empty' => false,
+			'name__like' => $query,
+		);
+
+		// The Term Query
+		$term_query = new WP_Term_Query( $args );
+
+		$terms = $term_query->get_terms();
+
+		if ( count( $terms ) && ! $object ) {
+			return wp_list_pluck( $terms, 'term_id' );
+		}
+
+		return $terms;
+	}
+
+	/**
+	 * Get all unique cities from support ticket
+	 *
+	 * @return array
+	 */
 	public function find_all_cities() {
 		global $wpdb;
 		$table = $wpdb->prefix . $this->table;

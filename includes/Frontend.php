@@ -201,6 +201,8 @@ class Frontend {
 		];
 		$data['cities'] = $supportTicket->find_all_cities();
 
+		$data['search_categories'] = (array) get_option( 'stackonet_ticket_search_categories' );
+
 		wp_localize_script( 'stackonet-repair-services-frontend', 'SupportTickets', $data );
 		add_action( 'wp_footer', [ $this, 'tinymce_script' ], 9 );
 

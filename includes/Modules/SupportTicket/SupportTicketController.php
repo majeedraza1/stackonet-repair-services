@@ -106,7 +106,7 @@ class SupportTicketController extends ApiController {
 		$supportTicket = new SupportTicket;
 
 		if ( ! empty( $search ) ) {
-			$items = $supportTicket->search( [ 'search' => $search, ] );
+			$items = $supportTicket->search( [ 'search' => $search, 'ticket_category' => $ticket_category ] );
 		} else {
 			$items = $supportTicket->find( [
 				'paged'           => $paged,
