@@ -1,0 +1,223 @@
+<?php
+
+namespace Stackonet\REST;
+
+use Stackonet\Models\CheckoutAnalysis;
+use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
+use WP_REST_Server;
+
+class CheckoutAnalysisController extends ApiController {
+
+
+	/**
+	 * The instance of the class
+	 *
+	 * @var self
+	 */
+	private static $instance;
+
+	/**
+	 * Only one instance of the class can be loaded.
+	 *
+	 * @return self
+	 */
+	public static function init() {
+		if ( is_null( self::$instance ) ) {
+			self::$instance = new self;
+
+			add_action( 'rest_api_init', array( self::$instance, 'register_routes' ) );
+		}
+
+		return self::$instance;
+	}
+
+	/**
+	 * Registers the routes for the objects of the controller.
+	 */
+	public function register_routes() {
+		register_rest_route( $this->namespace, '/checkout-analysis', [
+			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_items' ], ],
+			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'create_item' ], ],
+		] );
+
+		register_rest_route( $this->namespace, '/checkout-analysis/(?P<id>\d+)', [
+			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_item' ] ],
+		] );
+	}
+
+	/**
+	 * Get a collection of items.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_Error|WP_REST_Response
+	 */
+	public function get_items( $request ) {
+		$_items = ( new CheckoutAnalysis() )->find();
+		$items  = [];
+		foreach ( $_items as $item ) {
+			$items[] = $this->prepare_item_for_response( $item, $request );
+		}
+
+		return $this->respondOK( [ 'items' => $items ] );
+	}
+
+	/**
+	 * Creates one item from the collection.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
+	 */
+	public function create_item( $request ) {
+		$data      = $this->prepare_item_for_database( $request );
+		$record_id = ( new CheckoutAnalysis() )->create( $data );
+
+		if ( $record_id ) {
+			return $this->respondCreated( [ 'id' => $record_id ] );
+		}
+
+		return $this->respondInternalServerError();
+	}
+
+	/**
+	 * Update one item from the collection.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_Error|WP_REST_Response
+	 */
+	public function update_item( $request ) {
+		$id = (int) $request->get_param( 'id' );
+
+		$checkoutAnalysis = ( new CheckoutAnalysis() )->find_by_id( $id );
+
+		if ( ! $checkoutAnalysis instanceof CheckoutAnalysis ) {
+			return $this->respondNotFound();
+		}
+
+		$data = $this->prepare_item_for_database( $request );
+		$checkoutAnalysis->update( $data );
+
+		return $this->respondOK();
+	}
+
+	/**
+	 * Prepares one item for create or update operation.
+	 *
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 *
+	 * @return array
+	 */
+	protected function prepare_item_for_database( $request ) {
+		$id        = (int) $request->get_param( 'id' );
+		$step      = $request->get_param( 'step' );
+		$step_data = $request->get_param( 'step_data' );
+
+		$now              = current_time( 'mysql', false );
+		$checkoutAnalysis = new CheckoutAnalysis();
+
+		$data = [ 'id' => $id ];
+
+		if ( $checkoutAnalysis->is_valid_column( $step ) ) {
+			$data[ $step ] = $now;
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Prepare the item for the REST response.
+	 *
+	 * @param mixed $item WordPress representation of the item.
+	 * @param WP_REST_Request $request Request object.
+	 *
+	 * @return array
+	 */
+	public function prepare_item_for_response( $item, $request ) {
+		$response = [
+			'id'         => intval( $item['id'] ),
+			'ip_address' => $item['ip_address'],
+		];
+
+		$default_data = [
+			'device',
+			'device_model',
+			'device_color',
+			'zip_code',
+			'screen_cracked',
+			'device_issue',
+			'requested_date_time',
+			'user_address',
+			'user_details',
+			'terms_and_conditions',
+			'thank_you',
+		];
+		$total        = count( $default_data );
+		$active_item  = 0;
+
+		foreach ( $item as $key => $value ) {
+			if ( ! in_array( $key, $default_data ) ) {
+				continue;
+			}
+
+			switch ( $key ) {
+				case 'device_model';
+					$label = 'Model';
+					break;
+				case 'device_color';
+					$label = 'Color';
+					break;
+				case 'zip_code';
+					$label = 'ZIP';
+					break;
+				case 'screen_cracked';
+					$label = 'Screen Crack';
+					break;
+				case 'device_issue';
+					$label = 'Issues';
+					break;
+				case 'requested_date_time';
+					$label = 'Time';
+					break;
+				case 'user_address';
+					$label = 'Address';
+					break;
+				case 'user_details';
+					$label = 'User Details';
+					break;
+				case 'terms_and_conditions';
+					$label = 'Terms';
+					break;
+				case 'thank_you';
+					$label = 'Complete';
+					break;
+				default:
+					$label = str_replace( '_', ' ', $key );
+					$label = str_replace( 'and', '&', $label );
+					$label = ucwords( $label );
+					break;
+			}
+
+			$active = ! empty( $value );
+			if ( $active ) {
+				$active_item += 1;
+			}
+
+			$response['steps'][] = [
+				'label'    => $label,
+				'datetime' => $value,
+				'active'   => $active
+			];
+		}
+
+		$response['steps_count']      = count( $response['steps'] );
+		$response['steps_completed']  = $active_item;
+		$response['steps_percentage'] = round( ( $active_item / $response['steps_count'] ) * 100 );
+
+		return $response;
+	}
+}

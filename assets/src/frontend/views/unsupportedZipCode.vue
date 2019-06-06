@@ -45,9 +45,15 @@
 			} else {
 				this.saveInitialData();
 			}
+
+			this.$store.dispatch('checkoutAnalysis', {
+				id: this.checkoutAnalysisId,
+				step: 'unsupported_zip_code',
+				step_data: {zip_code: this.zipCode}
+			});
 		},
 		computed: {
-			...mapState(['zipCode', 'areaRequestId', 'device', 'deviceModel', 'deviceColor']),
+			...mapState(['zipCode', 'areaRequestId', 'device', 'deviceModel', 'deviceColor', 'checkoutAnalysisId']),
 			icons() {
 				return window.Stackonet.icons;
 			},
@@ -100,6 +106,13 @@
 					},
 					success: function (response) {
 						self.$store.commit('SET_LOADING_STATUS', false);
+
+
+						self.$store.dispatch('updateCheckoutAnalysis', {
+							step: 'unsupported_zip_thank_you',
+							step_data: {email: self.email}
+						});
+
 						self.$router.push('/thankyou');
 					},
 					error: function () {

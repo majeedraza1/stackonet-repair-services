@@ -64,6 +64,11 @@
 				this.$router.push('/device-color');
 			}
 
+			this.$store.dispatch('updateCheckoutAnalysis', {
+				step: 'zip_code',
+				step_data: {device_color: this.deviceColor.title}
+			});
+
 			if (navigator.geolocation) {
 				let geocoder = new google.maps.Geocoder;
 
@@ -103,7 +108,7 @@
 			}
 		},
 		computed: {
-			...mapState(['deviceColor', 'zipCode', 'testimonials']),
+			...mapState(['deviceColor', 'zipCode', 'testimonials', 'checkoutAnalysisId']),
 			hasDeviceColor() {
 				return !!(this.deviceColor && this.deviceColor.color);
 			},

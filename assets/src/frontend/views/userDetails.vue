@@ -48,6 +48,7 @@
 </template>
 
 <script>
+	import {mapState} from 'vuex';
 	import AnimatedInput from '../../components/AnimatedInput.vue';
 	import BigButton from '../../components/BigButton.vue';
 	import SectionTitle from '../components/SectionTitle'
@@ -68,6 +69,7 @@
 			}
 		},
 		computed: {
+			...mapState(['checkoutAnalysisId']),
 			isEmailValid() {
 				return this.hasEmail && this.validateEmail(this.email);
 			},
@@ -102,6 +104,11 @@
 			if (!this.hasAddress) {
 				this.$router.push('/user-address');
 			}
+
+			this.$store.dispatch('updateCheckoutAnalysis', {
+				step: 'user_details',
+				step_data: {address: this.address}
+			});
 		},
 		methods: {
 			validateEmail(email) {

@@ -71,7 +71,7 @@
 			}
 		},
 		computed: {
-			...mapState(['zipCode', 'addressObject', 'formatted_address', 'geo_address', 'geo_address_object', 'date']),
+			...mapState(['zipCode', 'addressObject', 'formatted_address', 'geo_address', 'geo_address_object', 'date', 'timeRange', 'checkoutAnalysisId']),
 			newZipCode() {
 				if (typeof this.addressObject.postal_code == "undefined") {
 					return false;
@@ -104,6 +104,11 @@
 			if (!this.hasDate) {
 				this.$router.push('/select-time');
 			}
+
+			this.$store.dispatch('updateCheckoutAnalysis', {
+				step: 'user_address',
+				step_data: {date: this.date, time_range: this.timeRange}
+			});
 
 			// @TODO disable this temp
 			// if (this.geo_address) {

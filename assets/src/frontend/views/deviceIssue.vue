@@ -62,12 +62,14 @@
 			if (!this.isScreenCracked) {
 				this.$router.push('/screen-cracked');
 			}
-		},
-		data() {
-			return {}
+
+			this.$store.dispatch('updateCheckoutAnalysis', {
+				step: 'device_issue',
+				step_data: {screen_cracked: this.screenCracked}
+			});
 		},
 		computed: {
-			...mapState(['screenCracked', 'device', 'deviceModel', 'issues', 'issueDescription']),
+			...mapState(['screenCracked', 'device', 'deviceModel', 'issues', 'issueDescription', 'checkoutAnalysisId']),
 			isScreenCracked() {
 				return !!(this.screenCracked && (this.screenCracked === 'no' || this.screenCracked === 'multiple'));
 			},

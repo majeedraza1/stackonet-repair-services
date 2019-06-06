@@ -50,7 +50,8 @@
 		computed: {
 			...mapState([
 				'device', 'deviceModel', 'deviceColor', 'issues', 'issueDescription', 'date', 'timeRange',
-				'firstName', 'lastName', 'phone', 'emailAddress', 'addressObject', 'instructions', 'additionalAddress'
+				'firstName', 'lastName', 'phone', 'emailAddress', 'addressObject', 'instructions', 'additionalAddress',
+				'checkoutAnalysisId'
 			]),
 			terms() {
 				let content = this.terms_and_conditions;
@@ -67,10 +68,20 @@
 
 			// If no models, redirect one step back
 			if (!this.emailAddress.length) {
-				// this.$router.push('/user-details');
+				this.$router.push('/user-details');
 			}
 
 			this.getTermsAndConditions();
+
+			this.$store.dispatch('updateCheckoutAnalysis', {
+				step: 'terms_and_conditions',
+				step_data: {
+					first_name: this.firstName,
+					last_name: this.lastName,
+					phone: this.phone,
+					email: this.emailAddress
+				}
+			});
 		},
 		methods: {
 			getTermsAndConditions() {
@@ -78,9 +89,7 @@
 				jQuery.ajax({
 					method: 'GET',
 					url: PhoneRepairs.ajaxurl,
-					data: {
-						action: 'terms_and_conditions',
-					},
+					data: {action: 'terms_and_conditions',},
 					success: function (response) {
 						self.terms_and_conditions = response;
 					}

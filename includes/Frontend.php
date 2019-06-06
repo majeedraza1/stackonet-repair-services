@@ -46,6 +46,7 @@ class Frontend {
 			add_shortcode( 'stackonet_spot_appointment', [ self::$instance, 'spot_appointment' ] );
 			add_shortcode( 'stackonet_become_technician', [ self::$instance, 'become_technician' ] );
 			add_shortcode( 'stackonet_support_ticket', [ self::$instance, 'support_ticket' ] );
+			add_shortcode( 'stackonet_checkout_analysis', [ self::$instance, 'checkout_analysis' ] );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
 		}
 
@@ -88,6 +89,7 @@ class Frontend {
 			'stackonet_rent_a_center',
 			'stackonet_support_ticket',
 			'stackonet_support_ticket_form',
+			'stackonet_checkout_analysis',
 		];
 
 		global $post;
@@ -102,6 +104,10 @@ class Frontend {
 		}
 
 		return false;
+	}
+
+	public function checkout_analysis() {
+		return '<div id="stackonet_checkout_analysis"></div>';
 	}
 
 	/**

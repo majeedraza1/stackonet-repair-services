@@ -3,6 +3,7 @@
 namespace Stackonet\Abstracts;
 
 use Stackonet\Interfaces\DataStoreInterface;
+use Stackonet\Supports\Logger;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -252,6 +253,8 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 		if ( array_key_exists( $this->deleted_at, $this->default_data ) ) {
 			$_data[ $this->deleted_at ] = null;
 		}
+
+		Logger::log( $_data );
 
 		if ( $wpdb->update( $table, $_data, [ $this->primaryKey => $id ], $this->data_format, $this->primaryKeyType ) ) {
 			return true;

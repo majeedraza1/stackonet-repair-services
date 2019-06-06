@@ -63,9 +63,14 @@
 			if (!this.hasZipCode) {
 				this.$router.push('/zip-code');
 			}
+
+			this.$store.dispatch('updateCheckoutAnalysis', {
+				step: 'screen_cracked',
+				step_data: {zip_code: this.zipCode}
+			});
 		},
 		computed: {
-			...mapState(['zipCode', 'device', 'screenCracked', 'deviceModel']),
+			...mapState(['zipCode', 'device', 'screenCracked', 'deviceModel', 'checkoutAnalysisId']),
 			icons() {
 				return window.Stackonet.icons;
 			},

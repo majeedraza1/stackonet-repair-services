@@ -36,7 +36,7 @@
 		},
 		components: {SectionInfo, SectionTitle, SectionHelp},
 		computed: {
-			...mapState(['devices', 'group']),
+			...mapState(['devices', 'group', 'checkoutAnalysisId']),
 			_devices() {
 				let self = this;
 				if (self.group.length < 1) {
@@ -53,6 +53,13 @@
 			this.$store.commit('SET_DEVICES', devices);
 			this.$store.commit('SET_SHOW_CART', false);
 			this.$store.commit('IS_THANK_YOU_PAGE', false);
+
+			this.$store.dispatch('refreshCheckoutAnalysisIdFromLocalStorage');
+			if (!this.checkoutAnalysisId) {
+				this.$store.dispatch('checkoutAnalysis', {
+					id: 0, step: 'device', step_data: {}
+				});
+			}
 		},
 		methods: {
 			chooseDeviceModel(device) {

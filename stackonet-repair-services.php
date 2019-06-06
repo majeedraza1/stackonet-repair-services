@@ -174,18 +174,19 @@ final class Stackonet_Repair_Services {
 		}
 
 		if ( $this->is_request( 'frontend' ) ) {
-			$this->container['frontend']              = Stackonet\Frontend::init();
-			$this->container['rest-testimonial']      = Stackonet\REST\TestimonialController::init();
-			$this->container['rest-unsupported-area'] = Stackonet\REST\UnsupportedAreaController::init();
-			$this->container['rest-reschedule-order'] = Stackonet\REST\OrderRescheduleController::init();
-			$this->container['rest-devices']          = Stackonet\REST\DeviceController::init();
-			$this->container['rest-issues']           = Stackonet\REST\IssueController::init();
-			$this->container['rest-phones']           = Stackonet\REST\PhoneController::init();
-			$this->container['rest-track-status']     = Stackonet\REST\TrackStatusController::init();
-			$this->container['rest-survey']           = Stackonet\REST\SurveyController::init();
-			$this->container['rest-logo']             = Stackonet\REST\LogoController::init();
-			$this->container['rest-technician']       = Stackonet\REST\TechnicianController::init();
-			$this->container['rest-appointment']      = Stackonet\REST\SpotAppointmentController::init();
+			$this->container['frontend']               = Stackonet\Frontend::init();
+			$this->container['rest-testimonial']       = Stackonet\REST\TestimonialController::init();
+			$this->container['rest-unsupported-area']  = Stackonet\REST\UnsupportedAreaController::init();
+			$this->container['rest-reschedule-order']  = Stackonet\REST\OrderRescheduleController::init();
+			$this->container['rest-devices']           = Stackonet\REST\DeviceController::init();
+			$this->container['rest-issues']            = Stackonet\REST\IssueController::init();
+			$this->container['rest-phones']            = Stackonet\REST\PhoneController::init();
+			$this->container['rest-track-status']      = Stackonet\REST\TrackStatusController::init();
+			$this->container['rest-survey']            = Stackonet\REST\SurveyController::init();
+			$this->container['rest-logo']              = Stackonet\REST\LogoController::init();
+			$this->container['rest-technician']        = Stackonet\REST\TechnicianController::init();
+			$this->container['rest-appointment']       = Stackonet\REST\SpotAppointmentController::init();
+			$this->container['rest-checkout-analysis'] = Stackonet\REST\CheckoutAnalysisController::init();
 		}
 
 		if ( $this->is_request( 'ajax' ) ) {
@@ -228,10 +229,10 @@ final class Stackonet_Repair_Services {
 		$technician->create_table();
 		$appointment = new Stackonet\Models\Appointment();
 		$appointment->create_table();
+		$checkoutAnalysis = new Stackonet\Models\CheckoutAnalysis();
+		$checkoutAnalysis->create_table();
 		$support = new Stackonet\Modules\SupportTicket\SupportTicket;
 		$support->create_table();
-
-		Stackonet\Modules\SupportTicket\AppointmentToSupportTicket::current_appointment_to_support_ticket();
 
 		do_action( 'phone_repairs_asap_activation' );
 	}

@@ -28,7 +28,7 @@
 			return {}
 		},
 		computed: {
-			...mapState(['deviceModels', 'device']),
+			...mapState(['deviceModels', 'device', 'checkoutAnalysisId']),
 			hasModels() {
 				return !!(this.deviceModels && this.deviceModels.length);
 			}
@@ -42,11 +42,16 @@
 			if (!this.hasModels) {
 				this.$router.push('/');
 			}
+
+			this.$store.dispatch('updateCheckoutAnalysis', {
+				step: 'device_model',
+				step_data: {device: this.device.device_title}
+			});
 		},
 		methods: {
-			chooseDeviceModel(device) {
-				this.$store.commit('SET_DEVICE_MODEL', device);
-				this.$store.commit('SET_DEVICES_COLORS', device.colors);
+			chooseDeviceModel(deviceModel) {
+				this.$store.commit('SET_DEVICE_MODEL', deviceModel);
+				this.$store.commit('SET_DEVICES_COLORS', deviceModel.colors);
 				this.$router.push('/device-color');
 			}
 		}

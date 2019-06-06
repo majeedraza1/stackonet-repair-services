@@ -107,9 +107,14 @@
 			if (!this.hasIssues) {
 				this.$router.push('/screen-cracked');
 			}
+
+			this.$store.dispatch('updateCheckoutAnalysis', {
+				step: 'requested_date_time',
+				step_data: {issues: this.issues}
+			});
 		},
 		computed: {
-			...mapState(['issues', 'date', 'timeRange']),
+			...mapState(['issues', 'date', 'timeRange', 'checkoutAnalysisId']),
 			hasIssues() {
 				return !!(this.issues && this.issues.length);
 			},
