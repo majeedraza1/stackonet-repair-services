@@ -4,11 +4,10 @@ namespace Stackonet\Integrations;
 
 use Exception;
 use Stackonet\Models\Settings;
-use Stackonet\NewPhoneAdminEmail;
-use Stackonet\OrderReminderAdminEmail;
-use Stackonet\OrderReminderCustomerEmail;
-use Stackonet\RescheduleAdminEmail;
-use Stackonet\RescheduleCustomerEmail;
+use Stackonet\Emails\OrderReminderAdminEmail;
+use Stackonet\Emails\OrderReminderCustomerEmail;
+use Stackonet\Emails\RescheduleAdminEmail;
+use Stackonet\Emails\RescheduleCustomerEmail;
 use Stackonet\Supports\Utils;
 use WC_Order;
 
@@ -33,7 +32,7 @@ class WooCommerce {
 			self::$instance = new self;
 
 			add_action( 'woocommerce_email_order_details', [ self::$instance, 'add_extra_data' ], 10, 2 );
-			add_action( 'woocommerce_email_customer_details', [ self::$instance, 'add_customer_extra_data' ], 99, 2 );
+			// add_action( 'woocommerce_email_customer_details', [ self::$instance, 'add_customer_extra_data' ], 99, 2 );
 
 			add_filter( 'woocommerce_email_classes', array( self::$instance, 'email_classes' ) );
 		}
@@ -121,12 +120,10 @@ class WooCommerce {
 	 * @return array filtered available email classes
 	 */
 	public function email_classes( $email_classes ) {
-		// $email_classes['NewDeviceRepairsOrderEmail'] = new \Stackonet\NewDeviceRepairsOrderEmail();
 		$email_classes['admin_reschedule_order']        = new RescheduleAdminEmail();
 		$email_classes['customer_reschedule_order']     = new RescheduleCustomerEmail();
-		$email_classes['customer_order_reminder_email'] = new OrderReminderCustomerEmail();
 		$email_classes['admin_order_reminder_email']    = new OrderReminderAdminEmail();
-		$email_classes['admin_new_phone_email']         = new NewPhoneAdminEmail();
+		$email_classes['customer_order_reminder_email'] = new OrderReminderCustomerEmail();
 
 		return $email_classes;
 	}

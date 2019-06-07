@@ -1,14 +1,17 @@
 <?php
 
-namespace Stackonet;
+namespace Stackonet\Emails;
 
 use Stackonet\Supports\Utils;
+use WC_Email;
+use WC_Order;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class RescheduleAdminEmail extends \WC_Email {
+class OrderReminderAdminEmail extends WC_Email {
+
 	/**
 	 * True when the email notification is sent to customers.
 	 *
@@ -21,15 +24,15 @@ class RescheduleAdminEmail extends \WC_Email {
 	 */
 	public function __construct() {
 		// set ID, this simply needs to be a unique name
-		$this->id = 'admin_reschedule_order';
+		$this->id = 'admin_order_reminder_email';
 		// this is the title in WooCommerce Email settings
-		$this->title = 'Admin Reschedule Order';
+		$this->title = 'Admin Reminder Mail';
 		// this is the description in WooCommerce email settings
-		$this->description = 'Admin reschedule order mail send when admin or customer reschedule date and time.';
+		$this->description = 'Admin reminder order mail send when service date and time are near.';
 
 		// these are the default heading and subject lines that can be overridden using the settings
-		$this->heading = 'Appointment Date and Time have been rescheduled';
-		$this->subject = 'Appointment Date and Time have been rescheduled';
+		$this->heading = 'Reminder service date and time';
+		$this->subject = 'Reminder service date and time';
 
 		$this->placeholders = array(
 			'{site_title}'   => $this->get_blogname(),
@@ -52,7 +55,7 @@ class RescheduleAdminEmail extends \WC_Email {
 			$order = wc_get_order( $order_id );
 		}
 
-		if ( ! $order instanceof \WC_Order ) {
+		if ( ! $order instanceof WC_Order ) {
 			return;
 		}
 
@@ -85,7 +88,7 @@ class RescheduleAdminEmail extends \WC_Email {
 	 */
 	public function get_content_html() {
 		ob_start();
-		/** @var \WC_Order $order */
+		/** @var WC_Order $order */
 		$order           = $this->object;
 		$order_id        = $order->get_id();
 		$customer_name   = $order->get_formatted_billing_full_name();
@@ -107,10 +110,9 @@ class RescheduleAdminEmail extends \WC_Email {
 		do_action( 'woocommerce_email_header', $this->get_heading(), $this );
 
 		echo '<p>';
-		echo sprintf( "NEW APPOINTMENT CHANGES %s: %s has ", $order_id, $customer_name );
-		echo sprintf( "rescheduled a appointment %s %s %s at %s. ",
-			$device_title, $device_model, $device_issues, $billing_address );
-		echo sprintf( "Please arrive by %s %s. ", $last_date['date'], $last_date['time'] );
+		echo "Hi Admin!<br>";
+		echo sprintf( "24 hours left to arrive at %s by %s %s to meet %s. Be prepared for this %s. ",
+			$billing_address, $last_date['date'], $last_date['time'], $customer_name, $device_issues );
 		echo '<a href="' . $map_url . '">' . $map_url . '</a>';
 		echo '</p>';
 

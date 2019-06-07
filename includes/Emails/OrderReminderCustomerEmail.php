@@ -1,14 +1,15 @@
 <?php
 
-namespace Stackonet;
+namespace Stackonet\Emails;
 
 use Stackonet\Supports\Utils;
+use WC_Email;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class RescheduleCustomerEmail extends \WC_Email {
+class OrderReminderCustomerEmail extends WC_Email {
 
 	/**
 	 * True when the email notification is sent to customers.
@@ -22,15 +23,15 @@ class RescheduleCustomerEmail extends \WC_Email {
 	 */
 	public function __construct() {
 		// set ID, this simply needs to be a unique name
-		$this->id = 'customer_reschedule_order';
+		$this->id = 'customer_order_reminder_email';
 		// this is the title in WooCommerce Email settings
-		$this->title = 'Customer Reschedule Order';
+		$this->title = 'Customer Reminder Mail';
 		// this is the description in WooCommerce email settings
-		$this->description = 'Customer reschedule order mail send when admin or customer reschedule date and time.';
+		$this->description = 'Customer reminder order mail send when reschedule date and time are near.';
 
 		// these are the default heading and subject lines that can be overridden using the settings
-		$this->heading = 'Appointment Date and Time have been rescheduled';
-		$this->subject = 'Appointment Date and Time have been rescheduled';
+		$this->heading = 'We will be arriving at your place';
+		$this->subject = 'We will be arriving at your place';
 
 		$this->placeholders = array(
 			'{site_title}'   => $this->get_blogname(),
@@ -109,9 +110,9 @@ class RescheduleCustomerEmail extends \WC_Email {
 		do_action( 'woocommerce_email_header', $this->get_heading(), $this );
 
 		echo '<p>';
-		echo sprintf( "Thank you %s Your Appointment has been rescheduled. ", $customer_name );
+		echo sprintf( "Hi, %s!<br> ", $customer_name );
 		echo sprintf( "We will be arriving at your place by %s %s. ", $last_date['date'], $last_date['time'] );
-		echo "If you wish to reschedule appointment Click Here ";
+		echo "If you wish to reschedule appointment Click ";
 		echo '<a href="' . $reschedule_url . '">' . $reschedule_url . '</a>';
 		echo '</p>';
 
