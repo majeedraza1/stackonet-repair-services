@@ -27,6 +27,7 @@ class Settings {
 		'reschedule_page_id'           => '',
 		'terms_and_conditions_page_id' => '',
 		'order_reminder_minutes'       => '',
+		'ipdata_api_key'               => '',
 		'google_map_key'               => '',
 		'dropbox_client_id'            => '',
 		'dropbox_client_secret'        => '',
@@ -63,6 +64,18 @@ class Settings {
 	public static function get_map_api_key() {
 		$options = self::get_option();
 		$map_key = 'google_map_key';
+
+		return ! empty( $options[ $map_key ] ) ? wp_strip_all_tags( $options[ $map_key ] ) : '';
+	}
+
+	/**
+	 * Get map api key
+	 *
+	 * @return string
+	 */
+	public static function get_ipdata_api_key() {
+		$options = self::get_option();
+		$map_key = 'ipdata_api_key';
 
 		return ! empty( $options[ $map_key ] ) ? wp_strip_all_tags( $options[ $map_key ] ) : '';
 	}

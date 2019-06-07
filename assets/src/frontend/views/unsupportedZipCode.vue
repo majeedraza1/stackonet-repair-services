@@ -110,7 +110,7 @@
 
 						self.$store.dispatch('updateCheckoutAnalysis', {
 							step: 'unsupported_zip_thank_you',
-							step_data: {email: self.email}
+							step_data: {unsupported_zip_code: {email: self.email}}
 						});
 
 						self.$router.push('/thankyou');

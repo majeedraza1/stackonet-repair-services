@@ -107,7 +107,7 @@
 
 			this.$store.dispatch('updateCheckoutAnalysis', {
 				step: 'user_details',
-				step_data: {address: this.address}
+				step_data: {user_address: this.address}
 			});
 		},
 		methods: {

@@ -107,7 +107,7 @@
 
 			this.$store.dispatch('updateCheckoutAnalysis', {
 				step: 'user_address',
-				step_data: {date: this.date, time_range: this.timeRange}
+				step_data: {requested_date_time: {date: this.date, time_range: this.timeRange}}
 			});
 
 			// @TODO disable this temp

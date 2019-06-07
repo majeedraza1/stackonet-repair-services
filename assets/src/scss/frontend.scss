@@ -9,6 +9,8 @@
 @import "frontend/button";
 @import "frontend/device_box";
 @import "vendors/dropzone";
+@import "~bulma/sass/utilities/all";
+@import "~bulma/sass/components/dropdown";
 
 // @TODO maybe remove this style
 .scale-on-mount {

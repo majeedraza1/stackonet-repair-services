@@ -3,6 +3,7 @@
 namespace Stackonet\Models;
 
 use Stackonet\Abstracts\DatabaseModel;
+use Stackonet\Integrations\IpStack;
 use Stackonet\Supports\Utils;
 
 defined( 'ABSPATH' ) || exit;
@@ -30,13 +31,14 @@ class CheckoutAnalysis extends DatabaseModel {
 	protected $default_data = [
 		'id'                        => 0,
 		'ip_address'                => null,
+		'postal_code'               => null,
+		'city'                      => null,
 		'device'                    => null,
 		'device_model'              => null,
 		'device_color'              => null,
 		'zip_code'                  => null,
 		'unsupported_zip_code'      => null,
 		'unsupported_zip_thank_you' => null,
-		'unsupported_service'       => null,
 		'screen_cracked'            => null,
 		'device_issue'              => null,
 		'requested_date_time'       => null,
@@ -44,6 +46,7 @@ class CheckoutAnalysis extends DatabaseModel {
 		'user_details'              => null,
 		'terms_and_conditions'      => null,
 		'thank_you'                 => null,
+		'extra_information'         => null,
 		'created_by'                => 0,
 		'created_at'                => null,
 		'updated_at'                => null,
@@ -101,6 +104,18 @@ class CheckoutAnalysis extends DatabaseModel {
 	public function create( array $data ) {
 		$data['ip_address'] = Utils::get_remote_ip();
 
+		if ( '127.0.0.1' != $data['ip_address'] ) {
+			$api_key = Settings::get_ipdata_api_key();
+			if ( ! empty( $api_key ) ) {
+				$ipData = new IpStack( $api_key );
+				$ipData->set_ip_address( $data['ip_address'] );
+				$ip_data = $ipData->get_city_and_postal_code();
+
+				$data['postal_code'] = ! empty( $ip_data['postal_code'] ) ? sanitize_text_field( $ip_data['postal_code'] ) : null;
+				$data['city']        = ! empty( $ip_data['city'] ) ? sanitize_text_field( $ip_data['city'] ) : null;
+			}
+		}
+
 		return parent::create( $data );
 	}
 
@@ -137,13 +152,14 @@ class CheckoutAnalysis extends DatabaseModel {
 		$table_schema = "CREATE TABLE IF NOT EXISTS {$table_name} (
                 `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
                 `ip_address` varchar(100) DEFAULT NULL,
+                `postal_code` varchar(20) DEFAULT NULL,
+                `city` varchar(100) DEFAULT NULL,
                 `device` datetime DEFAULT NULL,
                 `device_model` datetime DEFAULT NULL,
                 `device_color` datetime DEFAULT NULL,
                 `zip_code` datetime DEFAULT NULL,
                 `unsupported_zip_code` datetime DEFAULT NULL,
                 `unsupported_zip_thank_you` datetime DEFAULT NULL,
-                `unsupported_service` datetime DEFAULT NULL,
                 `screen_cracked` datetime DEFAULT NULL,
                 `device_issue` datetime DEFAULT NULL,
                 `requested_date_time` datetime DEFAULT NULL,
@@ -151,6 +167,7 @@ class CheckoutAnalysis extends DatabaseModel {
                 `user_details` datetime DEFAULT NULL,
                 `terms_and_conditions` datetime DEFAULT NULL,
                 `thank_you` datetime DEFAULT NULL,
+                `extra_information` longtext DEFAULT NULL,
                 `created_by` bigint(20) DEFAULT NULL,
                 `created_at` datetime DEFAULT NULL,
                 `updated_at` datetime DEFAULT NULL,

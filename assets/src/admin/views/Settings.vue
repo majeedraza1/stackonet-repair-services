@@ -173,6 +173,22 @@
 							</td>
 						</tr>
 					</table>
+
+
+					<h2 class="title">ipdata.co</h2>
+					<table class="form-table">
+						<tr>
+							<th scope="row">
+								<label for="ipdata_api_key">API key</label>
+							</th>
+							<td>
+								<input type="text" id="ipdata_api_key" class="regular-text"
+									   v-model="settings.ipdata_api_key">
+								<p class="description">Enter google Map API key</p>
+							</td>
+						</tr>
+					</table>
+
 				</mdl-tab>
 			</mdl-tabs>
 		</div>
@@ -199,6 +215,7 @@
 					reschedule_page_id: '',
 					terms_and_conditions_page_id: '',
 					order_reminder_minutes: '',
+					ipdata_api_key: '',
 					google_map_key: '',
 					dropbox_client_id: '',
 					dropbox_client_secret: '',

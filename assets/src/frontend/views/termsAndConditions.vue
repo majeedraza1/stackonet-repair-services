@@ -76,10 +76,12 @@
 			this.$store.dispatch('updateCheckoutAnalysis', {
 				step: 'terms_and_conditions',
 				step_data: {
-					first_name: this.firstName,
-					last_name: this.lastName,
-					phone: this.phone,
-					email: this.emailAddress
+					user_details: {
+						first_name: this.firstName,
+						last_name: this.lastName,
+						phone: this.phone,
+						email: this.emailAddress
+					},
 				}
 			});
 		},

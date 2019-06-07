@@ -110,7 +110,7 @@
 
 			this.$store.dispatch('updateCheckoutAnalysis', {
 				step: 'requested_date_time',
-				step_data: {issues: this.issues}
+				step_data: {device_issue: this.issues}
 			});
 		},
 		computed: {

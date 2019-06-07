@@ -3,6 +3,8 @@
 namespace Stackonet;
 
 use Exception;
+use Stackonet\Integrations\IpData;
+use Stackonet\Integrations\IpStack;
 use Stackonet\Modules\SupportTicket\OrderToSupportTicket;
 use Stackonet\Modules\SupportTicket\SupportAgent;
 use Stackonet\Modules\SupportTicket\SupportTicket;
@@ -91,7 +93,12 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		var_dump( 'working fine' );
+		$api_key = Settings::get_ipdata_api_key();
+		$ipData  = new IpStack( $api_key );
+		$ipData->set_ip_address( '122.172.182.80' );
+		$data = $ipData->get_city_and_postal_code();
+//		var_dump( $data );
+		var_dump( $data );
 		die();
 	}
 

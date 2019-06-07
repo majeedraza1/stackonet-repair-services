@@ -3,7 +3,6 @@
 namespace Stackonet\Abstracts;
 
 use Stackonet\Interfaces\DataStoreInterface;
-use Stackonet\Supports\Logger;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -202,7 +201,8 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 		if ( is_array( $data ) ) {
 			$item = [];
 			foreach ( $this->default_data as $key => $default ) {
-				$item[ $key ] = isset( $data[ $key ] ) ? $data[ $key ] : $default;
+				$temp_data    = isset( $data[ $key ] ) ? $data[ $key ] : $default;
+				$item[ $key ] = $this->unserialize( $temp_data );
 			}
 
 			return $item;
@@ -253,8 +253,6 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 		if ( array_key_exists( $this->deleted_at, $this->default_data ) ) {
 			$_data[ $this->deleted_at ] = null;
 		}
-
-		Logger::log( $_data );
 
 		if ( $wpdb->update( $table, $_data, [ $this->primaryKey => $id ], $this->data_format, $this->primaryKeyType ) ) {
 			return true;
@@ -357,6 +355,21 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 	protected function serialize( $data ) {
 		if ( is_array( $data ) || is_object( $data ) ) {
 			return serialize( $data );
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Unserialize value only if it was serialized.
+	 *
+	 * @param string $data Maybe unserialized original, if is needed.
+	 *
+	 * @return mixed Unserialized data can be any type.
+	 */
+	protected function unserialize( $data ) {
+		if ( is_serialized( $data ) ) {
+			return @unserialize( $data );
 		}
 
 		return $data;

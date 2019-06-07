@@ -2,6 +2,7 @@
 
 namespace Stackonet\REST;
 
+use DateTime;
 use Stackonet\Models\CheckoutAnalysis;
 use WP_Error;
 use WP_REST_Request;
@@ -72,7 +73,16 @@ class CheckoutAnalysisController extends ApiController {
 	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
-		$data      = $this->prepare_item_for_database( $request );
+		$step             = $request->get_param( 'step' );
+		$now              = current_time( 'mysql', false );
+		$checkoutAnalysis = new CheckoutAnalysis();
+
+		$data = [ 'id' => 0 ];
+
+		if ( $checkoutAnalysis->is_valid_column( $step ) ) {
+			$data[ $step ] = $now;
+		}
+
 		$record_id = ( new CheckoutAnalysis() )->create( $data );
 
 		if ( $record_id ) {
@@ -90,43 +100,37 @@ class CheckoutAnalysisController extends ApiController {
 	 * @return WP_Error|WP_REST_Response
 	 */
 	public function update_item( $request ) {
-		$id = (int) $request->get_param( 'id' );
+		$id        = (int) $request->get_param( 'id' );
+		$step      = $request->get_param( 'step' );
+		$step_data = $request->get_param( 'step_data' );
 
+		$now              = current_time( 'mysql', false );
 		$checkoutAnalysis = ( new CheckoutAnalysis() )->find_by_id( $id );
 
 		if ( ! $checkoutAnalysis instanceof CheckoutAnalysis ) {
 			return $this->respondNotFound();
 		}
 
-		$data = $this->prepare_item_for_database( $request );
-		$checkoutAnalysis->update( $data );
-
-		return $this->respondOK();
-	}
-
-	/**
-	 * Prepares one item for create or update operation.
-	 *
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 *
-	 * @return array
-	 */
-	protected function prepare_item_for_database( $request ) {
-		$id        = (int) $request->get_param( 'id' );
-		$step      = $request->get_param( 'step' );
-		$step_data = $request->get_param( 'step_data' );
-
-		$now              = current_time( 'mysql', false );
-		$checkoutAnalysis = new CheckoutAnalysis();
+		if ( ! $checkoutAnalysis->is_valid_column( $step ) ) {
+			return $this->respondUnprocessableEntity( null, 'Step is not recognized.' );
+		}
 
 		$data = [ 'id' => $id ];
 
-		if ( $checkoutAnalysis->is_valid_column( $step ) ) {
+		if ( empty( $checkoutAnalysis->get( $step ) ) ) {
 			$data[ $step ] = $now;
 		}
 
-		return $data;
+		$extra_information = $checkoutAnalysis->get( 'extra_information' );
+		$extra_information = is_array( $extra_information ) ? $extra_information : [];
+
+		if ( is_array( $step_data ) && count( $step_data ) ) {
+			$data['extra_information'] = array_merge( $extra_information, $step_data );
+		}
+
+		$checkoutAnalysis->update( $data );
+
+		return $this->respondOK();
 	}
 
 	/**
@@ -136,11 +140,17 @@ class CheckoutAnalysisController extends ApiController {
 	 * @param WP_REST_Request $request Request object.
 	 *
 	 * @return array
+	 * @throws \Exception
 	 */
 	public function prepare_item_for_response( $item, $request ) {
+		$extra_information = isset( $item['extra_information'] ) ? $item['extra_information'] : null;
+		$extra_information = is_serialized( $extra_information ) ? unserialize( $extra_information ) : $extra_information;
+
 		$response = [
-			'id'         => intval( $item['id'] ),
-			'ip_address' => $item['ip_address'],
+			'id'          => intval( $item['id'] ),
+			'ip_address'  => $item['ip_address'],
+			'city'        => $item['city'],
+			'postal_code' => $item['postal_code'],
 		];
 
 		$default_data = [
@@ -207,10 +217,15 @@ class CheckoutAnalysisController extends ApiController {
 				$active_item += 1;
 			}
 
+			$dateTime = new DateTime( $value );
+
 			$response['steps'][] = [
 				'label'    => $label,
 				'datetime' => $value,
-				'active'   => $active
+				'date'     => $dateTime->format( 'M d, Y' ),
+				'time'     => $dateTime->format( 'H:i:s' ),
+				'active'   => $active,
+				'value'    => isset( $extra_information[ $key ] ) ? $extra_information[ $key ] : null,
 			];
 		}
 
