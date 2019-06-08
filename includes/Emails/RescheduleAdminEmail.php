@@ -2,13 +2,17 @@
 
 namespace Stackonet\Emails;
 
+use Exception;
+use Stackonet\Integrations\WooCommerce;
 use Stackonet\Supports\Utils;
+use WC_Email;
+use WC_Order;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class RescheduleAdminEmail extends \WC_Email {
+class RescheduleAdminEmail extends WC_Email {
 	/**
 	 * True when the email notification is sent to customers.
 	 *
@@ -45,14 +49,14 @@ class RescheduleAdminEmail extends \WC_Email {
 	 * Determine if the email should actually be sent and setup email merge variables
 	 *
 	 * @param int $order_id The order ID.
-	 * @param \WC_Order|false $order Order object.
+	 * @param WC_Order|false $order Order object.
 	 */
 	public function trigger( $order_id, $order = false ) {
 		if ( $order_id && ! is_a( $order, 'WC_Order' ) ) {
 			$order = wc_get_order( $order_id );
 		}
 
-		if ( ! $order instanceof \WC_Order ) {
+		if ( ! $order instanceof WC_Order ) {
 			return;
 		}
 
@@ -85,7 +89,7 @@ class RescheduleAdminEmail extends \WC_Email {
 	 */
 	public function get_content_html() {
 		ob_start();
-		/** @var \WC_Order $order */
+		/** @var WC_Order $order */
 		$order           = $this->object;
 		$order_id        = $order->get_id();
 		$customer_name   = $order->get_formatted_billing_full_name();
@@ -108,11 +112,19 @@ class RescheduleAdminEmail extends \WC_Email {
 
 		echo '<p>';
 		echo sprintf( "NEW APPOINTMENT CHANGES %s: %s has ", $order_id, $customer_name );
-		echo sprintf( "rescheduled a appointment %s %s %s at %s. ",
-			$device_title, $device_model, $device_issues, $billing_address );
-		echo sprintf( "Please arrive by %s %s. ", $last_date['date'], $last_date['time'] );
-		echo '<a href="' . $map_url . '">' . $map_url . '</a>';
+		echo sprintf( "rescheduled a appointment %s %s %s. ",
+			$device_title, $device_model, $device_issues );
 		echo '</p>';
+
+		?>
+		<table cellspacing="0" cellpadding="0" border="0"
+		       style="width: 100%; vertical-align: top; margin-bottom: 40px; padding:0;">
+			<tr>
+				<td style="width: 50%;vertical-align: top;"><?php WooCommerce::email_location_box( $order, true ); ?></td>
+				<td style="width: 50%;vertical-align: top;"><?php self::email_requested_datetime_box( $order, true ); ?></td>
+			</tr>
+		</table>
+		<?php
 
 		/**
 		 * @hooked WC_Emails::email_footer() Output the email footer
@@ -125,16 +137,52 @@ class RescheduleAdminEmail extends \WC_Email {
 	/**
 	 * Get billing address map url
 	 *
-	 * @param \WC_Order $order
+	 * @param WC_Order $order
 	 *
 	 * @return string
 	 */
 	private function get_billing_address_map_url( $order ) {
-		$address = $order->get_address( 'billing' );
-		// Remove name and company before generate the Google Maps URL.
-		unset( $address['first_name'], $address['last_name'], $address['company'], $address['email'], $address['phone'] );
-		$map_url = 'https://maps.google.com/maps?&q=' . rawurlencode( implode( ', ', $address ) ) . '&z=16';
+		return Utils::shorten_url( $order->get_shipping_address_map_url() );
+	}
 
-		return Utils::shorten_url( $map_url );
+	/**
+	 * @param WC_Order $order
+	 * @param bool $sent_to_admin
+	 *
+	 * @throws Exception
+	 */
+	public static function email_requested_datetime_box( $order, $sent_to_admin ) {
+		$reschedule_url = Utils::get_reschedule_url( $order );
+
+		$_date     = $order->get_meta( '_reschedule_date_time', true );
+		$_date     = is_array( $_date ) ? $_date : [];
+		$last_date = end( $_date );
+
+		$service_date = $last_date['date'];
+		$time_range   = $last_date['time'];
+		$assets       = STACKONET_REPAIR_SERVICES_ASSETS;
+		?>
+		<div class="email-box">
+			<h2>
+				<img src="<?php echo $assets . '/img/email-icons/clock.png' ?>" width="20" height="20" alt="Clock">
+				New Date & Time
+			</h2>
+			<address>
+				<?php echo mysql2date( 'l, j M, Y', $service_date ); ?>
+				<br>
+				<?php echo $time_range; ?>
+			</address>
+		</div>
+		<?php if ( ! $sent_to_admin ) { ?>
+			<p style="margin:10px 0">
+				<a href="<?php echo $reschedule_url; ?>" target="_blank">
+					<img
+						src="<?php echo $assets . '/img/email-icons/calendar.png' ?>" width="16" height="16"
+						alt="Calendar">
+					Click here to Re-schedule
+				</a>
+			</p>
+		<?php } ?>
+		<?php
 	}
 }

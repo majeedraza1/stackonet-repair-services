@@ -109,7 +109,7 @@ class OrderReminderCustomerEmail extends WC_Email {
 		 */
 		do_action( 'woocommerce_email_header', $this->get_heading(), $this );
 
-		echo '<p>';
+		echo '<p style="margin: 50px;font-size: 18px;line-height: 150%">';
 		echo sprintf( "Hi, %s!<br> ", $customer_name );
 		echo sprintf( "We will be arriving at your place by %s %s. ", $last_date['date'], $last_date['time'] );
 		echo "If you wish to reschedule appointment Click ";

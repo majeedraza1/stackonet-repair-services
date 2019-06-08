@@ -1,3 +1,22 @@
+#### 1.1.8 - Jun 8, 2019
+* Add - Add appointment to support ticket functionality.
+* Add - Add new admin number on twilio.
+* Fix - Fix Dropbox error even it image upload to media but fail to upload dropbox.
+* Add - Add functionality to add existing appointment to support ticket.
+* Add - Add phone number and city field on support ticket.
+* Add - Add city filtering option on support ticket list table.
+* Add - Add phone number and city field on support ticket.
+* Add - Add city filtering option on support ticket list table.
+* Add - Update order to support ticket functionality to add phone and city value.
+* Add - Update appointment to support ticket functionality to add phone and city value.
+* Add - Add phone field on support ticket CSV export.
+* Add - Add search functionality both on admin and frontend support ticket.
+* Add - Add categories dropdown search both on admin and frontend support ticket.
+* Add - Add send SMS functionality form support ticket.
+* Add - Add checkout analysis functionality.
+* Add - Add functionality for getting city and zip code from IP address.
+* Add - Add dropdown info on every step.
+
 #### 1.1.7 - Jun 1, 2019
 * Feature - Add frontend support ticket functionality with list table, new ticket and view option.
 * Tweak - Add functionality to make device sortable.
