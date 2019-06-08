@@ -153,8 +153,11 @@ class OrderReminderAdminEmail extends WC_Email {
 		$_date     = is_array( $_date ) ? $_date : [];
 		$last_date = end( $_date );
 
-		$service_date = $last_date['date'];
-		$time_range   = $last_date['time'];
+		if ( empty( $last_date['date'] ) || empty( $last_date['time'] ) ) {
+			$last_date['date'] = $order->get_meta( '_preferred_service_date', true );
+			$last_date['time'] = $order->get_meta( '_preferred_service_time_range', true );
+		}
+
 		$assets       = STACKONET_REPAIR_SERVICES_ASSETS;
 		?>
 		<div class="email-box">
@@ -163,9 +166,9 @@ class OrderReminderAdminEmail extends WC_Email {
 				Date & Time
 			</h2>
 			<address>
-				<?php echo mysql2date( 'l, j M, Y', $service_date ); ?>
+				<?php echo mysql2date( 'l, j M, Y', $last_date['date'] ); ?>
 				<br>
-				<?php echo $time_range; ?>
+				<?php echo $last_date['time']; ?>
 			</address>
 		</div>
 		<?php if ( ! $sent_to_admin ) { ?>

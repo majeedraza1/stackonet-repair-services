@@ -91,7 +91,7 @@
 
 	.stackonet-step-progress-bar-container {
 		display: flex;
-		margin-bottom: 30px;
+		margin-bottom: 30px !important;
 		margin-top: 20px;
 		position: relative;
 

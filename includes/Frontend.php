@@ -107,6 +107,9 @@ class Frontend {
 	}
 
 	public function checkout_analysis() {
+		if ( ! current_user_can( 'add_survey' ) ) {
+			return '<div>Please login to view this page content.</div>';
+		}
 		return '<div id="stackonet_checkout_analysis"></div>';
 	}
 

@@ -99,9 +99,15 @@ class OrderReminderCustomerEmail extends WC_Email {
 		$order_id      = $order->get_id();
 		$customer_name = $order->get_formatted_billing_full_name();
 
-		$_date          = get_post_meta( $order->get_id(), '_reschedule_date_time', true );
-		$_date          = is_array( $_date ) ? $_date : [];
-		$last_date      = end( $_date );
+		$_date     = $order->get_meta( '_reschedule_date_time', true );
+		$_date     = is_array( $_date ) ? $_date : [];
+		$last_date = end( $_date );
+
+		if ( empty( $last_date['date'] ) || empty( $last_date['time'] ) ) {
+			$last_date['date'] = $order->get_meta( '_preferred_service_date', true );
+			$last_date['time'] = $order->get_meta( '_preferred_service_time_range', true );
+		}
+
 		$reschedule_url = Utils::get_reschedule_url( $order );
 
 		/**
