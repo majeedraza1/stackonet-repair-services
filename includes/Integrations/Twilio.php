@@ -23,7 +23,7 @@ class Twilio {
 	 *
 	 * @var array
 	 */
-	private $admin_numbers = [ '+15613776341', '+15613776340', '+15617134700' ];
+	private $admin_numbers = [ '+15613776340', '+15617134700' ];
 
 	/**
 	 * Ensures only one instance of the class is loaded or can be loaded.

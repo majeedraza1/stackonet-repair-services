@@ -1,6 +1,6 @@
 {
 	"name": "stackonet-repair-services",
-	"version": "1.1.7",
+	"version": "1.1.8",
 	"description": "A WordPress plugin for repair home services.",
 	"author": {
 		"name": "Sayful Islam",
@@ -49,7 +49,6 @@
 	"dependencies": {
 		"@tinymce/tinymce-vue": "^2.0.0",
 		"axios": "^0.18.0",
-		"bulma": "^0.7.5",
 		"tiny-slider": "^2.9.1",
 		"vue": "^2.5.22",
 		"vue-router": "^3.0.2",
