@@ -3,21 +3,21 @@
 		<h1 class="wp-heading-inline">Request Area</h1>
 		<div class="clear"></div>
 		<wp-list-table
-				:loading="loading"
-				:columns="columns"
-				:rows="requested_areas"
-				:actions="actions"
-				:bulk-actions="bulkActions"
-				action-column="zip_code"
-				:current-page="currentPage"
-				:per-page="perPage"
-				:total-items="totalItems"
-				:statuses="statuses"
-				:show-search="false"
-				@action:click="onActionClick"
-				@bulk:apply="onBulkAction"
-				@status:change="changeStatus"
-				@pagination="paginate"
+			:loading="loading"
+			:columns="columns"
+			:rows="requested_areas"
+			:actions="actions"
+			:bulk-actions="bulkActions"
+			action-column="zip_code"
+			:current-page="currentPage"
+			:per-page="perPage"
+			:total-items="totalItems"
+			:statuses="statuses"
+			:show-search="false"
+			@action:click="onActionClick"
+			@bulk:apply="onBulkAction"
+			@status:change="changeStatus"
+			@pagination="paginate"
 		></wp-list-table>
 	</div>
 </template>
@@ -41,6 +41,7 @@
 				columns: [
 					{key: 'zip_code', label: 'Zip Code'},
 					{key: 'email', label: 'Email'},
+					{key: 'phone', label: 'Phone'},
 					{key: 'user_ip', label: 'User IP'},
 					{key: 'device_title', label: 'Device'},
 					{key: 'device_model', label: 'Device Model'},

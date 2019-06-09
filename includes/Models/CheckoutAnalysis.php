@@ -136,7 +136,19 @@ class CheckoutAnalysis extends DatabaseModel {
 	 * @return array
 	 */
 	public function count_records() {
-		return [];
+		global $wpdb;
+		$table  = $wpdb->prefix . $this->table;
+		$counts = wp_cache_get( 'phones_count', $this->cache_group );
+		if ( false === $counts ) {
+			$query = "SELECT COUNT(*) AS num_entries FROM {$table} WHERE deleted_at IS NULL";
+			// $query   .= " GROUP BY status";
+			$result = $wpdb->get_row( $query, ARRAY_A );
+			$counts = isset( $result['num_entries'] ) ? intval( $result['num_entries'] ) : 0;
+
+			wp_cache_set( 'phones_count', $counts, $this->cache_group );
+		}
+
+		return $counts;
 	}
 
 	/**

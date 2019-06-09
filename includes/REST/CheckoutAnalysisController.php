@@ -3,6 +3,7 @@
 namespace Stackonet\REST;
 
 use DateTime;
+use Exception;
 use Stackonet\Models\CheckoutAnalysis;
 use WP_Error;
 use WP_REST_Request;
@@ -54,15 +55,32 @@ class CheckoutAnalysisController extends ApiController {
 	 * @param WP_REST_Request $request Full data about the request.
 	 *
 	 * @return WP_Error|WP_REST_Response
+	 * @throws Exception
 	 */
 	public function get_items( $request ) {
-		$_items = ( new CheckoutAnalysis() )->find();
-		$items  = [];
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $this->respondUnauthorized();
+		}
+
+		$per_page = $request->get_param( 'per_page' );
+		$paged    = $request->get_param( 'paged' );
+		$per_page = ! empty( $per_page ) ? absint( $per_page ) : 20;
+		$paged    = ! empty( $paged ) ? absint( $paged ) : 1;
+
+		$checkoutAnalysis = new CheckoutAnalysis();
+		$_items           = $checkoutAnalysis->find( [ 'paged' => $paged, 'per_page' => $per_page, ] );
+		$items            = [];
 		foreach ( $_items as $item ) {
 			$items[] = $this->prepare_item_for_response( $item, $request );
 		}
+		$counts     = $checkoutAnalysis->count_records();
+		$pagination = $checkoutAnalysis->getPaginationMetadata( [
+			'totalCount'  => $counts,
+			'limit'       => $per_page,
+			'currentPage' => $paged,
+		] );
 
-		return $this->respondOK( [ 'items' => $items ] );
+		return $this->respondOK( [ 'items' => $items, 'pagination' => $pagination ] );
 	}
 
 	/**
@@ -140,7 +158,7 @@ class CheckoutAnalysisController extends ApiController {
 	 * @param WP_REST_Request $request Request object.
 	 *
 	 * @return array
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function prepare_item_for_response( $item, $request ) {
 		$extra_information = isset( $item['extra_information'] ) ? $item['extra_information'] : null;

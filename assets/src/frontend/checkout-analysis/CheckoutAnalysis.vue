@@ -1,6 +1,13 @@
 <template>
 	<div>
-		<template v-for="item in items">
+		<wp-pagination
+			size="medium"
+			:total_items="pagination.totalCount"
+			:per_page="limit"
+			:current_page="pagination.currentPage"
+			@pagination="paginate"
+		></wp-pagination>
+		<div v-for="item in items" class="checkout-analysis-item" @click="toggleTable($event)">
 			<columns gapless>
 				<column :desktop="2">
 					<box class="button--ip-address">
@@ -13,7 +20,57 @@
 					<step-progress-bar :steps="item.steps" :selected="item.steps_percentage"></step-progress-bar>
 				</column>
 			</columns>
-		</template>
+			<table class="mdl-data-table is-hidden">
+				<tr v-for="_item in item.steps">
+					<td class="mdl-data-table__cell--non-numeric">{{_item.label}}</td>
+					<td class="mdl-data-table__cell--non-numeric">
+						<template v-if="_item.active">
+							<span><strong>Date:</strong> {{_item.date}}<br></span>
+							<span><strong>Time:</strong> {{_item.time}}<br></span>
+
+							<template v-if="_item.label === 'Time'">
+								<span v-if="_item.value">
+									<strong>Date:</strong> {{_item.value.date}}
+								</span>
+								<span v-if="_item.value">
+									<strong>Time Range:</strong> {{_item.value.time_range}}
+								</span>
+							</template>
+							<template v-else-if="_item.label === 'User Details'">
+								<span v-if="_item.value">
+									<strong>First Name:</strong> {{_item.value.first_name}}
+								</span>
+								<span v-if="_item.value">
+									<strong>Last Name:</strong> {{_item.value.last_name}}
+								</span>
+								<span v-if="_item.value">
+									<strong>Email:</strong> {{_item.value.email}}
+								</span>
+								<span v-if="_item.value">
+									<strong>Phone:</strong> {{_item.value.phone}}
+								</span>
+							</template>
+							<template v-else-if="_item.label === 'Issues'">
+								<span>
+									<strong>Issues:</strong>
+									<template v-for="(_issue, index) in _item.value">
+										<template v-if="index !== 0">,</template>
+										{{_issue.title}}
+									</template>
+								</span>
+							</template>
+							<template v-else>
+								<span v-if="_item.value">
+									<strong>{{_item.label}}:</strong> {{_item.value}}
+								</span>
+							</template>
+
+						</template>
+						<template v-else> -</template>
+					</td>
+				</tr>
+			</table>
+		</div>
 	</div>
 </template>
 
@@ -23,14 +80,18 @@
 	import Columns from "../../shapla/columns/columns";
 	import Column from "../../shapla/columns/column";
 	import Box from "../../shapla/box/box";
+	import WpPagination from "../../wp/wpPagination";
 
 	export default {
 		name: "CheckoutAnalysis",
-		components: {Box, Column, Columns, StepProgressBar},
+		components: {WpPagination, Box, Column, Columns, StepProgressBar},
 		data() {
 			return {
 				loading: false,
 				items: [],
+				pagination: {},
+				currentPage: 1,
+				limit: 20,
 			}
 		},
 		mounted() {
@@ -41,22 +102,41 @@
 				let self = this;
 				self.loading = true;
 				axios
-					.get(PhoneRepairs.rest_root + '/checkout-analysis', {},
-						{headers: {'X-WP-Nonce': window.PhoneRepairs.rest_nonce},})
+					.get(PhoneRepairs.rest_root + '/checkout-analysis?paged=' + self.currentPage + '&per_page=' + self.limit)
 					.then((response) => {
 						self.loading = false;
 						self.items = response.data.data.items;
+						self.pagination = response.data.data.pagination;
 					})
 					.catch((error) => {
 						self.loading = false;
 						alert('Some thing went wrong. Please try again.');
 					});
+			},
+			paginate(page) {
+				this.currentPage = page;
+				this.getItems();
+			},
+			toggleTable(event) {
+				let items = this.$el.querySelectorAll('.checkout-analysis-item'),
+					item = event.target.closest('.checkout-analysis-item');
+
+				item.querySelector('.mdl-data-table').classList.toggle('is-hidden');
+				items.forEach(element => {
+					if (element !== item) {
+						element.querySelector('.mdl-data-table').classList.add('is-hidden');
+					}
+				});
 			}
 		}
 	}
 </script>
 
 <style lang="scss">
+	.mdl-data-table.is-hidden {
+		display: none;
+	}
+
 	.display-flex {
 		display: flex;
 	}

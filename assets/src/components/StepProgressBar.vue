@@ -184,4 +184,23 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
+
+	@media screen and (max-width: 599px) {
+		.stackonet-step-progress-bar__circle {
+			height: 24px;
+			top: -57px;
+			width: 24px;
+
+			svg {
+				height: 16px;
+				width: 16px;
+			}
+		}
+
+		.stackonet-step-progress-bar__checkmark {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+	}
 </style>

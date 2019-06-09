@@ -9,11 +9,13 @@
 			<p>Enter your email below:</p>
 		</div>
 		<div class="unsupported-zip-code-input-wrapper">
-			<animated-input type="email" label="Type in your email" v-model="email"
+			<animated-input type="text" label="Type your phone" v-model="phone"
+							autocomplete="tel"></animated-input>
+			<animated-input type="email" label="Type your email (optional)" v-model="email"
 							autocomplete="email"></animated-input>
 		</div>
 		<div class="unsupported-zip-code-button-wrapper">
-			<big-button :disabled="!isValidEmail" @click="handleNotifyMe">Notify Me</big-button>
+			<big-button :disabled="!hasPhone" @click="handleNotifyMe">Notify Me</big-button>
 		</div>
 
 		<section-help></section-help>
@@ -32,6 +34,7 @@
 		data() {
 			return {
 				email: '',
+				phone: '',
 			}
 		},
 		mounted() {
@@ -59,6 +62,9 @@
 			},
 			hasZipCode() {
 				return !!(this.zipCode && this.zipCode.length);
+			},
+			hasPhone() {
+				return !!this.phone.length;
 			},
 			isValidEmail() {
 				return !!(this.email.length && this.validateEmail(this.email));
@@ -99,6 +105,7 @@
 						action: 'create_request_areas',
 						id: self.areaRequestId,
 						email: self.email,
+						phone: self.phone,
 						zip_code: self.zipCode,
 						device_title: self.device.device_title,
 						device_model: self.deviceModel.title,

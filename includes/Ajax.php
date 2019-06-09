@@ -5,6 +5,7 @@ namespace Stackonet;
 use Exception;
 use Stackonet\Integrations\IpData;
 use Stackonet\Integrations\IpStack;
+use Stackonet\Models\CheckoutAnalysis;
 use Stackonet\Modules\SupportTicket\OrderToSupportTicket;
 use Stackonet\Modules\SupportTicket\SupportAgent;
 use Stackonet\Modules\SupportTicket\SupportTicket;
@@ -93,12 +94,8 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$api_key = Settings::get_ipdata_api_key();
-		$ipData  = new IpStack( $api_key );
-		$ipData->set_ip_address( '122.172.182.80' );
-		$data = $ipData->get_city_and_postal_code();
-//		var_dump( $data );
-		var_dump( $data );
+		$checkout = new CheckoutAnalysis();
+		var_dump( $checkout->count_records() );
 		die();
 	}
 
@@ -475,6 +472,7 @@ class Ajax {
 	public function create_request_areas() {
 		$id           = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
 		$email        = isset( $_POST['email'] ) ? sanitize_email( $_POST['email'] ) : '';
+		$phone        = isset( $_POST['phone'] ) ? sanitize_text_field( $_POST['phone'] ) : '';
 		$zip_code     = isset( $_POST['zip_code'] ) ? sanitize_text_field( $_POST['zip_code'] ) : '';
 		$device_title = isset( $_POST['device_title'] ) ? sanitize_text_field( $_POST['device_title'] ) : '';
 		$device_model = isset( $_POST['device_model'] ) ? sanitize_text_field( $_POST['device_model'] ) : '';
@@ -484,6 +482,7 @@ class Ajax {
 		$data = array(
 			'id'           => $id,
 			'email'        => $email,
+			'phone'        => $phone,
 			'zip_code'     => $zip_code,
 			'device_title' => $device_title,
 			'device_model' => $device_model,
