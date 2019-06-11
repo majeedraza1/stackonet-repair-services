@@ -474,6 +474,7 @@ class Frontend {
 			'site_url'    => site_url(),
 			'home_url'    => home_url(),
 			'login_url'   => wp_login_url(),
+			'logout_url'  => wp_logout_url( home_url() ),
 			'myaccount'   => wc_get_page_permalink( 'myaccount' ),
 			'token'       => wp_create_nonce( 'confirm_appointment' ),
 			'rest_root'   => esc_url_raw( rest_url( 'stackonet/v1' ) ),

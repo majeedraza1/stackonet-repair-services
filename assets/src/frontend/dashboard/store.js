@@ -21,6 +21,12 @@ export default new Vuex.Store({
 
 	// Save as Vue computed property
 	getters: {
+		home_url() {
+			return PhoneRepairs.home_url;
+		},
+		logout_url() {
+			return PhoneRepairs.logout_url;
+		},
 		categories() {
 			return SupportTickets.ticket_categories;
 		},
