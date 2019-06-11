@@ -12,11 +12,13 @@
 		props: {
 			text: {type: String, default: 'Submit'},
 			disabled: {type: Boolean, default: false},
+			fullwidth: {type: Boolean, default: false},
 		},
 		computed: {
 			wrapperClass() {
 				return {
 					'big-button-wrapper': true,
+					'is-fullwidth': this.fullwidth,
 				}
 			}
 		},
@@ -30,6 +32,10 @@
 
 <style lang="scss">
 	.big-button-wrapper {
+		align-items: center;
+		display: flex;
+		justify-content: center;
+
 		.big-button {
 			background-color: #f58730;
 			border-radius: 5px;
@@ -41,13 +47,17 @@
 			padding: 1em;
 			text-align: center;
 			transition: all .4s ease;
-			width: 80%;
+			width: 100%;
 
 			&:disabled {
 				background-color: #e1e8ec;
 				color: #9db2bf;
 				cursor: not-allowed;
 			}
+		}
+
+		&:not(.is-fullwidth) .big-button {
+			width: 80%;
 		}
 	}
 </style>

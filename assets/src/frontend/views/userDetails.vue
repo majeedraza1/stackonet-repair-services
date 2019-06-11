@@ -99,6 +99,9 @@
 			this.$store.commit('SET_LOADING_STATUS', false);
 			this.$store.commit('SET_SHOW_CART', true);
 			this.$store.commit('IS_THANK_YOU_PAGE', false);
+			this.firstName = this.$store.state.firstName;
+			this.lastName = this.$store.state.lastName;
+			this.phone = this.$store.state.phone;
 
 			// If no models, redirect one step back
 			if (!this.hasAddress) {

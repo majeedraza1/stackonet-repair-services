@@ -1,5 +1,5 @@
 <template>
-	<div class="select-issue-wrapper">
+	<div class="select-issue-wrapper stackonet-issues-container">
 
 		<section-title>What can we fix for you?</section-title>
 
@@ -7,7 +7,7 @@
 			<span>Parts and labor come with a </span><span><b>lifetime guarantee.</b></span>
 		</section-info>
 
-		<label class="issue-subline">Select issue(s)</label>
+		<label class="stackonet-issues-subtitle">Select issue(s)</label>
 		<div class="select-issue-content-container">
 
 			<template v-if="'multiple' === screenCracked">
@@ -31,12 +31,12 @@
 
 		</div>
 		<div class="select-issue-description">
-			<label>Describe your issue (optional)</label>
-			<textarea placeholder="Tell us what's wrong" v-text="issueDescription"
+			<label class="stackonet-issues-subtitle">Describe your issue (optional)</label>
+			<textarea class="textarea--description" placeholder="Tell us what's wrong" v-text="issueDescription"
 					  @input="updateDescription($event)"></textarea>
 		</div>
 		<div class="select-issue-continue-wrapper">
-			<big-button :disabled="!showContinueButton" @click="handleContinue">Continue</big-button>
+			<big-button fullwidth :disabled="!showContinueButton" @click="handleContinue">Continue</big-button>
 		</div>
 
 		<section-help></section-help>
@@ -60,7 +60,7 @@
 
 			// If no models, redirect one step back
 			if (!this.isScreenCracked) {
-				this.$router.push('/screen-cracked');
+				// this.$router.push('/screen-cracked');
 			}
 
 			this.$store.dispatch('updateCheckoutAnalysis', {
@@ -141,17 +141,34 @@
 </script>
 
 <style lang="scss">
-	.issue-subline,
-	.select-issue-description label {
+	.stackonet-issues-container {
+		max-width: 700px;
+		margin-left: auto;
+		margin-right: auto;
+
+		.textarea--description {
+			border: none;
+			border-radius: 6px;
+			height: auto;
+			resize: vertical;
+			padding: 15px;
+			font-size: 15px;
+			width: 100%;
+		}
+
+		.select-issue-description,
+		.select-issue-continue-wrapper {
+			margin-left: 30px;
+			margin-right: 30px;
+		}
+	}
+
+	.stackonet-issues-subtitle {
 		text-align: center;
 		display: block;
 		font-size: 13px;
 		margin-top: 20px;
 		margin-bottom: 10px;
-	}
-
-	.issue-subline {
-		margin-top: 0;
 	}
 
 	.shapla-device-box--issue {
@@ -164,36 +181,5 @@
 				border: 2px solid #f58730;
 			}
 		}
-	}
-
-	.select-issue-description {
-		width: 350px;
-		display: block;
-		margin: 0 auto;
-
-		label {
-			text-align: center;
-			display: block;
-			font-size: 13px;
-			margin-top: 20px;
-			margin-bottom: 10px;
-		}
-
-		textarea {
-			width: 350px;
-			box-sizing: border-box;
-			height: auto;
-			resize: vertical;
-			padding: 15px;
-			font-size: 15px;
-			border: none;
-			border-radius: 6px;
-		}
-	}
-
-	.select-issue-continue-wrapper {
-		height: 64px;
-		width: 280px;
-		margin: 20px auto 50px;
 	}
 </style>

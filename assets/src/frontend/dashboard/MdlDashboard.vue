@@ -42,12 +42,15 @@
 			</header>
 
 			<nav class="demo-navigation mdl-navigation">
-				<router-link class="mdl-navigation__link" to="/ticket" active-class="is-active">Support</router-link>
-				<router-link class="mdl-navigation__link" to="/survey" active-class="is-active">Survey</router-link>
-				<router-link class="mdl-navigation__link" to="/spot-appointment" active-class="is-active">Appointment
+				<router-link class="mdl-navigation__link" tag="div" to="/ticket" active-class="is-active">Support
 				</router-link>
-				<router-link class="mdl-navigation__link" to="/checkout-analysis" active-class="is-active">Checkout
-					Analysis
+				<router-link class="mdl-navigation__link" tag="div" to="/survey" active-class="is-active">Survey
+				</router-link>
+				<router-link class="mdl-navigation__link" tag="div" to="/spot-appointment" active-class="is-active">
+					Appointment
+				</router-link>
+				<router-link class="mdl-navigation__link" tag="div" to="/checkout-analysis" active-class="is-active">
+					Checkout Analysis
 				</router-link>
 			</nav>
 		</div>
@@ -105,11 +108,14 @@
 	}
 
 	.user-information-box {
-
 		&__avatar {
 			width: 48px;
 			height: 48px;
 			margin: auto;
 		}
+	}
+
+	.mdl-navigation__link {
+		cursor: pointer;
 	}
 </style>

@@ -15,7 +15,7 @@
 							autocomplete="email"></animated-input>
 		</div>
 		<div class="unsupported-zip-code-button-wrapper">
-			<big-button :disabled="!hasPhone" @click="handleNotifyMe">Notify Me</big-button>
+			<big-button fullwidth :disabled="!hasPhone" @click="handleNotifyMe">Notify Me</big-button>
 		</div>
 
 		<section-help></section-help>

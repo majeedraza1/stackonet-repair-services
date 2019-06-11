@@ -14,7 +14,7 @@
 					</template>
 				</div>
 				<div class="zip-code-continue-wrapper">
-					<big-button @click="handleSubmit" :disabled="!isSubmitActive">Continue</big-button>
+					<big-button fullwidth @click="handleSubmit" :disabled="!isSubmitActive">Continue</big-button>
 				</div>
 			</form>
 		</div>

@@ -13,11 +13,13 @@ import userDetails from './views/userDetails.vue';
 import unsupportedZipCode from './views/unsupportedZipCode.vue';
 import unsupportedZipCodeThankyou from './views/unsupportedZipCodeThankyou.vue';
 import termsAndConditions from './views/termsAndConditions.vue';
+import userInfo from './views/userInfo';
 
 Vue.use(VueRouter);
 
 const routes = [
-	{path: '/', name: 'device', component: device},
+	{path: '/', name: 'userInfo', component: userInfo},
+	{path: '/device', name: 'device', component: device},
 	{path: '/device-model', name: 'device-model', component: deviceModel},
 	{path: '/device-color', name: 'device-color', component: deviceColor},
 	{path: '/zip-code', name: 'zip-code', component: zipCode},

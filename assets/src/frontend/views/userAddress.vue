@@ -38,7 +38,7 @@
 					Please edit zipcode or change address.
 				</div>
 				<div>
-					<big-button :disabled="!canContinue" @click="handleContinue">Continue</big-button>
+					<big-button fullwidth :disabled="!canContinue" @click="handleContinue">Continue</big-button>
 				</div>
 
 				<div class="address-extra-info">

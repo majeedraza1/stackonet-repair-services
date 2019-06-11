@@ -204,7 +204,6 @@ export default new Vuex.Store({
 			axios
 				.put(window.Stackonet.rest_root + '/checkout-analysis/' + context.state.checkoutAnalysisId, data)
 				.then(response => {
-					console.log(response);
 				})
 				.catch(error => {
 					console.log(error);
