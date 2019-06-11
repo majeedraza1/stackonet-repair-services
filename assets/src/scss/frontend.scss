@@ -11,6 +11,10 @@
 @import "frontend/device_box";
 @import "vendors/dropzone";
 
+body.page-template-blank-template {
+	overflow-x: hidden;
+}
+
 // @TODO maybe remove this style
 .scale-on-mount {
 	transform: scale(0.5);

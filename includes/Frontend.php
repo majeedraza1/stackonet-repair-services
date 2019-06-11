@@ -47,6 +47,7 @@ class Frontend {
 			add_shortcode( 'stackonet_become_technician', [ self::$instance, 'become_technician' ] );
 			add_shortcode( 'stackonet_support_ticket', [ self::$instance, 'support_ticket' ] );
 			add_shortcode( 'stackonet_checkout_analysis', [ self::$instance, 'checkout_analysis' ] );
+			add_shortcode( 'stackonet_frontend_dashboard', [ self::$instance, 'frontend_dashboard' ] );
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
 		}
 
@@ -90,6 +91,7 @@ class Frontend {
 			'stackonet_support_ticket',
 			'stackonet_support_ticket_form',
 			'stackonet_checkout_analysis',
+			'stackonet_frontend_dashboard',
 		];
 
 		global $post;
@@ -106,11 +108,77 @@ class Frontend {
 		return false;
 	}
 
+	/**
+	 * Checkout analysis
+	 *
+	 * @return string
+	 */
 	public function checkout_analysis() {
 		if ( ! current_user_can( 'add_survey' ) ) {
 			return '<div>Please login to view this page content.</div>';
 		}
+
 		return '<div id="stackonet_checkout_analysis"></div>';
+	}
+
+	/**
+	 * Frontend dashboard
+	 *
+	 * @return string
+	 */
+	public function frontend_dashboard() {
+		if ( ! current_user_can( 'add_survey' ) ) {
+			$login_url = wp_login_url( get_permalink() );
+
+			return '<div>Please <a href="' . $login_url . '">login</a> to view this page content.</div>';
+		}
+
+		$data          = [];
+		$supportTicket = new SupportTicket();
+
+		$_statuses        = $supportTicket->get_ticket_statuses_terms();
+		$data['statuses'] = [ [ 'key' => 'all', 'label' => 'All Statuses', 'count' => 0, 'active' => true ] ];
+		foreach ( $_statuses as $status ) {
+			$data['statuses'][] = [ 'key' => $status->term_id, 'label' => $status->name, 'count' => 0, ];
+		}
+		$data['statuses'][] = [ 'key' => 'trash', 'label' => 'Trash', 'count' => 0, 'active' => false ];
+
+
+		$_categories        = $supportTicket->get_categories_terms();
+		$data['categories'] = [ [ 'key' => 'all', 'label' => 'All Categories', 'count' => 0, 'active' => true ] ];
+		foreach ( $_categories as $status ) {
+			$data['categories'][] = [ 'key' => $status->term_id, 'label' => $status->name, 'count' => 0, ];
+		}
+
+		$_priorities        = $supportTicket->get_priorities_terms();
+		$data['priorities'] = [ [ 'key' => 'all', 'label' => 'All Priorities', 'count' => 0, 'active' => true ] ];
+		foreach ( $_priorities as $status ) {
+			$data['priorities'][] = [ 'key' => $status->term_id, 'label' => $status->name, 'count' => 0, ];
+		}
+
+		$data['count_trash'] = $supportTicket->count_trash_records();
+
+		$data['ticket_categories'] = TicketCategory::get_all();
+		$data['ticket_statuses']   = TicketStatus::get_all();
+		$data['ticket_priorities'] = TicketPriority::get_all();
+		$data['support_agents']    = SupportAgent::get_all();
+
+		$user           = wp_get_current_user();
+		$data['user']   = [
+			'display_name' => $user->display_name,
+			'user_email'   => $user->user_email,
+			'avatar_url'   => get_avatar_url( $user->user_email ),
+		];
+		$data['cities'] = $supportTicket->find_all_cities();
+
+		$data['search_categories'] = (array) get_option( 'stackonet_ticket_search_categories' );
+
+		wp_localize_script( 'stackonet-repair-services-frontend', 'SupportTickets', $data );
+
+		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
+		add_action( 'wp_footer', [ $this, 'tinymce_script' ], 9 );
+
+		return '<div id="stackonet_repair_services_dashboard"></div>';
 	}
 
 	/**

@@ -1,5 +1,5 @@
 <template>
-	<div class="stackont-support-ticket-container" style="margin: 100px auto;">
+	<div class="stackont-support-ticket-container">
 		<div class="display-flex justify-space-between">
 			<div class="flex-item display-flex align-items-start">
 				<mdl-button type="raised" color="primary" @click="openNewTicket">
