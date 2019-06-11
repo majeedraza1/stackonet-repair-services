@@ -11,7 +11,7 @@
 		<div class="unsupported-zip-code-input-wrapper">
 			<animated-input type="text" label="Type your phone" v-model="phone"
 							autocomplete="tel"></animated-input>
-			<animated-input type="email" label="Type your email (optional)" v-model="email"
+			<animated-input type="email" label="Type your email" v-model="email"
 							autocomplete="email"></animated-input>
 		</div>
 		<div class="unsupported-zip-code-button-wrapper">

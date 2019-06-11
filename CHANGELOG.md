@@ -1,5 +1,11 @@
+#### 1.1.9 - Jun 11, 2019
+* Add - Add table view on checkout analysis page.
+* Add - Add pagination on checkout analysis page.
+* Add - Add phone field on zip code not found checkout page.
+* Add - Add new dashboard with support, survey, appointment and checkout analysis tab.
+* Add - Add user info step before device step with user first name, last name and phone number.
+
 #### 1.1.8 - Jun 8, 2019
-* Add - Add appointment to support ticket functionality.
 * Add - Add new admin number on twilio.
 * Fix - Fix Dropbox error even it image upload to media but fail to upload dropbox.
 * Add - Add functionality to add existing appointment to support ticket.
