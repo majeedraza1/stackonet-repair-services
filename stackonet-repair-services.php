@@ -187,6 +187,7 @@ final class Stackonet_Repair_Services {
 			$this->container['rest-technician']        = Stackonet\REST\TechnicianController::init();
 			$this->container['rest-appointment']       = Stackonet\REST\SpotAppointmentController::init();
 			$this->container['rest-checkout-analysis'] = Stackonet\REST\CheckoutAnalysisController::init();
+			$this->container['rest-login']             = Stackonet\REST\LoginController::init();
 		}
 
 		if ( $this->is_request( 'ajax' ) ) {

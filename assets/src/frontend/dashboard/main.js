@@ -1,6 +1,6 @@
 import Vue from 'vue';
-import Dashboard from './Dashboard'
-import MdlDashboard from './MdlDashboard'
+import LoginForm from './LoginForm'
+import App from './App'
 import router from './routers.js';
 import store from './store.js';
 import axios from "axios";
@@ -8,5 +8,11 @@ import axios from "axios";
 let el = document.querySelector('#stackonet_repair_services_dashboard');
 if (el) {
 	axios.defaults.headers.common['X-WP-Nonce'] = window.PhoneRepairs.rest_nonce;
-	new Vue({el, store, router, render: h => h(MdlDashboard)});
+	new Vue({el, store, router, render: h => h(App)});
+}
+
+let el2 = document.querySelector('#stackonet_repair_services_dashboard_login');
+if (el2) {
+	axios.defaults.headers.common['X-WP-Nonce'] = window.PhoneRepairs.rest_nonce;
+	new Vue({el: el2, store, router, render: h => h(LoginForm)});
 }

@@ -127,13 +127,20 @@ class Frontend {
 	 * @return string
 	 */
 	public function frontend_dashboard() {
-		if ( ! current_user_can( 'add_survey' ) ) {
-			$login_url = wp_login_url( get_permalink() );
-
-			return '<div>Please <a href="' . $login_url . '">login</a> to view this page content.</div>';
+		$data             = [];
+		$custom_logo_id   = get_theme_mod( 'custom_logo' );
+		$_logo_url        = wp_get_attachment_image_src( $custom_logo_id );
+		$data['logo_url'] = '';
+		if ( isset( $_logo_url[0] ) && filter_var( $_logo_url[0], FILTER_VALIDATE_URL ) ) {
+			$data['logo_url'] = $_logo_url[0];
 		}
 
-		$data          = [];
+		if ( ! current_user_can( 'add_survey' ) ) {
+			wp_localize_script( 'stackonet-repair-services-frontend', 'SupportTickets', $data );
+
+			return '<div id="stackonet_repair_services_dashboard_login"></div>';
+		}
+
 		$supportTicket = new SupportTicket();
 
 		$_statuses        = $supportTicket->get_ticket_statuses_terms();

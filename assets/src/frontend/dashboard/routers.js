@@ -6,10 +6,12 @@ import SingleSupportTicket from "../support-ticket/SingleSupportTicket";
 import NewSupportTicket from "../support-ticket/NewSupportTicket";
 import SpotAppointment from "../spot-appointment/SpotAppointment";
 import CheckoutAnalysis from "../checkout-analysis/CheckoutAnalysis";
+import MdlDashboard from "./MdlDashboard";
 
 Vue.use(VueRouter);
 
 const routes = [
+	{path: '/', name: 'MdlDashboard', component: MdlDashboard},
 	{path: '/ticket', name: 'SupportTicketList', component: SupportTicketList},
 	{path: '/ticket/:id/view', name: 'SingleSupportTicket', component: SingleSupportTicket},
 	{path: '/ticket/new', name: 'NewSupportTicket', component: NewSupportTicket},
