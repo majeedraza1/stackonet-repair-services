@@ -36,17 +36,17 @@
 									<strong>Time Range:</strong> {{_item.value.time_range}}
 								</span>
 							</template>
-							<template v-else-if="_item.label === 'User Details'">
-								<span v-if="_item.value">
+							<template v-else-if="_item.label === 'User Details' || _item.label === 'User Info'">
+								<span v-if="_item.value && _item.value.first_name">
 									<strong>First Name:</strong> {{_item.value.first_name}}
 								</span>
-								<span v-if="_item.value">
+								<span v-if="_item.value && _item.value.last_name">
 									<strong>Last Name:</strong> {{_item.value.last_name}}
 								</span>
-								<span v-if="_item.value">
+								<span v-if="_item.value && _item.value.email">
 									<strong>Email:</strong> {{_item.value.email}}
 								</span>
-								<span v-if="_item.value">
+								<span v-if="_item.value && _item.value.phone">
 									<strong>Phone:</strong> {{_item.value.phone}}
 								</span>
 							</template>

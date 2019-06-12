@@ -14,17 +14,19 @@
 				@focus="handleFocusEvent($event)"
 				@blur="handleBlurEvent($event)"
 			></textarea>
-				<input v-else :type="type"
-					   :id="id"
-					   :value="value"
-					   :required="required"
-					   :disabled="disabled"
-					   :autocomplete="autocomplete"
-					   placeholder=""
-					   class="mdl-textfield__input"
-					   @input="handleInputEvent($event)"
-					   @focus="handleFocusEvent($event)"
-					   @blur="handleBlurEvent($event)"
+				<input
+					v-else
+					:type="type"
+					:id="id"
+					:value="value"
+					:required="required"
+					:disabled="disabled"
+					:autocomplete="autocomplete"
+					placeholder=""
+					class="mdl-textfield__input"
+					@input="handleInputEvent($event)"
+					@focus="handleFocusEvent($event)"
+					@blur="handleBlurEvent($event)"
 				>
 			</div>
 			<div class="mdl-textfield__label" v-html="label"></div>
@@ -56,7 +58,7 @@
 				</svg>
 			</template>
 		</div>
-		<div class="mdl-textfield__error" v-html="helptext"></div>
+		<div class="mdl-textfield__error" v-if="hasError" v-html="helptext"></div>
 	</div>
 </template>
 

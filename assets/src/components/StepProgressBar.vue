@@ -31,17 +31,17 @@
 									<strong>Time Range:</strong> {{item.value.time_range}}
 								</div>
 							</template>
-							<template v-else-if="item.label === 'User Details'">
-								<div class="dropdown-item" v-if="item.value">
+							<template v-else-if="item.label === 'User Details' || item.label === 'User Info'">
+								<div class="dropdown-item" v-if="item.value && item.value.first_name">
 									<strong>First Name:</strong> {{item.value.first_name}}
 								</div>
-								<div class="dropdown-item" v-if="item.value">
+								<div class="dropdown-item" v-if="item.value && item.value.last_name">
 									<strong>Last Name:</strong> {{item.value.last_name}}
 								</div>
-								<div class="dropdown-item" v-if="item.value">
+								<div class="dropdown-item" v-if="item.value && item.value.email">
 									<strong>Email:</strong> {{item.value.email}}
 								</div>
-								<div class="dropdown-item" v-if="item.value">
+								<div class="dropdown-item" v-if="item.value && item.value.phone">
 									<strong>Phone:</strong> {{item.value.phone}}
 								</div>
 							</template>

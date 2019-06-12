@@ -54,6 +54,13 @@
 			this.$store.commit('SET_LOADING_STATUS', false);
 			this.$store.commit('SET_SHOW_CART', true);
 			this.$store.commit('IS_THANK_YOU_PAGE', false);
+
+			this.$store.dispatch('refreshCheckoutAnalysisIdFromLocalStorage');
+			if (!this.checkoutAnalysisId) {
+				this.$store.dispatch('checkoutAnalysis', {
+					id: 0, step: 'user_info', step_data: {}
+				});
+			}
 		},
 		methods: {
 			confirmAppointment() {

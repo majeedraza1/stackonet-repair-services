@@ -40,7 +40,7 @@
 
 			// If no models, redirect one step back
 			if (!this.hasModels) {
-				this.$router.push('/');
+				this.$router.push('/device');
 			}
 
 			this.$store.dispatch('updateCheckoutAnalysis', {

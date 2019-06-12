@@ -33,6 +33,7 @@ class CheckoutAnalysis extends DatabaseModel {
 		'ip_address'                => null,
 		'postal_code'               => null,
 		'city'                      => null,
+		'user_info'                 => null,
 		'device'                    => null,
 		'device_model'              => null,
 		'device_color'              => null,
@@ -166,6 +167,7 @@ class CheckoutAnalysis extends DatabaseModel {
                 `ip_address` varchar(100) DEFAULT NULL,
                 `postal_code` varchar(20) DEFAULT NULL,
                 `city` varchar(100) DEFAULT NULL,
+                `user_info` datetime DEFAULT NULL,
                 `device` datetime DEFAULT NULL,
                 `device_model` datetime DEFAULT NULL,
                 `device_color` datetime DEFAULT NULL,
@@ -188,5 +190,26 @@ class CheckoutAnalysis extends DatabaseModel {
             ) $collate;";
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $table_schema );
+
+		$this->add_table_columns();
+	}
+
+	/**
+	 * Add new columns to table
+	 */
+	public function add_table_columns() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . $this->table;
+		$version    = get_option( 'stackonet_checkout_analysis_table_version' );
+		$version    = ! empty( $version ) ? $version : '1.0.0';
+
+		if ( version_compare( $version, '1.0.2', '<' ) ) {
+			$row = $wpdb->get_row( "SELECT * FROM {$table_name}", ARRAY_A );
+			if ( ! isset( $row['user_info'] ) ) {
+				$wpdb->query( "ALTER TABLE {$table_name} ADD `user_info` datetime NULL DEFAULT NULL AFTER `city`" );
+			}
+
+			update_option( 'stackonet_checkout_analysis_table_version', '1.0.2' );
+		}
 	}
 }

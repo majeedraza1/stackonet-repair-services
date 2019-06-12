@@ -172,6 +172,7 @@ class CheckoutAnalysisController extends ApiController {
 		];
 
 		$default_data = [
+			'user_info',
 			'device',
 			'device_model',
 			'device_color',
@@ -193,6 +194,9 @@ class CheckoutAnalysisController extends ApiController {
 			}
 
 			switch ( $key ) {
+				case 'user_info';
+					$label = 'User Info';
+					break;
 				case 'device_model';
 					$label = 'Model';
 					break;
