@@ -6,16 +6,7 @@
 		<div class="select-address-content-wrapper">
 			<form action="#" autocomplete="off">
 
-				<animated-input
-					type="textarea"
-					id="address"
-					v-model="addressTemp"
-					label="Enter exact address"
-					helptext="Please enter valid input"
-					autocomplete="not-valid-address"
-					:has-error="hasExactAddressError"
-					:has-success="zipCode === newZipCode"
-				></animated-input>
+				<g-map-autocomplete geolocation @change="updateAddress"></g-map-autocomplete>
 
 				<animated-input
 					id="additional"
@@ -57,10 +48,11 @@
 	import SectionInfo from '../components/SectionInfo'
 	import SectionHelp from '../components/SectionHelp'
 	import {mapState} from 'vuex';
+	import GMapAutocomplete from "../components/gMapAutocomplete";
 
 	export default {
 		name: "userAddress",
-		components: {AnimatedInput, BigButton, SectionTitle, SectionInfo, SectionHelp},
+		components: {GMapAutocomplete, AnimatedInput, BigButton, SectionTitle, SectionInfo, SectionHelp},
 		data() {
 			return {
 				addressTemp: '',
@@ -109,60 +101,19 @@
 				step: 'user_address',
 				step_data: {requested_date_time: {date: this.date, time_range: this.timeRange}}
 			});
-
-			// @TODO disable this temp
-			// if (this.geo_address) {
-			if (this.geo_address === 'neverMatch') {
-				if (this.formatted_address) {
-					this.addressTemp = this.formatted_address;
-				}
-
-				if (this.geo_address_object) {
-					let placeData = this.format_address_components(this.geo_address_object.address_components);
-					this.addressObj = placeData;
-					this.addressTemp = this.calculateFullAddress(placeData);
-					this.$store.commit('SET_ADDRESS_OBJECT', placeData);
-				}
-			}
-
-			let address = this.$el.querySelector('#address');
-
-			// Create the autocomplete object, restricting the search predictions to
-			// geographical location types.
-			this.autocomplete = new google.maps.places.Autocomplete(address, {types: ['geocode']});
-
-			// Avoid paying for data that you don't need by restricting the set of
-			// place fields that are returned to just the address components.
-			this.autocomplete.setFields(['address_components']);
-
-			// When the user selects an address from the drop-down, populate the
-			// address fields in the form.
-			this.autocomplete.addListener('place_changed', this.fillInAddress);
-
-
-			address.addEventListener('focus', function () {
-				address.setAttribute('autocomplete', 'noop-' + Date.now());
-			});
 		},
 		methods: {
+			updateAddress(data) {
+				let placeData = this.format_address_components(data.address.address_components);
+				this.addressObj = placeData;
+				this.addressTemp = data.formatted_address;
+				this.$store.commit('SET_ADDRESS_OBJECT', placeData);
+			},
 			handleContinue() {
 				this.$store.commit('SET_ADDRESS', this.addressTemp);
 				this.$store.commit('SET_ADDITIONAL_ADDRESS', this.additionalAddressTemp);
 				this.$store.commit('SET_INSTRUCTIONS', this.instructionsTemp);
 				this.$router.push('/user-details');
-			},
-			fillInAddress() {
-				// Get the place details from the autocomplete object.
-				let place = this.autocomplete.getPlace();
-				// Get each component of the address from the place details,
-				// and then fill-in the corresponding field on the form.
-				if (place.address_components) {
-					let placeData = this.format_address_components(place.address_components);
-
-					this.addressObj = placeData;
-					this.addressTemp = this.calculateFullAddress(placeData);
-					this.$store.commit('SET_ADDRESS_OBJECT', placeData);
-				}
 			},
 			format_address_components(address_components) {
 				let placeData = {};
