@@ -49,6 +49,9 @@
 				<router-link class="mdl-navigation__link" tag="div" to="/spot-appointment" active-class="is-active">
 					Appointment
 				</router-link>
+				<router-link class="mdl-navigation__link" tag="div" to="/carrier-stores" active-class="is-active">
+					Carrier Stores
+				</router-link>
 				<router-link class="mdl-navigation__link" tag="div" to="/checkout-analysis" active-class="is-active">
 					Checkout Analysis
 				</router-link>

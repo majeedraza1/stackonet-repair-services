@@ -188,6 +188,7 @@ final class Stackonet_Repair_Services {
 			$this->container['rest-appointment']       = Stackonet\REST\SpotAppointmentController::init();
 			$this->container['rest-checkout-analysis'] = Stackonet\REST\CheckoutAnalysisController::init();
 			$this->container['rest-login']             = Stackonet\REST\LoginController::init();
+			$this->container['rest-carrier-store']     = Stackonet\REST\CarrierStoreController::init();
 		}
 
 		if ( $this->is_request( 'ajax' ) ) {
@@ -234,6 +235,8 @@ final class Stackonet_Repair_Services {
 		$checkoutAnalysis->create_table();
 		$support = new Stackonet\Modules\SupportTicket\SupportTicket;
 		$support->create_table();
+		$carrierStore = new Stackonet\Models\CarrierStore();
+		$carrierStore->create_table();
 
 		do_action( 'phone_repairs_asap_activation' );
 	}

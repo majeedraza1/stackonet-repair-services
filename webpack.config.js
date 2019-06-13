@@ -16,6 +16,7 @@ let entryPoints = {
 		'./assets/src/admin/become-a-tech/main.js',
 		'./assets/src/admin/rent-a-center/main.js',
 		'./assets/src/admin/survey/main.js',
+		'./assets/src/admin/carrier-store/main.js',
 		'./assets/src/admin/spot-appointment/main.js',
 		'./assets/src/admin/support-ticket/main.js',
 		'./assets/src/scss/admin.scss'

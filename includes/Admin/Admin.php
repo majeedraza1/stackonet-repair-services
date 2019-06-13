@@ -34,10 +34,11 @@ class Admin {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
-			add_action( 'admin_enqueue_scripts', [ self::$instance, 'admin_scripts' ] );
+			add_action( 'admin_enqueue_scripts', [ self::$instance, 'admin_localize_scripts' ] );
 			add_action( 'admin_menu', [ self::$instance, 'add_menu' ] );
 			add_action( 'admin_menu', [ self::$instance, 'add_rent_a_center_menu' ] );
 			add_action( 'admin_menu', [ self::$instance, 'add_survey_menu' ] );
+			add_action( 'admin_menu', [ self::$instance, 'add_carrier_store_menu' ] );
 			add_action( 'admin_menu', [ self::$instance, 'add_become_technician_menu' ] );
 			add_action( 'admin_menu', [ self::$instance, 'add_spot_appointment_menu' ] );
 			add_action( 'admin_menu', [ self::$instance, 'add_support_tickets_menu' ], 9 );
@@ -56,7 +57,7 @@ class Admin {
 	/**
 	 * Admin scripts
 	 */
-	public function admin_scripts() {
+	public function admin_localize_scripts() {
 		/** @var WP_Post[] $pages */
 		$pages  = get_pages();
 		$_pages = [];
@@ -69,6 +70,22 @@ class Admin {
 			'settings' => Settings::get_settings(),
 			'pages'    => $_pages,
 		) );
+	}
+
+	/**
+	 * Admin menu page scripts
+	 */
+	public function load_admin_scripts() {
+		wp_enqueue_media();
+		wp_enqueue_style( 'stackonet-repair-services-admin' );
+		wp_enqueue_script( 'stackonet-repair-services-admin' );
+	}
+
+	/**
+	 * Load tinymce scripts
+	 */
+	public function tinymce_script() {
+		echo '<script type="text/javascript" src="' . includes_url( 'js/tinymce/tinymce.min.js' ) . '"></script>';
 	}
 
 	/**
@@ -154,16 +171,18 @@ class Admin {
 		$capability = 'manage_options';
 		$slug       = 'phone-repairs';
 
-		$hook = add_menu_page( __( 'Phone Repairs', 'vue-wp-starter' ), __( 'Phone Repairs', 'vue-wp-starter' ),
-			$capability, $slug, [ self::$instance, 'menu_page_callback' ], 'dashicons-tablet', 6 );
+		$hook = add_menu_page( __( 'Phone Repairs', 'stackonet-repair-services' ), __( 'Phone Repairs', 'stackonet-repair-services' ),
+			$capability, $slug, function () {
+				echo '<div class="wrap"><div id="stackonet-repair-services-admin"></div></div>';
+			}, 'dashicons-tablet', 6 );
 
 		$menus = [
-			[ 'title' => __( 'Devices', 'vue-wp-starter' ), 'slug' => '#/' ],
-			[ 'title' => __( 'Service Areas', 'vue-wp-starter' ), 'slug' => '#/areas' ],
-			[ 'title' => __( 'Issues', 'vue-wp-starter' ), 'slug' => '#/issues' ],
-			[ 'title' => __( 'Requested Areas', 'vue-wp-starter' ), 'slug' => '#/requested-areas' ],
-			[ 'title' => __( 'Testimonials', 'vue-wp-starter' ), 'slug' => '#/testimonial' ],
-			[ 'title' => __( 'Settings', 'vue-wp-starter' ), 'slug' => '#/settings' ],
+			[ 'title' => __( 'Devices', 'stackonet-repair-services' ), 'slug' => '#/' ],
+			[ 'title' => __( 'Service Areas', 'stackonet-repair-services' ), 'slug' => '#/areas' ],
+			[ 'title' => __( 'Issues', 'stackonet-repair-services' ), 'slug' => '#/issues' ],
+			[ 'title' => __( 'Requested Areas', 'stackonet-repair-services' ), 'slug' => '#/requested-areas' ],
+			[ 'title' => __( 'Testimonials', 'stackonet-repair-services' ), 'slug' => '#/testimonial' ],
+			[ 'title' => __( 'Settings', 'stackonet-repair-services' ), 'slug' => '#/settings' ],
 		];
 
 		if ( current_user_can( $capability ) ) {
@@ -172,23 +191,7 @@ class Admin {
 			}
 		}
 
-		add_action( 'load-' . $hook, [ self::$instance, 'init_hooks' ] );
-	}
-
-	/**
-	 * Menu page callback
-	 */
-	public static function menu_page_callback() {
-		echo '<div class="wrap"><div id="vue-wp-starter"></div></div>';
-	}
-
-	/**
-	 * Load required styles and scripts
-	 */
-	public static function init_hooks() {
-		wp_enqueue_media();
-		wp_enqueue_style( 'stackonet-repair-services-admin' );
-		wp_enqueue_script( 'stackonet-repair-services-admin' );
+		add_action( 'load-' . $hook, [ self::$instance, 'load_admin_scripts' ] );
 	}
 
 	/**
@@ -200,10 +203,12 @@ class Admin {
 		$slug       = 'rent-a-center';
 
 		$hook = add_menu_page( __( 'Rent a Center', 'stackonet-repair-services' ), __( 'Rent a Center', 'stackonet-repair-services' ),
-			$capability, $slug, [ self::$instance, 'rent_a_center_callback' ], 'dashicons-admin-post', 7 );
+			$capability, $slug, function () {
+				echo '<div class="wrap"><div id="rent-a-center"></div></div>';
+			}, 'dashicons-admin-post', 7 );
 
 		$menus = [
-			[ 'title' => __( 'Phones', 'vue-wp-starter' ), 'slug' => '#/' ],
+			[ 'title' => __( 'Phones', 'stackonet-repair-services' ), 'slug' => '#/' ],
 		];
 
 		if ( current_user_can( $capability ) ) {
@@ -213,13 +218,6 @@ class Admin {
 		}
 
 		add_action( 'load-' . $hook, [ self::$instance, 'init_rent_a_center_hooks' ] );
-	}
-
-	/**
-	 * Rent a Center page callback
-	 */
-	public function rent_a_center_callback() {
-		echo '<div class="wrap"><div id="rent-a-center"></div></div>';
 	}
 
 	/**
@@ -243,7 +241,9 @@ class Admin {
 		$slug       = 'survey';
 
 		$hook = add_menu_page( __( 'Survey', 'stackonet-repair-services' ), __( 'Survey', 'stackonet-repair-services' ),
-			$capability, $slug, [ self::$instance, 'survey_callback' ], 'dashicons-admin-post', 8 );
+			$capability, $slug, function () {
+				echo '<div class="wrap"><div id="admin-stackonet-survey"></div></div>';
+			}, 'dashicons-admin-post', 8 );
 
 		$menus = [
 			[ 'title' => __( 'Survey', 'stackonet-repair-services' ), 'slug' => '#/' ],
@@ -255,22 +255,35 @@ class Admin {
 			}
 		}
 
-		add_action( 'load-' . $hook, [ self::$instance, 'init_survey_hooks' ] );
+		add_action( 'load-' . $hook, [ self::$instance, 'load_admin_scripts' ] );
 	}
 
 	/**
-	 * Rent a Center page callback
+	 * Add carrier store menu
 	 */
-	public function survey_callback() {
-		echo '<div class="wrap"><div id="admin-stackonet-survey"></div></div>';
-	}
+	public static function add_carrier_store_menu() {
+		global $submenu;
+		$capability = 'manage_options';
+		$slug       = 'carrier-store';
 
-	/**
-	 * Admin menu page scripts
-	 */
-	public function init_survey_hooks() {
-		wp_enqueue_style( 'stackonet-repair-services-admin' );
-		wp_enqueue_script( 'stackonet-repair-services-admin' );
+		$hook = add_menu_page(
+			__( 'Carrier Store', 'stackonet-repair-services' ),
+			__( 'Carrier Store', 'stackonet-repair-services' ),
+			$capability, $slug, function () {
+			echo '<div class="wrap"><div id="admin-stackonet-carrier-store"></div></div>';
+		}, 'dashicons-admin-post', 8 );
+
+		$menus = [
+			[ 'title' => __( 'Carrier Store', 'stackonet-repair-services' ), 'slug' => '#/' ],
+		];
+
+		if ( current_user_can( $capability ) ) {
+			foreach ( $menus as $menu ) {
+				$submenu[ $slug ][] = [ $menu['title'], $capability, 'admin.php?page=' . $slug . $menu['slug'] ];
+			}
+		}
+
+		add_action( 'load-' . $hook, [ self::$instance, 'load_admin_scripts' ] );
 	}
 
 	/**
@@ -282,7 +295,9 @@ class Admin {
 		$slug       = 'become-technician';
 
 		$hook = add_menu_page( __( 'Become A Technician', 'stackonet-repair-services' ), __( 'Become A Technician', 'stackonet-repair-services' ),
-			$capability, $slug, [ self::$instance, 'become_technician_callback' ], 'dashicons-admin-post', 8 );
+			$capability, $slug, function () {
+				echo '<div class="wrap"><div id="admin-stackonet-become-technician"></div></div>';
+			}, 'dashicons-admin-post', 8 );
 
 		$menus = [
 			[ 'title' => __( 'Technicians', 'stackonet-repair-services' ), 'slug' => '#/' ],
@@ -294,22 +309,7 @@ class Admin {
 			}
 		}
 
-		add_action( 'load-' . $hook, [ self::$instance, 'init_technician_hooks' ] );
-	}
-
-	/**
-	 * Become a technician menu callback
-	 */
-	public function become_technician_callback() {
-		echo '<div class="wrap"><div id="admin-stackonet-become-technician"></div></div>';
-	}
-
-	/**
-	 * Admin menu page scripts
-	 */
-	public function init_technician_hooks() {
-		wp_enqueue_style( 'stackonet-repair-services-admin' );
-		wp_enqueue_script( 'stackonet-repair-services-admin' );
+		add_action( 'load-' . $hook, [ self::$instance, 'load_admin_scripts' ] );
 	}
 
 	/**
@@ -321,7 +321,9 @@ class Admin {
 		$slug       = 'spot-appointment';
 
 		$hook = add_menu_page( __( 'Spot Appointment', 'stackonet-repair-services' ), __( 'Spot Appointment', 'stackonet-repair-services' ),
-			$capability, $slug, [ self::$instance, 'spot_appointment_callback' ], 'dashicons-admin-post', 8 );
+			$capability, $slug, function () {
+				echo '<div class="wrap"><div id="admin-stackonet-spot-appointment"></div></div>';
+			}, 'dashicons-admin-post', 8 );
 
 		$menus = [
 			[ 'title' => __( 'Appointment', 'stackonet-repair-services' ), 'slug' => '#/' ],
@@ -333,42 +335,18 @@ class Admin {
 			}
 		}
 
-		add_action( 'load-' . $hook, [ self::$instance, 'init_spot_appointment_hooks' ] );
+		add_action( 'load-' . $hook, [ self::$instance, 'load_admin_scripts' ] );
 	}
 
 	/**
-	 * Become a technician menu callback
+	 * Support tickets menu
 	 */
-	public function spot_appointment_callback() {
-		echo '<div class="wrap"><div id="admin-stackonet-spot-appointment"></div></div>';
-	}
-
-	/**
-	 * Admin menu page scripts
-	 */
-	public function init_spot_appointment_hooks() {
-		wp_enqueue_style( 'stackonet-repair-services-admin' );
-		wp_enqueue_script( 'stackonet-repair-services-admin' );
-	}
-
 	public function add_support_tickets_menu() {
-
-		global $submenu;
 		$capability = 'manage_options';
 		$slug       = 'wpsc-tickets';
 
 		$hook = add_menu_page( __( 'Support', 'stackonet-repair-services' ), __( 'Support', 'stackonet-repair-services' ),
 			$capability, $slug, [ self::$instance, 'support_tickets_callback' ], 'dashicons-admin-post', 8 );
-
-		$menus = [
-			[ 'title' => __( 'Support', 'stackonet-repair-services' ), 'slug' => '#/' ],
-		];
-
-		if ( current_user_can( $capability ) ) {
-			foreach ( $menus as $menu ) {
-				// $submenu[ $slug ][] = [ $menu['title'], $capability, 'admin.php?page=' . $slug . $menu['slug'] ];
-			}
-		}
 
 		add_action( 'load-' . $hook, [ self::$instance, 'init_support_tickets_hooks' ] );
 	}
@@ -428,10 +406,5 @@ class Admin {
 		$data['search_categories'] = (array) get_option( 'stackonet_ticket_search_categories' );
 
 		wp_localize_script( 'stackonet-repair-services-admin', 'SupportTickets', $data );
-	}
-
-
-	public function tinymce_script() {
-		echo '<script type="text/javascript" src="' . includes_url( 'js/tinymce/tinymce.min.js' ) . '"></script>';
 	}
 }

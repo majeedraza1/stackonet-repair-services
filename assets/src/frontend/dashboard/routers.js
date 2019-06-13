@@ -7,6 +7,7 @@ import NewSupportTicket from "../support-ticket/NewSupportTicket";
 import SpotAppointment from "../spot-appointment/SpotAppointment";
 import CheckoutAnalysis from "../checkout-analysis/CheckoutAnalysis";
 import MdlDashboard from "./MdlDashboard";
+import CarrierStores from "../survey/CarrierStores";
 
 Vue.use(VueRouter);
 
@@ -18,6 +19,7 @@ const routes = [
 	{path: '/survey', name: 'survey', component: SurveyForm},
 	{path: '/spot-appointment', name: 'appointment', component: SpotAppointment},
 	{path: '/checkout-analysis', name: 'checkout', component: CheckoutAnalysis},
+	{path: '/carrier-stores', name: 'CarrierStores', component: CarrierStores},
 
 ];
 
