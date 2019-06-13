@@ -52,6 +52,7 @@
 				<router-link class="mdl-navigation__link" tag="div" to="/checkout-analysis" active-class="is-active">
 					Checkout Analysis
 				</router-link>
+				<a href="https://analytics.google.com/analytics/web/" target="_blank" class="mdl-navigation__link">Google Analytics</a>
 			</nav>
 		</div>
 

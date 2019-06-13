@@ -12,35 +12,35 @@
 
 		<columns multiline>
 
-			<column :desktop="6">
+			<column :tablet="6">
 				<div class="form-field">
 					<label for="customer_name">Name</label>
 					<input type="text" id="customer_name" v-model="customer_name">
 				</div>
 			</column>
 
-			<column :desktop="6">
+			<column :tablet="6">
 				<div class="form-field">
 					<label for="email_address">Email Address</label>
 					<input type="text" id="email_address" v-model="customer_email">
 				</div>
 			</column>
 
-			<column :desktop="12">
+			<column :tablet="12">
 				<div class="form-field">
 					<label for="ticket_subject">Subject</label>
 					<input type="text" id="ticket_subject" v-model="ticket_subject">
 				</div>
 			</column>
 
-			<column :desktop="12">
+			<column :tablet="12">
 				<div class="form-field">
 					<label for="ticket_description">Description</label>
 					<editor id="ticket_description" :init="mce" v-model="ticket_content"></editor>
 				</div>
 			</column>
 
-			<column :desktop="6">
+			<column :tablet="6">
 				<div class="form-field">
 					<label for="ticket_category">Category *</label>
 					<select id="ticket_category" v-model="ticket_category">
@@ -50,7 +50,7 @@
 				</div>
 			</column>
 
-			<column :desktop="6">
+			<column :tablet="6">
 				<div class="form-field">
 					<label for="ticket_priority">Priority *</label>
 					<select id="ticket_priority" v-model="ticket_priority">
@@ -60,7 +60,7 @@
 				</div>
 			</column>
 
-			<column :desktop="12">
+			<column :tablet="12">
 				<div class="form-field">
 					<mdl-button type="raised" color="primary" :disabled="!canSubmit" @click="submitTicket">Submit
 						Ticket

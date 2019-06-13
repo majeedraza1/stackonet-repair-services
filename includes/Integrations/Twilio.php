@@ -54,7 +54,7 @@ class Twilio {
 	 */
 	public function init_dev_data() {
 		if ( defined( 'WP_DEBUG_LOCAL' ) && WP_DEBUG_LOCAL ) {
-			$this->admin_numbers = [ '+918861721567' ];
+			$this->admin_numbers = [ '+919008009801' ];
 		}
 	}
 

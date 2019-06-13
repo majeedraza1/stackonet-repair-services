@@ -26,6 +26,7 @@
 			@action:click="onActionClick"
 			@bulk:apply="onBulkAction"
 			@pagination="paginate"
+			:mobile-width="1499"
 		>
 			<template slot="created_by" slot-scope="data" class="button--status">
 				<span v-html="getAssignedAgents(data.row.assigned_agents)"></span>
@@ -307,13 +308,13 @@
 <style lang="scss">
 	.stackont-support-ticket-container {
 
-		@media only screen and (max-width: 767px) {
+		.mdl-data-table--mobile {
 			.mdl-data-table tr td.manage-column.manage-id {
 				display: none !important;
 			}
 		}
 
-		@media only screen and (min-width: 768px) {
+		.mdl-data-table-container:not(.mdl-data-table--mobile) {
 			td.manage-column.manage-ticket_subject {
 				max-width: 250px;
 				overflow: hidden;

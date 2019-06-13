@@ -1,5 +1,5 @@
 <template>
-	<div class="mdl-data-table-container">
+	<div class="mdl-data-table-container" :class="{'mdl-data-table--mobile': this.windowWidth <= this.mobileWidth}">
 		<div class="mdl-table-nav-top">
 			<div class="mdl-table-nav-top__left">
 				<mdl-bulk-actions :actions="bulkActions" :active="!!checkedItems.length" v-model="bulkLocal"
@@ -102,14 +102,28 @@
 			perPage: {type: Number, default: 20},
 			currentPage: {type: Number, default: 1},
 			sortBy: {type: String, default: null},
-			sortOrder: {type: String, default: "asc"}
+			sortOrder: {type: String, default: "asc"},
+			mobileWidth: {type: Number, default: 767}
 		},
 
 		data() {
 			return {
 				bulkLocal: '-1',
 				checkedItems: [],
+				windowWidth: 0,
 			}
+		},
+
+		mounted() {
+			this.windowWidth = window.innerWidth;
+
+			window.addEventListener('resize', () => {
+				this.windowWidth = window.innerWidth;
+			});
+
+			window.addEventListener('orientationchange', () => {
+				this.windowWidth = window.innerWidth;
+			});
 		},
 
 		computed: {
@@ -325,7 +339,7 @@
 	}
 
 	// Mobile
-	@media only screen and (max-width: 767px) {
+	.mdl-data-table--mobile {
 
 		button.toggle-row {
 			background: none;
@@ -406,6 +420,7 @@
 						&.column-primary {
 							height: auto;
 							padding-right: 40px;
+							text-align: left;
 						}
 					}
 				}
