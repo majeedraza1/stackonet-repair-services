@@ -2,7 +2,10 @@
 
 namespace Stackonet\REST;
 
+use Exception;
 use Stackonet\Models\CarrierStore;
+use Stackonet\Modules\SupportTicket\CarrierStoreToSupportTicket;
+use Stackonet\Supports\Logger;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -133,6 +136,11 @@ class CarrierStoreController extends ApiController {
 
 		if ( $id ) {
 			$response = $survey->find_by_id( $id );
+			try {
+				CarrierStoreToSupportTicket::process( $response );
+			} catch ( Exception $e ) {
+				Logger::log( $e->getMessage() );
+			}
 
 			return $this->respondOK( $response );
 		}

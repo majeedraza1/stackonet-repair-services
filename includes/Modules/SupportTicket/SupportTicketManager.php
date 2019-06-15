@@ -178,13 +178,19 @@ class SupportTicketManager {
 	public function save_settings() {
 		$order_ticket_category = isset( $_POST['wpsc_default_order_ticket_category'] ) ? sanitize_text_field( $_POST['wpsc_default_order_ticket_category'] ) : '';
 		update_option( 'wpsc_default_order_ticket_category', $order_ticket_category );
+
 		$order_ticket_category = isset( $_POST['wpsc_default_spot_appointment_category'] ) ? sanitize_text_field( $_POST['wpsc_default_spot_appointment_category'] ) : '';
 		update_option( 'wpsc_default_spot_appointment_category', $order_ticket_category );
+
+		$carrier_store_default_category = isset( $_POST['carrier_store_default_category'] ) ? sanitize_text_field( $_POST['carrier_store_default_category'] ) : '';
+		update_option( 'carrier_store_default_category', $carrier_store_default_category );
+
 		$order_ticket_category = isset( $_POST['wpsc_default_contact_form_ticket_category'] ) ? $_POST['wpsc_default_contact_form_ticket_category'] : [];
 		if ( is_array( $order_ticket_category ) && count( $order_ticket_category ) ) {
 			$order_ticket_category = array_map( 'intval', $order_ticket_category );
 			update_option( 'wpsc_default_contact_form_ticket_category', $order_ticket_category );
 		}
+
 		$order_ticket_category = isset( $_POST['stackonet_ticket_search_categories'] ) ? $_POST['stackonet_ticket_search_categories'] : [];
 		if ( is_array( $order_ticket_category ) && count( $order_ticket_category ) ) {
 			$order_ticket_category = array_map( 'intval', $order_ticket_category );
@@ -209,6 +215,20 @@ class SupportTicketManager {
 			        id="wpsc_default_order_ticket_category">
 				<?php
 				$wpsc_default_ticket_category = get_option( 'wpsc_default_order_ticket_category' );
+				foreach ( $categories as $category ) :
+					$selected = $wpsc_default_ticket_category == $category->term_id ? 'selected="selected"' : '';
+					echo '<option ' . $selected . ' value="' . $category->term_id . '">' . $category->name . '</option>';
+				endforeach;
+				?>
+			</select>
+		</div>
+		<div class="form-group">
+			<label
+				for="carrier_store_default_category"><?php _e( 'Default ticket category for carrier store', 'supportcandy' ); ?></label>
+			<p class="help-block"><?php _e( 'This category will get applied for newly created ticket.', 'supportcandy' ); ?></p>
+			<select class="form-control" name="carrier_store_default_category" id="carrier_store_default_category">
+				<?php
+				$wpsc_default_ticket_category = get_option( 'carrier_store_default_category' );
 				foreach ( $categories as $category ) :
 					$selected = $wpsc_default_ticket_category == $category->term_id ? 'selected="selected"' : '';
 					echo '<option ' . $selected . ' value="' . $category->term_id . '">' . $category->name . '</option>';
