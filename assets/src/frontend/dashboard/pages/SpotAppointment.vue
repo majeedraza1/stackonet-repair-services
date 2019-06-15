@@ -1,17 +1,5 @@
 <template>
-	<div class="stackonet-survey-form">
-
-		<div class="form-field">
-			<label>Brands</label>
-			<columns mobile multiline centered>
-				<column :mobile="6" :tablet="4" v-for="(_brand, index) in brands" :key="index">
-					<div class="shapla-survey-box hoverable" :class="{'is-active':_brand === brand}"
-						 @click="chooseBrand(_brand)">
-						<div>{{_brand}}</div>
-					</div>
-				</column>
-			</columns>
-		</div>
+	<div class="stackonet-survey-form stackonet-spot-appointment">
 
 		<div class="form-field">
 			<label>Gadgets</label>
@@ -26,44 +14,65 @@
 		</div>
 
 		<div class="form-field">
-
+			<label>Choose device</label>
 			<columns mobile multiline centered>
-				<column :mobile="6" :tablet="6">
-					<div class="shapla-survey-box hoverable" :class="{'is-active':'low' === model}"
-						 @click="chooseModel('low')">
-						<div>Low End Model?</div>
-					</div>
-				</column>
-				<column :mobile="6" :tablet="6">
-					<div class="shapla-survey-box hoverable" :class="{'is-active':'high' === model}"
-						 @click="chooseModel('high')">
-						<div>High End Model?</div>
-					</div>
-				</column>
-			</columns>
-
-		</div>
-
-		<div class="form-field">
-			<label>Status</label>
-			<columns mobile multiline centered>
-				<column :mobile="12" :tablet="12" v-for="_status in statuses" :key="_status.value">
-					<div class="shapla-survey-box hoverable" @click="chooseStatus(_status.value)"
-						 :class="{'is-active':_status.value === device_status}">
-						<div>{{_status.label}}</div>
+				<column :mobile="6" :tablet="4" v-for="(_device, index) in devices" :key="index">
+					<div class="shapla-survey-box hoverable" :class="{'is-active':_device === device}"
+						 @click="chooseDevice(_device)">
+						<div v-html="_device.device_title"></div>
 					</div>
 				</column>
 			</columns>
 		</div>
 
 		<div class="form-field">
-			<label>If a barber could come to you in 1-2 hours anywhere, home, work, etc. What would you pay with tip for
-				such a service?</label>
+			<label>Choose device model</label>
 			<columns mobile multiline centered>
-				<column :mobile="6" :tablet="4" v-for="_charge in tips_amounts" :key="_charge">
-					<div class="shapla-survey-box hoverable" @click="chooseTipsAmount(_charge)"
-						 :class="{'is-active':_charge === tips_amount}">
-						<div>${{_charge}}</div>
+				<column :mobile="6" :tablet="4" v-for="(_model, index) in devices_models" :key="index">
+					<div class="shapla-survey-box hoverable" :class="{'is-active':_model === device_model}"
+						 @click="chooseDeviceModel(_model)">
+						<div v-html="_model.title"></div>
+					</div>
+				</column>
+			</columns>
+		</div>
+
+		<div class="form-field">
+			<label>Choose issue(s)</label>
+			<columns mobile multiline centered>
+				<column :mobile="6" :tablet="4" v-for="(_issue, index) in _issues" :key="index">
+					<div class="shapla-survey-box hoverable"
+						 :class="{'is-active':-1 !== selectedIssues.indexOf(_issue)}"
+						 @click="chooseIssue(_issue)">
+						<div v-html="_issue.title"></div>
+					</div>
+				</column>
+			</columns>
+		</div>
+
+		<div class="form-field">
+			<label>Appointment Date</label>
+			<columns mobile multiline centered>
+				<template v-for="(_date, index) in dateRanges">
+					<column :mobile="6" :tablet="4" :key="index" v-if="index !== 0">
+						<div class="shapla-survey-box hoverable"
+							 :class="{'is-active': _date.date === appointment_date}"
+							 @click="chooseDate(_date.date)">
+							<div v-html="getFormattedDateTime(_date.date)"></div>
+						</div>
+					</column>
+				</template>
+			</columns>
+		</div>
+
+		<div class="form-field">
+			<label>Appointment Time</label>
+			<columns mobile multiline centered>
+				<column :mobile="6" :tablet="4" v-for="(_time, index) in times" :key="index">
+					<div class="shapla-survey-box hoverable"
+						 :class="{'is-active': _time === appointment_time}"
+						 @click="chooseTime(_time)">
+						<div v-html="_time"></div>
 					</div>
 				</column>
 			</columns>
@@ -75,6 +84,10 @@
 
 		<div class="form-field">
 			<animated-input label="Phone" type="tel" v-model="phone"></animated-input>
+		</div>
+
+		<div class="form-field">
+			<animated-input v-model="store_name" label="Name of Store" autocomplete="organization"></animated-input>
 		</div>
 
 		<div class="form-field">
@@ -128,11 +141,11 @@
 			></media-modal>
 		</div>
 
-		<big-button @click="handleSubmit">Submit</big-button>
-
-		<div class="loading-container" :class="{'is-active':loading}">
-			<mdl-spinner :active="loading"></mdl-spinner>
+		<div class="form-field">
+			<animated-input type="textarea" v-model="note" label="Note (optional)"></animated-input>
 		</div>
+
+		<big-button @click="handleSubmit">Submit</big-button>
 
 		<mdl-modal :active="open_thank_you_model" type="box" @close="closeThankYouModel">
 			<div class="mdl-box mdl-shadow--2dp">
@@ -146,21 +159,22 @@
 
 <script>
 	import axios from 'axios'
-	import AnimatedInput from '../../components/AnimatedInput';
-	import BigButton from '../../components/BigButton';
-	import modal from '../../shapla/modal/modal';
-	import imageContainer from '../../shapla/image/image';
-	import columns from '../../shapla/columns/columns';
-	import column from '../../shapla/columns/column';
-	import mdlRadio from '../../material-design-lite/radio/mdlRadio';
-	import mdlSpinner from '../../material-design-lite/spinner/mdlSpinner';
-	import mdlModal from '../../material-design-lite/modal/mdlModal';
-	import mdlButton from '../../material-design-lite/button/mdlButton';
-	import gMapAutocomplete from '../components/gMapAutocomplete'
-	import MediaModal from '../components/MediaModal'
+	import AnimatedInput from '../../../components/AnimatedInput';
+	import BigButton from '../../../components/BigButton';
+	import PricingAccordion from '../../../components/PricingAccordion';
+	import modal from '../../../shapla/modal/modal';
+	import imageContainer from '../../../shapla/image/image';
+	import columns from '../../../shapla/columns/columns';
+	import column from '../../../shapla/columns/column';
+	import mdlRadio from '../../../material-design-lite/radio/mdlRadio';
+	import mdlSpinner from '../../../material-design-lite/spinner/mdlSpinner';
+	import mdlModal from '../../../material-design-lite/modal/mdlModal';
+	import mdlButton from '../../../material-design-lite/button/mdlButton';
+	import gMapAutocomplete from '../../components/gMapAutocomplete'
+	import MediaModal from '../../components/MediaModal'
 
 	export default {
-		name: "SurveyForm",
+		name: "SpotAppointment",
 		components: {
 			AnimatedInput,
 			BigButton,
@@ -173,11 +187,11 @@
 			MediaModal,
 			imageContainer,
 			columns,
-			column
+			column,
+			PricingAccordion
 		},
 		data() {
 			return {
-				loading: true,
 				openLogoModal: false,
 				open_address_modal: false,
 				open_thank_you_model: false,
@@ -205,6 +219,15 @@
 				images_ids: '',
 				tips_amount: '',
 				tips_amounts: [49, 59, 69, 79, 89, 99],
+				appointment_date: '',
+				appointment_time: '',
+				note: '',
+				store_name: '',
+				device: {},
+				devices_models: [],
+				device_model: {},
+				issues: [],
+				selectedIssues: [],
 			}
 		},
 		computed: {
@@ -213,12 +236,29 @@
 					url: window.PhoneRepairs.rest_root + '/logo',
 					maxFilesize: 5,
 					headers: {
-						"X-WP-Nonce": window.PhoneRepairs.rest_nonce
+						"X-WP-Nonce": window.PhoneRepairs.rest_nonce,
+						"X-Dropbox-Path": '/spot-appointment/'
 					}
 				}
 			},
 			map_api_key() {
 				return window.PhoneRepairs.map_api_key;
+			},
+			devices() {
+				return window.Stackonet.devices;
+			},
+			dateRanges() {
+				return window.Stackonet.dateRanges;
+			},
+			timeRanges() {
+				return window.Stackonet.timeRanges;
+			},
+			times() {
+				let _date = this.dateRanges.find((element) => element.date === this.appointment_date);
+				if (typeof _date === "undefined") {
+					return [];
+				}
+				return this.timeRanges[_date.day];
 			},
 			c_address_object() {
 				let place = this.address_object;
@@ -246,10 +286,36 @@
 
 				return placeData;
 			},
+			_issues() {
+				let brokenPrice = this.device_model.broken_screen_price;
+				let issues = this.issues.map(issue => {
+					if (issue.title === 'Broken Screen') {
+						issue.price = brokenPrice;
+					}
+
+					return issue;
+				});
+
+				if (brokenPrice) {
+					issues.unshift({
+						id: '',
+						title: 'Front Glass',
+						price: brokenPrice,
+						description: 'Glass price is subject to undamaged display.',
+					});
+				}
+
+				return issues;
+			},
+			selectedIssueNames() {
+				let names = this.selectedIssues.map(issue => issue.title);
+				return names.join(', ');
+			}
 		},
 		mounted() {
 			let self = this;
 			this.loading = false;
+			this.$store.commit('SET_TITLE', 'Appointment');
 			this.getImages();
 			if (navigator.geolocation) {
 				navigator.geolocation.getCurrentPosition(function (position) {
@@ -278,6 +344,41 @@
 			}
 		},
 		methods: {
+			chooseDevice(device) {
+				this.device = device;
+				this.devices_models = device.device_models;
+				this.device_model = device.device_models[0];
+				this.issues = device.multi_issues;
+				this.activeDeviceAccordion = false;
+				this.selectedIssues = [];
+			},
+			chooseDeviceModel(model) {
+				this.device_model = model;
+				this.model = model.title;
+				this.activeModelAccordion = false;
+				this.selectedIssues = [];
+			},
+			chooseDate(date) {
+				this.appointment_date = date;
+			},
+			chooseTime(time) {
+				this.appointment_time = time;
+			},
+			getFormattedDateTime(date) {
+				let _date = new Date(date);
+
+				let days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+				let dayName = days[_date.getDay()];
+
+				let number = _date.getDate();
+				let dateNumber = number.length === 1 ? '0' + number : number;
+
+				let monthNames = ["January", "February", "March", "April", "May", "June",
+					"July", "August", "September", "October", "November", "December"
+				];
+
+				return dayName + ', ' + dateNumber + ' ' + monthNames[_date.getMonth()];
+			},
 			closeThankYouModel() {
 				this.open_thank_you_model = false;
 				window.location.reload();
@@ -315,16 +416,16 @@
 			},
 			getImages() {
 				let self = this;
-				self.loading = true;
+				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
 					.get(PhoneRepairs.rest_root + '/logo', {},
 						{headers: {'X-WP-Nonce': window.PhoneRepairs.rest_nonce},})
 					.then((response) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 						self.attachments = response.data.data;
 					})
 					.catch((error) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 						alert('Some thing went wrong. Please try again.');
 					});
 			},
@@ -338,41 +439,53 @@
 				this.address_object = address;
 				this.formatted_address = address.formatted_address;
 			},
+			chooseIssue(issue) {
+				let issues = this.selectedIssues, index = issues.indexOf(issue);
+				if (-1 === index) {
+					issues.push(issue);
+				} else {
+					issues.splice(index, 1);
+				}
+
+				this.selectedIssues = issues;
+			},
+			issueClass(issue) {
+				let isSelected = -1 !== this.selectedIssues.indexOf(issue);
+				return {
+					'selected-issue': isSelected,
+					'disabled-issue': !isSelected,
+				}
+			},
 			handleSubmit() {
 				let self = this;
-				if (self.device_status.length < 1) {
-					alert('Please choose an option.');
-					return;
-				}
-				this.loading = true;
+				self.$store.commit('SET_LOADING_STATUS', true);
 				let images_ids = self.images.map(image => {
 					return image.image_id;
 				});
-				let data = {
-					brand: self.brand,
-					gadget: self.gadget,
-					model: self.model,
-					device_status: self.device_status,
-					latitude: self.latitude,
-					longitude: self.longitude,
-					address: self.c_address_object,
-					full_address: self.formatted_address,
-					images_ids: images_ids,
-					tips_amount: self.tips_amount,
-					email: self.email,
-					phone: self.phone,
-				};
+
 				axios
-					.post(PhoneRepairs.rest_root + '/survey', data,
-						{
-							headers: {'X-WP-Nonce': window.PhoneRepairs.rest_nonce},
-						})
+					.post(PhoneRepairs.rest_root + '/spot-appointment', {
+						gadget: self.gadget,
+						brand: self.brand,
+						device: self.device.device_title,
+						device_model: self.model,
+						device_issues: self.selectedIssues,
+						appointment_date: self.appointment_date,
+						appointment_time: self.appointment_time,
+						email: self.email,
+						phone: self.phone,
+						store_name: self.store_name,
+						full_address: self.formatted_address,
+						address: self.c_address_object,
+						images_ids: images_ids,
+						note: self.note,
+					})
 					.then((response) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 						self.open_thank_you_model = true;
 					})
 					.catch((error) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 						alert('Some thing went wrong. Please try again.');
 					});
 			}
@@ -381,5 +494,13 @@
 </script>
 
 <style lang="scss">
+	.stackonet-spot-appointment {
+		select {
+			width: 100%;
+		}
 
+		.pricing-accordion {
+			min-width: 100%;
+		}
+	}
 </style>

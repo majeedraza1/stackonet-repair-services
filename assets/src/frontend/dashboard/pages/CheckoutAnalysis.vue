@@ -76,18 +76,17 @@
 
 <script>
 	import axios from 'axios'
-	import StepProgressBar from "../../components/StepProgressBar";
-	import Columns from "../../shapla/columns/columns";
-	import Column from "../../shapla/columns/column";
-	import Box from "../../shapla/box/box";
-	import WpPagination from "../../wp/wpPagination";
+	import StepProgressBar from "../../../components/StepProgressBar";
+	import Columns from "../../../shapla/columns/columns";
+	import Column from "../../../shapla/columns/column";
+	import Box from "../../../shapla/box/box";
+	import WpPagination from "../../../wp/wpPagination";
 
 	export default {
 		name: "CheckoutAnalysis",
 		components: {WpPagination, Box, Column, Columns, StepProgressBar},
 		data() {
 			return {
-				loading: false,
 				items: [],
 				pagination: {},
 				currentPage: 1,
@@ -95,21 +94,22 @@
 			}
 		},
 		mounted() {
+			this.$store.commit('SET_TITLE', 'Checkout Analysis');
 			this.getItems();
 		},
 		methods: {
 			getItems() {
 				let self = this;
-				self.loading = true;
+				this.$store.commit('SET_LOADING_STATUS', true);
 				axios
 					.get(PhoneRepairs.rest_root + '/checkout-analysis?paged=' + self.currentPage + '&per_page=' + self.limit)
 					.then((response) => {
-						self.loading = false;
+						this.$store.commit('SET_LOADING_STATUS', false);
 						self.items = response.data.data.items;
 						self.pagination = response.data.data.pagination;
 					})
 					.catch((error) => {
-						self.loading = false;
+						this.$store.commit('SET_LOADING_STATUS', false);
 						alert('Some thing went wrong. Please try again.');
 					});
 			},

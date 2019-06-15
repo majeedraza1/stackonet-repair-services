@@ -7,12 +7,16 @@ export default new Vuex.Store({
 	// Same as Vue data
 	state: {
 		loading: true,
+		title: 'Dashboard',
 	},
 
 	// Commit + track state changes
 	mutations: {
 		SET_LOADING_STATUS(state, loading) {
 			state.loading = loading;
+		},
+		SET_TITLE(state, title) {
+			state.title = title;
 		},
 	},
 

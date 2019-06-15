@@ -336,6 +336,7 @@
 		mounted() {
 			let id = this.$route.params.id;
 			this.$store.commit('SET_LOADING_STATUS', false);
+			this.$store.commit('SET_TITLE', 'Support Ticket');
 			if (id) {
 				this.id = parseInt(id);
 				this.getItem();
@@ -568,8 +569,6 @@
 
 <style lang="scss">
 	.stackont-single-support-ticket-container {
-		margin-top: 50px;
-		margin-bottom: 50px;
 
 		.stackont-single-support-ticket-actions {
 			display: flex;

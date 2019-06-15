@@ -120,6 +120,7 @@
 		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
+			this.$store.commit('SET_TITLE', 'Support Tickets');
 			if (!this.items.length) {
 				this.getItems();
 			}
@@ -211,6 +212,7 @@
 						self.pagination = data.pagination;
 					})
 					.catch((error) => {
+						self.$store.commit('SET_LOADING_STATUS', false);
 						console.log(error);
 					});
 			},

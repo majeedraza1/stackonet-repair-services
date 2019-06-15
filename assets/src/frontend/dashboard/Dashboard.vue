@@ -3,9 +3,8 @@
 </template>
 
 <script>
-
 	export default {
-		name: "MdlDashboard",
+		name: "Dashboard",
 		mounted() {
 			this.$router.push('/ticket');
 		}

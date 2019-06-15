@@ -117,6 +117,7 @@
 		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
+			this.$store.commit('SET_TITLE', 'New Support Ticket');
 			this.customer_name = this.display_name;
 			this.customer_email = this.user_email;
 		},
@@ -130,6 +131,7 @@
 			},
 			submitTicket() {
 				let self = this;
+				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
 					.post(PhoneRepairs.rest_root + '/support-ticket', {
 						customer_name: self.customer_name,

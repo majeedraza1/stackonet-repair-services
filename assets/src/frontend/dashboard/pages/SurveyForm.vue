@@ -70,18 +70,6 @@
 		</div>
 
 		<div class="form-field">
-			<animated-input label="Industry" type="text" v-model="industry"></animated-input>
-		</div>
-
-		<div class="form-field">
-			<animated-input label="Store" type="text" v-model="store"></animated-input>
-		</div>
-
-		<div class="form-field">
-			<animated-input label="Name" type="text" v-model="name"></animated-input>
-		</div>
-
-		<div class="form-field">
 			<animated-input label="Email" type="email" v-model="email"></animated-input>
 		</div>
 
@@ -142,10 +130,6 @@
 
 		<big-button @click="handleSubmit">Submit</big-button>
 
-		<div class="loading-container" :class="{'is-active':loading}">
-			<mdl-spinner :active="loading"></mdl-spinner>
-		</div>
-
 		<mdl-modal :active="open_thank_you_model" type="box" @close="closeThankYouModel">
 			<div class="mdl-box mdl-shadow--2dp">
 				<h3>Data has been submitted successfully.</h3>
@@ -158,21 +142,21 @@
 
 <script>
 	import axios from 'axios'
-	import AnimatedInput from '../../components/AnimatedInput';
-	import BigButton from '../../components/BigButton';
-	import modal from '../../shapla/modal/modal';
-	import imageContainer from '../../shapla/image/image';
-	import columns from '../../shapla/columns/columns';
-	import column from '../../shapla/columns/column';
-	import mdlRadio from '../../material-design-lite/radio/mdlRadio';
-	import mdlSpinner from '../../material-design-lite/spinner/mdlSpinner';
-	import mdlModal from '../../material-design-lite/modal/mdlModal';
-	import mdlButton from '../../material-design-lite/button/mdlButton';
-	import gMapAutocomplete from '../components/gMapAutocomplete'
-	import MediaModal from '../components/MediaModal'
+	import AnimatedInput from '../../../components/AnimatedInput';
+	import BigButton from '../../../components/BigButton';
+	import modal from '../../../shapla/modal/modal';
+	import imageContainer from '../../../shapla/image/image';
+	import columns from '../../../shapla/columns/columns';
+	import column from '../../../shapla/columns/column';
+	import mdlRadio from '../../../material-design-lite/radio/mdlRadio';
+	import mdlSpinner from '../../../material-design-lite/spinner/mdlSpinner';
+	import mdlModal from '../../../material-design-lite/modal/mdlModal';
+	import mdlButton from '../../../material-design-lite/button/mdlButton';
+	import gMapAutocomplete from '../../components/gMapAutocomplete'
+	import MediaModal from '../../components/MediaModal'
 
 	export default {
-		name: "CarrierStores",
+		name: "SurveyForm",
 		components: {
 			AnimatedInput,
 			BigButton,
@@ -189,7 +173,6 @@
 		},
 		data() {
 			return {
-				loading: true,
 				openLogoModal: false,
 				open_address_modal: false,
 				open_thank_you_model: false,
@@ -214,9 +197,6 @@
 				brand: '',
 				gadget: '',
 				model: '',
-				industry: '',
-				store: '',
-				name: '',
 				images_ids: '',
 				tips_amount: '',
 				tips_amounts: [49, 59, 69, 79, 89, 99],
@@ -265,6 +245,7 @@
 		mounted() {
 			let self = this;
 			this.loading = false;
+			this.$store.commit('SET_TITLE', 'Survey');
 			this.getImages();
 			if (navigator.geolocation) {
 				navigator.geolocation.getCurrentPosition(function (position) {
@@ -330,16 +311,16 @@
 			},
 			getImages() {
 				let self = this;
-				self.loading = true;
+				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
 					.get(PhoneRepairs.rest_root + '/logo', {},
 						{headers: {'X-WP-Nonce': window.PhoneRepairs.rest_nonce},})
 					.then((response) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 						self.attachments = response.data.data;
 					})
 					.catch((error) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 						alert('Some thing went wrong. Please try again.');
 					});
 			},
@@ -359,38 +340,31 @@
 					alert('Please choose an option.');
 					return;
 				}
-				this.loading = true;
+				self.$store.commit('SET_LOADING_STATUS', true);
 				let images_ids = self.images.map(image => {
 					return image.image_id;
 				});
-				let data = {
-					brand: self.brand,
-					gadget: self.gadget,
-					model: self.model,
-					device_status: self.device_status,
-					latitude: self.latitude,
-					longitude: self.longitude,
-					address: self.c_address_object,
-					full_address: self.formatted_address,
-					images_ids: images_ids,
-					tips_amount: self.tips_amount,
-					email: self.email,
-					phone: self.phone,
-					industry: self.industry,
-					store: self.store,
-					name: self.name,
-				};
 				axios
-					.post(PhoneRepairs.rest_root + '/carrier-store', data,
-						{
-							headers: {'X-WP-Nonce': window.PhoneRepairs.rest_nonce},
-						})
+					.post(PhoneRepairs.rest_root + '/survey', {
+						brand: self.brand,
+						gadget: self.gadget,
+						model: self.model,
+						device_status: self.device_status,
+						latitude: self.latitude,
+						longitude: self.longitude,
+						address: self.c_address_object,
+						full_address: self.formatted_address,
+						images_ids: images_ids,
+						tips_amount: self.tips_amount,
+						email: self.email,
+						phone: self.phone,
+					})
 					.then((response) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 						self.open_thank_you_model = true;
 					})
 					.catch((error) => {
-						self.loading = false;
+						self.$store.commit('SET_LOADING_STATUS', false);
 						alert('Some thing went wrong. Please try again.');
 					});
 			}
@@ -398,6 +372,6 @@
 	}
 </script>
 
-<style scoped>
+<style lang="scss">
 
 </style>
