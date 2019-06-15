@@ -1,88 +1,10 @@
 <template>
 	<div class="rent-a-center-dashboard-container">
 		<columns>
-			<column :tablet="3">
-				<div class="user">
-					<div class="user__avatar">
-						<image-container square>
-							<img class="is-rounded"
-								 src="http://phonerepairsasap.test/wp-content/uploads/2017/03/1.jpg"
-								 alt="">
-						</image-container>
-					</div>
-					<div class="user__display_name">Majeed Raza</div>
-					<div class="user__role">Lead Developer</div>
-				</div>
-
-				<div class="action-menu">
-					<columns mobile multiline centered>
-						<column :mobile="6" :tablet="6">
-							<div class="action-menu__item">
-								<icon large><i class="fa fa-2x fa-bar-chart"></i></icon>
-								<span>Dashboard</span>
-							</div>
-						</column>
-						<column :mobile="6" :tablet="6">
-							<div class="action-menu__item">
-								<icon large><i class="fa fa-2x fa-cart-plus"></i></icon>
-								<span>Orders</span>
-							</div>
-						</column>
-						<column :mobile="6" :tablet="6">
-							<div class="action-menu__item">
-								<icon large><i class="fa fa-2x fa-address-book-o"></i></icon>
-								<span>Store Addresses</span>
-							</div>
-						</column>
-						<column :mobile="6" :tablet="6">
-							<div class="action-menu__item">
-								<icon large><i class="fa fa-2x fa-user-circle-o"></i></icon>
-								<span>Account Details</span>
-							</div>
-						</column>
-						<column :mobile="6" :tablet="6">
-							<div class="action-menu__item">
-								<icon large><i class="fa fa-2x fa-mobile"></i></icon>
-								<span>Phones</span>
-							</div>
-						</column>
-						<column :mobile="6" :tablet="6">
-							<div class="action-menu__item">
-								<icon large><i class="fa fa-2x fa-truck"></i></icon>
-								<span>Track Status</span>
-							</div>
-						</column>
-						<column :mobile="6" :tablet="6">
-							<div class="action-menu__item">
-								<icon large><i class="fa fa-2x fa-envelope-o"></i></icon>
-								<span>Messages</span>
-							</div>
-						</column>
-						<column :mobile="6" :tablet="6">
-							<div class="action-menu__item">
-								<icon large><i class="fa fa-2x fa-bell-o"></i></icon>
-								<span>Notification</span>
-							</div>
-						</column>
-						<column :mobile="6" :tablet="6">
-							<div class="action-menu__item">
-								<icon large><i class="fa fa-2x fa-file-text-o"></i></icon>
-								<span>Invoice</span>
-							</div>
-						</column>
-						<column :mobile="6" :tablet="6">
-							<div class="action-menu__item">
-								<icon large><i class="fa fa-2x fa-sign-out"></i></icon>
-								<span>Logout</span>
-							</div>
-						</column>
-					</columns>
-				</div>
-			</column>
 
 			<column :tablet="6">
 				<div class="section-reports">
-					<box>
+					<box class="shablabox-border">
 						<div class="section-title">Reports</div>
 					</box>
 				</div>
@@ -116,7 +38,7 @@
 					</columns>
 				</div>
 				<div class="section-total-damaged-devices">
-					<box>
+					<box class="shablabox-border" id="box-color">
 						<div class="section-title">Total Damaged Devices</div>
 						<div class="damaged-devices-list">
 							<div class="damaged-devices-list__item" v-for="num in [1,2,3,4,5]">
@@ -207,13 +129,11 @@
 		}
 	}
 </script>
-
 <style lang="scss">
 	.rent-a-center-dashboard-container {
 		.store-managers-list {
 			display: flex;
 			justify-content: center;
-
 			&__item {
 				display: block;
 				width: 42px;
@@ -239,6 +159,7 @@
 		.section-total-damaged-devices,
 		.section-store-managers {
 			margin-bottom: 1.5rem;
+
 		}
 
 		.section-title {
@@ -282,5 +203,7 @@
 		&__description {
 			font-size: 0.875em;
 		}
+	}
+	.damaged-devices-list{
 	}
 </style>
