@@ -10,7 +10,7 @@ jQuery.ajaxSetup({
 	}
 });
 
-let element = document.querySelector('#vue-wp-starter');
+let element = document.querySelector('#stackonet-repair-services-admin');
 if (element) {
 	new Vue({el: element, store: store, router: router, render: h => h(App)});
 }

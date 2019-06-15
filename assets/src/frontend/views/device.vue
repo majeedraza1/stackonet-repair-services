@@ -36,7 +36,7 @@
 		},
 		components: {SectionInfo, SectionTitle, SectionHelp},
 		computed: {
-			...mapState(['devices', 'group']),
+			...mapState(['devices', 'group', 'checkoutAnalysisId', 'firstName', 'lastName', 'phone']),
 			_devices() {
 				let self = this;
 				if (self.group.length < 1) {
@@ -45,6 +45,9 @@
 				return self.devices.filter(device => {
 					return -1 !== self.group.indexOf(device.device_group);
 				});
+			},
+			hasPhone() {
+				return !!(this.phone && this.phone.length);
 			}
 		},
 		mounted() {
@@ -53,6 +56,23 @@
 			this.$store.commit('SET_DEVICES', devices);
 			this.$store.commit('SET_SHOW_CART', false);
 			this.$store.commit('IS_THANK_YOU_PAGE', false);
+
+			// If no models, redirect one step back
+			if (!this.hasPhone) {
+				this.$router.push('/');
+			}
+
+			this.$store.dispatch('refreshCheckoutAnalysisIdFromLocalStorage');
+			this.$store.dispatch('updateCheckoutAnalysis', {
+				step: 'device',
+				step_data: {
+					user_info: {
+						first_name: this.firstName,
+						last_name: this.lastName,
+						phone: this.phone
+					},
+				}
+			});
 		},
 		methods: {
 			chooseDeviceModel(device) {

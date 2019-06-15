@@ -69,6 +69,8 @@
 									self.formatted_address = results[0].formatted_address;
 
 									self.findPostalCode(results[0]);
+
+									self.triggerChangeEvent();
 								}
 							} else {
 								console.log('Geocoder failed due to: ' + status);
@@ -95,13 +97,7 @@
 
 				self.findPostalCode(place);
 
-				self.$emit('change', {
-					formatted_address: self.formatted_address,
-					postal_code: self.postal_code,
-					latitude: self.latitude,
-					longitude: self.longitude,
-					address: self.address,
-				});
+				self.triggerChangeEvent();
 			});
 
 		},
@@ -117,6 +113,15 @@
 						this.postal_code = addressComponent.short_name;
 					}
 				}
+			},
+			triggerChangeEvent() {
+				this.$emit('change', {
+					formatted_address: this.formatted_address,
+					postal_code: this.postal_code,
+					latitude: this.latitude,
+					longitude: this.longitude,
+					address: this.address,
+				});
 			}
 		}
 	}

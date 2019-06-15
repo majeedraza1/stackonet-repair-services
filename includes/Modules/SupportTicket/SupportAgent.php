@@ -53,6 +53,13 @@ class SupportAgent extends AbstractModel {
 	private $role_label = '';
 
 	/**
+	 * Support agent phone number
+	 *
+	 * @var string
+	 */
+	private $phone_number = '';
+
+	/**
 	 * Class constructor.
 	 *
 	 * @param null|WP_Term $term
@@ -84,8 +91,22 @@ class SupportAgent extends AbstractModel {
 			'id'           => $this->get_user()->ID,
 			'display_name' => $this->get_user()->display_name,
 			'email'        => $this->get_user()->user_email,
+			'phone'        => $this->get_phone_number(),
 			'avatar_url'   => get_avatar_url( $this->get_user()->user_email ),
 		];
+	}
+
+	/**
+	 * Get user phone number
+	 *
+	 * @return mixed|string
+	 */
+	public function get_phone_number() {
+		if ( empty( $this->phone_number ) ) {
+			$this->phone_number = get_user_meta( $this->get_user_id(), 'billing_phone', true );
+		}
+
+		return $this->phone_number;
 	}
 
 	/**

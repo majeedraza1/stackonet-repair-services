@@ -201,7 +201,8 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 		if ( is_array( $data ) ) {
 			$item = [];
 			foreach ( $this->default_data as $key => $default ) {
-				$item[ $key ] = isset( $data[ $key ] ) ? $data[ $key ] : $default;
+				$temp_data    = isset( $data[ $key ] ) ? $data[ $key ] : $default;
+				$item[ $key ] = $this->unserialize( $temp_data );
 			}
 
 			return $item;
@@ -354,6 +355,21 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 	protected function serialize( $data ) {
 		if ( is_array( $data ) || is_object( $data ) ) {
 			return serialize( $data );
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Unserialize value only if it was serialized.
+	 *
+	 * @param string $data Maybe unserialized original, if is needed.
+	 *
+	 * @return mixed Unserialized data can be any type.
+	 */
+	protected function unserialize( $data ) {
+		if ( is_serialized( $data ) ) {
+			return @unserialize( $data );
 		}
 
 		return $data;

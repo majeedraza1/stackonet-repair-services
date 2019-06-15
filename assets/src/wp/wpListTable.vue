@@ -8,7 +8,9 @@
 		</div>
 
 		<wp-status-list :statuses="statuses" @change="changeStatus"></wp-status-list>
-		<wp-search v-if="showSearch" :id="searchKey" @submit="searchInput" @clear="searchInput"></wp-search>
+		<slot name="search">
+			<wp-search v-if="showSearch" :id="searchKey" @submit="searchInput" @clear="searchInput"></wp-search>
+		</slot>
 
 		<div class="tablenav top">
 			<wp-bulk-actions :actions="bulkActions" :active="!!checkedItems.length" v-model="bulkLocal"
@@ -170,7 +172,7 @@
 
 				set: function (value) {
 					let selected = [],
-							self = this;
+						self = this;
 
 					if (value) {
 						this.rows.forEach(function (item) {

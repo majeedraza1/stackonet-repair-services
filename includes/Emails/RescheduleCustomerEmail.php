@@ -1,16 +1,14 @@
 <?php
 
-
-namespace Stackonet;
+namespace Stackonet\Emails;
 
 use Stackonet\Supports\Utils;
-use WC_Email;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class OrderReminderCustomerEmail extends WC_Email {
+class RescheduleCustomerEmail extends \WC_Email {
 
 	/**
 	 * True when the email notification is sent to customers.
@@ -24,15 +22,15 @@ class OrderReminderCustomerEmail extends WC_Email {
 	 */
 	public function __construct() {
 		// set ID, this simply needs to be a unique name
-		$this->id = 'customer_order_reminder_email';
+		$this->id = 'customer_reschedule_order';
 		// this is the title in WooCommerce Email settings
-		$this->title = 'Customer Reminder Mail';
+		$this->title = 'Customer Reschedule Order';
 		// this is the description in WooCommerce email settings
-		$this->description = 'Customer reminder order mail send when reschedule date and time are near.';
+		$this->description = 'Customer reschedule order mail send when admin or customer reschedule date and time.';
 
 		// these are the default heading and subject lines that can be overridden using the settings
-		$this->heading = 'We will be arriving at your place';
-		$this->subject = 'We will be arriving at your place';
+		$this->heading = 'Appointment Date and Time have been rescheduled';
+		$this->subject = 'Appointment Date and Time have been rescheduled';
 
 		$this->placeholders = array(
 			'{site_title}'   => $this->get_blogname(),
@@ -110,10 +108,10 @@ class OrderReminderCustomerEmail extends WC_Email {
 		 */
 		do_action( 'woocommerce_email_header', $this->get_heading(), $this );
 
-		echo '<p>';
-		echo sprintf( "Hi, %s!<br> ", $customer_name );
+		echo '<p style="margin: 50px;font-size: 18px;line-height: 150%">';
+		echo sprintf( "Thank you %s Your Appointment has been rescheduled. ", $customer_name );
 		echo sprintf( "We will be arriving at your place by %s %s. ", $last_date['date'], $last_date['time'] );
-		echo "If you wish to reschedule appointment Click ";
+		echo "If you wish to reschedule appointment Click Here ";
 		echo '<a href="' . $reschedule_url . '">' . $reschedule_url . '</a>';
 		echo '</p>';
 

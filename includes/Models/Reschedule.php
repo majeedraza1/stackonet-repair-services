@@ -8,8 +8,8 @@ use Stackonet\Abstracts\BackgroundProcess;
 use Stackonet\Modules\SupportTicket\OrderRescheduleToSupportTicket;
 use Stackonet\Modules\SupportTicket\SupportTicket;
 use Stackonet\Integrations\Twilio;
-use Stackonet\RescheduleAdminEmail;
-use Stackonet\RescheduleCustomerEmail;
+use Stackonet\Emails\RescheduleAdminEmail;
+use Stackonet\Emails\RescheduleCustomerEmail;
 use WC_Order;
 
 class Reschedule extends BackgroundProcess {

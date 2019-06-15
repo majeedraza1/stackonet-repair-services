@@ -1,7 +1,9 @@
 <?php
 
-namespace Stackonet;
+namespace Stackonet\Emails;
 
+use Exception;
+use Stackonet\Integrations\WooCommerce;
 use Stackonet\Supports\Utils;
 use WC_Email;
 use WC_Order;
@@ -48,7 +50,7 @@ class OrderReminderAdminEmail extends WC_Email {
 	 * Determine if the email should actually be sent and setup email merge variables
 	 *
 	 * @param int $order_id The order ID.
-	 * @param \WC_Order|false $order Order object.
+	 * @param WC_Order|false $order Order object.
 	 */
 	public function trigger( $order_id, $order = false ) {
 		if ( $order_id && ! is_a( $order, 'WC_Order' ) ) {
@@ -84,25 +86,18 @@ class OrderReminderAdminEmail extends WC_Email {
 	 * get_content_html function.
 	 *
 	 * @return string
-	 * @since 0.1
 	 */
 	public function get_content_html() {
 		ob_start();
 		/** @var WC_Order $order */
 		$order           = $this->object;
-		$order_id        = $order->get_id();
 		$customer_name   = $order->get_formatted_billing_full_name();
-		$billing_address = $order->get_formatted_billing_address();
 		$device_title    = $order->get_meta( '_device_title', true );
 		$device_model    = $order->get_meta( '_device_model', true );
+		$device_color    = $order->get_meta( '_device_color', true );
 		$device_issues   = $order->get_meta( '_device_issues', true );
 		$device_issues   = is_array( $device_issues ) ? implode( ', ', $device_issues ) : $device_issues;
 
-		$_date     = get_post_meta( $order->get_id(), '_reschedule_date_time', true );
-		$_date     = is_array( $_date ) ? $_date : [];
-		$last_date = end( $_date );
-
-		$map_url = $this->get_billing_address_map_url( $order );
 
 		/**
 		 * @hooked WC_Emails::email_header() Output the email header
@@ -111,10 +106,20 @@ class OrderReminderAdminEmail extends WC_Email {
 
 		echo '<p>';
 		echo "Hi Admin!<br>";
-		echo sprintf( "24 hours left to arrive at %s by %s %s to meet %s. Be prepared for this %s. ",
-			$billing_address, $last_date['date'], $last_date['time'], $customer_name, $device_issues );
-		echo '<a href="' . $map_url . '">' . $map_url . '</a>';
+		printf( "24 hours left to arrive at customer location to meet %s.<br>", $customer_name );
+		echo sprintf( "Device: <strong>%s %s (%s)</strong><br>", $device_title, $device_model, $device_color );
+		echo sprintf( "Be prepared for <strong>%s</strong>. ", $device_issues );
 		echo '</p>';
+
+		?>
+		<table cellspacing="0" cellpadding="0" border="0"
+		       style="width: 100%; vertical-align: top; margin-bottom: 40px; padding:0;">
+			<tr>
+				<td style="width: 50%;vertical-align: top;"><?php WooCommerce::email_location_box( $order, true ); ?></td>
+				<td style="width: 50%;vertical-align: top;"><?php self::email_requested_datetime_box( $order, true ); ?></td>
+			</tr>
+		</table>
+		<?php
 
 		/**
 		 * @hooked WC_Emails::email_footer() Output the email footer
@@ -127,16 +132,55 @@ class OrderReminderAdminEmail extends WC_Email {
 	/**
 	 * Get billing address map url
 	 *
-	 * @param \WC_Order $order
+	 * @param WC_Order $order
 	 *
 	 * @return string
 	 */
 	private function get_billing_address_map_url( $order ) {
-		$address = $order->get_address( 'billing' );
-		// Remove name and company before generate the Google Maps URL.
-		unset( $address['first_name'], $address['last_name'], $address['company'], $address['email'], $address['phone'] );
-		$map_url = 'https://maps.google.com/maps?&q=' . rawurlencode( implode( ', ', $address ) ) . '&z=16';
+		return Utils::shorten_url( $order->get_shipping_address_map_url() );
+	}
 
-		return Utils::shorten_url( $map_url );
+	/**
+	 * @param WC_Order $order
+	 * @param bool $sent_to_admin
+	 *
+	 * @throws Exception
+	 */
+	public static function email_requested_datetime_box( $order, $sent_to_admin ) {
+		$reschedule_url = Utils::get_reschedule_url( $order );
+
+		$_date     = $order->get_meta( '_reschedule_date_time', true );
+		$_date     = is_array( $_date ) ? $_date : [];
+		$last_date = end( $_date );
+
+		if ( empty( $last_date['date'] ) || empty( $last_date['time'] ) ) {
+			$last_date['date'] = $order->get_meta( '_preferred_service_date', true );
+			$last_date['time'] = $order->get_meta( '_preferred_service_time_range', true );
+		}
+
+		$assets       = STACKONET_REPAIR_SERVICES_ASSETS;
+		?>
+		<div class="email-box">
+			<h2>
+				<img src="<?php echo $assets . '/img/email-icons/clock.png' ?>" width="20" height="20" alt="Clock">
+				Date & Time
+			</h2>
+			<address>
+				<?php echo mysql2date( 'l, j M, Y', $last_date['date'] ); ?>
+				<br>
+				<?php echo $last_date['time']; ?>
+			</address>
+		</div>
+		<?php if ( ! $sent_to_admin ) { ?>
+			<p style="margin:10px 0">
+				<a href="<?php echo $reschedule_url; ?>" target="_blank">
+					<img
+						src="<?php echo $assets . '/img/email-icons/calendar.png' ?>" width="16" height="16"
+						alt="Calendar">
+					Click here to Re-schedule
+				</a>
+			</p>
+		<?php } ?>
+		<?php
 	}
 }

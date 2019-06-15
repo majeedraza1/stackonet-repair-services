@@ -2,6 +2,7 @@
 @import "../material-design-lite/shadow/shadow";
 @import "../material-design-lite/ripple/ripple";
 @import "../material-design-lite/list/list";
+@import "../shapla/dropdown/dropdown";
 @import "frontend/survey-form";
 @import "tiny-slider/slider";
 @import "frontend/star_rating";
@@ -9,6 +10,10 @@
 @import "frontend/button";
 @import "frontend/device_box";
 @import "vendors/dropzone";
+
+body.page-template-blank-template {
+	overflow-x: hidden;
+}
 
 // @TODO maybe remove this style
 .scale-on-mount {

@@ -185,6 +185,11 @@ class SupportTicketManager {
 			$order_ticket_category = array_map( 'intval', $order_ticket_category );
 			update_option( 'wpsc_default_contact_form_ticket_category', $order_ticket_category );
 		}
+		$order_ticket_category = isset( $_POST['stackonet_ticket_search_categories'] ) ? $_POST['stackonet_ticket_search_categories'] : [];
+		if ( is_array( $order_ticket_category ) && count( $order_ticket_category ) ) {
+			$order_ticket_category = array_map( 'intval', $order_ticket_category );
+			update_option( 'stackonet_ticket_search_categories', $order_ticket_category );
+		}
 	}
 
 	public function settings() {
@@ -236,6 +241,20 @@ class SupportTicketManager {
 				$selected = in_array( $category->term_id, $wpsc_default_ticket_category ) ? 'checked' : '';
 				?>
 				<input type="checkbox" name="wpsc_default_contact_form_ticket_category[]"
+				       value="<?php echo $category->term_id; ?>" <?php echo $selected; ?>> <?php echo $category->name; ?>
+				<br>
+			<?php } ?>
+		</div>
+		<div class="form-group">
+			<label
+				for="stackonet_ticket_search_categories"><?php _e( 'Categories for ticket search', 'supportcandy' ); ?></label>
+			<br>
+			<?php
+			$wpsc_default_ticket_category = (array) get_option( 'stackonet_ticket_search_categories' );
+			foreach ( $categories as $category ) {
+				$selected = in_array( $category->term_id, $wpsc_default_ticket_category ) ? 'checked' : '';
+				?>
+				<input type="checkbox" name="stackonet_ticket_search_categories[]"
 				       value="<?php echo $category->term_id; ?>" <?php echo $selected; ?>> <?php echo $category->name; ?>
 				<br>
 			<?php } ?>
