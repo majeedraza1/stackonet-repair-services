@@ -35,6 +35,8 @@ class Frontend {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
+			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
+
 			add_shortcode( 'stackonet_repair_service', [ self::$instance, 'repair_services' ] );
 			add_shortcode( 'stackonet_repair_service_pricing', [ self::$instance, 'repair_services_pricing' ] );
 			add_shortcode( 'stackonet_testimonial_form', [ self::$instance, 'testimonial_form' ] );
@@ -43,10 +45,9 @@ class Frontend {
 			add_shortcode( 'stackonet_reschedule_order', [ self::$instance, 'reschedule_order' ] );
 			add_shortcode( 'stackonet_rent_a_center', [ self::$instance, 'rent_a_center' ] );
 			add_shortcode( 'stackonet_survey_form', [ self::$instance, 'survey_form' ] );
-			add_shortcode( 'stackonet_spot_appointment', [ self::$instance, 'spot_appointment' ] );
 			add_shortcode( 'stackonet_become_technician', [ self::$instance, 'become_technician' ] );
-			add_shortcode( 'stackonet_support_ticket', [ self::$instance, 'support_ticket' ] );
-			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
+
+			add_shortcode( 'stackonet_frontend_dashboard', [ self::$instance, 'frontend_dashboard' ] );
 		}
 
 		return self::$instance;
@@ -63,6 +64,13 @@ class Frontend {
 			wp_enqueue_script( 'stackonet-repair-services-frontend' );
 			wp_localize_script( 'stackonet-repair-services-frontend', 'Stackonet', self::service_data() );
 		}
+	}
+
+	/**
+	 * TinyMce script
+	 */
+	public function tinymce_script() {
+		echo '<script type="text/javascript" src="' . includes_url( 'js/tinymce/tinymce.min.js' ) . '"></script>';
 	}
 
 	/**
@@ -88,6 +96,8 @@ class Frontend {
 			'stackonet_rent_a_center',
 			'stackonet_support_ticket',
 			'stackonet_support_ticket_form',
+			'stackonet_checkout_analysis',
+			'stackonet_frontend_dashboard',
 		];
 
 		global $post;
@@ -105,66 +115,25 @@ class Frontend {
 	}
 
 	/**
-	 * Rent a center shortcode content
+	 * Frontend dashboard
 	 *
 	 * @return string
 	 */
-	public function rent_a_center() {
-		return '<div id="stackonet_rent_a_center"></div>';
-	}
+	public function frontend_dashboard() {
+		$data             = [];
+		$custom_logo_id   = get_theme_mod( 'custom_logo' );
+		$_logo_url        = wp_get_attachment_image_src( $custom_logo_id );
+		$data['logo_url'] = '';
+		if ( isset( $_logo_url[0] ) && filter_var( $_logo_url[0], FILTER_VALIDATE_URL ) ) {
+			$data['logo_url'] = $_logo_url[0];
+		}
 
-	/**
-	 * Survey form
-	 *
-	 * @return string
-	 */
-	public function survey_form() {
 		if ( ! current_user_can( 'add_survey' ) ) {
-			return '<div>Please login to view this form.</div>';
+			wp_localize_script( 'stackonet-repair-services-frontend', 'SupportTickets', $data );
+
+			return '<div id="stackonet_repair_services_dashboard_login"></div>';
 		}
 
-		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
-
-		return '<div id="stackonet_survey_form"></div>';
-	}
-
-	/**
-	 * Survey form
-	 *
-	 * @return string
-	 */
-	public function spot_appointment() {
-		if ( ! current_user_can( 'add_survey' ) ) {
-			return '<div>Please login to view this form.</div>';
-		}
-
-		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
-
-		return '<div id="stackonet_spot_appointment"></div>';
-	}
-
-	/**
-	 * Become a technician form
-	 *
-	 * @return string
-	 */
-	public function become_technician() {
-		return '<div id="stackonet_become_technician"></div>';
-	}
-
-	/**
-	 * Become a technician form
-	 *
-	 * @return string
-	 */
-	public function support_ticket() {
-		if ( ! current_user_can( 'read' ) ) {
-			$login_url = wp_login_url( get_permalink() );
-			$html      = '<p>You need to <a href="' . esc_url( $login_url ) . '">Log in</a>.</p>';
-
-			return $html;
-		}
-		$data          = [];
 		$supportTicket = new SupportTicket();
 
 		$_statuses        = $supportTicket->get_ticket_statuses_terms();
@@ -198,18 +167,51 @@ class Frontend {
 		$data['user']   = [
 			'display_name' => $user->display_name,
 			'user_email'   => $user->user_email,
+			'avatar_url'   => get_avatar_url( $user->user_email ),
 		];
 		$data['cities'] = $supportTicket->find_all_cities();
 
+		$data['search_categories'] = (array) get_option( 'stackonet_ticket_search_categories' );
+
 		wp_localize_script( 'stackonet-repair-services-frontend', 'SupportTickets', $data );
+
+		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
 		add_action( 'wp_footer', [ $this, 'tinymce_script' ], 9 );
 
-		return '<div id="stackonet_support_ticket"></div>';
+		return '<div id="stackonet_repair_services_dashboard"></div>';
 	}
 
+	/**
+	 * Rent a center shortcode content
+	 *
+	 * @return string
+	 */
+	public function rent_a_center() {
+		return '<div id="stackonet_rent_a_center"></div>';
+	}
 
-	public function tinymce_script() {
-		echo '<script type="text/javascript" src="' . includes_url( 'js/tinymce/tinymce.min.js' ) . '"></script>';
+	/**
+	 * Survey form
+	 *
+	 * @return string
+	 */
+	public function survey_form() {
+		if ( ! current_user_can( 'add_survey' ) ) {
+			return '<div>Please login to view this form.</div>';
+		}
+
+		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
+
+		return '<div id="stackonet_survey_form"></div>';
+	}
+
+	/**
+	 * Become a technician form
+	 *
+	 * @return string
+	 */
+	public function become_technician() {
+		return '<div id="stackonet_become_technician"></div>';
 	}
 
 	/**
@@ -395,6 +397,7 @@ class Frontend {
 			'site_url'    => site_url(),
 			'home_url'    => home_url(),
 			'login_url'   => wp_login_url(),
+			'logout_url'  => wp_logout_url( home_url() ),
 			'myaccount'   => wc_get_page_permalink( 'myaccount' ),
 			'token'       => wp_create_nonce( 'confirm_appointment' ),
 			'rest_root'   => esc_url_raw( rest_url( 'stackonet/v1' ) ),

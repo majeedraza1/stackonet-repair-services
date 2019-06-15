@@ -30,7 +30,7 @@
 			return {}
 		},
 		computed: {
-			...mapState(['deviceColors']),
+			...mapState(['deviceColors', 'deviceModel', 'checkoutAnalysisId']),
 			hasColors() {
 				return !!(this.deviceColors && this.deviceColors.length);
 			}
@@ -44,6 +44,11 @@
 			if (!this.hasColors) {
 				this.$router.push('/device-model');
 			}
+
+			this.$store.dispatch('updateCheckoutAnalysis', {
+				step: 'device_color',
+				step_data: {device_model: this.deviceModel.title}
+			});
 		},
 		methods: {
 			chooseDeviceColor(color) {

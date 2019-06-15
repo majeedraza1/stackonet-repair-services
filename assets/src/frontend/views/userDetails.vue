@@ -48,6 +48,7 @@
 </template>
 
 <script>
+	import {mapState} from 'vuex';
 	import AnimatedInput from '../../components/AnimatedInput.vue';
 	import BigButton from '../../components/BigButton.vue';
 	import SectionTitle from '../components/SectionTitle'
@@ -68,6 +69,7 @@
 			}
 		},
 		computed: {
+			...mapState(['checkoutAnalysisId']),
 			isEmailValid() {
 				return this.hasEmail && this.validateEmail(this.email);
 			},
@@ -97,11 +99,19 @@
 			this.$store.commit('SET_LOADING_STATUS', false);
 			this.$store.commit('SET_SHOW_CART', true);
 			this.$store.commit('IS_THANK_YOU_PAGE', false);
+			this.firstName = this.$store.state.firstName;
+			this.lastName = this.$store.state.lastName;
+			this.phone = this.$store.state.phone;
 
 			// If no models, redirect one step back
 			if (!this.hasAddress) {
 				this.$router.push('/user-address');
 			}
+
+			this.$store.dispatch('updateCheckoutAnalysis', {
+				step: 'user_details',
+				step_data: {user_address: this.address}
+			});
 		},
 		methods: {
 			validateEmail(email) {

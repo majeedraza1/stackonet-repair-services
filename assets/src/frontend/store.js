@@ -1,5 +1,6 @@
 import Vuex from 'vuex'
 import Vue from 'vue'
+import axios from 'axios'
 
 Vue.use(Vuex);
 
@@ -38,6 +39,7 @@ export default new Vuex.Store({
 		testimonials: [],
 		windowWidth: 0,
 		isThankYouPage: false,
+		checkoutAnalysisId: 0,
 	},
 
 	// Commit + track state changes
@@ -138,6 +140,9 @@ export default new Vuex.Store({
 		IS_THANK_YOU_PAGE(state, isThankYouPage) {
 			state.isThankYouPage = isThankYouPage;
 		},
+		SET_CHECKOUT_ANALYSIS_ID(state, id) {
+			state.checkoutAnalysisId = id;
+		},
 	},
 
 	// Same as Vue methods
@@ -158,6 +163,51 @@ export default new Vuex.Store({
 					context.commit('SET_LOADING_STATUS', false);
 				}
 			});
+		},
+		refreshCheckoutAnalysisIdFromLocalStorage({commit}) {
+			if (typeof (Storage) !== "undefined") {
+				let checkoutAnalysisId = localStorage.getItem('_checkout_initial_id');
+
+				if (checkoutAnalysisId) {
+					commit('SET_CHECKOUT_ANALYSIS_ID', parseInt(checkoutAnalysisId));
+				}
+			}
+		},
+		removeCheckoutAnalysisIdFromLocalStorage({commit}) {
+			if (typeof (Storage) !== "undefined") {
+				let checkoutAnalysisId = localStorage.getItem('_checkout_initial_id');
+
+				if (checkoutAnalysisId) {
+					localStorage.removeItem('_checkout_initial_id');
+					commit('SET_CHECKOUT_ANALYSIS_ID', 0);
+				}
+			}
+		},
+		checkoutAnalysis({commit}, data = {}) {
+			axios
+				.post(window.Stackonet.rest_root + '/checkout-analysis', data)
+				.then(response => {
+					if (response.data.data) {
+						commit('SET_CHECKOUT_ANALYSIS_ID', response.data.data.id);
+						// Store in local storage
+						if (typeof (Storage) !== "undefined") {
+							localStorage.setItem('_checkout_initial_id', response.data.data.id);
+						}
+					}
+				})
+				.catch(error => {
+					console.log(error);
+				});
+		},
+		updateCheckoutAnalysis(context, data = {}) {
+			context.dispatch('refreshCheckoutAnalysisIdFromLocalStorage');
+			axios
+				.put(window.Stackonet.rest_root + '/checkout-analysis/' + context.state.checkoutAnalysisId, data)
+				.then(response => {
+				})
+				.catch(error => {
+					console.log(error);
+				});
 		}
 	},
 

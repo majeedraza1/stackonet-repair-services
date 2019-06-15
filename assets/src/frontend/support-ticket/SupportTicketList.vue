@@ -1,13 +1,14 @@
 <template>
-	<div class="stackont-support-ticket-container" style="margin: 100px auto;">
+	<div class="stackont-support-ticket-container">
 		<div class="display-flex justify-space-between">
-			<div class="flex-item">
+			<div class="flex-item display-flex align-items-start">
 				<mdl-button type="raised" color="primary" @click="openNewTicket">
 					<icon><i class="fa fa-plus" aria-hidden="true"></i></icon>
 					New Ticket
 				</mdl-button>
+				<search :dropdown-items="dropdownCategories" @search="categorySearch"></search>
 			</div>
-			<div class="flex-item">
+			<div class="flex-item display-flex">
 				<mdl-button type="raised" color="default" @click="exportExcel">Export Excel</mdl-button>
 			</div>
 		</div>
@@ -25,6 +26,7 @@
 			@action:click="onActionClick"
 			@bulk:apply="onBulkAction"
 			@pagination="paginate"
+			:mobile-width="1499"
 		>
 			<template slot="created_by" slot-scope="data" class="button--status">
 				<span v-html="getAssignedAgents(data.row.assigned_agents)"></span>
@@ -79,16 +81,18 @@
 	import wpBulkActions from '../../wp/wpBulkActions'
 	import modal from '../../shapla/modal/modal'
 	import Icon from "../../shapla/icon/icon";
+	import Search from "../../shapla/search/Search";
 
 	export default {
 		name: "SupportTicketList",
-		components: {Icon, mdlTable, mdlButton, wpStatusList, wpPagination, wpBulkActions, modal},
+		components: {Icon, mdlTable, mdlButton, wpStatusList, wpPagination, wpBulkActions, modal, Search},
 		data() {
 			return {
 				loading: false,
 				default_statuses: [],
 				default_categories: [],
 				default_priorities: [],
+				search_categories: [],
 				cities: [],
 				columns: [
 					{key: 'id', label: 'ID', numeric: true},
@@ -111,10 +115,12 @@
 				category: 'all',
 				priority: 'all',
 				city: 'all',
+				query: '',
 			}
 		},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
+			this.$store.commit('SET_TITLE', 'Support Tickets');
 			if (!this.items.length) {
 				this.getItems();
 			}
@@ -123,8 +129,19 @@
 			this.default_priorities = SupportTickets.priorities;
 			this.count_trash = SupportTickets.count_trash;
 			this.cities = SupportTickets.cities;
+			this.search_categories = SupportTickets.search_categories;
 		},
 		computed: {
+			dropdownCategories() {
+				let _categories = [{label: 'All', value: 'all'}], self = this;
+				self.default_categories.forEach(function (element) {
+					if (-1 !== self.search_categories.indexOf(element.key)) {
+						_categories.push({label: element.label, value: element.key,})
+					}
+				});
+
+				return _categories;
+			},
 			statuses() {
 				let _status = [], self = this;
 				self.default_statuses.forEach(status => {
@@ -181,15 +198,35 @@
 				this.currentPage = page;
 				this.getItems();
 			},
+			categorySearch(data) {
+				let self = this;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				let parms = `ticket_status=${self.status}&ticket_category=${data.cat}&ticket_priority=${self.priority}&paged=${self.currentPage}&city=${self.city}&search=${data.query}`;
+				axios
+					.get(PhoneRepairs.rest_root + `/support-ticket?${parms}`)
+					.then((response) => {
+						self.$store.commit('SET_LOADING_STATUS', false);
+						let data = response.data.data;
+						self.items = data.items;
+						self.counts = data.counts;
+						self.pagination = data.pagination;
+					})
+					.catch((error) => {
+						self.$store.commit('SET_LOADING_STATUS', false);
+						console.log(error);
+					});
+			},
+			search() {
+				this.getItems();
+			},
 			exportExcel() {
-
 				let url = `${PhoneRepairs.ajaxurl}?action=download_support_ticket&ticket_status=${this.status}&ticket_category=${this.category}&ticket_priority=${this.priority}`;
 				window.location.href = url;
 			},
 			getItems() {
 				let self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
-				let parms = `ticket_status=${self.status}&ticket_category=${self.category}&ticket_priority=${self.priority}&paged=${self.currentPage}&city=${self.city}`;
+				let parms = `ticket_status=${self.status}&ticket_category=${self.category}&ticket_priority=${self.priority}&paged=${self.currentPage}&city=${self.city}&search=${self.query}`;
 				axios
 					.get(PhoneRepairs.rest_root + `/support-ticket?${parms}`)
 					.then((response) => {
@@ -273,19 +310,27 @@
 <style lang="scss">
 	.stackont-support-ticket-container {
 
-		@media only screen and (max-width: 767px) {
+		.mdl-data-table--mobile {
 			.mdl-data-table tr td.manage-column.manage-id {
 				display: none !important;
 			}
 		}
 
-		@media only screen and (min-width: 768px) {
+		.mdl-data-table-container:not(.mdl-data-table--mobile) {
 			td.manage-column.manage-ticket_subject {
 				max-width: 250px;
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
 			}
+		}
+
+		select#filter-address {
+			max-width: 160px;
+		}
+
+		select#filter-category {
+			width: 150px;
 		}
 
 		td.manage-updated {
@@ -304,6 +349,14 @@
 
 		.justify-space-between {
 			justify-content: space-between;
+		}
+
+		.align-items-start {
+			align-items: flex-start;
+
+			button {
+				margin-right: 5px;
+			}
 		}
 	}
 </style>

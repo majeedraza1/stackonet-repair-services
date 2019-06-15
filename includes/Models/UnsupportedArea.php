@@ -29,6 +29,7 @@ class UnsupportedArea extends DatabaseModel implements DataStoreInterface {
 		'user_ip'      => '127.0.0.1',
 		'user_agent'   => null,
 		'email'        => null,
+		'phone'        => null,
 		'zip_code'     => null,
 		'device_title' => null,
 		'device_model' => null,
@@ -272,6 +273,7 @@ class UnsupportedArea extends DatabaseModel implements DataStoreInterface {
                 `user_ip` varchar(45) DEFAULT NULL,
                 `user_agent` varchar(255) DEFAULT NULL,
                 `email` varchar(255) DEFAULT NULL,
+                `phone` varchar(50) DEFAULT NULL,
                 `zip_code` varchar(255) DEFAULT NULL,
                 `device_title` varchar(255) DEFAULT NULL,
                 `device_model` varchar(255) DEFAULT NULL,
@@ -284,6 +286,27 @@ class UnsupportedArea extends DatabaseModel implements DataStoreInterface {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $table_schema );
+
+		$this->add_table_columns();
+	}
+
+	/**
+	 * Add new columns to table
+	 */
+	public function add_table_columns() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . $this->table;
+		$version    = get_option( 'stackonet_unsupported_areas_table_version' );
+		$version    = ! empty( $version ) ? $version : '1.0.0';
+
+		if ( version_compare( $version, '1.0.1', '<' ) ) {
+			$row = $wpdb->get_row( "SELECT * FROM {$table_name}", ARRAY_A );
+			if ( ! isset( $row['phone'] ) ) {
+				$wpdb->query( "ALTER TABLE {$table_name} ADD `phone` VARCHAR(50) NULL DEFAULT NULL AFTER `email`" );
+			}
+
+			update_option( 'stackonet_unsupported_areas_table_version', '1.0.1' );
+		}
 	}
 
 	/**

@@ -18,8 +18,12 @@
 			@action:click="onActionClick"
 			@bulk:apply="onBulkAction"
 			@pagination="paginate"
-			:show-search="false"
+			:show-search="true"
+			@search="search"
 		>
+			<p slot="search" class="search-box">
+				<search :dropdown-items="dropdownCategories" @search="categorySearch"></search>
+			</p>
 			<template slot="created_by" slot-scope="data" class="button--status">
 				<span v-html="getAssignedAgents(data.row.assigned_agents)"></span>
 			</template>
@@ -67,16 +71,18 @@
 	import WpListTable from "../../wp/wpListTable";
 	import MdlButton from "../../material-design-lite/button/mdlButton";
 	import Icon from "../../shapla/icon/icon";
+	import Search from "../../shapla/search/Search";
 
 	export default {
 		name: "SupportTicketList",
-		components: {Icon, MdlButton, WpListTable},
+		components: {Icon, MdlButton, WpListTable, Search},
 		data() {
 			return {
 				loading: false,
 				default_statuses: [],
 				default_categories: [],
 				default_priorities: [],
+				search_categories: [],
 				cities: [],
 				columns: [
 					{key: 'ticket_subject', label: 'Subject', numeric: false},
@@ -99,6 +105,7 @@
 				category: 'all',
 				priority: 'all',
 				city: 'all',
+				query: '',
 			}
 		},
 		mounted() {
@@ -111,8 +118,19 @@
 			this.default_priorities = SupportTickets.priorities;
 			this.count_trash = SupportTickets.count_trash;
 			this.cities = SupportTickets.cities;
+			this.search_categories = SupportTickets.search_categories;
 		},
 		computed: {
+			dropdownCategories() {
+				let _categories = [{label: 'All', value: 'all'}], self = this;
+				self.default_categories.forEach(function (element) {
+					if (-1 !== self.search_categories.indexOf(element.key)) {
+						_categories.push({label: element.label, value: element.key,})
+					}
+				});
+
+				return _categories;
+			},
 			statuses() {
 				let _status = [], self = this;
 				self.default_statuses.forEach(status => {
@@ -169,6 +187,27 @@
 				this.currentPage = page;
 				this.getItems();
 			},
+			categorySearch(data) {
+				let self = this;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				let parms = `ticket_status=${self.status}&ticket_category=${data.cat}&ticket_priority=${self.priority}&paged=${self.currentPage}&city=${self.city}&search=${data.query}`;
+				axios
+					.get(stackonetSettings.root + `/support-ticket?${parms}`)
+					.then((response) => {
+						self.$store.commit('SET_LOADING_STATUS', false);
+						let data = response.data.data;
+						self.items = data.items;
+						self.counts = data.counts;
+						self.pagination = data.pagination;
+					})
+					.catch((error) => {
+						console.log(error);
+					});
+			},
+			search(query) {
+				this.query = query;
+				this.getItems();
+			},
 			exportExcel() {
 
 				let url = `${ajaxurl}?action=download_support_ticket&ticket_status=${this.status}&ticket_category=${this.category}&ticket_priority=${this.priority}`;
@@ -177,7 +216,7 @@
 			getItems() {
 				let self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
-				let parms = `ticket_status=${self.status}&ticket_category=${self.category}&ticket_priority=${self.priority}&paged=${self.currentPage}&city=${self.city}`;
+				let parms = `ticket_status=${self.status}&ticket_category=${self.category}&ticket_priority=${self.priority}&paged=${self.currentPage}&city=${self.city}&search=${self.query}`;
 				axios
 					.get(stackonetSettings.root + `/support-ticket?${parms}`)
 					.then((response) => {

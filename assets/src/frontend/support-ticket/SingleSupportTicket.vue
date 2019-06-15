@@ -61,6 +61,8 @@
 														<small class="shapla-thread__time">&nbsp;
 															<template v-if="thread.thread_type === 'note'">added note
 															</template>
+															<template v-if="thread.thread_type === 'sms'">sent sms
+															</template>
 															<template v-else-if="thread.thread_type === 'reply'">replied
 															</template>
 															<template v-else>reported</template>
@@ -151,6 +153,62 @@
 					</div>
 				</div>
 
+				<div class="shapla-box shapla-widget-box">
+					<div class="shapla-widget-box__heading">
+						<h5 class="shapla-widget-box__title">SMS Messages</h5>
+					</div>
+					<div class="shapla-widget-box__content">
+						<p v-if="item.customer_phone">
+							<label>
+								<input type="radio" value="customer" @change="agentSmsChanged"
+									   v-model="ticket_twilio_sms_enable_phone">
+								<strong>Customer Phone: </strong> {{item.customer_phone}}
+							</label>
+						</p>
+						<p>
+							<label>
+								<input type="radio" value="custom" @change="agentSmsChanged"
+									   v-model="ticket_twilio_sms_enable_phone">
+								<strong>Custom Phone: </strong>
+								<input type="text" v-model="ticket_twilio_sms_custom_phone"/>
+							</label>
+						</p>
+						<p>
+							<label>
+								<input type="radio" v-model="ticket_twilio_sms_enable_phone" value="agents"
+									   @change="agentSmsChanged">
+								<strong>Assign Agent(s)</strong>
+							</label>
+
+							<icon v-if="ticket_twilio_sms_enable_phone === 'agents'">
+								<i @click="openTwilioAssignAgentModal" aria-hidden="true"
+								   class="fa fa-pencil-square-o"></i>
+							</icon>
+							<br>
+							<template v-for="_agent in support_agents">
+
+							<span class="shapla-chip shapla-chip--contact"
+								  v-if="twilio_support_agents_ids.indexOf(_agent.id) !== -1">
+							<span class="shapla-chip__contact">
+								<image-container>
+									<img :src="_agent.avatar_url" width="32" height="32">
+								</image-container>
+							</span>
+							<span class="shapla-chip__text">{{_agent.display_name}}</span>
+						</span>
+							</template>
+						</p>
+						<p><textarea type="text" name="ticket_twilio_sms" id="ticket_twilio_sms"
+									 v-model="ticket_twilio_sms_content"
+									 class="input-text" style="width: 100%;" rows="4" value=""></textarea></p>
+						<p>
+							<mdl-button type="raised" :disabled="!canSendSms" @click="sendSms">Send SMS</mdl-button>
+							<span id="wc_twilio_sms_order_message_char_count"
+								  style="color: green; float: right; font-size: 16px;">{{ticket_twilio_sms_content.length}}</span>
+						</p>
+					</div>
+				</div>
+
 			</column>
 		</columns>
 
@@ -206,6 +264,29 @@
 				<mdl-button @click="updateSubject">Save</mdl-button>
 			</template>
 		</modal>
+
+		<modal :active="activeTwilioAgentModal" title="Choose Assign Agent(s)" @close="activeTwilioAgentModal = false">
+			<template v-for="_agent in support_agents">
+				<div class="support_agents-chip">
+					<div class="shapla-chip shapla-chip--contact" @click="updateTwilioAgent(_agent)"
+						 :class="{'is-active':twilio_support_agents_ids.indexOf(_agent.id) !== -1}">
+						<div class="shapla-chip__contact">
+							<image-container>
+								<img :src="_agent.avatar_url" width="32" height="32">
+							</image-container>
+						</div>
+						<span class="shapla-chip__text">
+							{{_agent.display_name}} - {{_agent.role_label}}
+							<span v-if="_agent.phone">(Phone: {{_agent.phone}})</span>
+						</span>
+					</div>
+				</div>
+			</template>
+			<template slot="foot">
+				<mdl-button @click="activeTwilioAgentModal = false">Confirm</mdl-button>
+			</template>
+		</modal>
+
 	</div>
 </template>
 
@@ -232,6 +313,13 @@
 				activeThreadModal: false,
 				activeTitleModal: false,
 				activeThread: {},
+				activeTwilioAgentModal: false,
+				ticket_twilio_sms_customer_phone: true,
+				ticket_twilio_sms_enable_custom_phone: false,
+				ticket_twilio_sms_enable_phone: '',
+				ticket_twilio_sms_custom_phone: '',
+				ticket_twilio_sms_content: '',
+				twilio_support_agents_ids: [],
 				activeThreadContent: '',
 				ticket_subject: '',
 				ticket_category: '',
@@ -258,16 +346,73 @@
 					statusbar: true
 				}
 			},
+			canSendSms() {
+				if (this.ticket_twilio_sms_content.length < 5) return false;
+				return true;
+			}
 		},
 		mounted() {
 			let id = this.$route.params.id;
 			this.$store.commit('SET_LOADING_STATUS', false);
+			this.$store.commit('SET_TITLE', 'Support Ticket');
 			if (id) {
 				this.id = parseInt(id);
 				this.getItem();
 			}
 		},
 		methods: {
+			sendSms() {
+				if (this.ticket_twilio_sms_content.length < 5) {
+					alert('Please add some content first.');
+					return;
+				}
+				let self = this;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				axios
+					.post(PhoneRepairs.rest_root + '/support-ticket/' + self.id + '/sms', {
+						content: self.ticket_twilio_sms_content,
+						send_to_customer: self.ticket_twilio_sms_customer_phone,
+						send_to_custom_number: self.ticket_twilio_sms_enable_custom_phone,
+						custom_phone: self.ticket_twilio_sms_custom_phone,
+						agents_ids: self.twilio_support_agents_ids,
+						sms_for: self.ticket_twilio_sms_enable_phone,
+					})
+					.then((response) => {
+						self.$store.commit('SET_LOADING_STATUS', false);
+						self.ticket_twilio_sms_content = '';
+						self.ticket_twilio_sms_customer_phone = true;
+						self.ticket_twilio_sms_enable_custom_phone = false;
+						self.ticket_twilio_sms_custom_phone = '';
+						self.ticket_twilio_sms_enable_phone = '';
+						self.twilio_support_agents_ids = [];
+						self.getItem();
+						alert('SMS has been sent successfully.');
+					})
+					.catch((error) => {
+						self.$store.commit('SET_LOADING_STATUS', false);
+						if (error.response.status === 422 && error.response.data) {
+							alert(error.response.data.message);
+						}
+					});
+			},
+			agentSmsChanged() {
+				if (this.ticket_twilio_sms_enable_phone === 'agents') {
+					this.ticket_twilio_sms_content = 'URL: ' + window.location.href;
+				} else {
+					this.ticket_twilio_sms_content = '';
+				}
+			},
+			openTwilioAssignAgentModal() {
+				this.activeTwilioAgentModal = true;
+			},
+			updateTwilioAgent(agent) {
+				let index = this.twilio_support_agents_ids.indexOf(agent.id);
+				if (-1 !== index) {
+					this.twilio_support_agents_ids.splice(index, 1);
+				} else {
+					this.twilio_support_agents_ids.push(agent.id);
+				}
+			},
 			openNewTicket() {
 				this.$router.push({name: 'NewSupportTicket'});
 			},
@@ -455,8 +600,6 @@
 
 <style lang="scss">
 	.stackont-single-support-ticket-container {
-		margin-top: 50px;
-		margin-bottom: 50px;
 
 		.stackont-single-support-ticket-actions {
 			display: flex;
@@ -595,6 +738,11 @@
 			background-color: #f5fffd;
 		}
 
+		&--sms {
+			background-color: rgba(#ff3860, .1);
+		}
+
+		&--sms,
 		&--report,
 		&--note,
 		&--reply {

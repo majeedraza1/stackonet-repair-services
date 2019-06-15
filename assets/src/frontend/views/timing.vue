@@ -107,9 +107,14 @@
 			if (!this.hasIssues) {
 				this.$router.push('/screen-cracked');
 			}
+
+			this.$store.dispatch('updateCheckoutAnalysis', {
+				step: 'requested_date_time',
+				step_data: {device_issue: this.issues}
+			});
 		},
 		computed: {
-			...mapState(['issues', 'date', 'timeRange']),
+			...mapState(['issues', 'date', 'timeRange', 'checkoutAnalysisId']),
 			hasIssues() {
 				return !!(this.issues && this.issues.length);
 			},
@@ -117,7 +122,7 @@
 				return !!(this.tempDate.holiday);
 			},
 			isButtonActive() {
-				return !!(this.tempDate && this.tempDate.date && this.tempTime.length && !this.isHoliday);
+				// return !!(this.tempDate && this.tempDate.date && this.tempTime.length && !this.isHoliday);
 			}
 		},
 		methods: {

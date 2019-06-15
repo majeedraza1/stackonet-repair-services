@@ -12,18 +12,19 @@ import userAddress from './views/userAddress.vue';
 import userDetails from './views/userDetails.vue';
 import unsupportedZipCode from './views/unsupportedZipCode.vue';
 import unsupportedZipCodeThankyou from './views/unsupportedZipCodeThankyou.vue';
-import unsupportedService from './views/unsupportedService.vue';
 import termsAndConditions from './views/termsAndConditions.vue';
+import userInfo from './views/userInfo';
 
 Vue.use(VueRouter);
 
 const routes = [
-	{path: '/', name: 'device', component: device},
+	{path: '/', name: 'userInfo', component: userInfo},
+	{path: '/device', name: 'device', component: device},
 	{path: '/device-model', name: 'device-model', component: deviceModel},
 	{path: '/device-color', name: 'device-color', component: deviceColor},
 	{path: '/zip-code', name: 'zip-code', component: zipCode},
 	{path: '/unsupported-zip-code', name: 'unsupported-zip-code', component: unsupportedZipCode},
-	{path: '/unsupported-service', name: 'unsupported-service', component: unsupportedService},
+	{path: '/thankyou', name: 'thankyou', component: unsupportedZipCodeThankyou},
 	{path: '/screen-cracked', name: 'screen-cracked', component: screenCracked},
 	{path: '/select-issue', name: 'select-issue', component: deviceIssue},
 	{path: '/select-time', name: 'select-time', component: timing},
@@ -31,7 +32,6 @@ const routes = [
 	{path: '/user-details', name: 'user-details', component: userDetails},
 	{path: '/terms-and-conditions', name: 'terms-and-conditions', component: termsAndConditions},
 	{path: '/thank-you', name: 'thank-you', component: thankyou},
-	{path: '/thankyou', name: 'thankyou', component: unsupportedZipCodeThankyou},
 ];
 
 export default new VueRouter({
