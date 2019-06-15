@@ -35,6 +35,8 @@ class Frontend {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
+			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
+
 			add_shortcode( 'stackonet_repair_service', [ self::$instance, 'repair_services' ] );
 			add_shortcode( 'stackonet_repair_service_pricing', [ self::$instance, 'repair_services_pricing' ] );
 			add_shortcode( 'stackonet_testimonial_form', [ self::$instance, 'testimonial_form' ] );
@@ -48,7 +50,6 @@ class Frontend {
 			add_shortcode( 'stackonet_support_ticket', [ self::$instance, 'support_ticket' ] );
 			add_shortcode( 'stackonet_checkout_analysis', [ self::$instance, 'checkout_analysis' ] );
 			add_shortcode( 'stackonet_frontend_dashboard', [ self::$instance, 'frontend_dashboard' ] );
-			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
 		}
 
 		return self::$instance;

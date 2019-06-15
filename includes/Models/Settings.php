@@ -50,7 +50,7 @@ class Settings {
 	 *
 	 * @return array
 	 */
-	private static function get_option() {
+	public static function get_option() {
 		$option = get_option( self::$option );
 
 		return is_array( $option ) ? wp_parse_args( $option, self::$default ) : [];
@@ -196,43 +196,45 @@ class Settings {
 	 * @throws Exception
 	 */
 	public static function get_today_times_ranges() {
-		$current_time  = current_time( 'timestamp' );
-		$options       = self::get_option();
-		$service_times = ! empty( $options['service_times'] ) ? $options['service_times'] : [];
-		$dayName       = date( 'l', $current_time );
-		$times_ranges  = isset( $service_times[ $dayName ] ) ? $service_times[ $dayName ] : [];
+		$current_time     = current_time( 'timestamp' );
+		$options          = self::get_option();
+		$difference       = ! empty( $options['minimum_time_difference'] ) ? intval( $options['minimum_time_difference'] ) : 0;
+		$start_time       = $current_time + ( $difference * 60 );
+		$round_start_time = round( $start_time / 3600 ) * 3600;
 
-		$start_time = $times_ranges['start_time'];
-		$end_time   = $times_ranges['end_time'];
+		$_start_time = intval( date( 'Hi', $round_start_time ) );
 
-		$difference      = ! empty( $options['minimum_time_difference'] ) ? intval( $options['minimum_time_difference'] ) : 0;
-		$_time           = $current_time + ( $difference * 60 );
-		$rounded_seconds = round( $_time / 3600 ) * 3600;
-		$_start_time     = date( 'H:i', $rounded_seconds );
+		$time_ranges = [];
 
-		if ( intval( $_start_time ) > intval( $start_time ) ) {
-			$start_time = $_start_time;
+		if ( $_start_time <= 900 ) {
+			$time_ranges[] = '09am - 12pm';
 		}
 
-		$start = date( 'Y-m-d', time() ) . ' ' . $start_time;
-		$end   = date( 'Y-m-d', time() ) . ' ' . $end_time;
-
-		$date1 = new DateTime( $start );
-		$date2 = new DateTime( $end );
-
-		$interval = new DateInterval( 'PT1H' );
-		/** @var DateTime[] $period */
-		$period = new DatePeriod( $date1, $interval, $date2 );
-
-		$_times = [];
-
-		foreach ( $period as $day ) {
-			$_h1 = $day->format( 'ha' );
-			$day->modify( '+ 1 hour' );
-			$_times[] = sprintf( '%s - %s', $_h1, $day->format( 'ha' ) );
+		if ( $_start_time > 900 && $_start_time < 1100 ) {
+			$time_ranges[] = date( 'ha', $round_start_time ) . ' - 12pm';
 		}
 
-		return $_times;
+		if ( $_start_time <= 1200 ) {
+			$time_ranges[] = '12pm - 3pm';
+		}
+
+		if ( $_start_time > 1200 && $_start_time < 1400 ) {
+			$time_ranges[] = date( 'ha', $round_start_time ) . ' - 3pm';
+		}
+
+		if ( $_start_time <= 1500 ) {
+			$time_ranges[] = '3pm - 6pm';
+		}
+
+		if ( $_start_time > 1500 && $_start_time < 1700 ) {
+			$time_ranges[] = date( 'ha', $round_start_time ) . ' - 6pm';
+		}
+
+		if ( $_start_time <= 1800 ) {
+			$time_ranges[] = '6pm - 9pm';
+		}
+
+		return $time_ranges;
 	}
 
 	/**
@@ -254,15 +256,19 @@ class Settings {
 			$date1 = new DateTime( $start );
 			$date2 = new DateTime( $end );
 
-			$interval = new DateInterval( 'PT1H' );
+			$interval = new DateInterval( 'PT3H' );
 			/** @var DateTime[] $period */
 			$period = new DatePeriod( $date1, $interval, $date2 );
 
+//			$time_ranges         = [ '09am - 12pm', '12pm - 3pm', '3pm - 6pm', '6pm - 9pm' ];
+//			$_times[ $day_name ] = $time_ranges;
+
 			foreach ( $period as $day ) {
 				$_h1 = $day->format( 'ha' );
-				$day->modify( '+ 1 hour' );
+				$day->modify( '+ 3 hour' );
 				$_times[ $day_name ][] = sprintf( '%s - %s', $_h1, $day->format( 'ha' ) );
 			}
+
 		}
 
 		return $_times;

@@ -173,7 +173,7 @@
 						</p>
 						<p>
 							<icon>
-								<span @click="openTwilioAssignAgentModal" class="dashicons dashicons-edit"></span>
+								<i @click="openTwilioAssignAgentModal" aria-hidden="true" class="fa fa-pencil-square-o"></i>
 							</icon>
 							<strong>Assign Agent(s)</strong><br>
 							<template v-for="_agent in support_agents">

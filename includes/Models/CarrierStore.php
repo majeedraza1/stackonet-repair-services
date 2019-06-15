@@ -407,7 +407,5 @@ class CarrierStore extends DatabaseModel {
             ) $collate;";
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $table_schema );
-
-		$this->add_table_columns();
 	}
 }

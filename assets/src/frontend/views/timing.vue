@@ -122,7 +122,7 @@
 				return !!(this.tempDate.holiday);
 			},
 			isButtonActive() {
-				return !!(this.tempDate && this.tempDate.date && this.tempTime.length && !this.isHoliday);
+				// return !!(this.tempDate && this.tempDate.date && this.tempTime.length && !this.isHoliday);
 			}
 		},
 		methods: {

@@ -149,8 +149,12 @@ class RescheduleDateTime {
 			<select id="_reschedule_time_range" name="_reschedule_time_range" class="widefat">
 				<?php
 				echo '<option value="">Choose Time Range</option>';
+				echo '<option value="09am - 12pm">09am - 12pm</option>';
+				echo '<option value="12pm - 3pm">12pm - 3pm</option>';
+				echo '<option value="3pm - 6pm">3pm - 6pm</option>';
+				echo '<option value="6pm - 9pm">6pm - 9pm</option>';
 				foreach ( $_times as $time ) {
-					echo '<option value="' . $time . '">' . $time . '</option>';
+					// echo '<option value="' . $time . '">' . $time . '</option>';
 				}
 				?>
 			</select>
