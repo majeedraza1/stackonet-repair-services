@@ -210,7 +210,7 @@ class Settings {
 			$time_ranges[] = '09am - 12pm';
 		}
 
-		if ( $_start_time > 900 && $_start_time < 1100 ) {
+		if ( $_start_time > 900 && $_start_time <= 1100 ) {
 			$time_ranges[] = date( 'ha', $round_start_time ) . ' - 12pm';
 		}
 
@@ -218,7 +218,7 @@ class Settings {
 			$time_ranges[] = '12pm - 3pm';
 		}
 
-		if ( $_start_time > 1200 && $_start_time < 1400 ) {
+		if ( $_start_time > 1200 && $_start_time <= 1400 ) {
 			$time_ranges[] = date( 'ha', $round_start_time ) . ' - 3pm';
 		}
 
@@ -226,7 +226,7 @@ class Settings {
 			$time_ranges[] = '3pm - 6pm';
 		}
 
-		if ( $_start_time > 1500 && $_start_time < 1700 ) {
+		if ( $_start_time > 1500 && $_start_time <= 1700 ) {
 			$time_ranges[] = date( 'ha', $round_start_time ) . ' - 6pm';
 		}
 

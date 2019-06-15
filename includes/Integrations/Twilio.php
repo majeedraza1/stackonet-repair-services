@@ -100,6 +100,12 @@ class Twilio {
 	 * @throws Exception
 	 */
 	public function send_sms_to_customer( $order ) {
+		if ( ! function_exists( 'wc_twilio_sms' ) ) {
+			Logger::log( 'wc_twilio_sms is not available' );
+
+			return;
+		}
+
 		$message = "Thank You for your %device_name% %device_model% service order at %prefer_date% %prefer_time%!";
 		$message .= " For any questions or appointment changes please text or call %support_phone%.";
 
@@ -125,6 +131,12 @@ class Twilio {
 	 * @throws Exception
 	 */
 	public function send_sms_to_admin( $order ) {
+		if ( ! function_exists( 'wc_twilio_sms' ) ) {
+			Logger::log( 'wc_twilio_sms is not available' );
+
+			return;
+		}
+
 		$message = "NEW ORDER %order_id%: %customer_name% has order a %device_name% %device_model%";
 		$message .= " %device_issues% at %customer_address%. Please arrive by %prefer_date% %prefer_time%.";
 		$message .= ' ' . $this->get_billing_address_map_url( $order );
@@ -162,6 +174,13 @@ class Twilio {
 	 * @throws Exception
 	 */
 	public function send_reschedule_sms_to_customer( $order ) {
+
+		if ( ! function_exists( 'wc_twilio_sms' ) ) {
+			Logger::log( 'wc_twilio_sms is not available' );
+
+			return;
+		}
+
 		$message = "Thank You for your  %device_name% %device_model% service order at %prefer_date% %prefer_time%!";
 		$message .= " For any questions, If you need to reschedule please Click here %reschedule_url%";
 		$message .= " or please text or call %support_phone%.";
@@ -187,6 +206,13 @@ class Twilio {
 	 * @throws Exception
 	 */
 	public function send_reschedule_sms_to_admin( $order ) {
+
+		if ( ! function_exists( 'wc_twilio_sms' ) ) {
+			Logger::log( 'wc_twilio_sms is not available' );
+
+			return;
+		}
+
 		$_date     = get_post_meta( $order->get_id(), '_reschedule_date_time', true );
 		$_date     = is_array( $_date ) ? $_date : [];
 		$last_date = end( $_date );
@@ -227,6 +253,13 @@ class Twilio {
 	 * @throws Exception
 	 */
 	public function send_reminder_sms_to_customer( WC_Order $order ) {
+
+		if ( ! function_exists( 'wc_twilio_sms' ) ) {
+			Logger::log( 'wc_twilio_sms is not available' );
+
+			return;
+		}
+
 		$message = "Thank You for your  %device_name% %device_model% service order at %prefer_date% %prefer_time%!";
 		$message .= " If you need to reschedule please Click here %reschedule_url% or text or call %support_phone%.";
 
@@ -251,6 +284,13 @@ class Twilio {
 	 * @throws Exception
 	 */
 	public function send_reminder_sms_to_admin( WC_Order $order ) {
+
+		if ( ! function_exists( 'wc_twilio_sms' ) ) {
+			Logger::log( 'wc_twilio_sms is not available' );
+
+			return;
+		}
+
 		$message = "Hi Admin. 24 hours left to arrive at %customer_address% by %prefer_date% %prefer_time% to ";
 		$message .= "meet %customer_name%. Be prepared for this %device_issues%.";
 

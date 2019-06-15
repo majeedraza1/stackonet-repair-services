@@ -101,7 +101,7 @@
 			this.timeRanges = window.Stackonet.timeRanges;
 			this.todayTimeRanges = window.Stackonet.todayTimeRanges;
 			this.tempDate = this.dateRanges[0];
-			this.tempTime = this.todayTimeRanges[0];
+			this.tempTime = this.todayTimeRanges[0] ? this.todayTimeRanges[0] : '';
 
 			// If no models, redirect one step back
 			if (!this.hasIssues) {
@@ -122,7 +122,7 @@
 				return !!(this.tempDate.holiday);
 			},
 			isButtonActive() {
-				// return !!(this.tempDate && this.tempDate.date && this.tempTime.length && !this.isHoliday);
+				return !!(this.tempDate && this.tempDate.date && this.tempTime.length && !this.isHoliday);
 			}
 		},
 		methods: {
@@ -131,7 +131,7 @@
 			},
 			updateTodayDate(date) {
 				this.tempDate = date;
-				this.tempTime = this.timeRanges[this.tempDate.day][0];
+				this.tempTime = this.todayTimeRanges[0] ? this.todayTimeRanges[0] : '';
 				this.isToday = true;
 			},
 			updateDate(date) {

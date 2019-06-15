@@ -1,3 +1,15 @@
+#### 1.1.10 - Jun 15, 2019
+* Add - Add login page on dashboard.
+* Add - Make support ticket list table as default landing page.
+* Add - Add user information step on checkout analysis report.
+* Add - Fix dashboard responsive issue for laptop.
+* Add - Add new Carrier Store form based on survey form and its admin list table.
+* Add - Add location autocomplete feature on checkout user address step.
+* Add - Change checkout/re-schedule time to 9am-12pm, 12pm-3pm, 3pm-6pm, 6pm-9pm.
+* Add - Add loading status on dashboard and update vue directory structure.
+* Add - Update support ticket agents sms functionality with ticket view url autocomplete feature.
+* Add - Add functionality to add support ticket from carrier store.
+
 #### 1.1.9 - Jun 11, 2019
 * Add - Add table view on checkout analysis page.
 * Add - Add pagination on checkout analysis page.
