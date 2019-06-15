@@ -5,6 +5,7 @@ namespace Stackonet\Modules\SupportTicket;
 use Exception;
 use Stackonet\Integrations\Twilio;
 use Stackonet\REST\ApiController;
+use Stackonet\Supports\Logger;
 use WP_Error;
 use WP_Post;
 use WP_REST_Request;
@@ -94,11 +95,14 @@ class SupportTicketController extends ApiController {
 		}
 
 		$id                    = (int) $request->get_param( 'id' );
-		$send_to_customer      = (bool) $request->get_param( 'send_to_customer' );
-		$send_to_custom_number = (bool) $request->get_param( 'send_to_custom_number' );
 		$custom_phone          = $request->get_param( 'custom_phone' );
 		$agents_ids            = $request->get_param( 'agents_ids' );
 		$content               = $request->get_param( 'content' );
+		$sms_for               = $request->get_param( 'sms_for' );
+		$acceptable            = [ 'customer', 'custom', 'agents' ];
+		$send_to_customer      = ( 'customer' == $sms_for );
+		$send_to_custom_number = ( 'custom' == $sms_for );
+		$send_to_agents        = ( 'agents' == $sms_for );
 
 		if ( mb_strlen( $content ) < 5 ) {
 			return $this->respondUnprocessableEntity( null, 'Message content must be at least 5 characters.' );
@@ -107,6 +111,10 @@ class SupportTicketController extends ApiController {
 		$supportTicket = ( new SupportTicket )->find_by_id( $id );
 		if ( ! $supportTicket instanceof SupportTicket ) {
 			return $this->respondNotFound();
+		}
+
+		if ( ! in_array( $sms_for, $acceptable ) ) {
+			return $this->respondUnprocessableEntity();
 		}
 
 		$customer_phone = $supportTicket->get( 'customer_phone' );
@@ -121,7 +129,7 @@ class SupportTicketController extends ApiController {
 			$phones[] = $custom_phone;
 		}
 
-		if ( is_array( $agents_ids ) && count( $agents_ids ) ) {
+		if ( is_array( $agents_ids ) && count( $agents_ids ) && $send_to_agents ) {
 			foreach ( $agents_ids as $user_id ) {
 				$billing_phone = get_user_meta( $user_id, 'billing_phone', true );
 				if ( ! empty( $billing_phone ) ) {
@@ -131,8 +139,31 @@ class SupportTicketController extends ApiController {
 		}
 
 		if ( count( $phones ) < 1 ) {
-			return $this->respondUnprocessableEntity();
+			return $this->respondUnprocessableEntity( null, 'Please add SMS receiver(s) numbers.' );
 		}
+
+		ob_start(); ?>
+		<table class="table--support-order">
+			<tr>
+				<td>Phone Number:</td>
+				<td><?php echo implode( ', ', $phones ) ?></td>
+			</tr>
+			<tr>
+				<td>SMS Content:</td>
+				<td><?php echo $content; ?></td>
+			</tr>
+		</table>
+		<?php
+		$html = ob_get_clean();
+
+		$user = wp_get_current_user();
+		$supportTicket->add_ticket_info( $id, [
+			'thread_type'    => 'sms',
+			'customer_name'  => $user->display_name,
+			'customer_email' => $user->user_email,
+			'post_content'   => $html,
+			'agent_created'  => $user->ID,
+		] );
 
 		( new Twilio() )->send_support_ticket_sms( $phones, $content );
 

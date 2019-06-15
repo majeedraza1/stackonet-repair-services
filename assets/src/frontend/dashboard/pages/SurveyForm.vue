@@ -128,7 +128,7 @@
 			></media-modal>
 		</div>
 
-		<big-button @click="handleSubmit">Submit</big-button>
+		<big-button fullwidth @click="handleSubmit">Submit</big-button>
 
 		<mdl-modal :active="open_thank_you_model" type="box" @close="closeThankYouModel">
 			<div class="mdl-box mdl-shadow--2dp">

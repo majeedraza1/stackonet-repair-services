@@ -140,7 +140,7 @@
 			></media-modal>
 		</div>
 
-		<big-button @click="handleSubmit">Submit</big-button>
+		<big-button fullwidth @click="handleSubmit">Submit</big-button>
 
 		<div class="loading-container" :class="{'is-active':loading}">
 			<mdl-spinner :active="loading"></mdl-spinner>
