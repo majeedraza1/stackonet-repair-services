@@ -53,9 +53,11 @@
 					<router-link class="mdl-navigation__link" tag="div" to="/spot-appointment" active-class="is-active">
 						Appointment
 					</router-link>
+					<router-link class="mdl-navigation__link" tag="div" to="/sms" active-class="is-active">
+						SMS
+					</router-link>
 					<router-link class="mdl-navigation__link" tag="div" to="/checkout-analysis"
-								 active-class="is-active">
-						Checkout Analysis
+								 active-class="is-active"> Checkout Analysis
 					</router-link>
 					<a href="https://analytics.google.com/analytics/web/" target="_blank" class="mdl-navigation__link">Google
 						Analytics</a>

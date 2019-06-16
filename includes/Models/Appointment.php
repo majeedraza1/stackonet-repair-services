@@ -192,7 +192,7 @@ class Appointment extends DatabaseModel {
 	 *
 	 * @param array $args
 	 *
-	 * @return array
+	 * @return self[]
 	 */
 	public function find( $args = [] ) {
 		$per_page     = isset( $args['per_page'] ) ? absint( $args['per_page'] ) : $this->perPage;

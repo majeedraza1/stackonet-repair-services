@@ -8,6 +8,7 @@ import SurveyForm from './pages/SurveyForm'
 import CarrierStores from "./pages/CarrierStores";
 import SpotAppointment from "./pages/SpotAppointment";
 import CheckoutAnalysis from "./pages/CheckoutAnalysis";
+import ShortMessageService from "./pages/ShortMessageService";
 
 Vue.use(VueRouter);
 
@@ -19,6 +20,7 @@ const routes = [
 	{path: '/survey', name: 'survey', component: SurveyForm},
 	{path: '/carrier-stores', name: 'CarrierStores', component: CarrierStores},
 	{path: '/spot-appointment', name: 'appointment', component: SpotAppointment},
+	{path: '/sms', name: 'ShortMessageService', component: ShortMessageService},
 	{path: '/checkout-analysis', name: 'checkout', component: CheckoutAnalysis},
 ];
 
