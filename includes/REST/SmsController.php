@@ -6,6 +6,7 @@ use DateTime;
 use Exception;
 use Stackonet\Models\Appointment;
 use Stackonet\Models\CarrierStore;
+use Stackonet\Models\SmsTemplate;
 use Stackonet\Models\Survey;
 use Stackonet\Modules\SupportTicket\SupportAgent;
 use Stackonet\Supports\ArrayHelper;
@@ -48,6 +49,10 @@ class SmsController extends ApiController {
 		register_rest_route( $this->namespace, '/sms', [
 			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_items' ] ],
 			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'create_item' ] ],
+		] );
+		register_rest_route( $this->namespace, '/sms/template', [
+			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_templates' ] ],
+			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'create_template' ] ],
 		] );
 	}
 
@@ -188,6 +193,34 @@ class SmsController extends ApiController {
 		$reminder->dispatch();
 
 		return $this->respondOK( $request->get_params() );
+	}
+
+	/**
+	 * Get sms templates
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function get_templates( $request ) {
+		$response = SmsTemplate::get_templates();
+
+		return $this->respondOK( [ 'items' => $response ] );
+	}
+
+	/**
+	 * Create new sms template
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function create_template( $request ) {
+		$content = $request->get_param( 'content' );
+
+		$response = SmsTemplate::create( [ 'content' => $content ] );
+
+		return $this->respondCreated( $response );
 	}
 
 	/**

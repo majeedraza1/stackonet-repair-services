@@ -40,6 +40,15 @@
 			<span slot="ticket_priority" slot-scope="data" class="button--priority" :class="data.row.priority.slug">
 				{{data.row.priority.name}}
 			</span>
+			<template slot="row-actions" slot-scope="data">
+				<span v-for="action in actions" :class="action.key">
+					<template v-if="action.key === 'view'">
+						<router-link :to="{name: 'SingleSupportTicket', params: {id: data.row.id}}">{{ action.label }}</router-link>
+					</template>
+					<a v-else href="#" @click.prevent="onActionClick(action.key, data.row)">{{ action.label }}</a>
+					<template v-if="!hideActionSeparator(action.key)"> | </template>
+				</span>
+			</template>
 			<template slot="filters">
 				<label for="filter-address" class="screen-reader-text">Filter by status</label>
 				<select id="filter-address" v-model="status" @change="changeStatus">
@@ -239,6 +248,10 @@
 					.catch((error) => {
 						console.log(error);
 					});
+			},
+
+			hideActionSeparator(action) {
+				return action === this.actions[this.actions.length - 1].key;
 			},
 
 			onActionClick(action, item) {

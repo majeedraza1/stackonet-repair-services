@@ -1,104 +1,167 @@
 <template>
 	<div class="stackonet-dashboard-sms">
-		<div class="filter-nav-top">
-			<div class="filter-nav-top__data-source">
-				<select v-model="data_source">
-					<option value="">Choose Source</option>
-					<option value="all">All</option>
-					<option value="orders">Orders</option>
-					<option value="survey">Survey</option>
-					<option value="appointment">Appointment</option>
-					<option value="support-agents">Support Agents</option>
-					<option value="carrier-stores">Carrier Stores</option>
-				</select>
-			</div>
+		<mdl-tabs>
+			<mdl-tab name="SMS" selected>
+				<div class="stackonet-dashboard-sms__sms">
+					<div class="filter-nav-top">
+						<div class="filter-nav-top__data-source">
+							<select v-model="data_source">
+								<option value="">Choose Source</option>
+								<option value="all">All</option>
+								<option value="orders">Orders</option>
+								<option value="survey">Survey</option>
+								<option value="appointment">Appointment</option>
+								<option value="support-agents">Support Agents</option>
+								<option value="carrier-stores">Carrier Stores</option>
+							</select>
+						</div>
 
-			<div class="filter-nav-top__filter_datetime">
-				<mdl-button type="raised" :color="filter_datetime === 'today'?'primary':'default'"
-							@click="filter_datetime = 'today'">Today
-				</mdl-button>
-				<mdl-button type="raised" :color="filter_datetime === 'yesterday'?'primary':'default'"
-							@click="filter_datetime = 'yesterday'">Yesterday
-				</mdl-button>
-				<mdl-button type="raised" :color="filter_datetime === 'this-week'?'primary':'default'"
-							@click="filter_datetime = 'this-week'">This Week
-				</mdl-button>
-				<mdl-button type="raised" :color="filter_datetime === 'last-week'?'primary':'default'"
-							@click="filter_datetime = 'last-week'">Last Week
-				</mdl-button>
-				<mdl-button type="raised" :color="filter_datetime === 'this-month'?'primary':'default'"
-							@click="filter_datetime = 'this-month'">This Month
-				</mdl-button>
-				<mdl-button type="raised" :color="filter_datetime === 'last-month'?'primary':'default'"
-							@click="filter_datetime = 'last-month'">Last Month
-				</mdl-button>
-				<mdl-button type="raised" :color="filter_datetime === 'custom'?'primary':'default'"
-							@click="filter_datetime = 'custom'">Custom
-				</mdl-button>
-			</div>
+						<div class="filter-nav-top__filter_datetime">
+							<mdl-button type="raised" :color="filter_datetime === 'today'?'primary':'default'"
+										@click="filter_datetime = 'today'">Today
+							</mdl-button>
+							<mdl-button type="raised" :color="filter_datetime === 'yesterday'?'primary':'default'"
+										@click="filter_datetime = 'yesterday'">Yesterday
+							</mdl-button>
+							<mdl-button type="raised" :color="filter_datetime === 'this-week'?'primary':'default'"
+										@click="filter_datetime = 'this-week'">This Week
+							</mdl-button>
+							<mdl-button type="raised" :color="filter_datetime === 'last-week'?'primary':'default'"
+										@click="filter_datetime = 'last-week'">Last Week
+							</mdl-button>
+							<mdl-button type="raised" :color="filter_datetime === 'this-month'?'primary':'default'"
+										@click="filter_datetime = 'this-month'">This Month
+							</mdl-button>
+							<mdl-button type="raised" :color="filter_datetime === 'last-month'?'primary':'default'"
+										@click="filter_datetime = 'last-month'">Last Month
+							</mdl-button>
+							<mdl-button type="raised" :color="filter_datetime === 'custom'?'primary':'default'"
+										@click="filter_datetime = 'custom'">Custom
+							</mdl-button>
+						</div>
 
-			<mdl-button type="raised" color="primary" @click="filterData" :disabled="!canFilter">Filter</mdl-button>
-		</div>
+						<mdl-button type="raised" color="primary" @click="filterData" :disabled="!canFilter">Filter
+						</mdl-button>
+					</div>
 
-		<div v-if="filter_datetime === 'custom'">
-			<flat-pickr v-model="date_from" placeholder="Select start date"></flat-pickr>
-			<flat-pickr v-model="date_to" placeholder="Select end date"></flat-pickr>
-		</div>
+					<div v-if="filter_datetime === 'custom'">
+						<flat-pickr v-model="date_from" placeholder="Select start date"></flat-pickr>
+						<flat-pickr v-model="date_to" placeholder="Select end date"></flat-pickr>
+					</div>
 
-		<columns>
-			<column>
-				<mdl-table :rows="items" :columns="columns" :total-items="items.length" @checkedItems="checkedItems"
-						   :per-page="items.length" index="phone"></mdl-table>
-			</column>
-			<column>
-				<div class="form-field" style="margin-top: 40px;">
-					<mdl-button type="raised" color="default">Select SMS Template</mdl-button>
-				</div>
-				<div class="form-field">
-					<div class="form-field__sms-content">
-						<textarea v-model="sms_content" cols="30" rows="10"></textarea>
-						<div class="status-bar">
+					<columns>
+						<column>
+							<mdl-table :rows="items" :columns="columns" :total-items="items.length"
+									   @checkedItems="checkedItems" :per-page="items.length" index="id"></mdl-table>
+						</column>
+						<column>
+							<div class="form-field" style="margin-top: 40px;">
+								<mdl-button type="raised" color="default" @click="addTemplateModalOpen = true">Select
+									SMS
+									Template
+								</mdl-button>
+							</div>
+							<div class="form-field">
+								<div class="form-field__sms-content">
+									<textarea v-model="sms_content" cols="30" rows="10"></textarea>
+									<div class="status-bar">
 							<span class="status-bar__sms-num-count">
 								Total Numbers:
 								<span class="count">{{selected_items.length}}</span>
 							</span>
-							<span class="status-bar__sms-chr-count">
+										<span class="status-bar__sms-chr-count">
 								Total Characters:
 								<span class="count">{{sms_content.length}}</span>
 							</span>
-						</div>
+									</div>
+								</div>
+							</div>
+							<div class="form-field form-field--send-sms">
+								<mdl-button type="raised" color="primary" :disabled="!canSendMessage" @click="sendSms">
+									Send SMS
+								</mdl-button>
+							</div>
+						</column>
+					</columns>
+				</div>
+			</mdl-tab>
+			<mdl-tab name="SMS Template">
+				<div class="stackonet-dashboard-sms__sms-template">
+					<mdl-table
+						:rows="sms_templates"
+						:columns="templateColumns"
+						:actions="templateActions"
+						:total-items="sms_templates.length"
+						:per-page="sms_templates.length"
+						action-column="content"
+						@action:click="onTemplateActionClick"
+					></mdl-table>
+
+					<div class="stackonet-dashboard-sms__fab-button">
+						<mdl-fab @click="addNewTemplateModalOpen = true">+</mdl-fab>
 					</div>
 				</div>
-				<div class="form-field form-field--send-sms">
-					<mdl-button type="raised" color="primary" :disabled="!canSendMessage" @click="sendSms">Send SMS
-					</mdl-button>
-				</div>
-			</column>
-		</columns>
+			</mdl-tab>
+		</mdl-tabs>
+
+		<modal :active="addNewTemplateModalOpen" title="Add new template" @close="addNewTemplateModalOpen = false">
+			<textarea v-model="sms_template_content" cols="30" rows="10"></textarea>
+			<template slot="foot">
+				<mdl-button type="raised" color="primary" @click="saveTemplate"
+							:disabled="sms_template_content.length < 5">Save
+				</mdl-button>
+			</template>
+		</modal>
+
+		<modal title="Choose SMS Template" :active="addTemplateModalOpen" @close="addTemplateModalOpen = false">
+			<columns multiline>
+				<column :tablet="6" v-for="_template in sms_templates" :key="_template.id">
+					<div class="template-box" @click="selected_sms_template_content = _template.content"
+						 :class="{'is-active':selected_sms_template_content === _template.content}">
+						{{_template.content}}
+					</div>
+				</column>
+			</columns>
+			<template slot="foot">
+				<mdl-button type="raised" color="primary" @click="insertFromTemplate">
+					Insert
+				</mdl-button>
+			</template>
+		</modal>
 	</div>
 </template>
 
 <script>
 	import axios from 'axios';
-	import MdlTable from "../../../material-design-lite/data-table/mdlTable";
-	import MdlButton from "../../../material-design-lite/button/mdlButton";
-	import flatPickr from 'vue-flatpickr-component';
 	import Columns from "../../../shapla/columns/columns";
 	import Column from "../../../shapla/columns/column";
+	import flatPickr from 'vue-flatpickr-component';
+	import MdlFab from "../../../material-design-lite/button/mdlFab";
+	import MdlTab from "../../../material-design-lite/tabs/mdlTab";
+	import MdlTabs from "../../../material-design-lite/tabs/mdlTabs";
+	import MdlTable from "../../../material-design-lite/data-table/mdlTable";
+	import MdlButton from "../../../material-design-lite/button/mdlButton";
+	import Modal from "../../../shapla/modal/modal";
 
 	export default {
 		name: "ShortMessageService",
-		components: {Column, Columns, MdlButton, MdlTable, flatPickr},
+		components: {flatPickr, Modal, MdlFab, MdlTab, MdlTabs, Column, Columns, MdlButton, MdlTable},
 		props: {},
 		data() {
 			return {
+				addTemplateModalOpen: false,
+				addNewTemplateModalOpen: false,
 				data_source: 'all',
 				filter_datetime: 'this-month',
 				date_from: '',
 				date_to: '',
 				sms_content: '',
+				sms_template_content: '',
+				selected_sms_template_content: '',
 				items: [],
 				selected_items: [],
+				sms_templates: [],
+				active_sms_template: {},
 			}
 		},
 		computed: {
@@ -115,6 +178,14 @@
 				columns.push({key: 'date', label: 'Date', numeric: false});
 
 				return columns;
+			},
+			templateColumns() {
+				return [
+					{key: 'content', label: 'Template Content', numeric: false}
+				];
+			},
+			templateActions() {
+				return [{key: 'edit', label: 'Edit'}, {key: 'delete', label: 'Delete'},];
 			},
 			canFilter() {
 				if (!this.data_source.length || !this.filter_datetime.length) {
@@ -136,8 +207,67 @@
 			this.$store.commit('SET_TITLE', 'SMS');
 			this.$store.commit('SET_LOADING_STATUS', false);
 			this.filterData();
+			this.getTemplates();
 		},
 		methods: {
+			insertFromTemplate() {
+				this.sms_content = this.selected_sms_template_content;
+				this.addTemplateModalOpen = false;
+			},
+			onTemplateActionClick(action, item) {
+				if ('edit' === action) {
+					this.active_sms_template = item;
+					this.sms_template_content = item.content;
+					this.addNewTemplateModalOpen = true;
+				}
+				if ('delete' === action && window.confirm('Are you sure to delete permanently?')) {
+					this.trashAction(item);
+				}
+			},
+			trashAction(item) {
+				let self = this;
+				self.$store.commit('SET_LOADING_STATUS', true);
+				axios
+					.delete(PhoneRepairs.rest_root + '/sms/template/' + item.id)
+					.then((response) => {
+						self.getTemplates();
+						self.$store.commit('SET_LOADING_STATUS', false);
+					})
+					.catch((error) => {
+						self.$store.commit('SET_LOADING_STATUS', false);
+					});
+			},
+			getTemplates() {
+				this.$store.commit('SET_LOADING_STATUS', true);
+				axios
+					.get(window.PhoneRepairs.rest_root + '/sms/template',)
+					.then(response => {
+						this.$store.commit('SET_LOADING_STATUS', false);
+						this.sms_templates = response.data.data.items;
+					})
+					.catch(error => {
+						console.log(error);
+						this.$store.commit('SET_LOADING_STATUS', false);
+					})
+			},
+			saveTemplate() {
+				this.$store.commit('SET_LOADING_STATUS', true);
+				axios
+					.post(window.PhoneRepairs.rest_root + '/sms/template', {
+						content: this.sms_template_content
+					})
+					.then(response => {
+						this.sms_template_content = '';
+						this.$store.commit('SET_LOADING_STATUS', false);
+						this.addNewTemplateModalOpen = false;
+						this.getTemplates();
+						alert('SMS template has been save.');
+					})
+					.catch(error => {
+						console.log(error);
+						this.$store.commit('SET_LOADING_STATUS', false);
+					})
+			},
 			checkedItems(selected_items) {
 				this.selected_items = selected_items;
 			},
@@ -174,6 +304,9 @@
 						console.log(error);
 						this.$store.commit('SET_LOADING_STATUS', false);
 					})
+			},
+			addNewTemplate() {
+				this.addNewTemplateModalOpen = true;
 			}
 		}
 	}
@@ -200,10 +333,38 @@
 	}
 
 	.stackonet-dashboard-sms {
+
+		.template-box {
+			border: 1px solid rgba(#000, 0.12);
+			cursor: pointer;
+			padding: 15px;
+			height: 100%;
+			display: flex;
+			border-radius: 6px;
+
+			&.is-active,
+			&:hover {
+				background: rgba(249, 167, 59, 0.65);
+				border-color: #f58730;
+				color: #fff;
+			}
+		}
+
 		textarea {
 			padding: 1rem;
 			width: 100%;
 			height: 7.5em;
+		}
+
+		&__sms,
+		&__sms-template {
+			margin-top: 10px;
+		}
+
+		&__fab-button {
+			position: fixed;
+			right: 30px;
+			bottom: 30px;
 		}
 
 		.status-bar {
