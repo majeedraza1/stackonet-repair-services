@@ -114,6 +114,12 @@
 			}
 		},
 
+		watch: {
+			checkedItems(newValue) {
+				this.$emit('checkedItems', newValue);
+			}
+		},
+
 		mounted() {
 			this.windowWidth = window.innerWidth;
 

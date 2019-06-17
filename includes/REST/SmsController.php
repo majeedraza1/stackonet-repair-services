@@ -8,6 +8,8 @@ use Stackonet\Models\Appointment;
 use Stackonet\Models\CarrierStore;
 use Stackonet\Models\Survey;
 use Stackonet\Modules\SupportTicket\SupportAgent;
+use Stackonet\Supports\ArrayHelper;
+use Stackonet\Supports\Logger;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -119,7 +121,6 @@ class SmsController extends ApiController {
 			$date_to   = $to . ' 12:00:00';
 		}
 
-		$items    = [];
 		$response = [ 'data_source' => $source, 'date_from' => $date_from, 'date_to' => $date_to, 'items' => [] ];
 
 		if ( 'orders' == $source ) {
@@ -127,7 +128,7 @@ class SmsController extends ApiController {
 		}
 
 		if ( 'support-agents' == $source ) {
-			$response['items'] = $this->get_support_agents();
+			$response['items'] = $this->get_support_agents( $date_from, $date_to );
 		}
 
 		if ( 'survey' == $source ) {
@@ -142,6 +143,19 @@ class SmsController extends ApiController {
 			$response['items'] = $this->get_carrier_stores( $date_from, $date_to );
 		}
 
+		if ( 'all' == $source ) {
+			$orders         = $this->get_orders( $date_from, $date_to );
+			$agents         = $this->get_support_agents( $date_from, $date_to );
+			$survey         = $this->get_survey( $date_from, $date_to );
+			$appointment    = $this->get_appointment( $date_from, $date_to );
+			$carrier_stores = $this->get_carrier_stores( $date_from, $date_to );
+
+			$response['items'] = array_merge( $orders, $agents, $survey, $appointment, $carrier_stores );
+		}
+
+		if ( ! empty( $response['items'] ) ) {
+			$response['items'] = array_values( ArrayHelper::unique_multidim_array( $response['items'], 'phone' ) );
+		}
 
 		return $this->respondOK( $response );
 	}
@@ -154,14 +168,33 @@ class SmsController extends ApiController {
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
-		return $this->respondOK();
+		$numbers = $request->get_param( 'numbers' );
+		$content = $request->get_param( 'content' );
+
+		if ( ! ( is_array( $numbers ) && count( $numbers ) ) ) {
+			return $this->respondUnprocessableEntity( null, 'SMS receivers numbers is required.' );
+		}
+
+		if ( empty( $content ) ) {
+			return $this->respondUnprocessableEntity( null, 'SMS content is required.' );
+		}
+
+		$reminder = stackonet_repair_services()->bulk_sms();
+		foreach ( $numbers as $number ) {
+			$data = [ 'number' => $number, 'content' => $content ];
+			$reminder->push_to_queue( $data );
+		}
+		$reminder->save();
+		$reminder->dispatch();
+
+		return $this->respondOK( $request->get_params() );
 	}
 
 	/**
 	 * Get orders
 	 *
-	 * @param $date_from
-	 * @param $date_to
+	 * @param string $date_from
+	 * @param string $date_to
 	 *
 	 * @return array
 	 */
@@ -183,6 +216,9 @@ class SmsController extends ApiController {
 		if ( $orders_ids ) {
 			foreach ( $orders_ids as $order_id ) {
 				$_order = wc_get_order( $order_id );
+				if ( empty( $_order->get_billing_phone() ) ) {
+					continue;
+				}
 
 				$items[] = [
 					'order_id' => $order_id,
@@ -199,18 +235,24 @@ class SmsController extends ApiController {
 	/**
 	 * Get support agents
 	 *
+	 * @param $date_from
+	 * @param $date_to
+	 *
 	 * @return array
 	 */
-	private function get_support_agents() {
+	private function get_support_agents( $date_from, $date_to ) {
 		$agents = SupportAgent::get_all();
 
 		$items = [];
 		foreach ( $agents as $agent ) {
+			if ( empty( $agent->get_phone_number() ) ) {
+				continue;
+			}
 			$items[] = [
 				'agent_id' => $agent->get_user()->ID,
 				'name'     => $agent->get_user()->display_name,
 				'phone'    => $agent->get_phone_number(),
-				'date'     => '',
+				'date'     => $agent->get_user()->user_registered,
 			];
 		}
 
@@ -229,6 +271,9 @@ class SmsController extends ApiController {
 		$survey = ( new Survey() )->find( [ 'per_page' => 100 ] );
 		$items  = [];
 		foreach ( $survey as $agent ) {
+			if ( empty( $agent->get( 'phone' ) ) ) {
+				continue;
+			}
 			$items[] = [
 				'agent_id' => $agent->get( 'id' ),
 				'name'     => $agent->get( 'email' ),
@@ -240,10 +285,21 @@ class SmsController extends ApiController {
 		return $items;
 	}
 
+	/**
+	 * Get appointment
+	 *
+	 * @param string $date_from
+	 * @param string $date_to
+	 *
+	 * @return array
+	 */
 	private function get_appointment( $date_from, $date_to ) {
 		$survey = ( new Appointment() )->find( [ 'per_page' => 100 ] );
 		$items  = [];
 		foreach ( $survey as $agent ) {
+			if ( empty( $agent->get( 'phone' ) ) ) {
+				continue;
+			}
 			$items[] = [
 				'id'    => $agent->get( 'id' ),
 				'name'  => $agent->get( 'store_name' ),
@@ -255,10 +311,21 @@ class SmsController extends ApiController {
 		return $items;
 	}
 
+	/**
+	 * Get carrier stores
+	 *
+	 * @param string $date_from
+	 * @param string $date_to
+	 *
+	 * @return array
+	 */
 	private function get_carrier_stores( $date_from, $date_to ) {
 		$survey = ( new CarrierStore() )->find( [ 'per_page' => 100 ] );
 		$items  = [];
 		foreach ( $survey as $agent ) {
+			if ( empty( $agent->get( 'phone' ) ) ) {
+				continue;
+			}
 			$items[] = [
 				'id'    => $agent->get( 'id' ),
 				'name'  => $agent->get( 'name' ),

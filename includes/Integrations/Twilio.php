@@ -36,7 +36,7 @@ class Twilio {
 
 			self::$instance->init_dev_data();
 
-			add_action( 'stackonet_order_created', [ self::$instance, 'send_sms' ] );
+			add_action( 'stackonet_order_created', [ self::$instance, 'send_order_sms' ] );
 		}
 
 		return self::$instance;
@@ -55,6 +55,26 @@ class Twilio {
 	public function init_dev_data() {
 		if ( defined( 'WP_DEBUG_LOCAL' ) && WP_DEBUG_LOCAL ) {
 			$this->admin_numbers = [ '+919008009801' ];
+		}
+	}
+
+	/**
+	 * Send SMS to specific number
+	 *
+	 * @param string $to
+	 * @param string $message
+	 */
+	public function send_sms( $to, $message ) {
+		if ( ! function_exists( 'wc_twilio_sms' ) ) {
+			Logger::log( 'wc_twilio_sms is not available' );
+
+			return;
+		}
+
+		try {
+			wc_twilio_sms()->get_api()->send( $to, $message );
+		} catch ( Exception $e ) {
+			Logger::log( $e->getMessage() );
 		}
 	}
 
@@ -81,7 +101,7 @@ class Twilio {
 	 *
 	 * @throws Exception
 	 */
-	public function send_sms( $order ) {
+	public function send_order_sms( $order ) {
 		if ( ! function_exists( 'wc_twilio_sms' ) ) {
 			Logger::log( 'wc_twilio_sms is not available' );
 

@@ -11,7 +11,7 @@ class ArrayHelper {
 	 * given:
 	 * array( 'item_1' => 'foo', 'item_2' => 'bar' )
 	 *
-	 * array_insert_after( $array, 'item_1', array( 'item_1.5' => 'w00t' ) )
+	 * ArrayHelper::insert_after( $array, 'item_1', array( 'item_1.5' => 'w00t' ) )
 	 *
 	 * becomes:
 	 * array( 'item_1' => 'foo', 'item_1.5' => 'w00t', 'item_2' => 'bar' )
@@ -35,5 +35,47 @@ class ArrayHelper {
 		}
 
 		return $new_array;
+	}
+
+	/**
+	 * Create multidimensional array unique for any single key index.
+	 *
+	 * Sample usage:
+	 *
+	 * given:
+	 *
+	 * $details = array(
+	 *      array("id"=>"1", "name"=>"Mike",    "num"=>"9876543210"),
+	 *      array("id"=>"2", "name"=>"Carissa", "num"=>"08548596258"),
+	 *      array("id"=>"1", "name"=>"Mathew",  "num"=>"784581254"),
+	 * )
+	 *
+	 * ArrayHelper::unique_multidim_array( $details, 'id' )
+	 *
+	 * becomes:
+	 * array(
+	 *      array("id"=>"1","name"=>"Mike","num"=>"9876543210"),
+	 *      array("id"=>"2","name"=>"Carissa","num"=>"08548596258"),
+	 * )
+	 *
+	 * @param array $array
+	 * @param string $key
+	 *
+	 * @return array
+	 */
+	public static function unique_multidim_array( array $array, $key ) {
+		$temp_array = array();
+		$i          = 0;
+		$key_array  = array();
+
+		foreach ( $array as $val ) {
+			if ( ! in_array( $val[ $key ], $key_array ) ) {
+				$key_array[ $i ]  = $val[ $key ];
+				$temp_array[ $i ] = $val;
+			}
+			$i ++;
+		}
+
+		return $temp_array;
 	}
 }

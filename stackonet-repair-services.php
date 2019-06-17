@@ -163,6 +163,7 @@ final class Stackonet_Repair_Services {
 		$this->container['woocommerce']      = Stackonet\Integrations\WooCommerce::init();
 		$this->container['mercantile-theme'] = Stackonet\Integrations\MercantileTheme::init();
 		$this->container['reschedule']       = new Stackonet\Models\Reschedule();
+		$this->container['bulk_sms']         = new Stackonet\Sms\BulkSms();
 		$this->container['order_reminder']   = Stackonet\Models\OrderReminder::init();
 
 		$this->container['my_account']     = Stackonet\Modules\MyAccount\MyAccount::init();
@@ -213,6 +214,15 @@ final class Stackonet_Repair_Services {
 	 */
 	public function order_reminder() {
 		return $this->container['order_reminder'];
+	}
+
+	/**
+	 * Async bulk request request
+	 *
+	 * @return Stackonet\Sms\BulkSms
+	 */
+	public function bulk_sms() {
+		return $this->container['bulk_sms'];
 	}
 
 	/**
