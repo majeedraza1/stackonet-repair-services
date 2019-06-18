@@ -125,6 +125,10 @@
 			justify-content: center;
 			align-items: center;
 		}
+
+		.shapla-modal-card {
+			max-height: calc(100vh - 220px);
+		}
 	}
 
 	.mdl-icon-burger {

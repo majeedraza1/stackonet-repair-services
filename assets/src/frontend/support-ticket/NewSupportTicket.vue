@@ -40,6 +40,34 @@
 				</div>
 			</column>
 
+			<column :tablet="12">
+				<div class="form-field">
+					<label>Attachment</label>
+					<p>
+						<button @click="openLogoModal = true">Add Attachment</button>
+					</p>
+					<columns multiline>
+						<column :tablet="4" v-for="_image in images" :key="_image.id">
+							<div class="mdl-box mdl-shadow--2dp">
+								<image-container square>
+									<img :src="_image.thumbnail.src" alt="">
+								</image-container>
+							</div>
+						</column>
+					</columns>
+					<media-modal
+						title="Upload image"
+						:active="openLogoModal"
+						:images="attachments"
+						:image="images"
+						:options="dropzoneOptions"
+						@upload="dropzoneSuccess"
+						@selected="chooseImage"
+						@close="openLogoModal = false"
+					/>
+				</div>
+			</column>
+
 			<column :tablet="6">
 				<div class="form-field">
 					<label for="ticket_category">Category *</label>
@@ -80,10 +108,12 @@
 	import Icon from "../../shapla/icon/icon";
 	import Columns from "../../shapla/columns/columns";
 	import Column from "../../shapla/columns/column";
+	import MediaModal from "../components/MediaModal";
+	import ImageContainer from "../../shapla/image/image";
 
 	export default {
 		name: "NewSupportTicket",
-		components: {Column, Columns, Icon, MdlButton, Editor},
+		components: {ImageContainer, MediaModal, Column, Columns, Icon, MdlButton, Editor},
 		data() {
 			return {
 				customer_name: '',
@@ -92,6 +122,9 @@
 				ticket_content: '',
 				ticket_category: '',
 				ticket_priority: '',
+				openLogoModal: false,
+				attachments: [],
+				images: [],
 			}
 		},
 		computed: {
@@ -107,12 +140,26 @@
 					statusbar: true
 				}
 			},
+			dropzoneOptions() {
+				return {
+					url: window.PhoneRepairs.rest_root + '/logo',
+					maxFilesize: 5,
+					headers: {
+						"X-WP-Nonce": window.PhoneRepairs.rest_nonce
+					}
+				}
+			},
 			isValidEmail() {
 				return !!(this.customer_email.length && this.validateEmail(this.customer_email));
 			},
 			canSubmit() {
 				return !!(this.customer_name.length > 2 && this.isValidEmail &&
 					this.ticket_subject.length > 3 && this.ticket_content.length > 5);
+			},
+			ticket_attachments() {
+				if (this.images.length < 1) return [];
+
+				return this.images.map(image => image.image_id);
 			}
 		},
 		mounted() {
@@ -120,8 +167,35 @@
 			this.$store.commit('SET_TITLE', 'New Support Ticket');
 			this.customer_name = this.display_name;
 			this.customer_email = this.user_email;
+			this.getImages();
 		},
 		methods: {
+			dropzoneSuccess(file, response) {
+				this.attachments.unshift(response.data);
+				this.images.push(response.data);
+				this.openLogoModal = false;
+			},
+			chooseImage(attachment) {
+				let index = this.images.indexOf(attachment);
+				if (index === -1) {
+					this.images.push(attachment);
+				} else {
+					this.images.splice(index, 1);
+				}
+			},
+			getImages() {
+				this.$store.commit('SET_LOADING_STATUS', true);
+				axios
+					.get(PhoneRepairs.rest_root + '/logo')
+					.then((response) => {
+						this.$store.commit('SET_LOADING_STATUS', false);
+						this.attachments = response.data.data;
+					})
+					.catch((error) => {
+						this.$store.commit('SET_LOADING_STATUS', false);
+						alert('Some thing went wrong. Please try again.');
+					});
+			},
 			validateEmail(email) {
 				let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 				return re.test(String(email).toLowerCase());
@@ -140,6 +214,7 @@
 						ticket_content: self.ticket_content,
 						ticket_category: self.ticket_category,
 						ticket_priority: self.ticket_priority,
+						ticket_attachments: self.ticket_attachments,
 					})
 					.then((response) => {
 						self.$store.commit('SET_LOADING_STATUS', false);

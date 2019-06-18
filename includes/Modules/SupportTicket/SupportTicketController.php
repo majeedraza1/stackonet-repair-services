@@ -237,13 +237,14 @@ class SupportTicketController extends ApiController {
 			return $this->respondUnauthorized();
 		}
 
-		$params          = $request->get_params();
-		$customer_name   = $request->get_param( 'customer_name' );
-		$customer_email  = $request->get_param( 'customer_email' );
-		$ticket_subject  = $request->get_param( 'ticket_subject' );
-		$ticket_content  = $request->get_param( 'ticket_content' );
-		$ticket_priority = $request->get_param( 'ticket_priority' );
-		$ticket_category = $request->get_param( 'ticket_category' );
+		$params             = $request->get_params();
+		$customer_name      = $request->get_param( 'customer_name' );
+		$customer_email     = $request->get_param( 'customer_email' );
+		$ticket_subject     = $request->get_param( 'ticket_subject' );
+		$ticket_content     = $request->get_param( 'ticket_content' );
+		$ticket_priority    = $request->get_param( 'ticket_priority' );
+		$ticket_category    = $request->get_param( 'ticket_category' );
+		$ticket_attachments = $request->get_param( 'ticket_attachments' );
 
 		if ( empty( $ticket_subject ) || empty( $ticket_content ) ) {
 			return $this->respondUnprocessableEntity( null, 'Ticket subject and content is required.' );
@@ -291,6 +292,7 @@ class SupportTicketController extends ApiController {
 				'customer_name'  => $customer_name,
 				'customer_email' => $customer_email,
 				'thread_type'    => 'report',
+				'attachments'    => is_array( $ticket_attachments ) ? $ticket_attachments : [],
 			] );
 
 			return $this->respondCreated( [ 'ticket_id' => $ticket_id ] );
@@ -524,9 +526,11 @@ class SupportTicketController extends ApiController {
 			return $this->respondUnauthorized();
 		}
 
-		$id             = (int) $request->get_param( 'id' );
-		$thread_type    = $request->get_param( 'thread_type' );
-		$thread_content = $request->get_param( 'thread_content' );
+		$id                 = (int) $request->get_param( 'id' );
+		$thread_type        = $request->get_param( 'thread_type' );
+		$thread_content     = $request->get_param( 'thread_content' );
+		$ticket_attachments = $request->get_param( 'ticket_attachments' );
+		$attachments        = is_array( $ticket_attachments ) ? $ticket_attachments : [];
 
 		if ( empty( $id ) || empty( $thread_type ) || empty( $thread_content ) ) {
 			return $this->respondUnprocessableEntity( null, 'Ticket ID, thread type and thread content is required.' );
@@ -550,7 +554,7 @@ class SupportTicketController extends ApiController {
 			'customer_email' => $user->user_email,
 			'post_content'   => $thread_content,
 			'agent_created'  => $user->ID,
-		] );
+		], $attachments );
 
 		return $this->respondCreated();
 	}

@@ -76,7 +76,6 @@
 			},
 			upload(file, response) {
 				this.$emit('upload', file, response);
-				this.$refs.wpFrontendMediaModal.removeFile(file);
 			}
 		}
 	}

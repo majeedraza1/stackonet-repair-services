@@ -58,6 +58,33 @@
 
 					<div>
 						<editor :init="mce" v-model="content"></editor>
+						<div v-show="content.length">
+							<div class="form-field">
+								<label>Attachment</label>
+								<p>
+									<button @click="openLogoModal = true">Add Attachment</button>
+								</p>
+								<columns multiline>
+									<column :tablet="4" v-for="_image in images" :key="_image.id">
+										<div class="mdl-box mdl-shadow--2dp">
+											<image-container square>
+												<img :src="_image.thumbnail.src" alt="">
+											</image-container>
+										</div>
+									</column>
+								</columns>
+								<media-modal
+									title="Upload image"
+									:active="openLogoModal"
+									:images="attachments"
+									:image="images"
+									:options="dropzoneOptions"
+									@upload="dropzoneSuccess"
+									@selected="chooseImage"
+									@close="openLogoModal = false"
+								/>
+							</div>
+						</div>
 						<div style="text-align: right;margin-top:10px;" v-show="content.length">
 							<mdl-button type="raised" color="default" @click="addNote">Add Note</mdl-button>
 							<mdl-button type="raised" color="primary" @click="submitReply">Submit Reply</mdl-button>
@@ -335,10 +362,11 @@
 	import ImageContainer from "../../shapla/image/image";
 	import Icon from "../../shapla/icon/icon";
 	import modal from '../../shapla/modal/modal'
+	import MediaModal from "../components/MediaModal";
 
 	export default {
 		name: "SingleSupportTicket",
-		components: {Icon, ImageContainer, mdlButton, columns, column, ListItem, Editor, modal},
+		components: {MediaModal, Icon, ImageContainer, mdlButton, columns, column, ListItem, Editor, modal},
 		data() {
 			return {
 				loading: false,
@@ -369,6 +397,9 @@
 					pre: {},
 					next: {}
 				},
+				openLogoModal: false,
+				attachments: [],
+				images: [],
 			}
 		},
 		computed: {
@@ -384,6 +415,20 @@
 					statusbar: true
 				}
 			},
+			dropzoneOptions() {
+				return {
+					url: window.PhoneRepairs.rest_root + '/logo',
+					maxFilesize: 5,
+					headers: {
+						"X-WP-Nonce": window.PhoneRepairs.rest_nonce
+					}
+				}
+			},
+			ticket_attachments() {
+				if (this.images.length < 1) return [];
+
+				return this.images.map(image => image.image_id);
+			},
 			canSendSms() {
 				return this.ticket_twilio_sms_content.length >= 5;
 			}
@@ -396,8 +441,35 @@
 				this.id = parseInt(id);
 				this.getItem();
 			}
+			this.getImages();
 		},
 		methods: {
+			dropzoneSuccess(file, response) {
+				this.attachments.unshift(response.data);
+				this.images.push(response.data);
+				this.openLogoModal = false;
+			},
+			chooseImage(attachment) {
+				let index = this.images.indexOf(attachment);
+				if (index === -1) {
+					this.images.push(attachment);
+				} else {
+					this.images.splice(index, 1);
+				}
+			},
+			getImages() {
+				this.$store.commit('SET_LOADING_STATUS', true);
+				axios
+					.get(PhoneRepairs.rest_root + '/logo')
+					.then((response) => {
+						this.$store.commit('SET_LOADING_STATUS', false);
+						this.attachments = response.data.data;
+					})
+					.catch((error) => {
+						this.$store.commit('SET_LOADING_STATUS', false);
+						alert('Some thing went wrong. Please try again.');
+					});
+			},
 			refreshRoute() {
 				let id = this.$route.params.id;
 				this.id = parseInt(id);
@@ -570,10 +642,12 @@
 					.post(PhoneRepairs.rest_root + '/support-ticket/' + self.id + '/thread/', {
 						thread_type: thread_type,
 						thread_content: thread_content,
+						ticket_attachments: self.ticket_attachments,
 					})
 					.then((response) => {
 						self.$store.commit('SET_LOADING_STATUS', false);
 						self.content = '';
+						self.images = [];
 						self.getItem();
 					})
 					.catch((error) => {

@@ -193,6 +193,30 @@ class TicketThread extends PostTypeModel {
 		$attachments = [];
 		if ( is_array( $_attachments ) && count( $_attachments ) ) {
 			foreach ( $_attachments as $attachment_id ) {
+				$attachments[] = [
+					'filename'       => get_the_title( $attachment_id ),
+					'active'         => true,
+					'is_image'       => true,
+					'save_file_name' => get_the_title( $attachment_id ),
+					'time_uploaded'  => get_term_meta( $attachment_id, 'time_uploaded', true ),
+					'download_url'   => wp_get_attachment_url( $attachment_id ),
+				];
+			}
+		}
+
+		$this->attachments = $attachments;
+	}
+
+	/**
+	 * Read attachment data
+	 */
+	private function _read_attachments_data() {
+		$ticket_id    = $this->get( 'id' );
+		$_attachments = get_post_meta( $ticket_id, 'attachments', true );
+
+		$attachments = [];
+		if ( is_array( $_attachments ) && count( $_attachments ) ) {
+			foreach ( $_attachments as $attachment_id ) {
 
 				$save_file_name = get_term_meta( $attachment_id, 'save_file_name', true );
 				$is_image       = (bool) get_term_meta( $attachment_id, 'is_image', true );
