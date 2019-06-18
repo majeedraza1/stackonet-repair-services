@@ -71,10 +71,11 @@ class SmsTemplate {
 	 * @return array
 	 */
 	public static function create( array $data ) {
-		$data       = wp_parse_args( $data, self::$default );
-		$data['id'] = uniqid();
-
 		$options = self::get_option();
+
+		$data       = wp_parse_args( $data, self::$default );
+		$data['id'] = count( $options ) + 1;
+
 
 		$sanitize_data = self::prepare_item_for_database( $data );
 		$options[]     = $sanitize_data;
@@ -84,6 +85,13 @@ class SmsTemplate {
 		return self::prepare_item_for_response( $sanitize_data );
 	}
 
+	/**
+	 * Update data
+	 *
+	 * @param array $data
+	 *
+	 * @return array
+	 */
 	public static function update( array $data ) {
 		$options   = self::get_option();
 		$ids       = wp_list_pluck( $options, 'id' );

@@ -53,6 +53,10 @@ class SmsController extends ApiController {
 		register_rest_route( $this->namespace, '/sms/template', [
 			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_templates' ] ],
 			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'create_template' ] ],
+			[ 'methods' => WP_REST_Server::DELETABLE, 'callback' => [ $this, 'delete_template' ] ],
+		] );
+		register_rest_route( $this->namespace, '/sms/template/(?P<id>\d+)', [
+			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_template' ] ],
 		] );
 	}
 
@@ -221,6 +225,48 @@ class SmsController extends ApiController {
 		$response = SmsTemplate::create( [ 'content' => $content ] );
 
 		return $this->respondCreated( $response );
+	}
+
+	/**
+	 * Create new sms template
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function update_template( $request ) {
+		$id      = $request->get_param( 'id' );
+		$content = $request->get_param( 'content' );
+
+		$item = SmsTemplate::get_template( $id );
+		if ( empty( $item ) ) {
+			return $this->respondNotFound( null, 'Item not found' );
+		}
+
+		$response = SmsTemplate::update( [ 'id' => $id, 'content' => $content ] );
+
+		return $this->respondOK( $response );
+	}
+
+	/**
+	 * Create new sms template
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function delete_template( $request ) {
+		$id   = $request->get_param( 'id' );
+		$item = SmsTemplate::get_template( $id );
+		if ( empty( $item ) ) {
+			return $this->respondNotFound( null, 'Item not found' );
+		}
+
+		if ( SmsTemplate::delete( $id ) ) {
+			return $this->respondOK();
+		}
+
+		return $this->respondInternalServerError();
 	}
 
 	/**

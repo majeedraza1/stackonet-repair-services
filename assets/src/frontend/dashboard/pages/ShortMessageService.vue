@@ -3,20 +3,36 @@
 		<mdl-tabs>
 			<mdl-tab name="SMS" selected>
 				<div class="stackonet-dashboard-sms__sms">
+
 					<div class="filter-nav-top">
-						<div class="filter-nav-top__data-source">
-							<select v-model="data_source">
-								<option value="">Choose Source</option>
-								<option value="all">All</option>
-								<option value="orders">Orders</option>
-								<option value="survey">Survey</option>
-								<option value="appointment">Appointment</option>
-								<option value="support-agents">Support Agents</option>
-								<option value="carrier-stores">Carrier Stores</option>
-							</select>
+						<div class="filter-nav-top__left">
+							<div class="filter-nav-top__data-source">
+								<select v-model="data_source">
+									<option value="">Choose Source</option>
+									<option value="all">All</option>
+									<option value="orders">Orders</option>
+									<option value="survey">Survey</option>
+									<option value="appointment">Appointment</option>
+									<option value="support-agents">Support Agents</option>
+									<option value="carrier-stores">Carrier Stores</option>
+								</select>
+							</div>
+							<mdl-button type="raised" :color="filter_criteria === 'pre-define'?'primary':'default'"
+										@click="filter_criteria = 'pre-define'">Filter Criteria
+							</mdl-button>
+							<mdl-button type="raised" :color="filter_criteria === 'custom'?'primary':'default'"
+										@click="setFilterCriteria('custom')">Custom
+							</mdl-button>
 						</div>
 
-						<div class="filter-nav-top__filter_datetime">
+						<div>
+							<mdl-button type="raised" color="primary" @click="filterData" :disabled="!canFilter">Filter
+							</mdl-button>
+						</div>
+					</div>
+
+					<div class="filter-nav-bottom">
+						<div class="filter-nav-top__filter_datetime" v-if="filter_criteria === 'pre-define'">
 							<mdl-button type="raised" :color="filter_datetime === 'today'?'primary':'default'"
 										@click="filter_datetime = 'today'">Today
 							</mdl-button>
@@ -35,24 +51,19 @@
 							<mdl-button type="raised" :color="filter_datetime === 'last-month'?'primary':'default'"
 										@click="filter_datetime = 'last-month'">Last Month
 							</mdl-button>
-							<mdl-button type="raised" :color="filter_datetime === 'custom'?'primary':'default'"
-										@click="filter_datetime = 'custom'">Custom
-							</mdl-button>
 						</div>
 
-						<mdl-button type="raised" color="primary" @click="filterData" :disabled="!canFilter">Filter
-						</mdl-button>
+						<div v-if="filter_criteria === 'custom'">
+							<flat-pickr v-model="date_from" placeholder="Select start date"></flat-pickr>
+							<flat-pickr v-model="date_to" placeholder="Select end date"></flat-pickr>
+						</div>
 					</div>
 
-					<div v-if="filter_datetime === 'custom'">
-						<flat-pickr v-model="date_from" placeholder="Select start date"></flat-pickr>
-						<flat-pickr v-model="date_to" placeholder="Select end date"></flat-pickr>
-					</div>
 
 					<columns>
 						<column>
 							<mdl-table :rows="items" :columns="columns" :total-items="items.length"
-									   @checkedItems="checkedItems" :per-page="items.length" index="id"></mdl-table>
+									   @checkedItems="checkedItems" :per-page="items.length" index="phone"></mdl-table>
 						</column>
 						<column>
 							<div class="form-field" style="margin-top: 40px;">
@@ -88,6 +99,7 @@
 			<mdl-tab name="SMS Template">
 				<div class="stackonet-dashboard-sms__sms-template">
 					<mdl-table
+						:show-cb="false"
 						:rows="sms_templates"
 						:columns="templateColumns"
 						:actions="templateActions"
@@ -109,6 +121,15 @@
 			<template slot="foot">
 				<mdl-button type="raised" color="primary" @click="saveTemplate"
 							:disabled="sms_template_content.length < 5">Save
+				</mdl-button>
+			</template>
+		</modal>
+
+		<modal :active="editTemplateModalOpen" title="Edit SMS template" @close="editTemplateModalOpen = false">
+			<textarea v-model="active_sms_template_content" cols="30" rows="10"></textarea>
+			<template slot="foot">
+				<mdl-button type="raised" color="primary" @click="updateTemplate"
+							:disabled="active_sms_template_content.length < 5">Update
 				</mdl-button>
 			</template>
 		</modal>
@@ -153,6 +174,7 @@
 				addNewTemplateModalOpen: false,
 				data_source: 'all',
 				filter_datetime: 'this-month',
+				filter_criteria: 'pre-define',
 				date_from: '',
 				date_to: '',
 				sms_content: '',
@@ -162,6 +184,8 @@
 				selected_items: [],
 				sms_templates: [],
 				active_sms_template: {},
+				active_sms_template_content: '',
+				editTemplateModalOpen: false,
 			}
 		},
 		computed: {
@@ -172,7 +196,7 @@
 				];
 
 				if ('all' === this.data_source) {
-					columns.push({key: 'data_source', label: 'Data Source', numeric: false},);
+					// columns.push({key: 'data_source', label: 'Source', numeric: false},);
 				}
 
 				columns.push({key: 'date', label: 'Date', numeric: false});
@@ -210,6 +234,12 @@
 			this.getTemplates();
 		},
 		methods: {
+			setFilterCriteria(criteria) {
+				if ('custom' === criteria) {
+					this.filter_criteria = 'custom';
+					this.filter_datetime = 'custom';
+				}
+			},
 			insertFromTemplate() {
 				this.sms_content = this.selected_sms_template_content;
 				this.addTemplateModalOpen = false;
@@ -217,8 +247,8 @@
 			onTemplateActionClick(action, item) {
 				if ('edit' === action) {
 					this.active_sms_template = item;
-					this.sms_template_content = item.content;
-					this.addNewTemplateModalOpen = true;
+					this.active_sms_template_content = item.content;
+					this.editTemplateModalOpen = true;
 				}
 				if ('delete' === action && window.confirm('Are you sure to delete permanently?')) {
 					this.trashAction(item);
@@ -228,12 +258,13 @@
 				let self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.delete(PhoneRepairs.rest_root + '/sms/template/' + item.id)
+					.delete(PhoneRepairs.rest_root + '/sms/template', {params: {id: item.id},})
 					.then((response) => {
 						self.getTemplates();
 						self.$store.commit('SET_LOADING_STATUS', false);
 					})
 					.catch((error) => {
+						console.log(error);
 						self.$store.commit('SET_LOADING_STATUS', false);
 					});
 			},
@@ -260,6 +291,24 @@
 						this.sms_template_content = '';
 						this.$store.commit('SET_LOADING_STATUS', false);
 						this.addNewTemplateModalOpen = false;
+						this.getTemplates();
+						alert('SMS template has been save.');
+					})
+					.catch(error => {
+						console.log(error);
+						this.$store.commit('SET_LOADING_STATUS', false);
+					})
+			},
+			updateTemplate() {
+				this.$store.commit('SET_LOADING_STATUS', true);
+				axios
+					.put(window.PhoneRepairs.rest_root + '/sms/template/' + this.active_sms_template.id, {
+						content: this.active_sms_template_content
+					})
+					.then(response => {
+						this.active_sms_template_content = '';
+						this.$store.commit('SET_LOADING_STATUS', false);
+						this.editTemplateModalOpen = false;
 						this.getTemplates();
 						alert('SMS template has been save.');
 					})
@@ -321,10 +370,30 @@
 		justify-content: space-between;
 		margin-bottom: 15px;
 
+		&__left {
+			display: flex;
+			flex-wrap: wrap;
+
+			> * {
+				margin-right: 5px;
+				margin-bottom: 5px;
+			}
+		}
+
 		&__filter_datetime {
 			> * {
 				margin-right: 5px;
+				margin-bottom: 5px;
 			}
+		}
+	}
+
+	.filter-nav-bottom {
+		display: flex;
+		flex-direction: column;
+
+		input.flatpickr-input {
+			margin-bottom: 5px;
 		}
 	}
 
