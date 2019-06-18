@@ -575,11 +575,14 @@
 		margin-top: 50px;
 		margin-bottom: 50px;
 
-		.stackont-single-support-ticket-actions {
-			display: flex;
+		.stackont-single-support-ticket-actions-bar {
 			border-bottom: 1px solid rgba(#000, 0.1);
 			padding-bottom: 1.5rem;
 			margin-bottom: 1.5rem;
+		}
+
+		.stackont-single-support-ticket-actions {
+			display: flex;
 
 			> *:not(:last-child) {
 				margin-right: 5px;

@@ -399,7 +399,9 @@ class SupportTicketController extends ApiController {
 		$ticket  = $supportTicket->to_array();
 		$threads = ( new TicketThread() )->find_by_ticket_id( $id );
 
-		return $this->respondOK( [ 'ticket' => $ticket, 'threads' => $threads ] );
+		$pagination = $supportTicket->find_pre_and_next( $id );
+
+		return $this->respondOK( [ 'ticket' => $ticket, 'threads' => $threads, 'navigation' => $pagination ] );
 	}
 
 	/**

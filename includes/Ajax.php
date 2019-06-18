@@ -94,8 +94,8 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$checkout = new CheckoutAnalysis();
-		var_dump( $checkout->count_records() );
+		$checkout = new SupportTicket();
+		var_dump( $checkout->find_pre_and_next( 109 ) );
 		die();
 	}
 

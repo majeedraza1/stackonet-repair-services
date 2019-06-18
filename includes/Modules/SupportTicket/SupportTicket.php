@@ -618,6 +618,37 @@ class SupportTicket extends DatabaseModel {
 	}
 
 	/**
+	 * Get previous and next item
+	 *
+	 * @param int $id
+	 *
+	 * @return array
+	 */
+	public function find_pre_and_next( $id ) {
+		global $wpdb;
+		$table = $wpdb->prefix . $this->table;
+		$id    = intval( $id );
+		$items = [ 'pre' => null, 'next' => null ];
+
+		$sql = "select * from {$table} where ( id = IFNULL((select min(id) from {$table} where id > {$id}),0) 
+			or  id = IFNULL((select max(id) from {$table} where id < {$id}),0) )";
+
+		$results = $wpdb->get_results( $sql, ARRAY_A );
+		if ( $results ) {
+			foreach ( $results as $result ) {
+				if ( $result[ $this->primaryKey ] > $id ) {
+					$items['next'] = new self( $result );
+				}
+				if ( $result[ $this->primaryKey ] < $id ) {
+					$items['pre'] = new self( $result );
+				}
+			}
+		}
+
+		return $items;
+	}
+
+	/**
 	 * Update support ticket agents
 	 *
 	 * @param array $agents_ids

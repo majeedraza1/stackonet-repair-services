@@ -1,15 +1,47 @@
 <template>
 	<div class="stackont-single-support-ticket-container">
 
-		<div class="stackont-single-support-ticket-actions">
-			<mdl-button type="raised" color="primary" @click="openNewTicket">
-				<icon><i class="fa fa-plus" aria-hidden="true"></i></icon>
-				New Ticket
-			</mdl-button>
-			<mdl-button type="raised" color="default" @click="ticketList">
-				<icon><i class="fa fa-list" aria-hidden="true"></i></icon>
-				Ticket List
-			</mdl-button>
+		<div class="stackont-single-support-ticket-actions-bar">
+			<columns>
+				<column :desktop="8">
+					<div class="stackont-single-support-ticket-actions">
+						<div class="left">
+							<mdl-button type="raised" color="primary" @click="openNewTicket">
+								<icon><i class="fa fa-plus" aria-hidden="true"></i></icon>
+								New Ticket
+							</mdl-button>
+							<mdl-button type="raised" color="default" @click="ticketList">
+								<icon><i class="fa fa-list" aria-hidden="true"></i></icon>
+								Ticket List
+							</mdl-button>
+						</div>
+						<div class="right">
+							<div class="stackont-support-ticket-nav">
+								<div class="stackont-support-ticket-nav__left">
+									<div v-if="navigation.pre && navigation.pre.id" @click="refreshRoute">
+										<router-link :to="{name: 'SingleSupportTicket', params: {id: navigation.pre.id}}">
+											<i class="fa fa-chevron-left" aria-hidden="true"></i>
+										</router-link>
+									</div>
+									<div v-else class="disabled">
+										<i class="fa fa-chevron-left" aria-hidden="true"></i>
+									</div>
+								</div>
+								<div class="stackont-support-ticket-nav__right">
+									<div v-if="navigation.next && navigation.next.id" @click="refreshRoute">
+										<router-link :to="{name: 'SingleSupportTicket', params: {id: navigation.next.id}}">
+											<i class="fa fa-chevron-right" aria-hidden="true"></i>
+										</router-link>
+									</div>
+									<div v-else class="disabled">
+										<i class="fa fa-chevron-right" aria-hidden="true"></i>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</column>
+			</columns>
 		</div>
 
 		<columns>
@@ -330,7 +362,11 @@
 				id: 0,
 				content: '',
 				item: {},
-				threads: []
+				threads: [],
+				navigation: {
+					pre: {},
+					next: {}
+				},
 			}
 		},
 		computed: {
@@ -347,8 +383,7 @@
 				}
 			},
 			canSendSms() {
-				if (this.ticket_twilio_sms_content.length < 5) return false;
-				return true;
+				return this.ticket_twilio_sms_content.length >= 5;
 			}
 		},
 		mounted() {
@@ -361,6 +396,11 @@
 			}
 		},
 		methods: {
+			refreshRoute() {
+				let id = this.$route.params.id;
+				this.id = parseInt(id);
+				this.getItem();
+			},
 			sendSms() {
 				if (this.ticket_twilio_sms_content.length < 5) {
 					alert('Please add some content first.');
@@ -589,6 +629,7 @@
 						self.$store.commit('SET_LOADING_STATUS', false);
 						self.item = response.data.data.ticket;
 						self.threads = response.data.data.threads;
+						self.navigation = response.data.data.navigation;
 					})
 					.catch((error) => {
 						self.$store.commit('SET_LOADING_STATUS', false);
@@ -601,11 +642,15 @@
 <style lang="scss">
 	.stackont-single-support-ticket-container {
 
-		.stackont-single-support-ticket-actions {
-			display: flex;
+		.stackont-single-support-ticket-actions-bar {
 			border-bottom: 1px solid rgba(#000, 0.1);
 			padding-bottom: 1.5rem;
 			margin-bottom: 1.5rem;
+		}
+
+		.stackont-single-support-ticket-actions {
+			display: flex;
+			justify-content: space-between;
 
 			> *:not(:last-child) {
 				margin-right: 5px;
@@ -802,6 +847,47 @@
 	.table--support-order {
 		td {
 			padding: 8px;
+		}
+	}
+
+	.stackont-support-ticket-nav {
+		display: flex;
+
+		.mdl-button {
+			display: inline-flex;
+			align-self: center;
+			justify-content: center;
+
+			i {
+				font-size: 16px;
+			}
+		}
+
+		&__left,
+		&__right {
+			> * {
+				display: inline-flex;
+				padding: 5px;
+				width: 32px;
+				height: 32px;
+				align-items: center;
+				justify-content: center;
+			}
+
+			a {
+				width: 100%;
+				height: 100%;
+				text-align: center;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+		}
+
+		&__left {
+		}
+
+		&__right {
 		}
 	}
 </style>
