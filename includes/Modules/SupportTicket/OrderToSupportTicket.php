@@ -38,6 +38,9 @@ class OrderToSupportTicket {
 		unset( $address['first_name'], $address['last_name'], $address['company'] );
 		$address = WC()->countries->get_formatted_address( $address, ', ' );
 
+		$phone = $order->get_billing_phone();
+		$phone = '<a href="tel:' . esc_attr( $phone ) . '">' . esc_html( $phone ) . '</a>';
+
 		ob_start();
 		?>
 		<table class="table--support-order">
@@ -47,7 +50,7 @@ class OrderToSupportTicket {
 			</tr>
 			<tr>
 				<td>Phone:</td>
-				<td><strong><?php echo $order->get_billing_phone() ?></strong></td>
+				<td><strong><?php echo $phone ?></strong></td>
 			</tr>
 			<tr>
 				<td> Customer Address:</td>

@@ -20,7 +20,8 @@ class CarrierStoreToSupportTicket {
 		$issues = array_column( $carrier_store->get( 'device_issues' ), 'title' );
 		$_model = $carrier_store->get( 'model' );
 		$model  = ( 'high' == $_model ) ? 'High end model' : 'Low end model';
-
+		$phone  = $carrier_store->get( 'phone' );
+		$phone  = '<a href="tel:' . esc_attr( $phone ) . '">' . esc_html( $phone ) . '</a>';
 		$rows   = [
 			[ 'label' => 'Carrier Store ID', 'value' => $carrier_store->get( 'id' ) ],
 			[ 'label' => 'Brand', 'value' => $carrier_store->get( 'brand' ) ],
@@ -31,7 +32,7 @@ class CarrierStoreToSupportTicket {
 			[ 'label' => 'Store', 'value' => $carrier_store->get( 'store' ) ],
 			[ 'label' => 'Industry', 'value' => $carrier_store->get( 'industry' ) ],
 			[ 'label' => 'Email', 'value' => $carrier_store->get( 'email' ) ],
-			[ 'label' => 'Phone', 'value' => $carrier_store->get( 'phone' ) ],
+			[ 'label' => 'Phone', 'value' => $phone ],
 			[ 'label' => 'Full Address', 'value' => $carrier_store->get( 'full_address' ) ],
 		];
 		$images = $carrier_store->get_images();

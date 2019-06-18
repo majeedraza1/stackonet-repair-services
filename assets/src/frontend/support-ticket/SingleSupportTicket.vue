@@ -19,7 +19,8 @@
 							<div class="stackont-support-ticket-nav">
 								<div class="stackont-support-ticket-nav__left">
 									<div v-if="navigation.pre && navigation.pre.id" @click="refreshRoute">
-										<router-link :to="{name: 'SingleSupportTicket', params: {id: navigation.pre.id}}">
+										<router-link
+											:to="{name: 'SingleSupportTicket', params: {id: navigation.pre.id}}">
 											<i class="fa fa-chevron-left" aria-hidden="true"></i>
 										</router-link>
 									</div>
@@ -29,7 +30,8 @@
 								</div>
 								<div class="stackont-support-ticket-nav__right">
 									<div v-if="navigation.next && navigation.next.id" @click="refreshRoute">
-										<router-link :to="{name: 'SingleSupportTicket', params: {id: navigation.next.id}}">
+										<router-link
+											:to="{name: 'SingleSupportTicket', params: {id: navigation.next.id}}">
 											<i class="fa fa-chevron-right" aria-hidden="true"></i>
 										</router-link>
 									</div>
@@ -881,6 +883,11 @@
 				display: flex;
 				justify-content: center;
 				align-items: center;
+			}
+
+			.disabled {
+				cursor: not-allowed;
+				opacity: 0.5;
 			}
 		}
 

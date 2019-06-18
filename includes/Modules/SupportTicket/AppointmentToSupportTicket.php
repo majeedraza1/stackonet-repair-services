@@ -18,6 +18,8 @@ class AppointmentToSupportTicket {
 	 */
 	public static function process( Appointment $appointment ) {
 		$issues = array_column( $appointment->get( 'device_issues' ), 'title' );
+		$phone  = $appointment->get( 'phone' );
+		$phone  = '<a href="tel:' . esc_attr( $phone ) . '">' . esc_html( $phone ) . '</a>';
 		$rows   = [
 			[ 'label' => 'Spot Appointment ID', 'value' => $appointment->get( 'id' ) ],
 			[ 'label' => 'Gadget', 'value' => $appointment->get( 'gadget' ) ],
@@ -26,7 +28,7 @@ class AppointmentToSupportTicket {
 			[ 'label' => 'Appointment Date', 'value' => $appointment->get( 'appointment_date' ) ],
 			[ 'label' => 'Appointment Time', 'value' => $appointment->get( 'appointment_time' ) ],
 			[ 'label' => 'Email', 'value' => $appointment->get( 'email' ) ],
-			[ 'label' => 'Phone', 'value' => $appointment->get( 'phone' ) ],
+			[ 'label' => 'Phone', 'value' => $phone ],
 			[ 'label' => 'Store Name', 'value' => $appointment->get( 'store_name' ) ],
 			[ 'label' => 'Full Address', 'value' => $appointment->get( 'full_address' ) ],
 			[ 'label' => 'Note', 'value' => $appointment->get( 'note' ) ],
