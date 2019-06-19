@@ -43,6 +43,8 @@
 				</header>
 
 				<nav class="demo-navigation mdl-navigation">
+					<router-link class="mdl-navigation__link" tag="div" to="/calendar" active-class="is-active">Calendar
+					</router-link>
 					<router-link class="mdl-navigation__link" tag="div" to="/ticket" active-class="is-active">Support
 					</router-link>
 					<router-link class="mdl-navigation__link" tag="div" to="/survey" active-class="is-active">Survey
@@ -106,6 +108,13 @@
 	@import "../../material-design-lite/layout/layout";
 	@import "../../material-design-lite/menu/menu";
 	@import "dashboard";
+
+	body.has-shapla-modal {
+		.mdl-layout__drawer,
+		.mdl-layout__header {
+			z-index: -1;
+		}
+	}
 
 	.stackonet-dashboard-container {
 		position: fixed;

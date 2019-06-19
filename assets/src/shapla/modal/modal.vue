@@ -1,6 +1,6 @@
 <template>
 	<div class="shapla-modal is-active" v-show="active">
-		<div class="shapla-modal-background"></div>
+		<div class="shapla-modal-background" @click="close"></div>
 
 		<template v-if="!is_card">
 			<div class="shapla-modal-content">
@@ -39,6 +39,14 @@
 			active: {type: Boolean, required: true},
 			title: {type: String, default: 'Untitled'},
 			type: {type: String, default: 'card'},
+		},
+
+		updated() {
+			if (this.active) {
+				document.querySelector('body').classList.add('has-shapla-modal');
+			} else {
+				document.querySelector('body').classList.remove('has-shapla-modal');
+			}
 		},
 
 		data() {

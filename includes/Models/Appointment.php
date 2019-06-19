@@ -341,6 +341,20 @@ class Appointment extends DatabaseModel {
 		return false;
 	}
 
+	public function find_by_date( $date ) {
+		global $wpdb;
+		$table   = $wpdb->prefix . $this->table;
+		$sql     = $wpdb->prepare( "SELECT * FROM {$table} WHERE deleted_at IS NULL AND DATE(created_at) = %s", $date );
+		$results = $wpdb->get_results( $sql, ARRAY_A );
+
+		$items = [];
+		foreach ( $results as $item ) {
+			$items[] = new self( $item );
+		}
+
+		return $items;
+	}
+
 	/**
 	 * Count total records from the database
 	 *
@@ -369,6 +383,24 @@ class Appointment extends DatabaseModel {
 		}
 
 		return $counts;
+	}
+
+	/**
+	 * Get appointment counts grouped by created_at date
+	 *
+	 * @return array
+	 */
+	public function get_counts_group_by_created_at() {
+		global $wpdb;
+		$table = $wpdb->prefix . $this->table;
+
+		$sql     = "SELECT COUNT(id) counts, DATE(created_at) created FROM {$table}";
+		$sql     .= " WHERE deleted_at IS NULL";
+		$sql     .= " GROUP BY DATE(created_at)";
+		$sql     .= " ORDER BY DATE(created_at) DESC;";
+		$results = $wpdb->get_results( $sql, ARRAY_A );
+
+		return $results;
 	}
 
 	/**

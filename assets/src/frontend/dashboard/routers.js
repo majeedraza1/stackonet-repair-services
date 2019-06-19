@@ -9,11 +9,13 @@ import CarrierStores from "./pages/CarrierStores";
 import SpotAppointment from "./pages/SpotAppointment";
 import CheckoutAnalysis from "./pages/CheckoutAnalysis";
 import ShortMessageService from "./pages/ShortMessageService";
+import Calendar from "./pages/Calendar";
 
 Vue.use(VueRouter);
 
 const routes = [
 	{path: '/', name: 'Dashboard', component: Dashboard},
+	{path: '/calendar', name: 'Calendar', component: Calendar},
 	{path: '/ticket', name: 'SupportTicketList', component: SupportTicketList},
 	{path: '/ticket/:id/view', name: 'SingleSupportTicket', component: SingleSupportTicket},
 	{path: '/ticket/new', name: 'NewSupportTicket', component: NewSupportTicket},
