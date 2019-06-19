@@ -49,8 +49,10 @@
 	"dependencies": {
 		"@tinymce/tinymce-vue": "^2.0.0",
 		"axios": "^0.18.0",
+		"chart.js": "^2.8.0",
 		"tiny-slider": "^2.9.1",
 		"vue": "^2.5.22",
+		"vue-chartjs": "^3.4.2",
 		"vue-flatpickr-component": "^8.1.2",
 		"vue-fullcalendar": "^1.0.9",
 		"vue-router": "^3.0.2",

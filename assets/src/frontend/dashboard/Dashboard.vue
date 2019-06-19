@@ -6,7 +6,7 @@
 	export default {
 		name: "Dashboard",
 		mounted() {
-			this.$router.push('/calendar');
+			this.$router.push('/report');
 		}
 	}
 </script>

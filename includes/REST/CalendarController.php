@@ -75,7 +75,59 @@ class CalendarController extends ApiController {
 		$leads_counts  = $this->get_leads_counts();
 		$events        = array_merge( $orders_counts, $leads_counts );
 
-		return $this->respondOK( [ 'events' => $events ] );
+		$dates       = range( 1, date( 'd', strtotime( 'last day of this month' ) ) );
+		$defaultData = array_fill_keys( $dates, 0 );
+		$yearNum     = intval( date( 'Y', time() ) );
+		$monthNum    = intval( date( 'm', time() ) );
+		$dateNum     = intval( date( 'd', time() ) );
+
+		$_orders_counts = [];
+		foreach ( $orders_counts as $order_count ) {
+			$_time = strtotime( $order_count['date'] );
+			if ( date( 'Y', $_time ) == $yearNum && $monthNum == date( 'm', $_time ) ) {
+				$_dateNum = intval( date( 'd', $_time ) );
+
+				$_orders_counts[ $_dateNum ] = intval( $order_count['counts'] );
+			}
+		}
+
+		$_leads_counts = [];
+		foreach ( $leads_counts as $order_count ) {
+			$_time = strtotime( $order_count['date'] );
+			if ( date( 'Y', $_time ) == $yearNum && $monthNum == date( 'm', $_time ) ) {
+				$_dateNum = intval( date( 'd', $_time ) );
+
+				$_leads_counts[ $_dateNum ] = intval( $order_count['counts'] );
+			}
+		}
+
+		$orders_data = [];
+		$leads_data  = [];
+		foreach ( $dates as $index ) {
+			$_default              = ( $index <= $dateNum ) ? 0 : null;
+			$orders_data[ $index ] = isset( $_orders_counts[ $index ] ) ? $_orders_counts[ $index ] : $_default;
+			$leads_data[ $index ]  = isset( $_leads_counts[ $index ] ) ? $_leads_counts[ $index ] : $_default;
+		}
+
+		$chartData = [
+			'datasets' => [
+				[
+					'label'           => 'Orders',
+					'borderColor'     => '#f58730',
+					'backgroundColor' => 'transparent',
+					'data'            => array_values( $orders_data )
+				],
+				[
+					'label'           => 'Leads',
+					'borderColor'     => '#ff0000',
+					'backgroundColor' => 'transparent',
+					'data'            => array_values( $leads_data )
+				],
+			],
+			'labels'   => $dates,
+		];
+
+		return $this->respondOK( [ 'chartData' => $chartData, 'events' => $events, ] );
 	}
 
 	/**

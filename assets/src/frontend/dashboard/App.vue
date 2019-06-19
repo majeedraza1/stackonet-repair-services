@@ -43,7 +43,7 @@
 				</header>
 
 				<nav class="demo-navigation mdl-navigation">
-					<router-link class="mdl-navigation__link" tag="div" to="/calendar" active-class="is-active">Calendar
+					<router-link class="mdl-navigation__link" tag="div" to="/report" active-class="is-active">Dashboard
 					</router-link>
 					<router-link class="mdl-navigation__link" tag="div" to="/ticket" active-class="is-active">Support
 					</router-link>
