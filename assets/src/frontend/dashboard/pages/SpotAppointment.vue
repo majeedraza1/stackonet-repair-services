@@ -147,12 +147,12 @@
 
 		<big-button fullwidth @click="handleSubmit">Submit</big-button>
 
-		<mdl-modal :active="open_thank_you_model" type="box" @close="closeThankYouModel">
+		<modal :active="open_thank_you_model" type="box" @close="closeThankYouModel">
 			<div class="mdl-box mdl-shadow--2dp">
 				<h3>Data has been submitted successfully.</h3>
 				<mdl-button @click="closeThankYouModel">Close</mdl-button>
 			</div>
-		</mdl-modal>
+		</modal>
 
 	</div>
 </template>
@@ -479,6 +479,8 @@
 						address: self.c_address_object,
 						images_ids: images_ids,
 						note: self.note,
+						latitude: self.latitude,
+						longitude: self.longitude,
 					})
 					.then((response) => {
 						self.$store.commit('SET_LOADING_STATUS', false);

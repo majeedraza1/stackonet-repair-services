@@ -3,7 +3,9 @@
 namespace Stackonet\REST;
 
 use Exception;
+use Stackonet\Integrations\GoogleMap;
 use Stackonet\Models\Appointment;
+use Stackonet\Models\Settings;
 use Stackonet\Supports\Logger;
 use WC_Order;
 use WC_Order_Query;
@@ -175,6 +177,13 @@ class CalendarController extends ApiController {
 		return $items;
 	}
 
+	/**
+	 * Get order data
+	 *
+	 * @param string $date
+	 *
+	 * @return array
+	 */
 	private function get_order_data( $date ) {
 		$query = new WC_Order_Query();
 		$query->set( 'date_created', $date );
@@ -191,7 +200,7 @@ class CalendarController extends ApiController {
 					'address_map_url'    => $order->get_shipping_address_map_url(),
 					'ticket_id'          => $order->get_meta( '_support_ticket_id', true ),
 					'order_total'        => $order->get_total(),
-
+					'latitude_longitude' => GoogleMap::get_customer_latitude_longitude_from_order( $order ),
 				];
 			}
 		} catch ( Exception $e ) {
@@ -201,8 +210,25 @@ class CalendarController extends ApiController {
 		return $items;
 	}
 
+	/**
+	 * Get lead data
+	 *
+	 * @param string $date
+	 *
+	 * @return array
+	 */
 	private function get_lead_data( $date ) {
-		$items = ( new Appointment() )->find_by_date( $date );
+		$_items = ( new Appointment() )->find_by_date( $date );
+		$items  = [];
+		foreach ( $_items as $item ) {
+			$items[] = [
+				'id'                 => $item->get( 'id' ),
+				'store_name'         => $item->get( 'store_name' ),
+				'device_issues'      => $item->get( 'device_issues' ),
+				'full_address'       => $item->get( 'full_address' ),
+				'latitude_longitude' => GoogleMap::get_appointment_latitude_longitude( $item ),
+			];
+		}
 
 		return $items;
 	}

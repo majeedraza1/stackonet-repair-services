@@ -1,19 +1,19 @@
 <template>
-	<div class="shapla-modal is-active" v-show="active">
-		<div class="shapla-modal-background" @click="close"></div>
+	<div class="shapla-modal" v-show="active">
+		<div class="shapla-modal-background" @click="backgroundClick"></div>
 
 		<template v-if="!is_card">
-			<div class="shapla-modal-content">
+			<div :class="contentClass">
 				<slot></slot>
 			</div>
 
-			<delete-icon fixed large @click="close"></delete-icon>
+			<delete-icon v-if="showCloseIcon" fixed large @click="close"></delete-icon>
 		</template>
 
-		<div class="shapla-modal-card" v-if="is_card">
+		<div :class="contentClass" v-if="is_card">
 			<div class="shapla-modal-card-head">
 				<p class="shapla-modal-card-title">{{title}}</p>
-				<delete-icon @click="close"></delete-icon>
+				<delete-icon v-if="showCloseIcon" @click="close"></delete-icon>
 			</div>
 			<div class="shapla-modal-card-body">
 				<slot></slot>
@@ -39,6 +39,11 @@
 			active: {type: Boolean, required: true},
 			title: {type: String, default: 'Untitled'},
 			type: {type: String, default: 'card'},
+			closeOnBackgroundClick: {type: Boolean, default: true},
+			showCloseIcon: {type: Boolean, default: true},
+			contentSize: {
+				type: String, default: 'medium', validator: value => ['small', 'medium', 'large'].indexOf(value) !== -1
+			},
 		},
 
 		updated() {
@@ -49,19 +54,27 @@
 			}
 		},
 
-		data() {
-			return {}
-		},
-
 		computed: {
 			is_card() {
 				return this.type === 'card';
+			},
+			contentClass() {
+				return [
+					{'shapla-modal-content': !this.is_card},
+					{'shapla-modal-card': this.is_card},
+					'is-' + this.contentSize,
+				]
 			}
 		},
 
 		methods: {
 			close() {
 				this.$emit('close');
+			},
+			backgroundClick() {
+				if (this.closeOnBackgroundClick) {
+					this.close();
+				}
 			}
 		}
 	}

@@ -9,7 +9,8 @@
 			<mdl-tab name="Calendar">
 				<div class="stackonet-dashboard-calendar">
 					<vue-fullcalendar :events="calendar_events" @eventClick="eventClick"></vue-fullcalendar>
-					<modal :active="isModalOpen" :title="modalTitle" @close="closeModal">
+					<modal :active="isModalOpen" :title="modalTitle" @close="closeModal" content-size="large">
+						<div id="map"></div>
 						<template v-if="dataType === 'order'">
 							<div v-for="_data in activeData">
 								<div class="calendar-list-item">
@@ -74,23 +75,9 @@
 				activeData: {},
 				events: [],
 				dataType: '',
-				chartdata: {
-					labels: ['January', 'February', 'January', 'February', 'January', 'February', 'January', 'February'],
-					datasets: [
-						{
-							label: 'Orders',
-							borderColor: '#f58730',
-							backgroundColor: 'transparent',
-							data: [14, 9, 15, 22, 14, 9, 15, 22]
-						},
-						{
-							label: 'Leads',
-							borderColor: '#ff0000',
-							backgroundColor: 'transparent',
-							data: [20, 9, 17, 11, 0, 9, 8, 22]
-						}
-					]
-				},
+				chartdata: {},
+				googleMap: null,
+				markers: [],
 				options: {
 					responsive: true,
 					maintainAspectRatio: false
@@ -120,6 +107,18 @@
 			this.$store.commit('SET_TITLE', 'Dashboard');
 			this.$store.commit('SET_LOADING_STATUS', false);
 			this.getEvents();
+
+			this.googleMap = new google.maps.Map(this.$el.querySelector('#map'), {
+				zoom: 1,
+				center: {lat: 32.8205865, lng: -96.871626},
+			});
+		},
+		watch: {
+			markers(_markers) {
+				_markers.forEach(element => {
+					new google.maps.Marker(element).setMap(this.googleMap);
+				});
+			}
 		},
 		methods: {
 			eventClick(data) {
@@ -130,6 +129,12 @@
 					.then(response => {
 						this.$store.commit('SET_LOADING_STATUS', false);
 						this.activeData = response.data.data;
+						this.markers = this.activeData.map(element => {
+							return {
+								position: element.latitude_longitude,
+								title: element.address
+							}
+						});
 						this.isModalOpen = true;
 					})
 					.catch(error => {
@@ -163,6 +168,11 @@
 <style lang="scss">
 	.stackonet-dashboard-graph {
 		margin-top: 30px;
+	}
+
+	#map {
+		height: 300px;
+		margin-bottom: 1.5rem;
 	}
 
 	.stackonet-dashboard-calendar {

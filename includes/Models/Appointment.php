@@ -41,6 +41,8 @@ class Appointment extends DatabaseModel {
 		'images_ids'       => '',
 		'note'             => '',
 		'status'           => '',
+		'latitude'         => '',
+		'longitude'        => '',
 		'created_by'       => 0,
 		'created_at'       => '',
 		'updated_at'       => '',
@@ -54,6 +56,8 @@ class Appointment extends DatabaseModel {
 	 */
 	protected $data_format = [
 		'%d',
+		'%s',
+		'%s',
 		'%s',
 		'%s',
 		'%s',
@@ -341,6 +345,11 @@ class Appointment extends DatabaseModel {
 		return false;
 	}
 
+	/**
+	 * @param $date
+	 *
+	 * @return array|self[]
+	 */
 	public function find_by_date( $date ) {
 		global $wpdb;
 		$table   = $wpdb->prefix . $this->table;
@@ -430,6 +439,8 @@ class Appointment extends DatabaseModel {
                 `images_ids` TEXT DEFAULT NULL,
                 `note` TEXT DEFAULT NULL,
                 `status` varchar(50) DEFAULT NULL,
+                `latitude` varchar(50) DEFAULT NULL,
+                `longitude` varchar(50) DEFAULT NULL,
                 `created_by` bigint(20) DEFAULT NULL,
                 `created_at` datetime DEFAULT NULL,
                 `updated_at` datetime DEFAULT NULL,
@@ -438,5 +449,29 @@ class Appointment extends DatabaseModel {
             ) $collate;";
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $table_schema );
+
+		$this->add_table_columns();
+	}
+
+	/**
+	 * Add new columns to table
+	 */
+	public function add_table_columns() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . $this->table;
+		$version    = get_option( 'stackonet_appointment_table_version' );
+		$version    = ! empty( $version ) ? $version : '1.0.0';
+
+		if ( version_compare( $version, '1.0.1', '<' ) ) {
+			$row = $wpdb->get_row( "SELECT * FROM {$table_name}", ARRAY_A );
+			if ( ! isset( $row['latitude'] ) ) {
+				$wpdb->query( "ALTER TABLE {$table_name} ADD `latitude` VARCHAR(50) NULL DEFAULT NULL AFTER `status`" );
+			}
+			if ( ! isset( $row['longitude'] ) ) {
+				$wpdb->query( "ALTER TABLE {$table_name} ADD `longitude` VARCHAR(50) NULL DEFAULT NULL AFTER `latitude`" );
+			}
+
+			update_option( 'stackonet_appointment_table_version', '1.0.1' );
+		}
 	}
 }

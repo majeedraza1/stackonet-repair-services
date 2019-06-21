@@ -3,6 +3,8 @@ $modal-z: 100000 !default;
 $modal-background-background-color: rgba(#000, 0.86) !default;
 
 $modal-content-width: 640px !default;
+$modal-content-width-small: 300px !default;
+$modal-content-width-large: 960px !default;
 $modal-content-margin-mobile: 20px !default;
 $modal-content-spacing-mobile: 160px !default;
 $modal-content-spacing-tablet: 40px !default;
@@ -37,16 +39,12 @@ $modal-card-body-padding: 20px !default;
 
 .shapla-modal {
 	align-items: center;
-	display: none;
+	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	overflow: hidden;
 	position: fixed;
 	z-index: $modal-z;
-
-	&.is-active {
-		display: flex;
-	}
 
 	&-background {
 		background-color: $modal-background-background-color;
@@ -67,12 +65,20 @@ $modal-card-body-padding: 20px !default;
 		max-height: calc(100vh - #{$modal-content-spacing-mobile});
 		overflow: auto;
 		position: relative;
-		width: 100%;
+		width: calc(100% - #{$modal-content-margin-mobile * 2});
 
 		@media screen and (min-width: 769px), print {
 			margin: 0 auto;
 			max-height: calc(100vh - #{$modal-content-spacing-tablet});
-			width: $modal-content-width;
+			&:not(.is-small) {
+				width: $modal-content-width;
+			}
+		}
+
+		@media screen and (min-width: 1025px) {
+			&.is-large {
+				width: $modal-content-width-large;
+			}
 		}
 	}
 

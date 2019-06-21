@@ -3,6 +3,7 @@
 namespace Stackonet;
 
 use Exception;
+use Stackonet\Integrations\GoogleMap;
 use Stackonet\Integrations\IpData;
 use Stackonet\Integrations\IpStack;
 use Stackonet\Models\CheckoutAnalysis;
@@ -628,6 +629,9 @@ class Ajax {
 
 		// Create support ticket from order
 		OrderToSupportTicket::process( $order );
+
+		// Update customer latitude and longitude
+		GoogleMap::get_customer_latitude_longitude_from_order( $order );
 
 		do_action( 'stackonet_order_created', $order );
 
