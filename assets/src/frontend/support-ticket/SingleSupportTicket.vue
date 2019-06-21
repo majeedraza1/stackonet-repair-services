@@ -179,6 +179,15 @@
 					</div>
 				</div>
 
+				<div class="shapla-box shapla-widget-box" v-show="isOrderTicket">
+					<div class="shapla-widget-box__heading">
+						<h5 class="shapla-widget-box__title">Map</h5>
+					</div>
+					<div class="shapla-widget-box__content">
+						<div id="google-map"></div>
+					</div>
+				</div>
+
 				<div class="shapla-box shapla-widget-box">
 					<div class="shapla-widget-box__heading">
 						<h5 class="shapla-widget-box__title">Assign Agent(s)</h5>
@@ -400,6 +409,9 @@
 				openLogoModal: false,
 				attachments: [],
 				images: [],
+				order: {
+					latitude_longitude: {lat: 32.8205865, lng: -96.871626}
+				},
 			}
 		},
 		computed: {
@@ -431,6 +443,9 @@
 			},
 			canSendSms() {
 				return this.ticket_twilio_sms_content.length >= 5;
+			},
+			isOrderTicket() {
+				return !!Object.keys(this.order).length;
 			}
 		},
 		mounted() {
@@ -442,6 +457,16 @@
 				this.getItem();
 			}
 			this.getImages();
+
+
+			let googleMap = new google.maps.Map(this.$el.querySelector('#google-map'), {
+				zoom: 15,
+				center: this.order.latitude_longitude,
+			});
+			new google.maps.Marker({
+				position: this.order.latitude_longitude,
+				title: this.order.address
+			}).setMap(googleMap);
 		},
 		methods: {
 			dropzoneSuccess(file, response) {
@@ -706,6 +731,9 @@
 						self.item = response.data.data.ticket;
 						self.threads = response.data.data.threads;
 						self.navigation = response.data.data.navigation;
+						if (response.data.data.order) {
+							self.order = response.data.data.order;
+						}
 					})
 					.catch((error) => {
 						self.$store.commit('SET_LOADING_STATUS', false);
@@ -722,6 +750,10 @@
 			border-bottom: 1px solid rgba(#000, 0.1);
 			padding-bottom: 1.5rem;
 			margin-bottom: 1.5rem;
+		}
+
+		#google-map {
+			height: 300px;
 		}
 
 		.stackont-single-support-ticket-actions {

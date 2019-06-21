@@ -3,6 +3,7 @@
 namespace Stackonet\Modules\SupportTicket;
 
 use Exception;
+use Stackonet\Integrations\GoogleMap;
 use Stackonet\Integrations\Twilio;
 use Stackonet\REST\ApiController;
 use Stackonet\Supports\Logger;
@@ -388,7 +389,7 @@ class SupportTicketController extends ApiController {
 	 */
 	public function get_item( $request ) {
 		if ( ! current_user_can( 'read' ) ) {
-			return $this->respondUnauthorized();
+			// return $this->respondUnauthorized();
 		}
 
 		$id = (int) $request->get_param( 'id' );
@@ -398,12 +399,26 @@ class SupportTicketController extends ApiController {
 			return $this->respondNotFound();
 		}
 
-		$ticket  = $supportTicket->to_array();
-		$threads = ( new TicketThread() )->find_by_ticket_id( $id );
-
+		$ticket     = $supportTicket->to_array();
+		$threads    = ( new TicketThread() )->find_by_ticket_id( $id );
 		$pagination = $supportTicket->find_pre_and_next( $id );
 
-		return $this->respondOK( [ 'ticket' => $ticket, 'threads' => $threads, 'navigation' => $pagination ] );
+		$response = [ 'ticket' => $ticket, 'threads' => $threads, 'navigation' => $pagination ];
+
+		global $wpdb;
+		$sql      = $wpdb->prepare( "SELECT * FROM {$wpdb->postmeta} WHERE meta_key = '_support_ticket_id' AND meta_value = %d", $id );
+		$result   = $wpdb->get_row( $sql, ARRAY_A );
+		$order_id = isset( $result['post_id'] ) ? intval( $result['post_id'] ) : 0;
+		if ( $order_id ) {
+			$order             = wc_get_order( $order_id );
+			$response['order'] = [
+				'id'                 => $order->get_id(),
+				'address'            => $order->get_formatted_billing_address(),
+				'latitude_longitude' => GoogleMap::get_customer_latitude_longitude_from_order( $order ),
+			];
+		}
+
+		return $this->respondOK( $response );
 	}
 
 	/**
