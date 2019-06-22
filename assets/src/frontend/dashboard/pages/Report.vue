@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="stackonet-dashboard-report">
 		<mdl-tabs>
 			<mdl-tab name="Graph" selected>
 				<div class="stackonet-dashboard-graph">
@@ -11,6 +11,16 @@
 					<vue-fullcalendar :events="calendar_events" @eventClick="eventClick"></vue-fullcalendar>
 					<modal :active="isModalOpen" :title="modalTitle" @close="closeModal" content-size="large">
 						<div id="map"></div>
+						<columns multiline mobile centered>
+							<column v-for="_data in activeData" :key="_data.id" :mobile="6" :tablet="4" :desktop="3">
+								<div class="shapla-box" :class="{'is-active':_data.id === activeDataOnMap.id}"
+									 @click="updateMapCenter(_data)">
+									<template v-if="dataType === 'order'">Order ID:</template>
+									<template v-if="dataType === 'lead'">Lead ID:</template>
+									{{_data.id}}
+								</div>
+							</column>
+						</columns>
 						<template v-if="dataType === 'order'">
 							<div v-for="_data in activeData">
 								<div class="calendar-list-item">
@@ -73,6 +83,7 @@
 			return {
 				isModalOpen: false,
 				activeData: {},
+				activeDataOnMap: {},
 				events: [],
 				dataType: '',
 				chartdata: {},
@@ -121,6 +132,14 @@
 			}
 		},
 		methods: {
+			updateMapCenter(data) {
+				this.activeDataOnMap = data;
+				this.googleMap.setZoom(18);
+				this.googleMap.setCenter(new google.maps.LatLng(
+					data.latitude_longitude.lat,
+					data.latitude_longitude.lng
+				));
+			},
 			eventClick(data) {
 				this.$store.commit('SET_LOADING_STATUS', true);
 				this.dataType = data.type;
@@ -166,6 +185,17 @@
 </script>
 
 <style lang="scss">
+	.stackonet-dashboard-report {
+		.shapla-box {
+			cursor: pointer;
+			text-align: center;
+
+			&.is-active {
+				background-image: linear-gradient(-90deg, #f9a73b, #f58730);
+			}
+		}
+	}
+
 	.stackonet-dashboard-graph {
 		margin-top: 30px;
 	}
