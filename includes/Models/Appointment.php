@@ -43,6 +43,9 @@ class Appointment extends DatabaseModel {
 		'status'           => '',
 		'latitude'         => '',
 		'longitude'        => '',
+		'product_id'       => 0,
+		'device_id'        => '',
+		'device_color'     => '',
 		'created_by'       => 0,
 		'created_at'       => '',
 		'updated_at'       => '',
@@ -71,6 +74,9 @@ class Appointment extends DatabaseModel {
 		'%s',
 		'%s',
 		'%s',
+		'%s',
+		'%s',
+		'%d',
 		'%s',
 		'%s',
 		'%d',
@@ -441,6 +447,9 @@ class Appointment extends DatabaseModel {
                 `status` varchar(50) DEFAULT NULL,
                 `latitude` varchar(50) DEFAULT NULL,
                 `longitude` varchar(50) DEFAULT NULL,
+                `product_id` bigint(20) DEFAULT NULL,
+                `device_id` varchar(50) DEFAULT NULL,
+                `device_color` varchar(50) DEFAULT NULL,
                 `created_by` bigint(20) DEFAULT NULL,
                 `created_at` datetime DEFAULT NULL,
                 `updated_at` datetime DEFAULT NULL,
@@ -462,7 +471,7 @@ class Appointment extends DatabaseModel {
 		$version    = get_option( 'stackonet_appointment_table_version' );
 		$version    = ! empty( $version ) ? $version : '1.0.0';
 
-		if ( version_compare( $version, '1.0.1', '<' ) ) {
+		if ( version_compare( $version, '1.0.2', '<' ) ) {
 			$row = $wpdb->get_row( "SELECT * FROM {$table_name}", ARRAY_A );
 			if ( ! isset( $row['latitude'] ) ) {
 				$wpdb->query( "ALTER TABLE {$table_name} ADD `latitude` VARCHAR(50) NULL DEFAULT NULL AFTER `status`" );
@@ -470,8 +479,17 @@ class Appointment extends DatabaseModel {
 			if ( ! isset( $row['longitude'] ) ) {
 				$wpdb->query( "ALTER TABLE {$table_name} ADD `longitude` VARCHAR(50) NULL DEFAULT NULL AFTER `latitude`" );
 			}
+			if ( ! isset( $row['product_id'] ) ) {
+				$wpdb->query( "ALTER TABLE {$table_name} ADD `product_id` bigint(20) NULL DEFAULT NULL AFTER `longitude`" );
+			}
+			if ( ! isset( $row['device_id'] ) ) {
+				$wpdb->query( "ALTER TABLE {$table_name} ADD `device_id` VARCHAR(50) NULL DEFAULT NULL AFTER `product_id`" );
+			}
+			if ( ! isset( $row['device_color'] ) ) {
+				$wpdb->query( "ALTER TABLE {$table_name} ADD `device_color` VARCHAR(50) NULL DEFAULT NULL AFTER `device_id`" );
+			}
 
-			update_option( 'stackonet_appointment_table_version', '1.0.1' );
+			update_option( 'stackonet_appointment_table_version', '1.0.2' );
 		}
 	}
 }

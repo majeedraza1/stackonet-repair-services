@@ -73,7 +73,12 @@ class AppointmentToSupportTicket {
 			'ticket_category' => get_option( 'wpsc_default_spot_appointment_category' ),
 		];
 
-		( new SupportTicket )->create_support_ticket( $_data, $content );
+		$supportTicket = new SupportTicket();
+		$ticket_id     = $supportTicket->create_support_ticket( $_data, $content );
+		if ( $ticket_id ) {
+			$supportTicket->update_metadata( $ticket_id, 'created_via', 'appointment' );
+			$supportTicket->update_metadata( $ticket_id, 'belongs_to_id', $appointment->get( 'id' ) );
+		}
 	}
 
 	/**

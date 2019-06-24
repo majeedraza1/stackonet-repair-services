@@ -14,6 +14,11 @@
 								<icon><i class="fa fa-list" aria-hidden="true"></i></icon>
 								Ticket List
 							</mdl-button>
+							<template v-if="item.created_via=== 'appointment'">
+								<mdl-button type="raised" color="default" @click="createOrderFromAppointment">
+									Create Order
+								</mdl-button>
+							</template>
 						</div>
 						<div class="right">
 							<div class="stackont-support-ticket-nav">
@@ -720,6 +725,19 @@
 			},
 			ticketList() {
 				this.$router.push({name: 'SupportTicketList'});
+			},
+			createOrderFromAppointment() {
+				this.$store.commit('SET_LOADING_STATUS', true);
+				axios
+					.post(PhoneRepairs.rest_root + '/support-ticket/' + this.id + '/order')
+					.then((response) => {
+						console.log(response);
+						this.$store.commit('SET_LOADING_STATUS', false);
+					})
+					.catch((error) => {
+						console.log(error);
+						this.$store.commit('SET_LOADING_STATUS', false);
+					});
 			},
 			getItem() {
 				let self = this;

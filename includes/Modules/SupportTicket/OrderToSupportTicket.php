@@ -127,6 +127,12 @@ class OrderToSupportTicket {
 
 		$order->add_meta_data( '_support_ticket_id', $ticket_id );
 		$order->save_meta_data();
+
+		$supportTicket = new SupportTicket();
+		if ( $ticket_id ) {
+			$supportTicket->update_metadata( $ticket_id, 'created_via', 'order' );
+			$supportTicket->update_metadata( $ticket_id, 'belongs_to_id', $order->get_id() );
+		}
 	}
 
 	/**

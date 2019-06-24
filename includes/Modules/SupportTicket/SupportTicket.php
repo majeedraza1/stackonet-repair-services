@@ -136,6 +136,8 @@ class SupportTicket extends DatabaseModel {
 		$data['assigned_agents']    = $this->get_assigned_agents();
 		$data['updated']            = $this->update_at();
 		$data['updated_human_time'] = $this->updated_human_time();
+		$data['created_via']        = $this->created_via();
+		$data['belongs_to_id']      = $this->belongs_to_id();
 
 		return $data;
 	}
@@ -145,6 +147,28 @@ class SupportTicket extends DatabaseModel {
 	 */
 	public function get_ticket_id() {
 		return intval( $this->get( 'id' ) );
+	}
+
+	/**
+	 * Get created via
+	 *
+	 * @return string|null
+	 */
+	public function created_via() {
+		$created_via = $this->get_metadata( $this->get_ticket_id(), 'created_via' );
+
+		return isset( $created_via[0] ) ? $created_via[0] : null;
+	}
+
+	/**
+	 * Get belongs to id
+	 *
+	 * @return int
+	 */
+	public function belongs_to_id() {
+		$belongs_to_id = ( new SupportTicket )->get_metadata( $this->get_ticket_id(), 'belongs_to_id' );
+
+		return isset( $belongs_to_id[0] ) ? intval( $belongs_to_id[0] ) : 0;
 	}
 
 	/**

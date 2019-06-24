@@ -1,6 +1,6 @@
 <template>
 	<div class="stackonet-admin-spot-appointment">
-		<h1 class="wp-heading-inline">Spot Appointment</h1>
+		<h1 class="wp-heading-inline">Lead</h1>
 		<div class="clear"></div>
 
 		<wp-list-table

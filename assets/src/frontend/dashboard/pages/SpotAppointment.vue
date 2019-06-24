@@ -38,6 +38,18 @@
 		</div>
 
 		<div class="form-field">
+			<label>Choose device color</label>
+			<columns mobile multiline centered>
+				<column :mobile="6" :tablet="4" v-for="(_color, index) in devices_colors" :key="index">
+					<div class="shapla-survey-box hoverable" :class="{'is-active':_color === device_color}"
+						 @click="device_color = _color">
+						<div v-html="_color.title"></div>
+					</div>
+				</column>
+			</columns>
+		</div>
+
+		<div class="form-field">
 			<label>Choose issue(s)</label>
 			<columns mobile multiline centered>
 				<column :mobile="6" :tablet="4" v-for="(_issue, index) in _issues" :key="index">
@@ -159,16 +171,14 @@
 
 <script>
 	import axios from 'axios'
+	import modal from 'shapla-modal';
+	import {columns, column} from 'shapla-columns';
 	import AnimatedInput from '../../../components/AnimatedInput';
 	import BigButton from '../../../components/BigButton';
 	import PricingAccordion from '../../../components/PricingAccordion';
-	import modal from '../../../shapla/modal/modal';
 	import imageContainer from '../../../shapla/image/image';
-	import columns from '../../../shapla/columns/columns';
-	import column from '../../../shapla/columns/column';
 	import mdlRadio from '../../../material-design-lite/radio/mdlRadio';
 	import mdlSpinner from '../../../material-design-lite/spinner/mdlSpinner';
-	import mdlModal from '../../../material-design-lite/modal/mdlModal';
 	import mdlButton from '../../../material-design-lite/button/mdlButton';
 	import gMapAutocomplete from '../../components/gMapAutocomplete'
 	import MediaModal from '../../components/MediaModal'
@@ -182,7 +192,6 @@
 			mdlSpinner,
 			modal,
 			gMapAutocomplete,
-			mdlModal,
 			mdlButton,
 			MediaModal,
 			imageContainer,
@@ -225,7 +234,9 @@
 				store_name: '',
 				device: {},
 				devices_models: [],
+				devices_colors: [],
 				device_model: {},
+				device_color: {},
 				issues: [],
 				selectedIssues: [],
 			}
@@ -348,6 +359,7 @@
 				this.device = device;
 				this.devices_models = device.device_models;
 				this.device_model = device.device_models[0];
+				this.devices_colors = this.device_model.colors;
 				this.issues = device.multi_issues;
 				this.activeDeviceAccordion = false;
 				this.selectedIssues = [];
@@ -357,6 +369,7 @@
 				this.model = model.title;
 				this.activeModelAccordion = false;
 				this.selectedIssues = [];
+				this.devices_colors = model.colors;
 			},
 			chooseDate(date) {
 				this.appointment_date = date;
@@ -467,6 +480,9 @@
 					.post(PhoneRepairs.rest_root + '/spot-appointment', {
 						gadget: self.gadget,
 						brand: self.brand,
+						product_id: self.device.product_id,
+						device_id: self.device.id,
+						device_color: self.device_color.title,
 						device: self.device.device_title,
 						device_model: self.model,
 						device_issues: self.selectedIssues,

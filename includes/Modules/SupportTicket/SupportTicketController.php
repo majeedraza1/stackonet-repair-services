@@ -5,6 +5,7 @@ namespace Stackonet\Modules\SupportTicket;
 use Exception;
 use Stackonet\Integrations\GoogleMap;
 use Stackonet\Integrations\Twilio;
+use Stackonet\Models\Appointment;
 use Stackonet\REST\ApiController;
 use Stackonet\Supports\Logger;
 use WP_Error;
@@ -67,6 +68,10 @@ class SupportTicketController extends ApiController {
 
 		register_rest_route( $this->namespace, '/support-ticket/(?P<id>\d+)/thread', [
 			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'create_thread' ] ],
+		] );
+
+		register_rest_route( $this->namespace, '/support-ticket/(?P<id>\d+)/order', [
+			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'create_order' ] ],
 		] );
 
 		register_rest_route( $this->namespace, '/support-ticket/(?P<id>\d+)/thread/(?P<thread_id>\d+)', [
@@ -667,6 +672,47 @@ class SupportTicketController extends ApiController {
 
 		if ( $support_ticket->delete_thread( $thread_id ) ) {
 			return $this->respondOK( [ $id, $thread_id ] );
+		}
+
+		return $this->respondInternalServerError();
+	}
+
+	/**
+	 * Create new order from lead
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
+	 */
+	public function create_order( $request ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $this->respondUnauthorized();
+		}
+
+		$id = (int) $request->get_param( 'id' );
+
+		$support_ticket = ( new SupportTicket )->find_by_id( $id );
+
+		if ( ! $support_ticket instanceof SupportTicket ) {
+			return $this->respondNotFound();
+		}
+
+		$created_via   = $support_ticket->created_via();
+		$belongs_to_id = $support_ticket->belongs_to_id();
+
+		if ( $created_via !== 'appointment' ) {
+			return $this->respondUnprocessableEntity();
+		}
+
+		$appointment = ( new Appointment() )->find_by_id( $belongs_to_id );
+
+		if ( ! $appointment instanceof Appointment ) {
+			return $this->respondNotFound( null, 'No appointment found.' );
+		}
+
+		$order_id = LeadSupportTicketToOrder::process( $appointment );
+		if ( $order_id ) {
+			return $this->respondCreated( $appointment );
 		}
 
 		return $this->respondInternalServerError();

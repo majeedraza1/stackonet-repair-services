@@ -320,13 +320,13 @@ class Admin {
 		$capability = 'manage_options';
 		$slug       = 'spot-appointment';
 
-		$hook = add_menu_page( __( 'Spot Appointment', 'stackonet-repair-services' ), __( 'Spot Appointment', 'stackonet-repair-services' ),
+		$hook = add_menu_page( __( 'Lead', 'stackonet-repair-services' ), __( 'Lead', 'stackonet-repair-services' ),
 			$capability, $slug, function () {
 				echo '<div class="wrap"><div id="admin-stackonet-spot-appointment"></div></div>';
 			}, 'dashicons-admin-post', 8 );
 
 		$menus = [
-			[ 'title' => __( 'Appointment', 'stackonet-repair-services' ), 'slug' => '#/' ],
+			[ 'title' => __( 'Lead', 'stackonet-repair-services' ), 'slug' => '#/' ],
 		];
 
 		if ( current_user_can( $capability ) ) {
