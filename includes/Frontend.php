@@ -37,16 +37,19 @@ class Frontend {
 
 			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_scripts' ] );
 
+			// For customer
 			add_shortcode( 'stackonet_repair_service', [ self::$instance, 'repair_services' ] );
 			add_shortcode( 'stackonet_repair_service_pricing', [ self::$instance, 'repair_services_pricing' ] );
 			add_shortcode( 'stackonet_testimonial_form', [ self::$instance, 'testimonial_form' ] );
 			add_shortcode( 'stackonet_manager_registration_form', [ self::$instance, 'manager_registration_form' ] );
 			add_shortcode( 'stackonet_client_testimonial', [ self::$instance, 'client_testimonial' ] );
+			add_shortcode( 'stackonet_become_technician', [ self::$instance, 'become_technician' ] );
+
 			add_shortcode( 'stackonet_reschedule_order', [ self::$instance, 'reschedule_order' ] );
 			add_shortcode( 'stackonet_rent_a_center', [ self::$instance, 'rent_a_center' ] );
 			add_shortcode( 'stackonet_survey_form', [ self::$instance, 'survey_form' ] );
-			add_shortcode( 'stackonet_become_technician', [ self::$instance, 'become_technician' ] );
 
+			// For Admin
 			add_shortcode( 'stackonet_frontend_dashboard', [ self::$instance, 'frontend_dashboard' ] );
 		}
 

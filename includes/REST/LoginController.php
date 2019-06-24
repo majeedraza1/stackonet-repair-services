@@ -50,6 +50,7 @@ class LoginController extends ApiController {
 
 		$user_login = $request->get_param( 'user_login' );
 		$password   = $request->get_param( 'password' );
+		$remember   = (bool) $request->get_param( 'remember' );
 
 		if ( ! ( username_exists( $user_login ) || email_exists( $user_login ) ) ) {
 			return $this->respondUnprocessableEntity( null, null, [
@@ -66,7 +67,7 @@ class LoginController extends ApiController {
 		$credentials = array(
 			'user_login'    => $user_login,
 			'user_password' => $password,
-			'remember'      => false,
+			'remember'      => $remember,
 		);
 
 		$user = wp_signon( $credentials, false );

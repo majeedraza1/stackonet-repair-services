@@ -21,7 +21,7 @@ const routes = [
 	{path: '/ticket/new', name: 'NewSupportTicket', component: NewSupportTicket},
 	{path: '/survey', name: 'survey', component: SurveyForm},
 	{path: '/carrier-stores', name: 'CarrierStores', component: CarrierStores},
-	{path: '/spot-appointment', name: 'appointment', component: SpotAppointment},
+	{path: '/lead', name: 'appointment', component: SpotAppointment},
 	{path: '/sms', name: 'ShortMessageService', component: ShortMessageService},
 	{path: '/checkout-analysis', name: 'checkout', component: CheckoutAnalysis},
 ];

@@ -20,6 +20,7 @@
 				:has-error="hasPasswordError"
 				:helptext="errors.password?errors.password[0]:''"
 			></animated-input>
+			<mdl-checkbox label="Remember me" v-model="remember"></mdl-checkbox>
 			<big-button fullwidth :disabled="!canSubmit">Log In</big-button>
 		</form>
 		<div class="stackonet-loading-container" :class="{'is-active':loading}">
@@ -33,13 +34,15 @@
 	import AnimatedInput from "../../components/AnimatedInput";
 	import BigButton from "../../components/BigButton";
 	import MdlSpinner from "../../material-design-lite/spinner/mdlSpinner";
+	import MdlCheckbox from "../../material-design-lite/checkbox/mdlCheckbox";
 
 	export default {
 		name: "LoginForm",
-		components: {MdlSpinner, BigButton, AnimatedInput},
+		components: {MdlCheckbox, MdlSpinner, BigButton, AnimatedInput},
 		data() {
 			return {
 				loading: false,
+				remember: false,
 				user_login: '',
 				password: '',
 				errors: {
@@ -74,7 +77,8 @@
 				axios
 					.post(PhoneRepairs.rest_root + '/login', {
 						user_login: this.user_login,
-						password: this.password
+						password: this.password,
+						remember: this.remember,
 					})
 					.then(response => {
 						this.loading = false;

@@ -52,8 +52,8 @@
 					<router-link class="mdl-navigation__link" tag="div" to="/carrier-stores" active-class="is-active">
 						Carrier Stores
 					</router-link>
-					<router-link class="mdl-navigation__link" tag="div" to="/spot-appointment" active-class="is-active">
-						Appointment
+					<router-link class="mdl-navigation__link" tag="div" to="/lead" active-class="is-active">
+						Lead
 					</router-link>
 					<router-link class="mdl-navigation__link" tag="div" to="/sms" active-class="is-active">
 						SMS

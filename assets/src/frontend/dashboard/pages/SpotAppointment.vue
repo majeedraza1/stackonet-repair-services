@@ -315,7 +315,7 @@
 		mounted() {
 			let self = this;
 			this.loading = false;
-			this.$store.commit('SET_TITLE', 'Appointment');
+			this.$store.commit('SET_TITLE', 'Lead');
 			this.getImages();
 			if (navigator.geolocation) {
 				navigator.geolocation.getCurrentPosition(function (position) {
