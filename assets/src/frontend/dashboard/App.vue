@@ -114,6 +114,10 @@
 		.mdl-layout__header {
 			z-index: -1;
 		}
+
+		#wpadminbar {
+			display: none;
+		}
 	}
 
 	.stackonet-dashboard-container {
@@ -136,7 +140,7 @@
 		}
 
 		.shapla-modal-card {
-			max-height: calc(100vh - 220px);
+			// max-height: calc(100vh - 220px);
 		}
 	}
 

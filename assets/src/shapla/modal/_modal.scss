@@ -3,7 +3,7 @@ $modal-z: 100000 !default;
 $modal-background-background-color: rgba(#000, 0.86) !default;
 
 $modal-content-width: 640px !default;
-$modal-content-width-small: 300px !default;
+$modal-content-width-small: 320px !default;
 $modal-content-width-large: 960px !default;
 $modal-content-margin-mobile: 20px !default;
 $modal-content-spacing-mobile: 160px !default;
@@ -67,10 +67,19 @@ $modal-card-body-padding: 20px !default;
 		position: relative;
 		width: calc(100% - #{$modal-content-margin-mobile * 2});
 
+		&.is-small {
+			width: $modal-content-width-small;
+		}
+
+		&.is-full {
+			height: calc(100vh - #{$modal-content-margin-mobile * 2});
+			width: calc(100vw - #{$modal-content-margin-mobile * 2});
+		}
+
 		@media screen and (min-width: 769px), print {
 			margin: 0 auto;
 			max-height: calc(100vh - #{$modal-content-spacing-tablet});
-			&:not(.is-small) {
+			&:not(.is-small):not(.is-full):not(.is-large) {
 				width: $modal-content-width;
 			}
 		}

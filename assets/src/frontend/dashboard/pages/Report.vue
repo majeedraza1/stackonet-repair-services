@@ -9,18 +9,27 @@
 			<mdl-tab name="Calendar">
 				<div class="stackonet-dashboard-calendar">
 					<vue-fullcalendar :events="calendar_events" @eventClick="eventClick"></vue-fullcalendar>
-					<modal :active="isModalOpen" :title="modalTitle" @close="closeModal" content-size="large">
-						<div id="map"></div>
-						<columns multiline mobile centered>
-							<column v-for="_data in activeData" :key="_data.id" :mobile="6" :tablet="4" :desktop="3">
-								<div class="shapla-box" :class="{'is-active':_data.id === activeDataOnMap.id}"
-									 @click="updateMapCenter(_data)">
-									<template v-if="dataType === 'order'">Order ID:</template>
-									<template v-if="dataType === 'lead'">Lead ID:</template>
-									{{_data.id}}
-								</div>
-							</column>
-						</columns>
+				</div>
+			</mdl-tab>
+		</mdl-tabs>
+		<modal :active="isModalOpen" contentSize="full" :title="modalTitle" @close="closeModal" content-size="large"
+			   class="shapla-modal--map">
+			<columns>
+				<column>
+					<div id="map"></div>
+					<columns multiline mobile centered>
+						<column v-for="_data in activeData" :key="_data.id" :mobile="6" :tablet="4" :desktop="3">
+							<div class="shapla-box" :class="{'is-active':_data.id === activeDataOnMap.id}"
+								 @click="updateMapCenter(_data)">
+								<template v-if="dataType === 'order'">Order ID:</template>
+								<template v-if="dataType === 'lead'">Lead ID:</template>
+								{{_data.id}}
+							</div>
+						</column>
+					</columns>
+				</column>
+				<column>
+					<div class="stackonet-report-orders-list">
 						<template v-if="dataType === 'order'">
 							<div v-for="_data in activeData">
 								<div class="calendar-list-item">
@@ -54,31 +63,31 @@
 								</div>
 							</div>
 						</template>
-						<template slot="foot">
-							<mdl-button @click="closeModal">Close</mdl-button>
-						</template>
-					</modal>
-				</div>
-			</mdl-tab>
-		</mdl-tabs>
+					</div>
+				</column>
+			</columns>
+
+			<template slot="foot">
+				<mdl-button @click="closeModal">Close</mdl-button>
+			</template>
+		</modal>
 	</div>
 </template>
 
 <script>
 	import axios from "axios";
 	import VueFullcalendar from "vue-fullcalendar";
+	import modal from "shapla-modal";
+	import {columns, column} from 'shapla-columns'
 	import LineChart from './LineChart'
-	import modal from "../../../shapla/modal/modal";
 	import MdlButton from "../../../material-design-lite/button/mdlButton";
 	import ListItem from "../../../components/ListItem";
-	import Columns from "../../../shapla/columns/columns";
-	import Column from "../../../shapla/columns/column";
 	import MdlTabs from "../../../material-design-lite/tabs/mdlTabs";
 	import MdlTab from "../../../material-design-lite/tabs/mdlTab";
 
 	export default {
 		name: "Report",
-		components: {MdlTab, MdlTabs, Column, Columns, ListItem, MdlButton, modal, VueFullcalendar, LineChart},
+		components: {MdlTab, MdlTabs, column, columns, ListItem, MdlButton, modal, VueFullcalendar, LineChart},
 		data() {
 			return {
 				isModalOpen: false,
@@ -194,6 +203,39 @@
 				background-image: linear-gradient(-90deg, #f9a73b, #f58730);
 			}
 		}
+
+		@media screen and (min-width: 769px), print {
+			.shapla-modal--map {
+				.shapla-modal-card-body {
+					overflow: hidden;
+				}
+			}
+
+			.stackonet-report-orders-list {
+				overflow: auto;
+				max-height: calc(100vh - 200px);
+			}
+		}
+
+		.calendar-list-item {
+			border: 1px solid rgba(#000, 0.1);
+			margin-bottom: 15px;
+
+			.mdl-list-item {
+				display: flex;
+				padding: 8px;
+
+				&-label {
+					min-width: 130px;
+				}
+
+				&-separator {
+					width: 15px;
+					display: inline-flex;
+					justify-content: center;
+				}
+			}
+		}
 	}
 
 	.stackonet-dashboard-graph {
@@ -215,26 +257,6 @@
 			&.lead {
 				background-color: #f9a73b;
 				color: #ffffff;
-			}
-		}
-
-		.calendar-list-item {
-			border: 1px solid rgba(#000, 0.1);
-			margin-bottom: 15px;
-
-			.mdl-list-item {
-				display: flex;
-				padding: 8px;
-
-				&-label {
-					min-width: 130px;
-				}
-
-				&-separator {
-					width: 15px;
-					display: inline-flex;
-					justify-content: center;
-				}
 			}
 		}
 	}
