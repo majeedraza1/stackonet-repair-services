@@ -2,8 +2,10 @@
 
 namespace Stackonet\Modules\SupportTicket;
 
+use Exception;
 use Stackonet\Ajax;
 use Stackonet\Models\Appointment;
+use WC_Data_Exception;
 use WC_Order;
 use WC_Order_Item_Fee;
 
@@ -15,11 +17,13 @@ class LeadSupportTicketToOrder {
 	 * Create order from lead
 	 *
 	 * @param Appointment $appointment
+	 * @param int $support_ticket_id
 	 *
 	 * @return int
-	 * @throws \Exception
+	 * @throws WC_Data_Exception
+	 * @throws Exception
 	 */
-	public static function process( Appointment $appointment ) {
+	public static function process( Appointment $appointment, $support_ticket_id ) {
 		// Now we create the order
 		$order = new WC_Order();
 
@@ -98,6 +102,8 @@ class LeadSupportTicketToOrder {
 
 		// Add unique id for reschedule
 		$order->add_meta_data( '_reschedule_hash', bin2hex( random_bytes( 20 ) ) );
+		$order->add_meta_data( '_lead_id', $appointment->get( 'id' ) );
+		$order->add_meta_data( '_support_ticket_id', $support_ticket_id );
 
 		$order->save_meta_data();
 
@@ -121,6 +127,25 @@ class LeadSupportTicketToOrder {
 			( new Ajax() )->add_order_discount( $order->get_id(), 'Fixed Discount (15%)', '15%' );
 		}
 
+		self::add_support_ticket_note( $order, $support_ticket_id );
+
 		return $order->get_id();
+	}
+
+	/**
+	 * @param WC_Order $order
+	 * @param int $support_ticket_id
+	 *
+	 * @throws Exception
+	 */
+	private static function add_support_ticket_note( WC_Order $order, $support_ticket_id ) {
+		$content = OrderToSupportTicket::get_support_ticket_content( $order );
+		( new SupportTicket() )->add_ticket_info( $support_ticket_id, [
+			'thread_type'    => 'report',
+			'customer_name'  => $order->get_billing_company(),
+			'customer_email' => $order->get_billing_phone(),
+			'post_content'   => $content,
+			'agent_created'  => 0,
+		] );
 	}
 }

@@ -3,6 +3,7 @@
 		<div class="support-ticket-content">
 			<router-view></router-view>
 		</div>
+		<mdl-snackbar></mdl-snackbar>
 		<div class="support-ticket-loader" :class="{'is-active':loading}">
 			<mdl-spinner :active="loading"></mdl-spinner>
 		</div>
@@ -12,10 +13,11 @@
 <script>
 	import {mapState} from 'vuex';
 	import mdlSpinner from '../../material-design-lite/spinner/mdlSpinner';
+	import MdlSnackbar from "../../material-design-lite/snackbar/mdlSnackbar";
 
 	export default {
 		name: "SupportTicket",
-		components: {mdlSpinner},
+		components: {MdlSnackbar, mdlSpinner},
 		computed: {
 			...mapState(['loading']),
 		}

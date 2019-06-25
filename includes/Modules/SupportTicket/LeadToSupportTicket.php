@@ -7,7 +7,7 @@ use Stackonet\Models\Appointment;
 
 defined( 'ABSPATH' ) or exit;
 
-class AppointmentToSupportTicket {
+class LeadToSupportTicket {
 
 	/**
 	 * Process appointment to support ticket conversion
@@ -21,7 +21,7 @@ class AppointmentToSupportTicket {
 		$phone  = $appointment->get( 'phone' );
 		$phone  = '<a href="tel:' . esc_attr( $phone ) . '">' . esc_html( $phone ) . '</a>';
 		$rows   = [
-			[ 'label' => 'Spot Appointment ID', 'value' => $appointment->get( 'id' ) ],
+			[ 'label' => 'Lead ID', 'value' => $appointment->get( 'id' ) ],
 			[ 'label' => 'Gadget', 'value' => $appointment->get( 'gadget' ) ],
 			[ 'label' => 'Device', 'value' => $appointment->get( 'device' ) ],
 			[ 'label' => 'Device Model', 'value' => $appointment->get( 'device_model' ) ],
@@ -64,7 +64,7 @@ class AppointmentToSupportTicket {
 		$address = $appointment->get( 'address' );
 
 		$_data = [
-			'ticket_subject'  => 'Appointment - ' . implode( ', ', $issues ),
+			'ticket_subject'  => 'Lead - ' . implode( ', ', $issues ),
 			'customer_name'   => $appointment->get( 'store_name' ),
 			'customer_email'  => $appointment->get( 'email' ),
 			'customer_phone'  => $appointment->get( 'phone' ),

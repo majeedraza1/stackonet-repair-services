@@ -416,8 +416,13 @@ class SupportTicketController extends ApiController {
 		$order_id = isset( $result['post_id'] ) ? intval( $result['post_id'] ) : 0;
 		if ( $order_id ) {
 			$order             = wc_get_order( $order_id );
+			$order_url         = add_query_arg( [
+				'post'   => $order->get_id(),
+				'action' => 'edit'
+			], admin_url( 'post.php' ) );
 			$response['order'] = [
 				'id'                 => $order->get_id(),
+				'order_edit_url'     => $order_url,
 				'address'            => $order->get_formatted_billing_address(),
 				'latitude_longitude' => GoogleMap::get_customer_latitude_longitude_from_order( $order ),
 			];
@@ -710,9 +715,13 @@ class SupportTicketController extends ApiController {
 			return $this->respondNotFound( null, 'No appointment found.' );
 		}
 
-		$order_id = LeadSupportTicketToOrder::process( $appointment );
-		if ( $order_id ) {
-			return $this->respondCreated( $appointment );
+		try {
+			$order_id = LeadSupportTicketToOrder::process( $appointment, $id );
+			if ( $order_id ) {
+				return $this->respondCreated( $appointment );
+			}
+		} catch ( Exception $e ) {
+			Logger::log( $e->getMessage() );
 		}
 
 		return $this->respondInternalServerError();

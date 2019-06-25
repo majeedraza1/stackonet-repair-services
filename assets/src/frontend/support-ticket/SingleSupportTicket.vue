@@ -15,7 +15,11 @@
 								Ticket List
 							</mdl-button>
 							<template v-if="item.created_via=== 'appointment'">
-								<mdl-button type="raised" color="default" @click="createOrderFromAppointment">
+								<template v-if="order.order_edit_url">
+									<a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised"
+									   target="_blank" :href="order.order_edit_url">View Order</a>
+								</template>
+								<mdl-button v-else type="raised" color="default" @click="createOrderFromAppointment">
 									Create Order
 								</mdl-button>
 							</template>
@@ -731,8 +735,11 @@
 				axios
 					.post(PhoneRepairs.rest_root + '/support-ticket/' + this.id + '/order')
 					.then((response) => {
-						console.log(response);
 						this.$store.commit('SET_LOADING_STATUS', false);
+						this.$root.$emit('show-snackbar', {
+							message: 'New order has been created.',
+						});
+						this.getItem();
 					})
 					.catch((error) => {
 						console.log(error);
@@ -777,6 +784,10 @@
 		.stackont-single-support-ticket-actions {
 			display: flex;
 			justify-content: space-between;
+
+			.left > *:not(:last-child) {
+				margin-right: 5px;
+			}
 
 			> *:not(:last-child) {
 				margin-right: 5px;

@@ -183,7 +183,8 @@
 							<strong>Assign Agent(s)</strong><br>
 							<template v-for="_agent in support_agents">
 
-							<span class="shapla-chip shapla-chip--contact" v-if="twilio_support_agents_ids.indexOf(_agent.id) !== -1">
+							<span class="shapla-chip shapla-chip--contact"
+								  v-if="twilio_support_agents_ids.indexOf(_agent.id) !== -1">
 							<span class="shapla-chip__contact">
 								<image-container>
 									<img :src="_agent.avatar_url" width="32" height="32">
@@ -583,6 +584,12 @@
 
 		.stackont-single-support-ticket-actions {
 			display: flex;
+
+			.left {
+				> *:not(:last-child) {
+					margin-right: 5px;
+				}
+			}
 
 			> *:not(:last-child) {
 				margin-right: 5px;

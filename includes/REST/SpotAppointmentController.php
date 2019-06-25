@@ -4,7 +4,7 @@ namespace Stackonet\REST;
 
 use Exception;
 use Stackonet\Models\Appointment;
-use Stackonet\Modules\SupportTicket\AppointmentToSupportTicket;
+use Stackonet\Modules\SupportTicket\LeadToSupportTicket;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -105,7 +105,7 @@ class SpotAppointmentController extends ApiController {
 
 		if ( $id ) {
 			$response = $appointment->find_by_id( $id );
-			AppointmentToSupportTicket::process( $response );
+			LeadToSupportTicket::process( $response );
 
 			return $this->respondOK( $response );
 		}
