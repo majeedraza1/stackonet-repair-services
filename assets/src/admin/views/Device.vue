@@ -167,22 +167,22 @@
 				</div>
 			</div>
 		</accordion>
-		<mdl-modal :active="showModel" @close="closeModel" title="Issues">
+		<modal :active="showModel" @close="closeModel" title="Issues">
 			<template v-for="issue in issues">
 				<mdl-checkbox v-model="multi_issues" :value="issue">{{issue.title}}</mdl-checkbox>
 			</template>
 			<template slot="foot">
 				<button class="button" @click="closeModel">Ok</button>
 			</template>
-		</mdl-modal>
-		<mdl-modal :active="showNotCrackedModel" @close="closeModel" title="Issues">
+		</modal>
+		<modal :active="showNotCrackedModel" @close="closeModel" title="Issues">
 			<template v-for="issue in issues">
 				<mdl-checkbox v-model="no_issues" :value="issue">{{issue.title}}</mdl-checkbox>
 			</template>
 			<template slot="foot">
 				<button class="button" @click="closeModel">Ok</button>
 			</template>
-		</mdl-modal>
+		</modal>
 		<mdl-fab @click="saveDeviceData">
 			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
 				<path fill="none" d="M0 0h24v24H0V0z"></path>
@@ -195,12 +195,12 @@
 
 <script>
 	import draggable from 'vuedraggable';
+	import modal from 'shapla-modal';
 	import Accordion from '../../components/Accordion.vue';
 	import MediaUploader from '../../components/MediaUploader.vue';
 	import BackgroundImage from '../../components/BackgroundImage.vue';
 	import Delete from '../../components/Delete.vue';
 	import ColorPicker from '../../components/ColorPicker.vue';
-	import mdlModal from '../../material-design-lite/modal/mdlModal';
 	import mdlCheckbox from '../../material-design-lite/checkbox/mdlCheckbox';
 	import mdlFab from '../../material-design-lite/button/mdlFab';
 
@@ -211,7 +211,7 @@
 			MediaUploader,
 			BackgroundImage,
 			ColorPicker,
-			mdlModal,
+			modal,
 			mdlCheckbox,
 			mdlFab,
 			Delete,

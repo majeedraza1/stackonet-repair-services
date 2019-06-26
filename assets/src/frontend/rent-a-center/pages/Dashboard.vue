@@ -111,8 +111,7 @@
 </template>
 
 <script>
-	import columns from '../../../shapla/columns/columns'
-	import column from '../../../shapla/columns/column'
+	import {columns, column} from 'shapla-columns'
 	import icon from '../../../shapla/icon/icon'
 	import imageContainer from '../../../shapla/image/image'
 	import box from '../../../shapla/box/box'
@@ -134,6 +133,7 @@
 		.store-managers-list {
 			display: flex;
 			justify-content: center;
+
 			&__item {
 				display: block;
 				width: 42px;
@@ -204,6 +204,7 @@
 			font-size: 0.875em;
 		}
 	}
-	.damaged-devices-list{
+
+	.damaged-devices-list {
 	}
 </style>

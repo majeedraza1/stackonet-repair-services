@@ -49,7 +49,7 @@
 				<button class="button" @click="exportAsCSV">Excel Export</button>
 			</template>
 		</wp-list-table>
-		<mdl-modal :active="isModalActive" :title="modalTitle" @close="isModalActive =false">
+		<modal :active="isModalActive" :title="modalTitle" @close="isModalActive =false">
 			<div class="columns is-multiline">
 				<div class="column is-6">
 					<div class="input-field">
@@ -127,9 +127,9 @@
 			<div slot="foot">
 				<mdl-button type="raised" color="primary" @click="savePhone">Save</mdl-button>
 			</div>
-		</mdl-modal>
-		<mdl-modal :active="isViewModalActive" title="Phone Details" v-if="Object.keys(activePhone).length"
-				   @close="closeViewModel">
+		</modal>
+		<modal :active="isViewModalActive" title="Phone Details" v-if="Object.keys(activePhone).length"
+			   @close="closeViewModel">
 			<div class="phone-detail-info">
 				<list-item label="Asset Number">{{activePhone.id}}</list-item>
 				<list-item label="Brand Name">{{activePhone.brand_name}}</list-item>
@@ -148,7 +148,7 @@
 			<div slot="foot">
 				<mdl-button @click="closeViewModel">Close</mdl-button>
 			</div>
-		</mdl-modal>
+		</modal>
 
 		<phone-edit-modal
 			:active="isEditModalActive"
@@ -157,7 +157,7 @@
 			@close="isEditModalActive = false"
 			:show-status="true"
 		/>
-		<mdl-modal :active="isNoteModalActive" title="Notes" @close="isNoteModalActive = false">
+		<modal :active="isNoteModalActive" title="Notes" @close="isNoteModalActive = false">
 			<animated-input label="Add Note" type="textarea" v-model="note"></animated-input>
 			<mdl-button type="raised" color="primary" :disabled="note.length < 5" @click="saveNote">Add Note
 			</mdl-button>
@@ -176,23 +176,23 @@
 			<div slot="foot">
 				<mdl-button @click="isNoteModalActive = false">Close</mdl-button>
 			</div>
-		</mdl-modal>
+		</modal>
 	</div>
 </template>
 
 <script>
 	import {mapState, mapGetters} from 'vuex';
+	import modal from 'shapla-modal';
 	import VueSelect from 'vue-select';
 	import PhoneEditModal from './PhoneEditModal.vue'
 	import wpListTable from '../../wp/wpListTable.vue'
 	import ListItem from '../../components/ListItem.vue'
-	import mdlModal from '../../material-design-lite/modal/mdlModal.vue';
 	import mdlButton from '../../material-design-lite/button/mdlButton.vue';
 	import AnimatedInput from "../../components/AnimatedInput";
 
 	export default {
 		name: "Phones",
-		components: {AnimatedInput, VueSelect, wpListTable, mdlModal, mdlButton, ListItem, PhoneEditModal},
+		components: {AnimatedInput, VueSelect, wpListTable, modal, mdlButton, ListItem, PhoneEditModal},
 		data() {
 			return {
 				isModalActive: false,

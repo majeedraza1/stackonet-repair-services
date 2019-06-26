@@ -78,12 +78,11 @@
 	import Editor from '@tinymce/tinymce-vue'
 	import MdlButton from "../../material-design-lite/button/mdlButton";
 	import Icon from "../../shapla/icon/icon";
-	import Columns from "../../shapla/columns/columns";
-	import Column from "../../shapla/columns/column";
+	import {columns, column} from "shapla-columns";
 
 	export default {
 		name: "NewSupportTicket",
-		components: {Column, Columns, Icon, MdlButton, Editor},
+		components: {column, columns, Icon, MdlButton, Editor},
 		data() {
 			return {
 				customer_name: '',

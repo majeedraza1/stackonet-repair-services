@@ -284,15 +284,14 @@
 
 <script>
 	import axios from 'axios';
+	import {columns, column} from 'shapla-columns'
 	import {mapGetters} from 'vuex';
+	import modal from 'shapla-modal'
 	import Editor from '@tinymce/tinymce-vue'
 	import mdlButton from '../../material-design-lite/button/mdlButton'
 	import ListItem from '../../components/ListItem'
-	import columns from '../../shapla/columns/columns'
-	import column from '../../shapla/columns/column'
 	import ImageContainer from "../../shapla/image/image";
 	import Icon from "../../shapla/icon/icon";
-	import modal from '../../shapla/modal/modal'
 
 	export default {
 		name: "SingleSupportTicket",

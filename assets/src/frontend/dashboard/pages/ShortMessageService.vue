@@ -154,19 +154,18 @@
 
 <script>
 	import axios from 'axios';
-	import Columns from "../../../shapla/columns/columns";
-	import Column from "../../../shapla/columns/column";
+	import modal from "shapla-modal";
+	import {columns, column} from "shapla-columns";
 	import flatPickr from 'vue-flatpickr-component';
 	import MdlFab from "../../../material-design-lite/button/mdlFab";
 	import MdlTab from "../../../material-design-lite/tabs/mdlTab";
 	import MdlTabs from "../../../material-design-lite/tabs/mdlTabs";
 	import MdlTable from "../../../material-design-lite/data-table/mdlTable";
 	import MdlButton from "../../../material-design-lite/button/mdlButton";
-	import Modal from "../../../shapla/modal/modal";
 
 	export default {
 		name: "ShortMessageService",
-		components: {flatPickr, Modal, MdlFab, MdlTab, MdlTabs, Column, Columns, MdlButton, MdlTable},
+		components: {flatPickr, modal, MdlFab, MdlTab, MdlTabs, column, columns, MdlButton, MdlTable},
 		props: {},
 		data() {
 			return {

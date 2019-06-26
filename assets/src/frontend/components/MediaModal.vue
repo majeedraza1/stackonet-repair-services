@@ -31,9 +31,8 @@
 <script>
 	import vue2Dropzone from 'vue2-dropzone'
 	import DropzoneUploader from './DropzoneUploader';
-	import modal from '../../shapla/modal/modal';
-	import columns from '../../shapla/columns/columns';
-	import column from '../../shapla/columns/column';
+	import {columns, column} from 'shapla-columns';
+	import modal from 'shapla-modal';
 	import deleteIcon from '../../shapla/delete/deleteIcon';
 
 	export default {

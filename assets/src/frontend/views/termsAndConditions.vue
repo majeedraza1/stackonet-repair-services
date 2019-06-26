@@ -30,12 +30,11 @@
 
 <script>
 	import {mapState} from 'vuex';
+	import {columns, column} from 'shapla-columns'
 	import SectionInfo from '../components/SectionInfo'
 	import SectionTitle from '../components/SectionTitle'
 	import SectionHelp from '../components/SectionHelp'
 	import SignatureCanvas from '../components/SignatureCanvas'
-	import columns from '../../shapla/columns/columns'
-	import column from '../../shapla/columns/column'
 	import mdlButton from '../../material-design-lite/button/mdlButton'
 
 	export default {

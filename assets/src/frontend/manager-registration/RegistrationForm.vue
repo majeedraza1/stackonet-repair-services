@@ -65,24 +65,24 @@
 			></animated-input>
 			<big-button fullwidth>Submit</big-button>
 		</form>
-		<mdl-modal :active="openModel" type="box" @close="closeModal">
+		<modal :active="openModel" type="box" @close="closeModal">
 			<div class="mdl-box mdl-shadow--2dp">
 				<h3>Thank you for your registration.</h3>
 				<mdl-button @click="closeModal">Close</mdl-button>
 			</div>
-		</mdl-modal>
+		</modal>
 	</div>
 </template>
 
 <script>
+	import modal from 'shapla-modal';
 	import AnimatedInput from '../../components/AnimatedInput.vue';
 	import BigButton from '../../components/BigButton.vue';
-	import mdlModal from '../../material-design-lite/modal/mdlModal.vue';
 	import mdlButton from '../../material-design-lite/button/mdlButton.vue';
 
 	export default {
 		name: "RegistrationForm",
-		components: {AnimatedInput, BigButton, mdlModal, mdlButton},
+		components: {AnimatedInput, BigButton, modal, mdlButton},
 		data() {
 			return {
 				openModel: false,

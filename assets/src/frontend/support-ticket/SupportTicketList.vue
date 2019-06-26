@@ -43,7 +43,8 @@
 			<template slot="row-actions" slot-scope="data">
 				<span v-for="action in actions" :class="action.key">
 					<template v-if="action.key === 'view'">
-						<router-link :to="{name: 'SingleSupportTicket', params: {id: data.row.id}}">{{ action.label }}</router-link>
+						<router-link
+							:to="{name: 'SingleSupportTicket', params: {id: data.row.id}}">{{ action.label }}</router-link>
 					</template>
 					<a v-else href="#" @click.prevent="onActionClick(action.key, data.row)">{{ action.label }}</a>
 					<template v-if="!hideActionSeparator(action.key)"> | </template>
@@ -83,12 +84,12 @@
 
 <script>
 	import axios from 'axios';
+	import modal from 'shapla-modal'
 	import mdlTable from '../../material-design-lite/data-table/mdlTable'
 	import mdlButton from '../../material-design-lite/button/mdlButton'
 	import wpStatusList from '../../wp/wpStatusList'
 	import wpPagination from '../../wp/wpPagination'
 	import wpBulkActions from '../../wp/wpBulkActions'
-	import modal from '../../shapla/modal/modal'
 	import Icon from "../../shapla/icon/icon";
 	import Search from "../../shapla/search/Search";
 

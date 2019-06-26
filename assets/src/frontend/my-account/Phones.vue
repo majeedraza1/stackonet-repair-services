@@ -59,7 +59,7 @@
 			</tr>
 			</tbody>
 		</table>
-		<mdl-modal :active="isModalActive" :title="modalTitle" @close="closePhoneAddModal">
+		<modal :active="isModalActive" :title="modalTitle" @close="closePhoneAddModal">
 			<div class="columns is-multiline">
 				<div class="column is-6">
 					<div class="input-field">
@@ -143,9 +143,9 @@
 			<div slot="foot">
 				<mdl-button type="raised" color="primary" @click="savePhone">Save</mdl-button>
 			</div>
-		</mdl-modal>
-		<mdl-modal :active="isViewModalActive" title="Phone Details" v-if="Object.keys(activePhone).length"
-				   @close="closeViewModel">
+		</modal>
+		<modal :active="isViewModalActive" title="Phone Details" v-if="Object.keys(activePhone).length"
+			   @close="closeViewModel">
 			<div class="phone-detail-info">
 				<list-item label="Asset Number">{{activePhone.id}}</list-item>
 				<list-item label="Brand Name">{{activePhone.brand_name}}</list-item>
@@ -161,14 +161,14 @@
 			<div slot="foot">
 				<mdl-button @click="closeViewModel">Close</mdl-button>
 			</div>
-		</mdl-modal>
+		</modal>
 		<phone-edit-modal
 			:active="isEditModalActive"
 			:phone="editPhone"
 			title="Edit Phone"
 			@close="closePhoneEditModal"
 		/>
-		<mdl-modal :active="isNoteModalActive" title="Notes" @close="closeNoteModal">
+		<modal :active="isNoteModalActive" title="Notes" @close="closeNoteModal">
 			<div class="phone-note-list-container">
 				<div class="phone-note-list" v-if="notePhone && notePhone.notes">
 					<div class="phone-note-list__item mdl-shadow--2dp" v-for="_note in notePhone.notes">
@@ -184,7 +184,7 @@
 			<div slot="foot">
 				<mdl-button @click="closeNoteModal">Close</mdl-button>
 			</div>
-		</mdl-modal>
+		</modal>
 		<mdl-snackbar :options="snackbar"></mdl-snackbar>
 		<div class="loading-container" :class="{'is-active':loading}">
 			<div class="mdl-loader">
@@ -196,18 +196,18 @@
 
 <script>
 	import VueSelect from 'vue-select';
+	import {mapState} from 'vuex';
+	import modal from 'shapla-modal';
 	import PhoneEditModal from '../../admin/rent-a-center/PhoneEditModal.vue'
-	import mdlModal from '../../material-design-lite/modal/mdlModal.vue';
 	import mdlButton from '../../material-design-lite/button/mdlButton.vue';
 	import mdlSpinner from '../../material-design-lite/spinner/mdlSpinner.vue';
 	import mdlSnackbar from '../../material-design-lite/snackbar/mdlSnackbar.vue';
 	import AnimatedInput from '../../components/AnimatedInput.vue';
 	import ListItem from '../../components/ListItem.vue';
-	import {mapState} from 'vuex';
 
 	export default {
 		name: "Phones",
-		components: {mdlModal, AnimatedInput, mdlButton, VueSelect, mdlSpinner, ListItem, PhoneEditModal, mdlSnackbar},
+		components: {modal, AnimatedInput, mdlButton, VueSelect, mdlSpinner, ListItem, PhoneEditModal, mdlSnackbar},
 		data() {
 			return {
 				isModalActive: false,

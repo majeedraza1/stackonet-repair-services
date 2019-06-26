@@ -51,9 +51,9 @@
 
 <script>
 	import axios from 'axios';
+	import modal from 'shapla-modal'
 	import wpListTable from '../../wp/wpListTable.vue'
 	import ListItem from '../../components/ListItem.vue'
-	import modal from '../../shapla/modal/modal'
 	import imageContainer from '../../shapla/image/image'
 
 	export default {

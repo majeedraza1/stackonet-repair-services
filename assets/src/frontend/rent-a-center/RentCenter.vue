@@ -1,6 +1,6 @@
 <template>
 
-        	<div
+	<div
 		class="demo-layout stackonet-dashboard mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
 
 		<header class="demo-header mdl-layout__header">
@@ -19,93 +19,93 @@
 
 		<div class="demo-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
 
-      <div class="user">
-                        <div class="user__avatar">
-                            <image-container square>
-                                <img class="is-rounded"
-                                     src="http://phonerepairsasap.test/wp-content/uploads/2017/03/1.jpg"
-                                     alt="">
-                            </image-container>
-                        </div>
-                        <div class="user__display_name">Majeed Raza</div>
-                        <div class="user__role">Lead Developer</div>
-                    </div>
-		   <div class="action-menu">
-                        <columns mobile multiline centered>
-                            <column :mobile="6" :tablet="6">
-                                <router-link tag="div" to="/" class="action-menu__item">
-                                    <icon large><i class="fa fa-2x fa-bar-chart"></i></icon>
-                                    <span>Dashboard</span>
-                                </router-link>
-                            </column>
-                            <column :mobile="6" :tablet="6">
-                                     <router-link tag="div" to="/RentcenterOrders" class="action-menu__item">
-                                   <icon large><i class="fa fa-2x fa-cart-plus"></i></icon>
-                                   <span>Orders</span>
-                                </router-link>
+			<div class="user">
+				<div class="user__avatar">
+					<image-container square>
+						<img class="is-rounded"
+							 src="http://phonerepairsasap.test/wp-content/uploads/2017/03/1.jpg"
+							 alt="">
+					</image-container>
+				</div>
+				<div class="user__display_name">Majeed Raza</div>
+				<div class="user__role">Lead Developer</div>
+			</div>
+			<div class="action-menu">
+				<columns mobile multiline centered>
+					<column :mobile="6" :tablet="6">
+						<router-link tag="div" to="/" class="action-menu__item">
+							<icon large><i class="fa fa-2x fa-bar-chart"></i></icon>
+							<span>Dashboard</span>
+						</router-link>
+					</column>
+					<column :mobile="6" :tablet="6">
+						<router-link tag="div" to="/RentcenterOrders" class="action-menu__item">
+							<icon large><i class="fa fa-2x fa-cart-plus"></i></icon>
+							<span>Orders</span>
+						</router-link>
 
-                            </column>
-                            <column :mobile="6" :tablet="6">
-                                            <router-link tag="div" to="/store-addresses" class="action-menu__item">
-                                   <icon large><i class="fa fa-2x fa-address-book-o"></i></icon>
-                                        <span>Store Addresses</span>
-                                </router-link>
-                            </column>
-                            <column :mobile="6" :tablet="6">
-                                   <router-link tag="div" to="/AccountDetails" class="action-menu__item">
-                                   <icon large><i class="fa fa-2x fa-user-circle-o"></i></icon>
-                                 <span>Account Details</span>
-                                </router-link>
+					</column>
+					<column :mobile="6" :tablet="6">
+						<router-link tag="div" to="/store-addresses" class="action-menu__item">
+							<icon large><i class="fa fa-2x fa-address-book-o"></i></icon>
+							<span>Store Addresses</span>
+						</router-link>
+					</column>
+					<column :mobile="6" :tablet="6">
+						<router-link tag="div" to="/AccountDetails" class="action-menu__item">
+							<icon large><i class="fa fa-2x fa-user-circle-o"></i></icon>
+							<span>Account Details</span>
+						</router-link>
 
-                            </column>
-                            <column :mobile="6" :tablet="6">
-                                 <router-link tag="div" to="/Phones" class="action-menu__item">
-                                <icon large><i class="fa fa-2x fa-mobile"></i></icon>
-                                     <span>Phones</span>
-                                </router-link>
+					</column>
+					<column :mobile="6" :tablet="6">
+						<router-link tag="div" to="/Phones" class="action-menu__item">
+							<icon large><i class="fa fa-2x fa-mobile"></i></icon>
+							<span>Phones</span>
+						</router-link>
 
-                            </column>
-                            <column :mobile="6" :tablet="6">
-                                <router-link tag="div" to="/TrackStatus" class="action-menu__item">
-                                <icon large><i class="fa fa-2x fa-truck"></i></icon>
-                                    <span>Track Status</span>
-                                </router-link>
+					</column>
+					<column :mobile="6" :tablet="6">
+						<router-link tag="div" to="/TrackStatus" class="action-menu__item">
+							<icon large><i class="fa fa-2x fa-truck"></i></icon>
+							<span>Track Status</span>
+						</router-link>
 
-                            </column>
-                            <column :mobile="6" :tablet="6">
-                                  <router-link tag="div" to="/chat-app" class="action-menu__item">
-                                <icon large><i class="fa fa-2x fa-envelope-o"></i></icon>
-                                    <span>Messages</span>
-                                </router-link>
+					</column>
+					<column :mobile="6" :tablet="6">
+						<router-link tag="div" to="/chat-app" class="action-menu__item">
+							<icon large><i class="fa fa-2x fa-envelope-o"></i></icon>
+							<span>Messages</span>
+						</router-link>
 
-                            </column>
-                            <column :mobile="6" :tablet="6">
-                                    <router-link tag="div" to="/Notifications" class="action-menu__item">
-                                  <icon large><i class="fa fa-2x fa-bell-o"></i></icon>
-                                    <span>Notification</span>
-                                </router-link>
-                            </column>
-                            <column :mobile="6" :tablet="6">
-                                   <router-link tag="div" to="/Invoices" class="action-menu__item">
-                                 <icon large><i class="fa fa-2x fa-file-text-o"></i></icon>
-                                    <span>Invoices</span>
-                                </router-link>
+					</column>
+					<column :mobile="6" :tablet="6">
+						<router-link tag="div" to="/Notifications" class="action-menu__item">
+							<icon large><i class="fa fa-2x fa-bell-o"></i></icon>
+							<span>Notification</span>
+						</router-link>
+					</column>
+					<column :mobile="6" :tablet="6">
+						<router-link tag="div" to="/Invoices" class="action-menu__item">
+							<icon large><i class="fa fa-2x fa-file-text-o"></i></icon>
+							<span>Invoices</span>
+						</router-link>
 
-                            </column>
-                            <column :mobile="6" :tablet="6">
-                                   <router-link tag="div" to="/Logout" class="action-menu__item">
-                                   <icon large><i class="fa fa-2x fa-sign-out"></i></icon>
-                                    <span>Logout</span>
-                                </router-link>
+					</column>
+					<column :mobile="6" :tablet="6">
+						<router-link tag="div" to="/Logout" class="action-menu__item">
+							<icon large><i class="fa fa-2x fa-sign-out"></i></icon>
+							<span>Logout</span>
+						</router-link>
 
-                            </column>
-                        </columns>
-                    </div>
+					</column>
+				</columns>
+			</div>
 		</div>
 
 		<main class="mdl-layout__content">
 			<div class="demo-content">
-    <router-view></router-view>
+				<router-view></router-view>
 			</div>
 		</main>
 	</div>
@@ -113,120 +113,120 @@
 </template>
 
 <script>
-    import {mapState} from 'vuex';
-    	import {MaterialLayout} from '../../material-design-lite/layout/MaterialLayout';
+	import {mapState} from 'vuex';
+	import {columns, column} from "shapla-columns";
+	import {MaterialLayout} from '../../material-design-lite/layout/MaterialLayout';
 	import {MaterialMenu} from '../../material-design-lite/menu/MaterialMenu';
-    import mdlSpinner from '../../material-design-lite/spinner/mdlSpinner.vue';
-    import mdlSnackbar from '../../material-design-lite/snackbar/mdlSnackbar';
-    import Column from "../../shapla/columns/column";
-    import Columns from "../../shapla/columns/columns";
-    import ImageContainer from "../../shapla/image/image";
-    import Icon from "../../shapla/icon/icon";
+	import mdlSpinner from '../../material-design-lite/spinner/mdlSpinner.vue';
+	import mdlSnackbar from '../../material-design-lite/snackbar/mdlSnackbar';
+	import ImageContainer from "../../shapla/image/image";
+	import Icon from "../../shapla/icon/icon";
 
-    export default {
-        name: "RentCenter",
-        components: {Icon, ImageContainer, Columns, Column, mdlSpinner, mdlSnackbar},
-        computed: {
-            ...mapState(['loading', 'snackbar']),
-        },
-            mounted() {
+	export default {
+		name: "RentCenter",
+		components: {Icon, ImageContainer, columns, column, mdlSpinner, mdlSnackbar},
+		computed: {
+			...mapState(['loading', 'snackbar']),
+		},
+		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 			let dashboard = this.$el;
 			new MaterialLayout(dashboard);
 			new MaterialMenu(dashboard.querySelector('.mdl-menu'));
 			new MaterialMenu(dashboard.querySelector('[for="accbtn"]'));
 		},
-    }
+	}
 </script>
 
 <style lang="scss">
-    @import "../../material-design-lite/layout/layout";
-@import "../../material-design-lite/menu/menu";
+	@import "../../material-design-lite/layout/layout";
+	@import "../../material-design-lite/menu/menu";
 
-.single article.page .entry-content{
-	width: auto;
-	padding: 0;
-}
-    	.demo-avatar {
-	width: 48px;
-	height: 48px;
-	border-radius: 24px;
-}
-
-.demo-layout .mdl-layout__header .mdl-layout__drawer-button {
-	color: rgba(0, 0, 0, 0.54);
-}
-
-.mdl-layout__drawer .avatar {
-	margin-bottom: 16px;
-}
-
-.demo-drawer {
-	border: none;
-}
-
-/* iOS Safari specific workaround */
-.demo-drawer .mdl-menu__container {
-	// z-index: -1;
-}
-
-.demo-drawer .demo-navigation {
-	z-index: -2;
-}
-
-/* END iOS Safari specific workaround */
-.demo-drawer .mdl-menu .mdl-menu__item {
-	display: flex;
-	align-items: center;
-}
-
-.demo-drawer-header {
-	box-sizing: border-box;
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-end;
-	padding: 16px;
-	height: 151px;
-	background-image: linear-gradient(-90deg, #f9a73b, #f58730);
-	color: rgb(255, 255, 255);
-}
-
-.demo-avatar-dropdown {
-	display: flex;
-	position: relative;
-	flex-direction: row;
-	align-items: center;
-	width: 100%;
-}
-
-.demo-navigation {
-	flex-grow: 1;
-}
-
-.demo-layout .demo-navigation .mdl-navigation__link {
-	display: flex !important;
-	flex-direction: row;
-	align-items: center;
-	color: rgba(#000, 0.85);
-	font-weight: 500;
-	padding: 16px;
-
-	&:hover,
-	&.is-active {
-		background-image: linear-gradient(-90deg, #f9a73b, #f58730);
-		color: #fff;
+	.single article.page .entry-content {
+		width: auto;
+		padding: 0;
 	}
-}
 
-.demo-header .mdl-layout__header-row {
-	background-image: linear-gradient(-90deg, #f9a73b, #f58730);
-}
+	.demo-avatar {
+		width: 48px;
+		height: 48px;
+		border-radius: 24px;
+	}
 
-.demo-content {
-	padding: 30px;
-}
+	.demo-layout .mdl-layout__header .mdl-layout__drawer-button {
+		color: rgba(0, 0, 0, 0.54);
+	}
 
-.mdl-icon-burger {
+	.mdl-layout__drawer .avatar {
+		margin-bottom: 16px;
+	}
+
+	.demo-drawer {
+		border: none;
+	}
+
+	/* iOS Safari specific workaround */
+	.demo-drawer .mdl-menu__container {
+		// z-index: -1;
+	}
+
+	.demo-drawer .demo-navigation {
+		z-index: -2;
+	}
+
+	/* END iOS Safari specific workaround */
+	.demo-drawer .mdl-menu .mdl-menu__item {
+		display: flex;
+		align-items: center;
+	}
+
+	.demo-drawer-header {
+		box-sizing: border-box;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+		padding: 16px;
+		height: 151px;
+		background-image: linear-gradient(-90deg, #f9a73b, #f58730);
+		color: rgb(255, 255, 255);
+	}
+
+	.demo-avatar-dropdown {
+		display: flex;
+		position: relative;
+		flex-direction: row;
+		align-items: center;
+		width: 100%;
+	}
+
+	.demo-navigation {
+		flex-grow: 1;
+	}
+
+	.demo-layout .demo-navigation .mdl-navigation__link {
+		display: flex !important;
+		flex-direction: row;
+		align-items: center;
+		color: rgba(#000, 0.85);
+		font-weight: 500;
+		padding: 16px;
+
+		&:hover,
+		&.is-active {
+			background-image: linear-gradient(-90deg, #f9a73b, #f58730);
+			color: #fff;
+		}
+	}
+
+	.demo-header .mdl-layout__header-row {
+		background-image: linear-gradient(-90deg, #f9a73b, #f58730);
+	}
+
+	.demo-content {
+		padding: 30px;
+	}
+
+	.mdl-icon-burger {
 		color: #ffffff;
 
 		display: inline-block;
@@ -252,7 +252,8 @@
 	.mdl-navigation__link {
 		cursor: pointer;
 	}
-.action-menu__item.router-link-active {
- background-image: linear-gradient(90deg, #f9a73b, #f58730);
-}
+
+	.action-menu__item.router-link-active {
+		background-image: linear-gradient(90deg, #f9a73b, #f58730);
+	}
 </style>

@@ -1,5 +1,5 @@
 <template>
-	<mdl-modal :active="active" :title="title" @close="$emit('close')">
+	<modal :active="active" :title="title" @close="$emit('close')">
 		<div class="columns is-multiline">
 			<div class="column is-6">
 				<div class="input-field">
@@ -85,18 +85,18 @@
 		<div slot="foot">
 			<mdl-button @click="updatePhone">Update</mdl-button>
 		</div>
-	</mdl-modal>
+	</modal>
 </template>
 
 <script>
 	import {mapState} from 'vuex';
 	import VueSelect from 'vue-select';
-	import mdlModal from '../../material-design-lite/modal/mdlModal.vue';
+	import modal from 'shapla-modal';
 	import mdlButton from '../../material-design-lite/button/mdlButton.vue';
 
 	export default {
 		name: "PhoneEditModal",
-		components: {VueSelect, mdlModal, mdlButton},
+		components: {VueSelect, modal, mdlButton},
 		props: {
 			active: {type: Boolean, default: false},
 			showStatus: {type: Boolean, default: false},

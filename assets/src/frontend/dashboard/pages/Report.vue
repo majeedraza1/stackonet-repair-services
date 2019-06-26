@@ -77,8 +77,8 @@
 <script>
 	import axios from "axios";
 	import VueFullcalendar from "vue-fullcalendar";
-	import modal from "shapla-modal";
 	import {columns, column} from 'shapla-columns'
+	import modal from "shapla-modal";
 	import LineChart from './LineChart'
 	import MdlButton from "../../../material-design-lite/button/mdlButton";
 	import ListItem from "../../../components/ListItem";

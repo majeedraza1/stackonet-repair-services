@@ -76,15 +76,14 @@
 
 <script>
 	import axios from 'axios'
+	import {columns, column} from "shapla-columns";
 	import StepProgressBar from "../../../components/StepProgressBar";
-	import Columns from "../../../shapla/columns/columns";
-	import Column from "../../../shapla/columns/column";
 	import Box from "../../../shapla/box/box";
 	import WpPagination from "../../../wp/wpPagination";
 
 	export default {
 		name: "CheckoutAnalysis",
-		components: {WpPagination, Box, Column, Columns, StepProgressBar},
+		components: {WpPagination, Box, column, columns, StepProgressBar},
 		data() {
 			return {
 				items: [],

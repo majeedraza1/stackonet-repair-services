@@ -3,23 +3,23 @@
 		<h1 class="wp-heading-inline">Testimonials</h1>
 		<div class="clear"></div>
 		<wp-list-table
-				:loading="loading"
-				:columns="columns"
-				:rows="testimonials"
-				:actions="actions"
-				:bulk-actions="bulkActions"
-				action-column="name"
-				:current-page="currentPage"
-				:per-page="perPage"
-				:total-items="totalItems"
-				:statuses="statuses"
-				:show-search="false"
-				@action:click="onActionClick"
-				@bulk:apply="onBulkAction"
-				@status:change="changeStatus"
-				@pagination="paginate"
+			:loading="loading"
+			:columns="columns"
+			:rows="testimonials"
+			:actions="actions"
+			:bulk-actions="bulkActions"
+			action-column="name"
+			:current-page="currentPage"
+			:per-page="perPage"
+			:total-items="totalItems"
+			:statuses="statuses"
+			:show-search="false"
+			@action:click="onActionClick"
+			@bulk:apply="onBulkAction"
+			@status:change="changeStatus"
+			@pagination="paginate"
 		></wp-list-table>
-		<mdl-modal :active="openModel" @close="closeModal" title="Testimonial">
+		<modal :active="openModel" @close="closeModal" title="Testimonial">
 			<div class="mdl-box">
 				<list-item label="Name">{{activeTestimonial.name}}</list-item>
 				<list-item label="Email">{{activeTestimonial.email}}</list-item>
@@ -42,21 +42,21 @@
 				<mdl-button type="raised" color="accent" @click="updateStatus(activeTestimonial, 'reject')">Reject
 				</mdl-button>
 			</div>
-		</mdl-modal>
+		</modal>
 	</div>
 </template>
 
 <script>
+	import {mapState} from 'vuex';
+	import modal from 'shapla-modal';
 	import wpListTable from '../../wp/wpListTable';
 	import ListItem from '../../components/ListItem';
 	import BackgroundImage from '../../components/BackgroundImage';
-	import mdlModal from '../../material-design-lite/modal/mdlModal';
 	import mdlButton from '../../material-design-lite/button/mdlButton';
-	import {mapState} from 'vuex';
 
 	export default {
 		name: "Testimonial",
-		components: {wpListTable, mdlModal, ListItem, mdlButton, BackgroundImage},
+		components: {wpListTable, modal, ListItem, mdlButton, BackgroundImage},
 		data() {
 			return {
 				client_image: {},

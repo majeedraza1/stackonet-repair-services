@@ -79,8 +79,7 @@
 </template>
 
 <script>
-	import {mapState} from 'vuex';
-	import {mapGetters} from 'vuex';
+	import {mapState, mapGetters} from 'vuex';
 	import {MaterialLayout} from '../../material-design-lite/layout/MaterialLayout'
 	import {MaterialMenu} from '../../material-design-lite/menu/MaterialMenu'
 	import MdlButton from "../../material-design-lite/button/mdlButton";

@@ -43,25 +43,25 @@
 			</div>
 			<big-button>Submit</big-button>
 		</form>
-		<mdl-modal :active="openModel" type="box" @close="closeModel">
+		<modal :active="openModel" type="box" @close="closeModel">
 			<div class="mdl-box mdl-shadow--2dp">
 				<h3>Thank you for you review.</h3>
 				<mdl-button @click="closeModel">Close</mdl-button>
 			</div>
-		</mdl-modal>
+		</modal>
 	</div>
 </template>
 
 <script>
+	import modal from 'shapla-modal';
 	import StarRating from '../components/StarRating';
 	import AnimatedInput from '../components/AnimatedInput';
 	import BigButton from '../components/BigButton';
-	import mdlModal from '../material-design-lite/modal/mdlModal';
 	import mdlButton from '../material-design-lite/button/mdlButton';
 
 	export default {
 		name: "TestimonialForm",
-		components: {AnimatedInput, StarRating, BigButton, mdlModal, mdlButton},
+		components: {AnimatedInput, StarRating, BigButton, modal, mdlButton},
 		data() {
 			return {
 				full_name: '',

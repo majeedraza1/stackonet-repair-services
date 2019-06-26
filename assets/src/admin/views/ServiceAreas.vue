@@ -4,19 +4,19 @@
 		<a href="" class="page-title-action" @click.prevent="openModal">Add New</a>
 		<div class="clear"></div>
 		<wp-list-table
-				:columns="columns"
-				:rows="services_areas"
-				:actions="actions"
-				:bulk-actions="bulkActions"
-				action-column="zip_code"
-				@action:click="onActionClick"
-				@bulk:click="onBulkAction"
-				:show-cb="false"
-				:show-search="false"
-				:total-items="totalItems"
-				:per-page="totalItems"
+			:columns="columns"
+			:rows="services_areas"
+			:actions="actions"
+			:bulk-actions="bulkActions"
+			action-column="zip_code"
+			@action:click="onActionClick"
+			@bulk:click="onBulkAction"
+			:show-cb="false"
+			:show-search="false"
+			:total-items="totalItems"
+			:per-page="totalItems"
 		></wp-list-table>
-		<mdl-modal :active="modalActive" @close="closeModal" title="Add New Area">
+		<modal :active="modalActive" @close="closeModal" title="Add New Area">
 			<p class="">
 				<label for="zipCode">Zip Code</label><br>
 				<input type="text" id="zipCode" class="regular-text" v-model="zipCode">
@@ -28,18 +28,18 @@
 			<div slot="foot">
 				<button class="button" @click="addNewServiceArea">Save</button>
 			</div>
-		</mdl-modal>
+		</modal>
 	</div>
 </template>
 
 <script>
-	import wpListTable from '../../wp/wpListTable';
-	import mdlModal from '../../material-design-lite/modal/mdlModal.vue';
 	import {mapState} from 'vuex';
+	import modal from 'shapla-modal';
+	import wpListTable from '../../wp/wpListTable';
 
 	export default {
 		name: "ServiceAreas",
-		components: {wpListTable, mdlModal},
+		components: {wpListTable, modal},
 		data() {
 			return {
 				modalActive: false,

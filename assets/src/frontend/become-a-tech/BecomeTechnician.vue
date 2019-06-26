@@ -43,26 +43,25 @@
 			<mdl-spinner :active="loading"></mdl-spinner>
 		</div>
 
-		<mdl-modal :active="open_thank_you_model" type="box" @close="closeThankYouModel">
+		<modal :active="open_thank_you_model" type="box" @close="closeThankYouModel">
 			<div class="mdl-box mdl-shadow--2dp">
 				<h3>Data has been submitted successfully.</h3>
 				<mdl-button @click="closeThankYouModel">Close</mdl-button>
 			</div>
-		</mdl-modal>
+		</modal>
 
 	</div>
 </template>
 
 <script>
-	import axios from 'axios'
+	import axios from 'axios';
+	import {columns, column} from 'shapla-columns';
+	import modal from 'shapla-modal';
 	import AnimatedInput from '../../components/AnimatedInput';
 	import DropzoneUploader from '../components/DropzoneUploader';
 	import BigButton from '../../components/BigButton';
-	import columns from '../../shapla/columns/columns';
-	import column from '../../shapla/columns/column';
 	import imageContainer from '../../shapla/image/image';
 	import mdlSpinner from '../../material-design-lite/spinner/mdlSpinner';
-	import mdlModal from '../../material-design-lite/modal/mdlModal';
 	import mdlButton from '../../material-design-lite/button/mdlButton';
 
 	export default {
@@ -75,7 +74,7 @@
 			column,
 			imageContainer,
 			mdlSpinner,
-			mdlModal,
+			modal,
 			mdlButton
 		},
 		data() {

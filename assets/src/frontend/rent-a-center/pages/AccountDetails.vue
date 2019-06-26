@@ -31,15 +31,14 @@
 </template>
 
 <script>
+	import {columns, column} from "shapla-columns";
 	import Icon from "../../../shapla/icon/icon";
-	import Columns from "../../../shapla/columns/columns";
-	import Column from "../../../shapla/columns/column";
 	import Box from '../../../shapla/box/box';
 
 
 	export default {
 		name: "AccountDetails",
-		components: {Column, Columns, Icon, Box},
+		components: {column, columns, Icon, Box},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 		}

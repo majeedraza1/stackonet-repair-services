@@ -20,8 +20,7 @@
 </template>
 
 <script>
-	import columns from '../../shapla/columns/columns'
-	import column from '../../shapla/columns/column'
+	import {columns, column} from 'shapla-columns'
 	import mdlButton from '../../material-design-lite/button/mdlButton'
 
 	export default {

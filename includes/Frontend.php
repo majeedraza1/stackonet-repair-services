@@ -59,14 +59,15 @@ class Frontend {
 
 	/**
 	 * Load frontend scripts
+	 * @throws Exception
 	 */
 	public function load_scripts() {
 		wp_enqueue_style( 'stackonet-repair-services-frontend' );
 		wp_localize_script( 'jquery', 'PhoneRepairs', self::dynamic_data() );
+		wp_localize_script( 'jquery', 'Stackonet', self::service_data() );
 
 		if ( $this->should_load_scripts() ) {
 			wp_enqueue_script( 'stackonet-repair-services-frontend' );
-			wp_localize_script( 'stackonet-repair-services-frontend', 'Stackonet', self::service_data() );
 		}
 	}
 
@@ -184,7 +185,7 @@ class Frontend {
 		$data['cities'] = $supportTicket->find_all_cities();
 
 		$data['search_categories'] = (array) get_option( 'stackonet_ticket_search_categories' );
-		$data['order_statuses'] = wc_get_order_statuses();
+		$data['order_statuses']    = wc_get_order_statuses();
 
 		wp_localize_script( 'stackonet-frontend-dashboard', 'SupportTickets', $data );
 
