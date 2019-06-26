@@ -114,7 +114,7 @@
 				devices_models: [],
 				device: {},
 				device_model: {},
-				issues: [],
+				device_issues: [],
 			}
 		},
 		computed: {
@@ -129,7 +129,7 @@
 			},
 			_issues() {
 				let brokenPrice = this.device_model.broken_screen_price;
-				let issues = this.issues.map(issue => {
+				let issues = this.device_issues.map(issue => {
 					if (issue.title === 'Broken Screen') {
 						issue.price = brokenPrice;
 					}

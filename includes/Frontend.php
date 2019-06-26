@@ -50,6 +50,7 @@ class Frontend {
 			add_shortcode( 'stackonet_survey_form', [ self::$instance, 'survey_form' ] );
 
 			// For Admin
+			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_dashboard_scripts' ] );
 			add_shortcode( 'stackonet_frontend_dashboard', [ self::$instance, 'frontend_dashboard' ] );
 		}
 
@@ -66,6 +67,17 @@ class Frontend {
 		if ( $this->should_load_scripts() ) {
 			wp_enqueue_script( 'stackonet-repair-services-frontend' );
 			wp_localize_script( 'stackonet-repair-services-frontend', 'Stackonet', self::service_data() );
+		}
+	}
+
+	/**
+	 * Load frontend dashboard script
+	 */
+	public function load_dashboard_scripts() {
+		global $post;
+		if ( $post instanceof WP_Post && has_shortcode( $post->post_content, 'stackonet_frontend_dashboard' ) ) {
+			wp_enqueue_style( 'stackonet-frontend-dashboard' );
+			wp_enqueue_script( 'stackonet-frontend-dashboard' );
 		}
 	}
 
@@ -97,10 +109,7 @@ class Frontend {
 			'stackonet_spot_appointment',
 			'stackonet_become_technician',
 			'stackonet_rent_a_center',
-			'stackonet_support_ticket',
 			'stackonet_support_ticket_form',
-			'stackonet_checkout_analysis',
-			'stackonet_frontend_dashboard',
 		];
 
 		global $post;
@@ -132,7 +141,7 @@ class Frontend {
 		}
 
 		if ( ! current_user_can( 'add_survey' ) ) {
-			wp_localize_script( 'stackonet-repair-services-frontend', 'SupportTickets', $data );
+			wp_localize_script( 'stackonet-frontend-dashboard', 'SupportTickets', $data );
 
 			return '<div id="stackonet_repair_services_dashboard_login"></div>';
 		}
@@ -176,7 +185,7 @@ class Frontend {
 
 		$data['search_categories'] = (array) get_option( 'stackonet_ticket_search_categories' );
 
-		wp_localize_script( 'stackonet-repair-services-frontend', 'SupportTickets', $data );
+		wp_localize_script( 'stackonet-frontend-dashboard', 'SupportTickets', $data );
 
 		add_action( 'wp_footer', array( $this, 'map_script' ), 1 );
 		add_action( 'wp_footer', [ $this, 'tinymce_script' ], 9 );

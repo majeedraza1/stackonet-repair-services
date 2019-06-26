@@ -9,3 +9,14 @@ stackonet_repair_service | group | Shortcode to show devices list. Attribute gro
 stackonet_testimonial_form | Not Available | Shortcode to show testimonial form for user data submission.
 stackonet_client_testimonial | Not Available | Shortcode to display client testimonaial.
 stackonet_repair_service_pricing | page_id | Shortcode to display pricing page. page_id to redirect after clicking on call to action button.
+
+
+# Frontend Pages
+* Checkout Page
+* Become a Technician Page
+* Frontend Dashboard
+* RAC Manager Registration Page
+* My Account Page - (Phones, Truck Status)
+* Pricing Calculator Page
+* Rent a Center
+* Order Reschedule Page

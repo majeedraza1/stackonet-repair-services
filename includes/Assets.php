@@ -80,16 +80,36 @@ class Assets {
 		$scripts = [
 			'stackonet-vendors'                  => [
 				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/vendors.js',
+				'in_footer' => true,
+			],
+			'material-design-lite'               => [
+				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/mdl.js',
+				'deps'      => [ 'stackonet-vendors' ],
 				'in_footer' => true
 			],
 			'stackonet-repair-services-frontend' => [
 				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/frontend.js',
-				'deps'      => [ 'jquery', 'stackonet-vendors' ],
+				'deps'      => [ 'jquery', 'stackonet-vendors', 'material-design-lite' ],
+				'in_footer' => true
+			],
+			'stackonet-frontend-dashboard'       => [
+				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/frontend-dashboard.js',
+				'deps'      => [ 'jquery', 'stackonet-vendors', 'material-design-lite' ],
+				'in_footer' => true
+			],
+			'stackonet-my-account'               => [
+				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/my-account.js',
+				'deps'      => [ 'jquery', 'stackonet-vendors', 'material-design-lite' ],
+				'in_footer' => true
+			],
+			'stackonet-rent-center'              => [
+				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/rent-center.js',
+				'deps'      => [ 'jquery', 'stackonet-vendors', 'material-design-lite' ],
 				'in_footer' => true
 			],
 			'stackonet-repair-services-admin'    => [
 				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/admin.js',
-				'deps'      => [ 'jquery', 'wp-color-picker', 'stackonet-vendors' ],
+				'deps'      => [ 'jquery', 'wp-color-picker', 'stackonet-vendors', 'material-design-lite' ],
 				'in_footer' => true
 			],
 		];
@@ -104,12 +124,32 @@ class Assets {
 	 */
 	public function get_styles() {
 		$styles = [
+			'material-design-lite'               => [
+				'src' => STACKONET_REPAIR_SERVICES_ASSETS . '/css/mdl.css'
+			],
+			'stackonet-vendors'                  => [
+				'src'  => STACKONET_REPAIR_SERVICES_ASSETS . '/css/vendors.css',
+				'deps' => [ 'material-design-lite' ],
+			],
 			'stackonet-repair-services-frontend' => [
-				'src' => STACKONET_REPAIR_SERVICES_ASSETS . '/css/frontend.css'
+				'src'  => STACKONET_REPAIR_SERVICES_ASSETS . '/css/frontend.css',
+				'deps' => [ 'stackonet-vendors' ],
+			],
+			'stackonet-frontend-dashboard'       => [
+				'src'  => STACKONET_REPAIR_SERVICES_ASSETS . '/css/frontend-dashboard.css',
+				'deps' => [ 'stackonet-vendors' ],
 			],
 			'stackonet-repair-services-admin'    => [
 				'src'  => STACKONET_REPAIR_SERVICES_ASSETS . '/css/admin.css',
-				'deps' => [ 'wp-color-picker' ],
+				'deps' => [ 'wp-color-picker', 'stackonet-vendors' ],
+			],
+			'stackonet-my-account'               => [
+				'src'  => STACKONET_REPAIR_SERVICES_ASSETS . '/css/my-account.css',
+				'deps' => [ 'stackonet-vendors' ],
+			],
+			'stackonet-rent-center'              => [
+				'src'  => STACKONET_REPAIR_SERVICES_ASSETS . '/css/rent-center.css',
+				'deps' => [ 'stackonet-vendors' ],
 			],
 		];
 

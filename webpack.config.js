@@ -1,7 +1,7 @@
 const path = require('path');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 const autoprefixer = require('autoprefixer');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
@@ -10,7 +10,7 @@ const config = require('./config.json');
 
 let plugins = [];
 let entryPoints = {
-	vendors: Object.keys(package.dependencies),
+	// vendors: Object.keys(package.dependencies),
 	admin: [
 		'./assets/src/admin/main.js',
 		'./assets/src/admin/become-a-tech/main.js',
@@ -28,13 +28,19 @@ let entryPoints = {
 		'./assets/src/frontend/reschedule/main.js',
 		'./assets/src/frontend/manager-registration/main.js',
 		'./assets/src/frontend/become-a-tech/main.js',
-		'./assets/src/frontend/my-account/main.js',
-		'./assets/src/frontend/rent-a-center/main.js',
 		'./assets/src/frontend/support-ticket/main.js',
-		'./assets/src/frontend/dashboard/main.js',
 		'./assets/src/scss/frontend.scss',
+	],
+	'my-account': [
+		'./assets/src/frontend/my-account/main.js',
 		'./assets/src/scss/my-account.scss',
+	],
+	'rent-center': [
+		'./assets/src/frontend/rent-a-center/main.js',
 		'./assets/src/scss/frontend-rent-center.scss',
+	],
+	'frontend-dashboard': [
+		'./assets/src/frontend/dashboard/main.js',
 	],
 };
 
@@ -105,7 +111,7 @@ module.exports = (env, argv) => ({
 	},
 	optimization: {
 		minimizer: [
-			new UglifyJsPlugin({cache: true, parallel: true, sourceMap: false}),
+			new TerserPlugin(),
 			new OptimizeCSSAssetsPlugin({})
 		],
 		splitChunks: {
@@ -115,7 +121,13 @@ module.exports = (env, argv) => ({
 					name: 'vendors',
 					enforce: true,
 					chunks: 'all'
-				}
+				},
+				mdl: {
+					test: /[\\/]material-design-lite[\\/]/,
+					name: 'mdl',
+					enforce: true,
+					chunks: 'all'
+				},
 			}
 		}
 	},

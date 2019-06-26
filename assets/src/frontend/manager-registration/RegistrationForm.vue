@@ -63,7 +63,7 @@
 				helptext="Store Address is required."
 				required
 			></animated-input>
-			<big-button>Submit</big-button>
+			<big-button fullwidth>Submit</big-button>
 		</form>
 		<mdl-modal :active="openModel" type="box" @close="closeModal">
 			<div class="mdl-box mdl-shadow--2dp">
