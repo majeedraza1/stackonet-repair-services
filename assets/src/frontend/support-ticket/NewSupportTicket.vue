@@ -104,16 +104,15 @@
 	import {mapGetters} from 'vuex';
 	import axios from 'axios'
 	import Editor from '@tinymce/tinymce-vue'
+	import {columns, column} from "shapla-columns";
 	import MdlButton from "../../material-design-lite/button/mdlButton";
 	import Icon from "../../shapla/icon/icon";
-	import Columns from "../../shapla/columns/columns";
-	import Column from "../../shapla/columns/column";
 	import MediaModal from "../components/MediaModal";
 	import ImageContainer from "../../shapla/image/image";
 
 	export default {
 		name: "NewSupportTicket",
-		components: {ImageContainer, MediaModal, Column, Columns, Icon, MdlButton, Editor},
+		components: {ImageContainer, MediaModal, columns, column, Icon, MdlButton, Editor},
 		data() {
 			return {
 				customer_name: '',

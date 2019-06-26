@@ -77,15 +77,14 @@
 <script>
 	import axios from 'axios'
 	import Editor from '@tinymce/tinymce-vue'
+	import {columns, column} from "shapla-columns";
+	import modal from "shapla-modal";
 	import MdlButton from "../../material-design-lite/button/mdlButton";
-	import Columns from "../../shapla/columns/columns";
-	import Column from "../../shapla/columns/column";
-	import Modal from "../../shapla/modal/modal";
 	import MdlSpinner from "../../material-design-lite/spinner/mdlSpinner";
 
 	export default {
 		name: "SupportTicketForm",
-		components: {MdlSpinner, Modal, Column, Columns, MdlButton, Editor},
+		components: {MdlSpinner, modal, columns, column, MdlButton, Editor},
 		mounted() {
 			if (window.CustomerSupportTickets) {
 				this.categories = CustomerSupportTickets.categories;

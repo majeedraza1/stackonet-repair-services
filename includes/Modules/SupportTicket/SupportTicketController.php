@@ -8,6 +8,7 @@ use Stackonet\Integrations\Twilio;
 use Stackonet\Models\Appointment;
 use Stackonet\REST\ApiController;
 use Stackonet\Supports\Logger;
+use WC_Order;
 use WP_Error;
 use WP_Post;
 use WP_REST_Request;
@@ -72,6 +73,10 @@ class SupportTicketController extends ApiController {
 
 		register_rest_route( $this->namespace, '/support-ticket/(?P<id>\d+)/order', [
 			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'create_order' ] ],
+		] );
+
+		register_rest_route( $this->namespace, '/support-ticket/(?P<id>\d+)/order/(?P<order_id>\d+)', [
+			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'change_order_status' ] ],
 		] );
 
 		register_rest_route( $this->namespace, '/support-ticket/(?P<id>\d+)/thread/(?P<thread_id>\d+)', [
@@ -422,6 +427,7 @@ class SupportTicketController extends ApiController {
 			], admin_url( 'post.php' ) );
 			$response['order'] = [
 				'id'                 => $order->get_id(),
+				'status'             => 'wc-' . $order->get_status(),
 				'order_edit_url'     => $order_url,
 				'address'            => $order->get_formatted_billing_address(),
 				'latitude_longitude' => GoogleMap::get_customer_latitude_longitude_from_order( $order ),
@@ -725,5 +731,56 @@ class SupportTicketController extends ApiController {
 		}
 
 		return $this->respondInternalServerError();
+	}
+
+	/**
+	 * Create new order from lead
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
+	 */
+	public function change_order_status( $request ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $this->respondUnauthorized();
+		}
+
+		$id       = (int) $request->get_param( 'id' );
+		$order_id = (int) $request->get_param( 'order_id' );
+		$status   = $request->get_param( 'status' );
+
+		$order_statuses = wc_get_order_statuses();
+
+		if ( ! in_array( $status, array_keys( $order_statuses ) ) ) {
+			return $this->respondUnprocessableEntity( null, 'Invalid status' );
+		}
+
+		$order = wc_get_order( $order_id );
+		if ( ! $order instanceof WC_Order ) {
+			return $this->respondNotFound( null, 'No order found with this id.' );
+		}
+
+		$user           = wp_get_current_user();
+		$current_status = 'wc-' . $order->get_status();
+
+		ob_start();
+		echo "<strong>{$user->display_name}</strong> has changed order status from <strong>{$order_statuses[$current_status]}</strong> to ";
+		echo "<strong>{$order_statuses[$status]}</strong>";
+		$post_content = ob_get_clean();
+
+
+		$order->set_status( $status, $post_content, true );
+		$order->save();
+
+
+		( new SupportTicket() )->add_ticket_info( $id, [
+			'thread_type'    => 'note',
+			'customer_name'  => $user->display_name,
+			'customer_email' => $user->user_email,
+			'post_content'   => $post_content,
+			'agent_created'  => 0,
+		] );
+
+		return $this->respondOK();
 	}
 }

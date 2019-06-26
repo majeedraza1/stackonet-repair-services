@@ -184,6 +184,7 @@ class Frontend {
 		$data['cities'] = $supportTicket->find_all_cities();
 
 		$data['search_categories'] = (array) get_option( 'stackonet_ticket_search_categories' );
+		$data['order_statuses'] = wc_get_order_statuses();
 
 		wp_localize_script( 'stackonet-frontend-dashboard', 'SupportTickets', $data );
 

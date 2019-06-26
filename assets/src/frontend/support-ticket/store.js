@@ -39,5 +39,8 @@ export default new Vuex.Store({
 		user_email() {
 			return SupportTickets.user.user_email;
 		},
+		order_statuses() {
+			return SupportTickets.order_statuses;
+		},
 	},
 });

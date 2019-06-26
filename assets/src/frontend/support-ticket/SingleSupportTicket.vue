@@ -188,6 +188,24 @@
 					</div>
 				</div>
 
+				<div class="shapla-box shapla-widget-box" v-if="order.status">
+					<div class="shapla-widget-box__heading">
+						<h5 class="shapla-widget-box__title">Order Status</h5>
+					</div>
+					<div class="shapla-widget-box__content">
+						<list-item label="Status">
+							<select v-model="order.status" @change="enableStatusUpdate">
+								<option v-for="(_status, key) in order_statuses" :value="key">{{_status}}</option>
+							</select>
+						</list-item>
+						<template v-if="activeOrderStatus">
+							<mdl-button @click="changeOrderStatus" :disabled="!activeOrderStatus" type="raised"
+										style="width: 100%;">Change Order Status
+							</mdl-button>
+						</template>
+					</div>
+				</div>
+
 				<div class="shapla-box shapla-widget-box" v-show="isOrderTicket">
 					<div class="shapla-widget-box__heading">
 						<h5 class="shapla-widget-box__title">Map</h5>
@@ -373,13 +391,12 @@
 	import axios from 'axios';
 	import {mapGetters} from 'vuex';
 	import Editor from '@tinymce/tinymce-vue'
+	import {columns, column} from 'shapla-columns'
+	import modal from 'shapla-modal'
 	import mdlButton from '../../material-design-lite/button/mdlButton'
 	import ListItem from '../../components/ListItem'
-	import columns from '../../shapla/columns/columns'
-	import column from '../../shapla/columns/column'
 	import ImageContainer from "../../shapla/image/image";
 	import Icon from "../../shapla/icon/icon";
-	import modal from '../../shapla/modal/modal'
 	import MediaModal from "../components/MediaModal";
 
 	export default {
@@ -392,6 +409,7 @@
 				activeAgentModal: false,
 				activeThreadModal: false,
 				activeTitleModal: false,
+				activeOrderStatus: false,
 				activeThread: {},
 				activeTwilioAgentModal: false,
 				ticket_twilio_sms_customer_phone: true,
@@ -400,6 +418,7 @@
 				ticket_twilio_sms_custom_phone: '',
 				ticket_twilio_sms_content: '',
 				twilio_support_agents_ids: [],
+				order_statuses: [],
 				activeThreadContent: '',
 				ticket_subject: '',
 				ticket_category: '',
@@ -461,6 +480,9 @@
 			let id = this.$route.params.id;
 			this.$store.commit('SET_LOADING_STATUS', false);
 			this.$store.commit('SET_TITLE', 'Support Ticket');
+			if (SupportTickets.order_statuses) {
+				this.order_statuses = SupportTickets.order_statuses;
+			}
 			if (id) {
 				this.id = parseInt(id);
 				this.getItem();
@@ -478,6 +500,27 @@
 			}).setMap(googleMap);
 		},
 		methods: {
+			enableStatusUpdate() {
+				this.activeOrderStatus = true;
+			},
+			changeOrderStatus() {
+				if (confirm('Are you sure to change order status?')) {
+					this.$store.commit('SET_LOADING_STATUS', true);
+					axios
+						.put(PhoneRepairs.rest_root + '/support-ticket/' + this.id + '/order/' + this.order.id, {status: this.order.status})
+						.then((response) => {
+							this.$store.commit('SET_LOADING_STATUS', false);
+							this.$root.$emit('show-snackbar', {
+								message: 'Order status has been changed.',
+							});
+							this.getItem();
+						})
+						.catch((error) => {
+							console.log(error);
+							this.$store.commit('SET_LOADING_STATUS', false);
+						});
+				}
+			},
 			dropzoneSuccess(file, response) {
 				this.attachments.unshift(response.data);
 				this.images.push(response.data);
