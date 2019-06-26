@@ -1,3 +1,22 @@
+#### 1.1.11 - Jun 26, 2019
+* Add - Add new dashboard menu "SMS"
+* Add - Add functionality to filter data from order, lead, support ticket.
+* Add - Add functionality to send bulk SMS to selected list.
+* Add - Add functionality to add SMS template and choose these templates when sending SMS.
+* Add - Add pre and next navigation on support ticket detail page.
+* Add - Make support ticket phone link as tel so it can use for giving call.
+* Add - Add attachment upload functionality on support ticket.
+* Add - Add calendar page on dashboard for order and lead (appointment).
+* Add - Add Graph on dashboard page.
+* Add - Add Google map with marker for report (order and lead) address position.
+* Add - Add google map on single support ticket.
+* Add - Add remember functionality on dashboard login form.
+* Add - Changed "Appointment" to "Lead" on dashboard.
+* Add - Add functionality to create order from lead support ticket.
+* Add - Fix issues are not working on pricing page.
+* Add - Add support ticket option to change order status with note (both support ticket and order).
+* Dev - Update vue components dependencies.
+
 #### 1.1.10 - Jun 15, 2019
 * Add - Add login page on dashboard.
 * Add - Make support ticket list table as default landing page.
