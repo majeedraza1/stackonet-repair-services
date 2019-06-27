@@ -3,7 +3,8 @@
 	"description": "Stackonet Toolkit for Phone Repairs ASAP",
 	"type": "project",
 	"require": {
-		"kunalvarma05/dropbox-php-sdk": "^0.2.1"
+		"kunalvarma05/dropbox-php-sdk": "^0.2.1",
+		"square/connect": "^2.20190612"
 	},
 	"authors": [
 		{

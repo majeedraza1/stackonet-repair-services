@@ -25,6 +25,7 @@ class Settings {
 		'support_email'                => '',
 		'business_address'             => '',
 		'reschedule_page_id'           => '',
+		'payment_page_id'              => '',
 		'terms_and_conditions_page_id' => '',
 		'order_reminder_minutes'       => '',
 		'ipdata_api_key'               => '',
@@ -124,6 +125,18 @@ class Settings {
 	public static function get_reschedule_page_id() {
 		$options = self::get_option();
 		$key     = 'reschedule_page_id';
+
+		return ! empty( $options[ $key ] ) ? wp_strip_all_tags( $options[ $key ] ) : '';
+	}
+
+	/**
+	 * Get payment page id
+	 *
+	 * @return string
+	 */
+	public static function get_payment_page_id() {
+		$options = self::get_option();
+		$key     = 'payment_page_id';
 
 		return ! empty( $options[ $key ] ) ? wp_strip_all_tags( $options[ $key ] ) : '';
 	}

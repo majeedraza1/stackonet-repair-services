@@ -6,6 +6,7 @@ use Exception;
 use Stackonet\Integrations\GoogleMap;
 use Stackonet\Integrations\Twilio;
 use Stackonet\Models\Appointment;
+use Stackonet\Models\Settings;
 use Stackonet\REST\ApiController;
 use Stackonet\Supports\Logger;
 use WC_Order;
@@ -425,12 +426,19 @@ class SupportTicketController extends ApiController {
 				'post'   => $order->get_id(),
 				'action' => 'edit'
 			], admin_url( 'post.php' ) );
+			$payment_page_id   = Settings::get_payment_page_id();
+			$page_url          = get_permalink( $payment_page_id );
+			$payment_url       = add_query_arg( [
+				'order' => $order->get_id(),
+				'token' => $order->get_meta( '_reschedule_hash', true ),
+			], $page_url );
 			$response['order'] = [
 				'id'                 => $order->get_id(),
 				'status'             => 'wc-' . $order->get_status(),
 				'order_edit_url'     => $order_url,
 				'address'            => $order->get_formatted_billing_address(),
 				'latitude_longitude' => GoogleMap::get_customer_latitude_longitude_from_order( $order ),
+				'payment_url'        => $payment_url,
 			];
 		}
 

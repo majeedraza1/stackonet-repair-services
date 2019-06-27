@@ -112,6 +112,15 @@ class Assets {
 				'deps'      => [ 'jquery', 'wp-color-picker', 'stackonet-vendors', 'material-design-lite' ],
 				'in_footer' => true
 			],
+			'square-payment-form'                => [
+				'src'       => 'https://js.squareup.com/v2/paymentform',
+				'in_footer' => true
+			],
+			'stackonet-payment-form'             => [
+				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/js/payment-form.js',
+				'deps'      => [ 'square-payment-form', 'stackonet-vendors', 'material-design-lite' ],
+				'in_footer' => true
+			],
 		];
 
 		return $scripts;
@@ -150,6 +159,9 @@ class Assets {
 			'stackonet-rent-center'              => [
 				'src'  => STACKONET_REPAIR_SERVICES_ASSETS . '/css/rent-center.css',
 				'deps' => [ 'stackonet-vendors' ],
+			],
+			'stackonet-payment-form'             => [
+				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/css/payment-form.css',
 			],
 		];
 

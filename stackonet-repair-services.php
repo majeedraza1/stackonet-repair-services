@@ -192,6 +192,9 @@ final class Stackonet_Repair_Services {
 			$this->container['rest-carrier-store']     = Stackonet\REST\CarrierStoreController::init();
 			$this->container['rest-sms']               = Stackonet\REST\SmsController::init();
 			$this->container['rest-calendar']          = Stackonet\REST\CalendarController::init();
+			$this->container['rest-checkout']          = Stackonet\REST\CheckoutController::init();
+
+			$this->container['page-payment'] = Stackonet\Frontend\PaymentPage::init();
 		}
 
 		if ( $this->is_request( 'ajax' ) ) {

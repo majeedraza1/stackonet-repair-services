@@ -31,6 +31,9 @@ let entryPoints = {
 		'./assets/src/frontend/support-ticket/main.js',
 		'./assets/src/scss/frontend.scss',
 	],
+	'payment-form': [
+		'./assets/src/frontend/payment-form/main.js',
+	],
 	'my-account': [
 		'./assets/src/frontend/my-account/main.js',
 		'./assets/src/scss/my-account.scss',

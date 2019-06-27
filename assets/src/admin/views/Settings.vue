@@ -49,6 +49,16 @@
 						</tr>
 						<tr>
 							<th scope="row">
+								<label for="payment_page_id">Payment form page</label>
+							</th>
+							<td>
+								<input type="text" id="payment_page_id" class="regular-text"
+									   v-model="settings.payment_page_id"/>
+								<p class="description">Payment form page.</p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">
 								<label for="terms_and_conditions">Terms and conditions Page</label>
 							</th>
 							<td>
@@ -213,6 +223,7 @@
 					support_email: '',
 					business_address: '',
 					reschedule_page_id: '',
+					payment_page_id: '',
 					terms_and_conditions_page_id: '',
 					order_reminder_minutes: '',
 					ipdata_api_key: '',
