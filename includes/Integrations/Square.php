@@ -7,13 +7,10 @@ use SquareConnect\Api\TransactionsApi;
 use SquareConnect\ApiClient;
 use SquareConnect\ApiException;
 use SquareConnect\Configuration;
+use SquareConnect\Model\Address;
 use SquareConnect\Model\ChargeRequest;
 use SquareConnect\Model\ChargeResponse;
-use SquareConnect\Model\CreateCheckoutRequest;
-use SquareConnect\Model\CreateOrderRequest;
-use SquareConnect\Model\CreateOrderRequestLineItem;
-use SquareConnect\Model\Money;
-use Stackonet\Supports\Logger;
+use WC_Order;
 
 class Square {
 
@@ -84,26 +81,36 @@ class Square {
 
 	/**
 	 * @param string $nonce
-	 * @param float $amount
-	 * @param string $currency
+	 * @param WC_Order $order
 	 *
 	 * @return ChargeResponse|ApiException
 	 */
-	public function charge_card_nonce( $nonce, $amount, $currency = '' ) {
-		if ( ! $currency ) {
-			$currency = get_woocommerce_currency();
-		}
-
+	public function charge_card_nonce( $nonce, WC_Order $order ) {
 		# create an instance of the Transaction API class
 		$transactions_api = new TransactionsApi( $this->api_client );
 
+		$address = [
+			'first_name'                      => $order->get_billing_first_name(),
+			'last_name'                       => $order->get_billing_last_name(),
+			'organization'                    => $order->get_billing_company(),
+			'address_line_1'                  => $order->get_billing_address_1(),
+			'address_line_2'                  => $order->get_billing_address_2(),
+			'locality'                        => $order->get_billing_city(),
+			'administrative_district_level_1' => $order->get_billing_state(),
+			'postal_code'                     => $order->get_billing_postcode(),
+			'country'                         => $order->get_billing_country(),
+		];
+
 		$body = new ChargeRequest( [
-			"card_nonce"      => $nonce,
-			"amount_money"    => [
-				"amount"   => self::format_amount_to_square( $amount ),
-				"currency" => $currency
+			"card_nonce"          => $nonce,
+			"amount_money"        => [
+				"amount"   => self::format_amount_to_square( $order->get_total() ),
+				"currency" => get_woocommerce_currency()
 			],
-			"idempotency_key" => uniqid()
+			"idempotency_key"     => uniqid(),
+			"billing_address"     => $address,
+			"shipping_address"    => $address,
+			"buyer_email_address" => $order->get_billing_email(),
 		] );
 
 		try {
@@ -113,87 +120,6 @@ class Square {
 		}
 
 		return $result;
-	}
-
-	/**
-	 * Create an order for your checkout request
-	 */
-	public function create_order() {
-		//Create a Money object to represent the price of the line item.
-		$price = new Money;
-		$price->setAmount( 600 );
-		$price->setCurrency( 'USD' );
-
-		//Create the line item and set details
-		$book = new CreateOrderRequestLineItem;
-		$book->setName( 'The Shining' );
-		$book->setQuantity( '2' );
-		$book->setBasePriceMoney( $price );
-
-		//Puts our line item object in an array called lineItems.
-		$lineItems = array();
-		array_push( $lineItems, $book );
-
-		// Create an Order object using line items from above
-		$order = new CreateOrderRequest();
-
-		$order->setIdempotencyKey( uniqid() ); //uniqid() generates a random string.
-
-		//sets the lineItems array in the order object
-		$order->setLineItems( $lineItems );
-
-		return $order;
-	}
-
-	/**
-	 * creates a CreateCheckout request object
-	 *
-	 * @param CreateOrderRequest $order
-	 * @param string $redirect_url
-	 *
-	 * @return CreateCheckoutRequest
-	 */
-	public function create_checkout_request_object( CreateOrderRequest $order, $redirect_url = '' ) {
-		if ( empty( $redirect_url ) ) {
-			$redirect_url = home_url();
-		}
-
-		// Create Checkout request object.
-		$checkout = new CreateCheckoutRequest();
-
-		$checkout->setIdempotencyKey( uniqid() ); //uniqid() generates a random string.
-		$checkout->setOrder( $order ); //this is the order we created in the previous step.
-		$checkout->setRedirectUrl( $redirect_url ); //Replace with the URL where you want to redirect your customers after transaction.
-
-		return $checkout;
-	}
-
-	/**
-	 * Send the itemized order to the Square Checkout endpoint
-	 *
-	 * @param CreateCheckoutRequest $checkout
-	 *
-	 * @return string
-	 */
-	public function getCheckoutPageUrl( CreateCheckoutRequest $checkout ) {
-		$checkoutUrl = '';
-
-		try {
-			$result = $this->checkoutClient->createCheckout(
-				$this->locationId,
-				$checkout
-			);
-			//Save the checkout ID for verifying transactions
-			$checkoutId = $result->getCheckout()->getId();
-			//Get the checkout URL that opens the checkout page.
-			$checkoutUrl = $result->getCheckout()->getCheckoutPageUrl();
-		} catch ( ApiException $e ) {
-			var_dump( $e );
-			die();
-			Logger::log( $e->getMessage() );
-		}
-
-		return $checkoutUrl;
 	}
 
 	/**
@@ -230,6 +156,46 @@ class Square {
 				break;
 			default:
 				$total = absint( wc_format_decimal( ( (float) $total * 100 ), wc_get_price_decimals() ) ); // In cents.
+				break;
+		}
+
+		return $total;
+	}
+
+	/**
+	 * Process amount to be passed from Square.
+	 *
+	 * @param int $total
+	 * @param string $currency
+	 *
+	 * @return float
+	 */
+	public static function format_amount_from_square( $total, $currency = '' ) {
+		if ( ! $currency ) {
+			$currency = get_woocommerce_currency();
+		}
+
+		switch ( strtoupper( $currency ) ) {
+			// Zero decimal currencies
+			case 'BIF':
+			case 'CLP':
+			case 'DJF':
+			case 'GNF':
+			case 'JPY':
+			case 'KMF':
+			case 'KRW':
+			case 'MGA':
+			case 'PYG':
+			case 'RWF':
+			case 'VND':
+			case 'VUV':
+			case 'XAF':
+			case 'XOF':
+			case 'XPF':
+				$total = absint( $total );
+				break;
+			default:
+				$total = wc_format_decimal( absint( $total ) / 100 );
 				break;
 		}
 

@@ -1,57 +1,96 @@
 <template>
 	<div class="stackonet-payment-form">
-		<div id="sq-ccbox">
-			<form id="nonce-form" novalidate action="#" method="post" @submit.prevent="requestCardNonce">
-				<div id="card-container" class="card-container">
-					<columns class="card-container__row1">
-						<column>
-							<div class="cardfields card-number" :id="id+'-sq-card-number'"></div>
-							<div class="cardfields__error" v-if="errors.cardNumber && errors.cardNumber.length">
-								{{errors.cardNumber[0]}}
-							</div>
-						</column>
-					</columns>
-					<columns class="card-container__row">
-						<column>
-							<div class="cardfields expiration-date" :id="id+'-sq-expiration-date'"></div>
-							<div class="cardfields__error" v-if="errors.expirationDate && errors.expirationDate.length">
-								{{errors.expirationDate[0]}}
-							</div>
-						</column>
-						<column>
-							<div class="cardfields cvv" :id="id+'-sq-cvv'"></div>
-							<div class="cardfields__error" v-if="errors.cvv && errors.cvv.length">
-								{{errors.cvv[0]}}
-							</div>
-						</column>
-						<column>
-							<div class="cardfields postal-code" :id="id+'-sq-postal-code'"></div>
-							<div class="cardfields__error" v-if="errors.postalCode && errors.postalCode.length">
-								{{errors.postalCode[0]}}
-							</div>
-						</column>
-					</columns>
-
-					<columns>
-						<column>
-							<mdl-button type="raised" color="primary" :disabled="!formLoaded" style="width: 100%;"
-										v-html="pay_button_text">
-							</mdl-button>
-						</column>
-					</columns>
+		<columns>
+			<column>
+				<h2>Customer Detail</h2>
+				<strong>customer.name</strong><br>
+				<strong>{{customer.email}}</strong><br>
+				<strong>{{customer.phone}}</strong><br>
+				<div v-html="customer.address"></div>
+			</column>
+			<column>
+				<div class="item-details">
+					<table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable">
+						<tr>
+							<td class="mdl-data-table__cell--non-numeric" colspan="2"
+								style="text-align: center;font-size: 20px;">
+								<strong>{{order.device}}</strong>
+							</td>
+						</tr>
+						<tr v-for="_fee in order.fees">
+							<td class="mdl-data-table__cell--non-numeric"> {{_fee.name}}</td>
+							<td v-html="_fee.total"></td>
+						</tr>
+						<tr>
+							<td class="mdl-data-table__cell--non-numeric"><strong>Subtotal</strong></td>
+							<td><strong v-html="order.fees_total"></strong></td>
+						</tr>
+						<tr v-for="_tax in order.taxes">
+							<td class="mdl-data-table__cell--non-numeric"> {{_tax.name}}</td>
+							<td v-html="_tax.total"></td>
+						</tr>
+						<tr>
+							<td class="mdl-data-table__cell--non-numeric"><strong>Total</strong></td>
+							<td><strong v-html="order.order_total"></strong></td>
+						</tr>
+					</table>
 				</div>
+				<div id="sq-ccbox">
+					<form id="nonce-form" novalidate action="#" method="post" @submit.prevent="requestCardNonce">
+						<div id="card-container" class="card-container">
+							<columns class="card-container__row1">
+								<column>
+									<div class="cardfields card-number" :id="id+'-sq-card-number'"></div>
+									<div class="cardfields__error" v-if="errors.cardNumber && errors.cardNumber.length">
+										{{errors.cardNumber[0]}}
+									</div>
+								</column>
+							</columns>
+							<columns class="card-container__row">
+								<column>
+									<div class="cardfields expiration-date" :id="id+'-sq-expiration-date'"></div>
+									<div class="cardfields__error"
+										 v-if="errors.expirationDate && errors.expirationDate.length">
+										{{errors.expirationDate[0]}}
+									</div>
+								</column>
+								<column>
+									<div class="cardfields cvv" :id="id+'-sq-cvv'"></div>
+									<div class="cardfields__error" v-if="errors.cvv && errors.cvv.length">
+										{{errors.cvv[0]}}
+									</div>
+								</column>
+								<column>
+									<div class="cardfields postal-code" :id="id+'-sq-postal-code'"></div>
+									<div class="cardfields__error" v-if="errors.postalCode && errors.postalCode.length">
+										{{errors.postalCode[0]}}
+									</div>
+								</column>
+							</columns>
 
-				<input type="hidden" id="card-nonce" name="nonce">
+							<columns>
+								<column>
+									<mdl-button type="raised" color="primary" :disabled="!formLoaded"
+												style="width: 100%;"
+												v-html="pay_button_text">
+									</mdl-button>
+								</column>
+							</columns>
+						</div>
 
-				<div id="sq-walletbox" style="display: none;">
-					<button v-show=applePay :id="id+'-sq-apple-pay'" class="button-apple-pay"></button>
-					<button v-show=masterpass :id="id+'-sq-masterpass'" class="button-masterpass"></button>
+						<input type="hidden" id="card-nonce" name="nonce">
+
+						<div id="sq-walletbox" style="display: none;">
+							<button v-show=applePay :id="id+'-sq-apple-pay'" class="button-apple-pay"></button>
+							<button v-show=masterpass :id="id+'-sq-masterpass'" class="button-masterpass"></button>
+						</div>
+					</form>
+					<div class="stackonet-payment-form__loader" :class="{'is-active':!formLoaded || loading}">
+						<spinner :active="true" single></spinner>
+					</div>
 				</div>
-			</form>
-			<div class="stackonet-payment-form__loader" :class="{'is-active':!formLoaded || loading}">
-				<spinner :active="true"></spinner>
-			</div>
-		</div>
+			</column>
+		</columns>
 	</div>
 </template>
 
@@ -102,6 +141,9 @@
 			},
 			order() {
 				return StackonetPayment.order;
+			},
+			customer() {
+				return StackonetPayment.customer;
 			},
 			pay_button_text() {
 				return StackonetPayment.pay_button_text;
@@ -238,9 +280,6 @@
 
 <style lang="scss">
 	.stackonet-payment-form {
-		max-width: 600px;
-		margin-left: auto;
-		margin-right: auto;
 		position: relative;
 
 		&__loader {

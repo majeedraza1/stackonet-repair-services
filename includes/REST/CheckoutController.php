@@ -2,7 +2,11 @@
 
 namespace Stackonet\REST;
 
+use DateTime;
+use Exception;
 use SquareConnect\Model\ChargeResponse;
+use SquareConnect\Model\Tender;
+use SquareConnect\Model\Transaction;
 use Stackonet\Integrations\Square;
 use WC_Order;
 use WP_REST_Request;
@@ -59,15 +63,51 @@ class CheckoutController extends ApiController {
 			return $this->respondNotFound( null, 'No order found.' );
 		}
 
-		$needs_payment = $order->needs_payment();
-
-		$square = new Square();
-		$result = $square->charge_card_nonce( $nonce, intval( $order->get_total() ) );
-		if ( $result instanceof ChargeResponse ) {
-			$transaction = $result->getTransaction();
-			var_dump( $transaction->getId() );
+		if ( ! $order->needs_payment() ) {
+			return $this->respondUnprocessableEntity( null, 'Payment already complete.' );
 		}
 
-		return $this->respondOK( $request->get_params() );
+		$square = new Square();
+		$result = $square->charge_card_nonce( $nonce, $order );
+		if ( $result instanceof ChargeResponse ) {
+			$this->update_order_payment_data( $order, $result->getTransaction() );
+
+			return $this->respondOK( null, '' );
+		}
+
+		return $this->respondInternalServerError();
+	}
+
+	/**
+	 * @param WC_Order $order
+	 * @param Transaction $transaction
+	 *
+	 * @throws Exception
+	 */
+	private function update_order_payment_data( WC_Order $order, Transaction $transaction ) {
+		$tenders = $transaction->getTenders();
+
+		/** @var Tender $tender */
+		$tender       = isset( $tenders[0] ) ? $tenders[0] : null;
+		$card_details = $tender->getCardDetails();
+		$card         = $card_details->getCard();
+		$isCaptured   = ( $card_details->getStatus() == 'CAPTURED' ) ? 'yes' : 'no';
+		$created_at   = $transaction->getCreatedAt();
+		$date         = new DateTime( $created_at );
+		$money        = $tender->getAmountMoney();
+		$amount       = Square::format_amount_from_square( $money->getAmount(), $money->getCurrency() );
+
+		$order->add_meta_data( '_square_credit_card_trans_id', $transaction->getId() );
+		$order->add_meta_data( '_square_credit_card_trans_date', $date->format( 'Y-m-d H:i:s' ) );
+		$order->add_meta_data( '_square_credit_card_card_type', $card->getCardBrand() );
+		$order->add_meta_data( '_square_credit_card_card_last_four', $card->getLast4() );
+		$order->add_meta_data( '_square_credit_card_charge_captured', $isCaptured );
+		$order->add_meta_data( '_square_credit_card_authorization_code', $card->getFingerprint() );
+		$order->add_meta_data( '_square_credit_card_authorization_amount', $amount );
+		// $order->add_meta_data( '_paid_date', $date->format( 'Y-m-d H:i:s' ) );
+
+		$order->save_meta_data();
+
+		$order->payment_complete( $transaction->getId() );
 	}
 }
