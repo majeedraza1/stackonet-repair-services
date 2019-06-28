@@ -63,7 +63,8 @@ class CheckoutController extends ApiController {
 			return $this->respondNotFound( null, 'No order found.' );
 		}
 
-		if ( ! $order->needs_payment() ) {
+		$_paid_date = get_post_meta( $order_id, '_paid_date', true );
+		if ( ! empty( $_paid_date ) ) {
 			return $this->respondUnprocessableEntity( null, 'Payment already complete.' );
 		}
 
@@ -104,7 +105,6 @@ class CheckoutController extends ApiController {
 		$order->add_meta_data( '_square_credit_card_charge_captured', $isCaptured );
 		$order->add_meta_data( '_square_credit_card_authorization_code', $card->getFingerprint() );
 		$order->add_meta_data( '_square_credit_card_authorization_amount', $amount );
-		// $order->add_meta_data( '_paid_date', $date->format( 'Y-m-d H:i:s' ) );
 
 		$order->save_meta_data();
 

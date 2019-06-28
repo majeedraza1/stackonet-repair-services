@@ -432,12 +432,15 @@ class SupportTicketController extends ApiController {
 				'order' => $order->get_id(),
 				'token' => $order->get_meta( '_reschedule_hash', true ),
 			], $page_url );
+			$_paid_date        = get_post_meta( $order_id, '_paid_date', true );
 			$response['order'] = [
 				'id'                 => $order->get_id(),
+				'order_total'        => $order->get_formatted_order_total(),
 				'status'             => 'wc-' . $order->get_status(),
 				'order_edit_url'     => $order_url,
 				'address'            => $order->get_formatted_billing_address(),
 				'latitude_longitude' => GoogleMap::get_customer_latitude_longitude_from_order( $order ),
+				'needs_payment'      => empty( $_paid_date ),
 				'payment_url'        => $payment_url,
 			];
 		}

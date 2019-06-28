@@ -52,7 +52,8 @@ class PaymentPage {
 			die( 'Link has been expired.' );
 		}
 
-		if ( ! $order->needs_payment() ) {
+		$_paid_date = get_post_meta( $order_id, '_paid_date', true );
+		if ( ! empty( $_paid_date ) ) {
 			die( 'Payment is already complete. Link has been expired.' );
 		}
 

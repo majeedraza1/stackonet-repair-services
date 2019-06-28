@@ -203,6 +203,73 @@
 										style="width: 100%;">Change Order Status
 							</mdl-button>
 						</template>
+						<div class="payment-status-container">
+							<list-item label="Payment">
+								<div class="payment-status">
+									<div class="payment-status__circle"
+										 :class="{'is-complete':!order.needs_payment, 'is-processing':order.needs_payment}"></div>
+									<div class="payment-status__separator">-</div>
+									<div class="payment-status__label">
+										Received
+									</div>
+								</div>
+							</list-item>
+						</div>
+					</div>
+				</div>
+
+				<div class="shapla-box shapla-widget-box" v-show="order && order.order_total">
+					<div class="shapla-widget-box__heading">
+						<h5 class="shapla-widget-box__title">Payment Status</h5>
+					</div>
+					<div class="shapla-widget-box__content">
+						<list-item label="Total"><span v-html="order.order_total"></span></list-item>
+						<list-item label="Payment URL"><a target="_blank" :href="order.payment_url">View URL</a>
+						</list-item>
+						<div>
+							<list-item label="Discount">
+								<mdl-button @click="showDiscount = !showDiscount" type="raised">Add Discount
+								</mdl-button>
+							</list-item>
+							<columns multiline v-if="showDiscount" class="mdl-shadow--8dp"
+									 style="margin: 10px;padding: 10px;">
+								<column :tablet="12"><input type="number" style="width: 100%" v-model="discountAmount">
+								</column>
+								<column :tablet="6">
+									<mdl-button type="raised" @click="discountType = 'percentage'"
+												:color="discountType === 'percentage'?'primary':'default'"
+												style="width: 100%;">
+										Percentage
+									</mdl-button>
+								</column>
+								<column :tablet="6">
+									<mdl-button type="raised" @click="discountType = 'fixed'"
+												:color="discountType === 'fixed'?'primary':'default'"
+												style="width: 100%;">Fixed
+										Amount
+									</mdl-button>
+								</column>
+								<column :tablet="12">
+									<mdl-button type="raised" color="primary" @click="applyDiscount"
+												:disabled="!(discountType.length && discountAmount)"
+												style="width: 100%;">Apply Discount
+									</mdl-button>
+								</column>
+							</columns>
+						</div>
+						<div style="margin-top:10px;">
+							Send Payment Link
+							<div style="margin-top: 10px;">
+								<mdl-radio label="SMS" value="sms" v-model="paymentLinkMedia"></mdl-radio>
+								<mdl-radio label="Email" value="email" v-model="paymentLinkMedia"></mdl-radio>
+								<mdl-radio label="Both SMS &amp; Email" value="both"
+										   v-model="paymentLinkMedia"></mdl-radio>
+							</div>
+
+							<mdl-button v-if="paymentLinkMedia.length" type="raised" color="primary"
+										@click="SendPaymentLink" style="width: 100%;margin-top: 10px;">Send
+							</mdl-button>
+						</div>
 					</div>
 				</div>
 
@@ -398,10 +465,11 @@
 	import ImageContainer from "../../shapla/image/image";
 	import Icon from "../../shapla/icon/icon";
 	import MediaModal from "../components/MediaModal";
+	import MdlRadio from "../../material-design-lite/radio/mdlRadio";
 
 	export default {
 		name: "SingleSupportTicket",
-		components: {MediaModal, Icon, ImageContainer, mdlButton, columns, column, ListItem, Editor, modal},
+		components: {MdlRadio, MediaModal, Icon, ImageContainer, mdlButton, columns, column, ListItem, Editor, modal},
 		data() {
 			return {
 				loading: false,
@@ -410,6 +478,10 @@
 				activeThreadModal: false,
 				activeTitleModal: false,
 				activeOrderStatus: false,
+				showDiscount: false,
+				discountAmount: '',
+				discountType: '',
+				paymentLinkMedia: '',
 				activeThread: {},
 				activeTwilioAgentModal: false,
 				ticket_twilio_sms_customer_phone: true,
@@ -500,6 +572,12 @@
 			}).setMap(googleMap);
 		},
 		methods: {
+			applyDiscount() {
+				alert('We are working on it.');
+			},
+			SendPaymentLink() {
+				alert('We are working on it.');
+			},
 			enableStatusUpdate() {
 				this.activeOrderStatus = true;
 			},
@@ -812,6 +890,39 @@
 </script>
 
 <style lang="scss">
+	.payment-status {
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
+
+		&-container {
+			margin-top: 10px;
+		}
+
+		&__circle {
+			width: 20px;
+			height: 20px;
+			display: inline-flex;
+			border-radius: 32px;
+
+			&.is-complete {
+				background: green;
+			}
+
+			&.is-processing {
+				background: yellow;
+			}
+
+			&.is-failed {
+				background: red;
+			}
+		}
+
+		&__separator {
+			padding: 0 10px;
+		}
+	}
+
 	.stackont-single-support-ticket-container {
 
 		.stackont-single-support-ticket-actions-bar {

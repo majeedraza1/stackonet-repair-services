@@ -148,6 +148,9 @@
 			pay_button_text() {
 				return StackonetPayment.pay_button_text;
 			},
+			thank_you_url() {
+				return StackonetPayment.thank_you_url;
+			},
 		},
 		mounted: function () {
 			let that = this;
@@ -268,6 +271,7 @@
 					.post(window.PhoneRepairs.rest_root + `/checkout`, data)
 					.then(response => {
 						this.loading = false;
+						window.location.href = this.thank_you_url;
 					})
 					.catch(error => {
 						console.log(error);
