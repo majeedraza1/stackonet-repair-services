@@ -59,6 +59,16 @@
 						</tr>
 						<tr>
 							<th scope="row">
+								<label for="payment_thank_you_page_id">After payment thank you page</label>
+							</th>
+							<td>
+								<input type="text" id="payment_thank_you_page_id" class="regular-text"
+									   v-model="settings.payment_thank_you_page_id"/>
+								<p class="description">After payment thank you page.</p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">
 								<label for="terms_and_conditions">Terms and conditions Page</label>
 							</th>
 							<td>
@@ -185,7 +195,7 @@
 					</table>
 
 
-					<h2 class="title">ipdata.co</h2>
+					<h2 class="title">IP Stack</h2>
 					<table class="form-table">
 						<tr>
 							<th scope="row">
@@ -199,6 +209,39 @@
 						</tr>
 					</table>
 
+					<h2 class="title">Square Payment</h2>
+					<table class="form-table">
+						<tr>
+							<th scope="row">
+								<label for="square_payment_application_id">Application ID</label>
+							</th>
+							<td>
+								<input type="text" id="square_payment_application_id" class="regular-text"
+									   v-model="settings.square_payment_application_id">
+								<p class="description">Enter Square payment application id.</p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">
+								<label for="square_payment_access_token">Access Token</label>
+							</th>
+							<td>
+								<input type="text" id="square_payment_access_token" class="regular-text"
+									   v-model="settings.square_payment_access_token">
+								<p class="description">Enter Square payment access token.</p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">
+								<label for="square_payment_location_id">Location Id</label>
+							</th>
+							<td>
+								<input type="text" id="square_payment_location_id" class="regular-text"
+									   v-model="settings.square_payment_location_id">
+								<p class="description">Enter Square payment location id.</p>
+							</td>
+						</tr>
+					</table>
 				</mdl-tab>
 			</mdl-tabs>
 		</div>
@@ -232,6 +275,10 @@
 					dropbox_client_secret: '',
 					dropbox_access_token: '',
 					minimum_time_difference: '',
+					payment_thank_you_page_id: '',
+					square_payment_application_id: '',
+					square_payment_access_token: '',
+					square_payment_location_id: '',
 					service_times: {
 						Monday: {start_time: '', end_time: '',},
 						Tuesday: {start_time: '', end_time: '',},

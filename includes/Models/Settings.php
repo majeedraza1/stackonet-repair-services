@@ -21,20 +21,24 @@ class Settings {
 	 * @var array
 	 */
 	private static $default = [
-		'support_phone'                => '',
-		'support_email'                => '',
-		'business_address'             => '',
-		'reschedule_page_id'           => '',
-		'payment_page_id'              => '',
-		'terms_and_conditions_page_id' => '',
-		'order_reminder_minutes'       => '',
-		'ipdata_api_key'               => '',
-		'google_map_key'               => '',
-		'dropbox_client_id'            => '',
-		'dropbox_client_secret'        => '',
-		'dropbox_access_token'         => '',
-		'minimum_time_difference'      => '',
-		'service_times'                => [
+		'support_phone'                 => '',
+		'support_email'                 => '',
+		'business_address'              => '',
+		'reschedule_page_id'            => '',
+		'payment_page_id'               => '',
+		'terms_and_conditions_page_id'  => '',
+		'order_reminder_minutes'        => '',
+		'ipdata_api_key'                => '',
+		'google_map_key'                => '',
+		'dropbox_client_id'             => '',
+		'dropbox_client_secret'         => '',
+		'dropbox_access_token'          => '',
+		'minimum_time_difference'       => '',
+		'square_payment_application_id' => '',
+		'square_payment_access_token'   => '',
+		'square_payment_location_id'    => '',
+		'payment_thank_you_page_id'     => '',
+		'service_times'                 => [
 			'Monday'    => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 			'Tuesday'   => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 			'Wednesday' => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
@@ -43,7 +47,7 @@ class Settings {
 			'Saturday'  => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 			'Sunday'    => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 		],
-		'holidays_list'                => [ [ 'date' => '', 'note' => '' ] ],
+		'holidays_list'                 => [ [ 'date' => '', 'note' => '' ] ],
 	];
 
 	/**
@@ -137,6 +141,54 @@ class Settings {
 	public static function get_payment_page_id() {
 		$options = self::get_option();
 		$key     = 'payment_page_id';
+
+		return ! empty( $options[ $key ] ) ? wp_strip_all_tags( $options[ $key ] ) : '';
+	}
+
+	/**
+	 * Get square payment application id
+	 *
+	 * @return string
+	 */
+	public static function get_square_payment_application_id() {
+		$options = self::get_option();
+		$key     = 'square_payment_application_id';
+
+		return ! empty( $options[ $key ] ) ? wp_strip_all_tags( $options[ $key ] ) : '';
+	}
+
+	/**
+	 * Get square payment access token
+	 *
+	 * @return string
+	 */
+	public static function get_square_payment_access_token() {
+		$options = self::get_option();
+		$key     = 'square_payment_access_token';
+
+		return ! empty( $options[ $key ] ) ? wp_strip_all_tags( $options[ $key ] ) : '';
+	}
+
+	/**
+	 * Get square payment location id
+	 *
+	 * @return string
+	 */
+	public static function get_square_payment_location_id() {
+		$options = self::get_option();
+		$key     = 'square_payment_location_id';
+
+		return ! empty( $options[ $key ] ) ? wp_strip_all_tags( $options[ $key ] ) : '';
+	}
+
+	/**
+	 * Get payment thank you page id
+	 *
+	 * @return string
+	 */
+	public static function get_payment_thank_you_page_id() {
+		$options = self::get_option();
+		$key     = 'payment_thank_you_page_id';
 
 		return ! empty( $options[ $key ] ) ? wp_strip_all_tags( $options[ $key ] ) : '';
 	}

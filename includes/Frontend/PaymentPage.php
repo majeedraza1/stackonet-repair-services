@@ -2,6 +2,9 @@
 
 namespace Stackonet\Frontend;
 
+use Stackonet\Models\Settings;
+use WC_Order;
+
 defined( 'ABSPATH' ) || exit;
 
 class PaymentPage {
@@ -39,7 +42,7 @@ class PaymentPage {
 		$token    = isset( $_GET['token'] ) ? strip_tags( $_GET['token'] ) : null;
 
 		$order = wc_get_order( $order_id );
-		if ( ! $order instanceof \WC_Order ) {
+		if ( ! $order instanceof WC_Order ) {
 			die( 'No record found.' );
 		}
 
@@ -82,9 +85,10 @@ class PaymentPage {
 
 		wp_localize_script( 'stackonet-payment-form', 'StackonetPayment', [
 			'order_id'        => $order->get_id(),
-			'location_id'     => "CBASEF3_KWP_i8_DGzvjsrSYmwsgAQ",
-			'application_id'  => "sandbox-sq0idp-ZWCqBQE_su61oWsKiBi5cw",
+			'application_id'  => Settings::get_square_payment_application_id(),
+			'location_id'     => Settings::get_square_payment_location_id(),
 			'pay_button_text' => 'Pay ' . wc_price( $order->get_total() ),
+			'thank_you_url'   => get_permalink( Settings::get_payment_thank_you_page_id() ),
 			'order'           => [
 				'id'            => $order->get_id(),
 				'device'        => $device,

@@ -2,24 +2,16 @@
 
 namespace Stackonet\Integrations;
 
-use SquareConnect\Api\CheckoutApi;
 use SquareConnect\Api\TransactionsApi;
 use SquareConnect\ApiClient;
 use SquareConnect\ApiException;
 use SquareConnect\Configuration;
-use SquareConnect\Model\Address;
 use SquareConnect\Model\ChargeRequest;
 use SquareConnect\Model\ChargeResponse;
+use Stackonet\Models\Settings;
 use WC_Order;
 
 class Square {
-
-	/**
-	 * Application Name
-	 *
-	 * @var string
-	 */
-	protected $applicationName;
 
 	/**
 	 * Application ID
@@ -43,10 +35,6 @@ class Square {
 	protected $locationId;
 
 	/**
-	 * @var CheckoutApi
-	 */
-	private $checkoutClient;
-	/**
 	 * @var ApiClient
 	 */
 	private $api_client;
@@ -54,17 +42,14 @@ class Square {
 	/**
 	 * Square constructor.
 	 *
+	 * @param string $applicationID
 	 * @param string $accessToken
 	 * @param string $locationId
 	 */
-	public function __construct( $accessToken = '', $locationId = '' ) {
-		$this->accessToken = $accessToken;
-		$this->locationId  = $locationId;
-
-		$this->applicationName = 'Phone Repairs ASAP';
-		$this->applicationID   = 'sandbox-sq0idp-ZWCqBQE_su61oWsKiBi5cw';
-		$this->accessToken     = 'EAAAELinI3CXmA_Ln5SSAMoTC4hCalEMk2fOgrENhSyXrX5OGPENGlXy1P9uAz_r';
-		$this->locationId      = 'CBASEF3_KWP_i8_DGzvjsrSYmwsgAQ';
+	public function __construct( $applicationID = '', $accessToken = '', $locationId = '' ) {
+		$this->applicationID = ! empty( $applicationID ) ? $applicationID : Settings::get_square_payment_application_id();
+		$this->accessToken   = ! empty( $accessToken ) ? $accessToken : Settings::get_square_payment_access_token();
+		$this->locationId    = ! empty( $locationId ) ? $locationId : Settings::get_square_payment_location_id();
 
 		$this->initialize_api_client();
 	}
