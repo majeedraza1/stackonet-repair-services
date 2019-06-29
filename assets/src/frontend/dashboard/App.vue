@@ -75,6 +75,7 @@
 		<div class="stackonet-dashboard-loader" :class="{'is-active':loading}">
 			<mdl-spinner :active="loading"></mdl-spinner>
 		</div>
+		<mdl-snackbar></mdl-snackbar>
 	</div>
 </template>
 
@@ -84,12 +85,13 @@
 	import {MaterialMenu} from '../../material-design-lite/menu/MaterialMenu'
 	import MdlButton from "../../material-design-lite/button/mdlButton";
 	import MdlSpinner from "../../material-design-lite/spinner/mdlSpinner";
+	import MdlSnackbar from "../../material-design-lite/snackbar/mdlSnackbar";
 	import Icon from "../../shapla/icon/icon";
 	import ImageContainer from "../../shapla/image/image";
 
 	export default {
 		name: "App",
-		components: {MdlSpinner, ImageContainer, MdlButton, Icon},
+		components: {MdlSnackbar, MdlSpinner, ImageContainer, MdlButton, Icon},
 		mounted() {
 			let el = this.$el;
 			new MaterialLayout(el.querySelector('.stackonet-dashboard'));

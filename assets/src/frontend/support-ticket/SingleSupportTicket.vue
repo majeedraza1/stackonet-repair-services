@@ -592,7 +592,23 @@
 					});
 			},
 			SendPaymentLink() {
-				alert('We are working on it.');
+				this.$store.commit('SET_LOADING_STATUS', true);
+				axios
+					.post(PhoneRepairs.rest_root + '/order/' + this.order.id + '/sms', {
+						ticket_id: this.id,
+						media: this.paymentLinkMedia,
+					})
+					.then((response) => {
+						this.$store.commit('SET_LOADING_STATUS', false);
+						this.$root.$emit('show-snackbar', {
+							message: 'Email/SMS has been sent.',
+						});
+						this.getItem();
+					})
+					.catch((error) => {
+						console.log(error);
+						this.$store.commit('SET_LOADING_STATUS', false);
+					});
 			},
 			enableStatusUpdate() {
 				this.activeOrderStatus = true;
