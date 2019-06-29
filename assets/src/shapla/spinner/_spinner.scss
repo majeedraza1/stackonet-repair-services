@@ -29,8 +29,7 @@ $spinner-arc-time: 1333ms !default;
 // How much the start location of the arc should rotate each time.
 $spinner-arc-start-rot: 216deg !default;
 
-$spinner-duration: 360 * $spinner-arc-time / (
-    strip-units($spinner-arc-start-rot + (360deg - $spinner-arc-size)));
+$spinner-duration: 360 * $spinner-arc-time / ( strip-units($spinner-arc-start-rot + (360deg - $spinner-arc-size)));
 
 .mdl-spinner {
 	display: inline-block;
@@ -38,11 +37,7 @@ $spinner-duration: 360 * $spinner-arc-time / (
 	width: $spinner-size;
 	height: $spinner-size;
 
-	&:not(.is-upgraded).is-active:after {
-		content: "Loading...";
-	}
-
-	&.is-upgraded.is-active {
+	&.is-active {
 		animation: mdl-spinner__container-rotate $spinner-duration linear infinite;
 	}
 }

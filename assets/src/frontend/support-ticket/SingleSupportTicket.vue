@@ -260,10 +260,9 @@
 						<div style="margin-top:10px;">
 							Send Payment Link
 							<div style="margin-top: 10px;">
-								<mdl-radio label="SMS" value="sms" v-model="paymentLinkMedia"></mdl-radio>
-								<mdl-radio label="Email" value="email" v-model="paymentLinkMedia"></mdl-radio>
-								<mdl-radio label="Both SMS &amp; Email" value="both"
-										   v-model="paymentLinkMedia"></mdl-radio>
+								<label><input type="radio" value="sms" v-model="paymentLinkMedia">SMS</label>
+								<label><input type="radio" value="email" v-model="paymentLinkMedia">Email</label>
+								<label><input type="radio" value="both" v-model="paymentLinkMedia">Both SMS &amp; Email</label>
 							</div>
 
 							<mdl-button v-if="paymentLinkMedia.length" type="raised" color="primary"
@@ -573,7 +572,24 @@
 		},
 		methods: {
 			applyDiscount() {
-				alert('We are working on it.');
+				this.$store.commit('SET_LOADING_STATUS', true);
+				axios
+					.put(PhoneRepairs.rest_root + '/order/' + this.order.id + '/discount', {
+						ticket_id: this.id,
+						amount: this.discountAmount,
+						discount_type: this.discountType,
+					})
+					.then((response) => {
+						this.$store.commit('SET_LOADING_STATUS', false);
+						this.$root.$emit('show-snackbar', {
+							message: 'Order status has been changed.',
+						});
+						this.getItem();
+					})
+					.catch((error) => {
+						console.log(error);
+						this.$store.commit('SET_LOADING_STATUS', false);
+					});
 			},
 			SendPaymentLink() {
 				alert('We are working on it.');

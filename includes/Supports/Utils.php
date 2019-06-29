@@ -7,6 +7,7 @@ use Exception;
 use Stackonet\Integrations\FirebaseDynamicLinks;
 use Stackonet\Models\Settings;
 use WC_Order;
+use WC_Order_Item_Fee;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -179,5 +180,45 @@ class Utils {
 
 		// Fallback local ip.
 		return '127.0.0.1';
+	}
+
+	/**
+	 * Add a discount to an Orders programmatically
+	 * (Using the FEE API - A negative fee)
+	 *
+	 * @param int $order_id The order ID. Required.
+	 * @param string $title The label name for the discount. Required.
+	 * @param mixed $amount Fixed amount (float) or percentage based on the subtotal. Required.
+	 *
+	 * @return float
+	 */
+	public static function add_order_discount( $order_id, $title, $amount ) {
+		$order = wc_get_order( $order_id );
+
+		$calculate_tax_args = array(
+			'country'  => $order->get_shipping_country(),
+			'state'    => $order->get_shipping_state(),
+			'postcode' => $order->get_shipping_postcode(),
+			'city'     => $order->get_shipping_city(),
+		);
+
+		if ( strstr( $amount, '%' ) ) {
+			$percent = floatval( trim( $amount, '%' ) );
+			$amount  = $order->get_total() * ( $percent / 100 );
+		} else {
+			$amount = floatval( $amount );
+		}
+
+		$fee = new WC_Order_Item_Fee();
+		$fee->set_amount( - $amount );
+		$fee->set_total( - $amount );
+		$fee->set_name( $title );
+
+		$order->add_item( $fee );
+		$order->calculate_taxes( $calculate_tax_args );
+		$order->calculate_totals( false );
+		$order->save();
+
+		return $amount;
 	}
 }
