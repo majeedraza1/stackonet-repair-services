@@ -207,10 +207,16 @@
 							<list-item label="Payment">
 								<div class="payment-status">
 									<div class="payment-status__circle"
-										 :class="{'is-complete':!order.needs_payment, 'is-processing':order.needs_payment}"></div>
-									<div class="payment-status__separator">-</div>
+										 :class="{
+										 'is-complete':order.payment_status === 'complete',
+										 'is-repairing':order.payment_status === 'repairing',
+										 'is-processing':order.payment_status === 'processing'
+										 }"></div>
+									<div class="payment-status__separator"></div>
 									<div class="payment-status__label">
-										Received
+										<template v-if="order.payment_status === 'repairing'">Repairing</template>
+										<template v-if="order.payment_status === 'processing'">Processing</template>
+										<template v-if="order.payment_status === 'complete'">Received</template>
 									</div>
 								</div>
 							</list-item>
@@ -937,21 +943,25 @@
 			display: inline-flex;
 			border-radius: 32px;
 
-			&.is-complete {
-				background: green;
+			&.is-repairing {
+				background: #ff7e30;
 			}
 
 			&.is-processing {
-				background: yellow;
+				background: #fff335;
+			}
+
+			&.is-complete {
+				background: #20b054;
 			}
 
 			&.is-failed {
-				background: red;
+				background: #ee1e26;
 			}
 		}
 
 		&__separator {
-			padding: 0 10px;
+			padding: 0 5px;
 		}
 	}
 
@@ -1111,6 +1121,7 @@
 		}
 
 		&--sms,
+		&--email,
 		&--report,
 		&--note,
 		&--reply {

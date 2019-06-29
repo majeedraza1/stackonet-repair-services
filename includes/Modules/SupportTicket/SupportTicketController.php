@@ -421,18 +421,27 @@ class SupportTicketController extends ApiController {
 		$result   = $wpdb->get_row( $sql, ARRAY_A );
 		$order_id = isset( $result['post_id'] ) ? intval( $result['post_id'] ) : 0;
 		if ( $order_id ) {
-			$order             = wc_get_order( $order_id );
-			$order_url         = add_query_arg( [
+			$order           = wc_get_order( $order_id );
+			$order_url       = add_query_arg( [
 				'post'   => $order->get_id(),
 				'action' => 'edit'
 			], admin_url( 'post.php' ) );
-			$payment_page_id   = Settings::get_payment_page_id();
-			$page_url          = get_permalink( $payment_page_id );
-			$payment_url       = add_query_arg( [
+			$payment_page_id = Settings::get_payment_page_id();
+			$page_url        = get_permalink( $payment_page_id );
+			$payment_url     = add_query_arg( [
 				'order' => $order->get_id(),
 				'token' => $order->get_meta( '_reschedule_hash', true ),
 			], $page_url );
-			$_paid_date        = get_post_meta( $order_id, '_paid_date', true );
+			$_paid_date      = get_post_meta( $order_id, '_paid_date', true );
+			$link_sms_sent   = get_post_meta( $order_id, '_payment_link_sms_sent', true );
+			$link_email_sent = get_post_meta( $order_id, '_payment_link_email_sent', true );
+			$payment_status  = 'repairing';
+			if ( ! empty( $_paid_date ) ) {
+				$payment_status = 'complete';
+			} elseif ( ! empty( $link_sms_sent ) || ! empty( $link_email_sent ) ) {
+				$payment_status = 'processing';
+			}
+
 			$response['order'] = [
 				'id'                 => $order->get_id(),
 				'order_total'        => $order->get_formatted_order_total(),
@@ -440,7 +449,7 @@ class SupportTicketController extends ApiController {
 				'order_edit_url'     => $order_url,
 				'address'            => $order->get_formatted_billing_address(),
 				'latitude_longitude' => GoogleMap::get_customer_latitude_longitude_from_order( $order ),
-				'needs_payment'      => empty( $_paid_date ),
+				'payment_status'     => $payment_status,
 				'payment_url'        => $payment_url,
 			];
 		}

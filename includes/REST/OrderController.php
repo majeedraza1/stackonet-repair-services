@@ -2,6 +2,7 @@
 
 namespace Stackonet\REST;
 
+use Stackonet\Emails\PaymentLinkCustomerEmail;
 use Stackonet\Integrations\Twilio;
 use Stackonet\Models\Settings;
 use Stackonet\Modules\SupportTicket\SupportTicket;
@@ -10,6 +11,8 @@ use WC_Order;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
+
+defined( 'ABSPATH' ) || exit;
 
 class OrderController extends ApiController {
 
@@ -81,23 +84,36 @@ class OrderController extends ApiController {
 			'token' => $order->get_meta( '_reschedule_hash', true ),
 		], $page_url );
 
-		if ( ! in_array( $media, [ 'email', 'both' ] ) ) {
-			$email_content = $payment_url;
+		$payment_url     = Utils::shorten_url( $payment_url );
+		$save_order_meta = false;
+
+		if ( in_array( $media, [ 'email', 'both' ] ) ) {
+			$email = wc()->mailer()->get_emails();
+			/** @var PaymentLinkCustomerEmail $user_email */
+			$user_email = $email['customer_order_payment_link'];
+			$user_email->trigger( $order->get_id(), $order );
+			$supportTicket->add_note( $ticket_id, 'Payment link email has been sent to customer.', 'email' );
+			$order->update_meta_data( '_payment_link_email_sent', 'yes' );
+			$save_order_meta = true;
 		}
 
-		if ( ! in_array( $media, [ 'sms', 'both' ] ) ) {
-			$sms_content = $payment_url;
-			$user        = wp_get_current_user();
-			$supportTicket->add_ticket_info( $ticket_id, [
-				'thread_type'    => 'sms',
-				'customer_name'  => $user->display_name,
-				'customer_email' => $user->user_email,
-				'post_content'   => $sms_content,
-				'agent_created'  => $user->ID,
-			] );
+		if ( in_array( $media, [ 'sms', 'both' ] ) ) {
+			$sms_content = sprintf(
+				"Hi %s, Please click the link to make a payment for the order #%s ",
+				$order->get_formatted_billing_full_name(),
+				$order->get_id()
+			);
+			$sms_content .= $payment_url;
+			$supportTicket->add_note( $ticket_id, $sms_content, 'sms' );
 
 			$phones = [ $order->get_billing_phone() ];
 			( new Twilio() )->send_support_ticket_sms( $phones, $sms_content );
+			$order->update_meta_data( '_payment_link_sms_sent', 'yes' );
+			$save_order_meta = true;
+		}
+
+		if ( $save_order_meta ) {
+			$order->save_meta_data();
 		}
 
 		return $this->respondOK();

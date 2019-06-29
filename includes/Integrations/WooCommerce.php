@@ -3,7 +3,7 @@
 namespace Stackonet\Integrations;
 
 use Exception;
-use Stackonet\Models\Settings;
+use Stackonet\Emails\PaymentLinkCustomerEmail;
 use Stackonet\Emails\OrderReminderAdminEmail;
 use Stackonet\Emails\OrderReminderCustomerEmail;
 use Stackonet\Emails\RescheduleAdminEmail;
@@ -51,6 +51,7 @@ class WooCommerce {
 		$email_classes['customer_reschedule_order']     = new RescheduleCustomerEmail();
 		$email_classes['admin_order_reminder_email']    = new OrderReminderAdminEmail();
 		$email_classes['customer_order_reminder_email'] = new OrderReminderCustomerEmail();
+		$email_classes['customer_order_payment_link']   = new PaymentLinkCustomerEmail();
 
 		return $email_classes;
 	}

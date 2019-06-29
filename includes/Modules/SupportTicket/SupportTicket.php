@@ -391,6 +391,24 @@ class SupportTicket extends DatabaseModel {
 	}
 
 	/**
+	 * Add support ticket note
+	 *
+	 * @param int $ticket_id
+	 * @param string $note
+	 * @param string $type
+	 */
+	public function add_note( $ticket_id, $note, $type = 'note' ) {
+		$user = wp_get_current_user();
+		$this->add_ticket_info( $ticket_id, [
+			'thread_type'    => $type,
+			'customer_name'  => $user->display_name,
+			'customer_email' => $user->user_email,
+			'agent_created'  => $user->ID,
+			'post_content'   => $note,
+		] );
+	}
+
+	/**
 	 * Get ticket meta
 	 *
 	 * @param int $ticket_id
