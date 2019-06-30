@@ -84,6 +84,29 @@ class PaymentPage {
 			];
 		}
 
+		$address   = $order->get_address( 'billing' );
+		$countries = WC()->countries->get_countries();
+		$states    = WC()->countries->get_states( $address['country'] );
+
+		$_address = $address['address_1'];
+		if ( ! empty( $address['address_2'] ) ) {
+			$_address .= ', ' . $address['address_2'];
+		}
+		if ( ! empty( $address['city'] ) ) {
+			$_address .= ', ' . $address['city'];
+		}
+		$_address .= '<br>';
+		if ( ! empty( $address['state'] ) ) {
+			$_address .= isset( $states[ $address['state'] ] ) ? $states[ $address['state'] ] : $address['state'];
+		}
+		if ( ! empty( $address['postcode'] ) ) {
+			$_address .= ' ' . $address['postcode'];
+		}
+		if ( ! empty( $address['country'] ) ) {
+			$full_country = ( isset( $countries[ $address['country'] ] ) ) ? $countries[ $address['country'] ] : $address['country'];
+			$_address     .= ', ' . $full_country;
+		}
+
 		wp_localize_script( 'stackonet-payment-form', 'StackonetPayment', [
 			'order_id'        => $order->get_id(),
 			'application_id'  => Settings::get_square_payment_application_id(),
@@ -103,7 +126,7 @@ class PaymentPage {
 				'name'    => $order->get_formatted_billing_full_name(),
 				'email'   => $order->get_billing_email(),
 				'phone'   => $order->get_billing_phone(),
-				'address' => $order->get_formatted_billing_address(),
+				'address' => $_address,
 			]
 		] );
 

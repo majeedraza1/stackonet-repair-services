@@ -563,18 +563,19 @@
 			if (id) {
 				this.id = parseInt(id);
 				this.getItem();
+
+				setTimeout((self) => {
+					let googleMap = new google.maps.Map(self.$el.querySelector('#google-map'), {
+						zoom: 15,
+						center: self.order.latitude_longitude,
+					});
+					new google.maps.Marker({
+						position: self.order.latitude_longitude,
+						title: self.order.address
+					}).setMap(googleMap);
+				}, 1000, this);
 			}
-			this.getImages();
-
-
-			let googleMap = new google.maps.Map(this.$el.querySelector('#google-map'), {
-				zoom: 15,
-				center: this.order.latitude_longitude,
-			});
-			new google.maps.Marker({
-				position: this.order.latitude_longitude,
-				title: this.order.address
-			}).setMap(googleMap);
+			this.getImages()
 		},
 		methods: {
 			applyDiscount() {

@@ -28,10 +28,10 @@
 		</div>
 		<div class="customer-details">
 			<h2>Customer Detail</h2>
-			<strong>{{customer.name}}</strong><br>
-			<strong>{{customer.email}}</strong><br>
-			<strong>{{customer.phone}}</strong><br>
-			<div v-html="customer.address"></div>
+			<strong>Name: </strong>{{customer.name}}<br>
+			<strong>Email: </strong>{{customer.email}}<br>
+			<strong>Phone: </strong>{{customer.phone}}<br>
+			<div><strong>Address: </strong><span v-html="customer.address"></span></div>
 		</div>
 		<div id="sq-ccbox">
 			<h2>Card Detail</h2>
