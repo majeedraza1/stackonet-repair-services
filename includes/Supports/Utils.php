@@ -202,9 +202,15 @@ class Utils {
 			'city'     => $order->get_shipping_city(),
 		);
 
+		$subtotal = 0;
+		$fees     = $order->get_fees();
+		foreach ( $fees as $fee ) {
+			$subtotal += floatval( $fee->get_total() );
+		}
+
 		if ( strstr( $amount, '%' ) ) {
 			$percent = floatval( trim( $amount, '%' ) );
-			$amount  = $order->get_total() * ( $percent / 100 );
+			$amount  = $subtotal * ( $percent / 100 );
 		} else {
 			$amount = floatval( $amount );
 		}

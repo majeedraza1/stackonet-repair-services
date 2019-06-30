@@ -612,62 +612,24 @@ class Ajax {
 		// Calculate totals and save data
 		$order->calculate_taxes( $calculate_tax_args );
 		$order->calculate_totals( false );
-		if ( ! $has_discount ) {
-			$order->set_status( 'on-hold' );
-		}
+		$order->set_status( 'on-hold' );
 		$order->save();
 
 		// Add Discount
 		if ( $has_discount ) {
-			$this->add_order_discount( $order->get_id(), 'Fixed Discount (15%)', '15%' );
+			Utils::add_order_discount( $order->get_id(), 'Fixed Discount (15%)', '15%' );
 		}
-
-		// Create support ticket from order
-		OrderToSupportTicket::process( $order );
 
 		// Update customer latitude and longitude
 		GoogleMap::get_customer_latitude_longitude_from_order( $order );
 
 		do_action( 'stackonet_order_created', $order );
 
+		// Create support ticket from order
+		$order = wc_get_order( $order->get_id() );
+		OrderToSupportTicket::process( $order );
+
 		wp_send_json_success( null, 201 );
-	}
-
-	/**
-	 * Add a discount to an Orders programmatically
-	 * (Using the FEE API - A negative fee)
-	 *
-	 * @param int $order_id The order ID. Required.
-	 * @param string $title The label name for the discount. Required.
-	 * @param mixed $amount Fixed amount (float) or percentage based on the subtotal. Required.
-	 */
-	public function add_order_discount( $order_id, $title, $amount ) {
-		$order = wc_get_order( $order_id );
-
-		$calculate_tax_args = array(
-			'country'  => $order->get_shipping_country(),
-			'state'    => $order->get_shipping_state(),
-			'postcode' => $order->get_shipping_postcode(),
-			'city'     => $order->get_shipping_city(),
-		);
-
-		if ( strstr( $amount, '%' ) ) {
-			$percent = floatval( trim( $amount, '%' ) );
-			$amount  = $order->get_total() * ( $percent / 100 );
-		} else {
-			$amount = floatval( $amount );
-		}
-
-		$fee = new WC_Order_Item_Fee();
-		$fee->set_amount( - $amount );
-		$fee->set_total( - $amount );
-		$fee->set_name( $title );
-
-		$order->add_item( $fee );
-		$order->calculate_taxes( $calculate_tax_args );
-		$order->calculate_totals( false );
-		$order->set_status( 'on-hold' );
-		$order->save();
 	}
 
 	/**

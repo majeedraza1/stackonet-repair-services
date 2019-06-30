@@ -5,6 +5,7 @@ namespace Stackonet\Modules\SupportTicket;
 use Exception;
 use Stackonet\Ajax;
 use Stackonet\Models\Appointment;
+use Stackonet\Supports\Utils;
 use WC_Data_Exception;
 use WC_Order;
 use WC_Order_Item_Fee;
@@ -124,7 +125,7 @@ class LeadSupportTicketToOrder {
 
 		// Add Discount
 		if ( $has_discount ) {
-			( new Ajax() )->add_order_discount( $order->get_id(), 'Fixed Discount (15%)', '15%' );
+			Utils::add_order_discount( $order->get_id(), 'Fixed Discount (15%)', '15%' );
 		}
 
 		self::add_support_ticket_note( $order, $support_ticket_id );

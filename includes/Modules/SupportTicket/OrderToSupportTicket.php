@@ -53,12 +53,12 @@ class OrderToSupportTicket {
 	 * @throws Exception
 	 */
 	public static function get_support_ticket_content( WC_Order $order ) {
-		$_device_title  = $order->get_meta( '_device_title' );
-		$_device_model  = $order->get_meta( '_device_model' );
-		$_device_color  = $order->get_meta( '_device_color' );
-		$service_date   = $order->get_meta( '_preferred_service_date' );
-		$service_time   = $order->get_meta( '_preferred_service_time_range' );
-		$order_url      = add_query_arg( [ 'post' => $order->get_id(), 'action' => 'edit' ], admin_url( 'post.php' ) );
+		$_device_title = $order->get_meta( '_device_title' );
+		$_device_model = $order->get_meta( '_device_model' );
+		$_device_color = $order->get_meta( '_device_color' );
+		$service_date  = $order->get_meta( '_preferred_service_date' );
+		$service_time  = $order->get_meta( '_preferred_service_time_range' );
+		$order_url     = add_query_arg( [ 'post' => $order->get_id(), 'action' => 'edit' ], admin_url( 'post.php' ) );
 
 		$phone = $order->get_billing_phone();
 		$phone = '<a href="tel:' . esc_attr( $phone ) . '">' . esc_html( $phone ) . '</a>';
@@ -119,13 +119,17 @@ class OrderToSupportTicket {
 				<th>Tax</th>
 			</tr>
 			<?php
-			$fees = $order->get_fees();
+			$fees   = $order->get_fees();
+			$amount = 0;
 			foreach ( $fees as $fee ) {
-				echo '<tr>
-					<td>' . $fee->get_name() . '</td>
-					<td>' . $fee->get_total() . '</td>
-					<td>' . $fee->get_total_tax() . '</td>
-				</tr>';
+				$amount += floatval( $fee->get_total() );
+				?>
+				<tr>
+					<td><?php echo wp_kses_post( $fee->get_name() ); ?></td>
+					<td><?php echo wc_price( $fee->get_total() ); ?></td>
+					<td><?php echo wc_price( $fee->get_total_tax() ); ?></td>
+				</tr>
+				<?php
 			}
 			?>
 			<tr>
@@ -133,13 +137,25 @@ class OrderToSupportTicket {
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
-				<td>Tax:</td>
-				<td><strong><?php echo $order->get_total_tax(); ?></strong></td>
+				<td>Subtotal:</td>
+				<td><?php echo wc_price( $amount ); ?></td>
 			</tr>
+			<?php
+			$taxes = $order->get_tax_totals();
+			foreach ( $taxes as $fee ) {
+				?>
+				<tr>
+					<td>&nbsp;</td>
+					<td><?php echo wp_kses_post( $fee->label ); ?></td>
+					<td><?php echo wp_kses_post( $fee->formatted_amount ); ?></td>
+				</tr>
+				<?php
+			}
+			?>
 			<tr>
 				<td>&nbsp;</td>
 				<td>Total:</td>
-				<td><strong><?php echo $order->get_total(); ?></strong></td>
+				<td><strong><?php echo $order->get_formatted_order_total(); ?></strong></td>
 			</tr>
 		</table>
 		<?php
