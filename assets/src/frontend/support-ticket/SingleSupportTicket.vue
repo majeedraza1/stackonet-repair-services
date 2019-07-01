@@ -514,9 +514,14 @@
 				openLogoModal: false,
 				attachments: [],
 				images: [],
-				order: {
-					latitude_longitude: {lat: 32.8205865, lng: -96.871626}
-				},
+				order: {},
+			}
+		},
+		watch: {
+			order(newValue) {
+				if (newValue && newValue.latitude_longitude) {
+					this.refreshMap(newValue.latitude_longitude, newValue.address);
+				}
 			}
 		},
 		computed: {
@@ -563,21 +568,17 @@
 			if (id) {
 				this.id = parseInt(id);
 				this.getItem();
-
-				setTimeout((self) => {
-					let googleMap = new google.maps.Map(self.$el.querySelector('#google-map'), {
-						zoom: 15,
-						center: self.order.latitude_longitude,
-					});
-					new google.maps.Marker({
-						position: self.order.latitude_longitude,
-						title: self.order.address
-					}).setMap(googleMap);
-				}, 1000, this);
 			}
 			this.getImages()
 		},
 		methods: {
+			refreshMap(position, title) {
+				let googleMap = new google.maps.Map(this.$el.querySelector('#google-map'), {
+					zoom: 15,
+					center: position,
+				});
+				new google.maps.Marker({position: position, title: title}).setMap(googleMap);
+			},
 			applyDiscount() {
 				this.$store.commit('SET_LOADING_STATUS', true);
 				axios
