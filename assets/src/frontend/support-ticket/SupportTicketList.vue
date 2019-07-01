@@ -79,6 +79,12 @@
 		</mdl-table>
 		<wp-pagination :current_page="pagination.currentPage" :per_page="pagination.limit"
 					   :total_items="pagination.totalCount" size="medium" @pagination="paginate"></wp-pagination>
+		<modal :active="activeNoteModal" title="Note" @close="closeNoteModal">
+			<textarea cols="30" rows="4" v-model="note" style="width: 100%;"></textarea>
+			<div slot="foot">
+				<mdl-button @click="saveNote">Save Note</mdl-button>
+			</div>
+		</modal>
 	</div>
 </template>
 
@@ -126,6 +132,9 @@
 				priority: 'all',
 				city: 'all',
 				query: '',
+				activeItem: {},
+				activeNoteModal: false,
+				note: '',
 			}
 		},
 		mounted() {
@@ -168,7 +177,8 @@
 
 				return [
 					{key: 'view', label: 'View'},
-					{key: 'trash', label: 'Trash'}
+					{key: 'note', label: 'Note'},
+					// {key: 'trash', label: 'Trash'}
 				];
 			},
 			bulkActions() {
@@ -255,9 +265,39 @@
 				return action === this.actions[this.actions.length - 1].key;
 			},
 
+			closeNoteModal() {
+				this.activeNoteModal = false;
+				this.note = '';
+			},
+
+			saveNote() {
+				this.$store.commit('SET_LOADING_STATUS', true);
+				axios
+					.post(PhoneRepairs.rest_root + '/support-ticket/' + this.activeItem.id + '/thread/', {
+						thread_type: 'note',
+						thread_content: this.note,
+						ticket_attachments: [],
+					})
+					.then((response) => {
+						this.note = '';
+						this.activeNoteModal = false;
+						this.$store.commit('SET_LOADING_STATUS', false);
+						this.$root.$emit('show-snackbar', {
+							message: 'Note has been added successfully.',
+						});
+					})
+					.catch((error) => {
+						this.$store.commit('SET_LOADING_STATUS', false);
+					});
+			},
+
 			onActionClick(action, item) {
 				if ('view' === action) {
 					this.$router.push({name: 'SingleSupportTicket', params: {id: item.id}});
+				}
+				if ('note' === action) {
+					this.activeNoteModal = true;
+					this.activeItem = item;
 				}
 				if ('trash' === action && window.confirm('Are you sure move this item to trash?')) {
 					this.trashAction(item, 'trash');
@@ -323,6 +363,18 @@
 
 <style lang="scss">
 	.stackont-support-ticket-container {
+
+		.row-actions {
+			> span {
+				&:not(:last-child) a {
+					margin-right: 10px;
+				}
+
+				&:not(:first-child) a {
+					margin-left: 10px;
+				}
+			}
+		}
 
 		.mdl-data-table--mobile {
 			.mdl-data-table tr td.manage-column.manage-id {
