@@ -1,7 +1,7 @@
 <template>
 	<div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect" :class="tabsClasses">
 		<div class="mdl-tabs__tab-bar">
-			<a v-for="tab in tabs" class="mdl-tabs__tab" :class="{'is-active': tab.isActive}"
+			<a v-for="tab in tabs" class="mdl-tabs__tab" :class="{'is-active': tab.isActive}" @click="$emit('change')"
 			   :href="tab.href">{{tab.name}}</a>
 		</div>
 

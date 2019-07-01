@@ -1,14 +1,16 @@
 <template>
 	<div class="stackonet-dashboard-report">
-		<mdl-tabs>
+		<mdl-tabs @change="changeTab">
 			<mdl-tab name="Graph" selected>
 				<div class="stackonet-dashboard-graph">
+					<month-navigation @change="changeDate"></month-navigation>
 					<line-chart :chart-data="chartdata" :options="options"/>
 				</div>
 			</mdl-tab>
 			<mdl-tab name="Calendar">
 				<div class="stackonet-dashboard-calendar">
-					<vue-fullcalendar :events="calendar_events" @eventClick="eventClick"></vue-fullcalendar>
+					<vue-fullcalendar :events="calendar_events" @eventClick="eventClick"
+									  @changeMonth="changeMonth"></vue-fullcalendar>
 				</div>
 			</mdl-tab>
 		</mdl-tabs>
@@ -84,10 +86,14 @@
 	import ListItem from "../../../components/ListItem";
 	import MdlTabs from "../../../material-design-lite/tabs/mdlTabs";
 	import MdlTab from "../../../material-design-lite/tabs/mdlTab";
+	import MonthNavigation from "../../components/MonthNavigation";
 
 	export default {
 		name: "Report",
-		components: {MdlTab, MdlTabs, column, columns, ListItem, MdlButton, modal, VueFullcalendar, LineChart},
+		components: {
+			MonthNavigation,
+			MdlTab, MdlTabs, column, columns, ListItem, MdlButton, modal, VueFullcalendar, LineChart
+		},
 		data() {
 			return {
 				isModalOpen: false,
@@ -98,6 +104,8 @@
 				chartdata: {},
 				googleMap: null,
 				markers: [],
+				year: '',
+				month: '',
 				options: {
 					responsive: true,
 					maintainAspectRatio: false
@@ -141,6 +149,22 @@
 			}
 		},
 		methods: {
+			changeDate(data) {
+				this.month = data.month;
+				this.year = data.year;
+				this.getEvents();
+			},
+			changeTab() {
+				this.month = '';
+				this.year = '';
+				this.getEvents();
+			},
+			changeMonth(start, end, current) {
+				let _date = new Date(current);
+				this.month = _date.getMonth() + 1;
+				this.year = _date.getFullYear();
+				this.getEvents();
+			},
 			updateMapCenter(data) {
 				this.activeDataOnMap = data;
 				this.googleMap.setZoom(18);
@@ -178,7 +202,7 @@
 			getEvents() {
 				this.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.get(window.PhoneRepairs.rest_root + '/calendar',)
+					.get(window.PhoneRepairs.rest_root + '/calendar?month=' + this.month + '&year=' + this.year)
 					.then(response => {
 						this.$store.commit('SET_LOADING_STATUS', false);
 						this.events = response.data.data.events;

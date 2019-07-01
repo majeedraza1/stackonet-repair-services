@@ -403,14 +403,20 @@ class Appointment extends DatabaseModel {
 	/**
 	 * Get appointment counts grouped by created_at date
 	 *
+	 * @param string $start_date
+	 * @param string $end_date
+	 *
 	 * @return array
 	 */
-	public function get_counts_group_by_created_at() {
+	public function get_counts_group_by_created_at( $start_date = null, $end_date = null ) {
 		global $wpdb;
 		$table = $wpdb->prefix . $this->table;
 
-		$sql     = "SELECT COUNT(id) counts, DATE(created_at) created FROM {$table}";
-		$sql     .= " WHERE deleted_at IS NULL";
+		$sql = "SELECT COUNT(id) counts, DATE(created_at) created FROM {$table}";
+		$sql .= " WHERE deleted_at IS NULL";
+		if ( ! empty( $start_date ) && ! empty( $start_date ) ) {
+			$sql .= $wpdb->prepare( " AND DATE(created_at) between %s and %s", $start_date, $end_date );
+		}
 		$sql     .= " GROUP BY DATE(created_at)";
 		$sql     .= " ORDER BY DATE(created_at) DESC;";
 		$results = $wpdb->get_results( $sql, ARRAY_A );

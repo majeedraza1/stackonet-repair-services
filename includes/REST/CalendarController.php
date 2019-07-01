@@ -2,10 +2,10 @@
 
 namespace Stackonet\REST;
 
+use DateTime;
 use Exception;
 use Stackonet\Integrations\GoogleMap;
 use Stackonet\Models\Appointment;
-use Stackonet\Models\Settings;
 use Stackonet\Supports\Logger;
 use WC_Order;
 use WC_Order_Query;
@@ -73,15 +73,25 @@ class CalendarController extends ApiController {
 
 		}
 
-		$orders_counts = $this->get_orders_counts();
-		$leads_counts  = $this->get_leads_counts();
-		$events        = array_merge( $orders_counts, $leads_counts );
+		$month    = $request->get_param( 'month' );
+		$month    = ! empty( $month ) ? $month : date( 'm', time() );
+		$year     = $request->get_param( 'year' );
+		$year     = ! empty( $year ) ? $year : date( 'Y', time() );
+		$dateTime = new DateTime();
+		$dateTime->setDate( $year, $month, 1 );
+		$start_date = $dateTime->format( 'Y-m-d' );
+		$end_date   = $dateTime->format( 'Y-m-t' );
 
-		$dates       = range( 1, date( 'd', strtotime( 'last day of this month' ) ) );
-		$defaultData = array_fill_keys( $dates, 0 );
-		$yearNum     = intval( date( 'Y', time() ) );
-		$monthNum    = intval( date( 'm', time() ) );
-		$dateNum     = intval( date( 'd', time() ) );
+
+		$orders_counts = $this->get_orders_counts( $start_date, $end_date );
+		$leads_counts  = $this->get_leads_counts( $start_date, $end_date );
+
+		$events = array_merge( $orders_counts, $leads_counts );
+
+		$dates    = range( 1, intval( $dateTime->format( 't' ) ) );
+		$yearNum  = intval( $dateTime->format( 'Y' ) );
+		$monthNum = intval( $dateTime->format( 'm' ) );
+		$dateNum  = intval( $dateTime->format( 'd' ) );
 
 		$_orders_counts = [];
 		foreach ( $orders_counts as $order_count ) {
@@ -103,10 +113,25 @@ class CalendarController extends ApiController {
 			}
 		}
 
+		$now = new DateTime();
+
 		$orders_data = [];
 		$leads_data  = [];
 		foreach ( $dates as $index ) {
-			$_default              = ( $index <= $dateNum ) ? 0 : null;
+			if ( $yearNum <= intval( $now->format( 'Y' ) ) ) {
+
+				if ( $monthNum > intval( $now->format( 'm' ) ) ) {
+					$_default = null;
+				} elseif ( $monthNum == intval( $now->format( 'm' ) ) ) {
+					$_default = ( $index <= $dateNum ) ? 0 : null;
+				} else {
+					$_default = 0;
+				}
+
+			} else {
+				$_default = null;
+			}
+
 			$orders_data[ $index ] = isset( $_orders_counts[ $index ] ) ? $_orders_counts[ $index ] : $_default;
 			$leads_data[ $index ]  = isset( $_leads_counts[ $index ] ) ? $_leads_counts[ $index ] : $_default;
 		}
@@ -135,12 +160,18 @@ class CalendarController extends ApiController {
 	/**
 	 * Get order counts
 	 *
+	 * @param string $start_date
+	 * @param string $end_date
+	 *
 	 * @return array
 	 */
-	private function get_orders_counts() {
+	private function get_orders_counts( $start_date = null, $end_date = null ) {
 		global $wpdb;
-		$sql     = "SELECT COUNT(ID) counts, DATE(post_date) created FROM {$wpdb->posts}";
-		$sql     .= " WHERE 1=1 AND post_type = 'shop_order'";
+		$sql = "SELECT COUNT(ID) AS counts, DATE(post_date) AS created FROM {$wpdb->posts}";
+		$sql .= " WHERE 1=1 AND post_type = 'shop_order'";
+		if ( ! empty( $start_date ) && ! empty( $start_date ) ) {
+			$sql .= $wpdb->prepare( " AND DATE(post_date) between %s and %s", $start_date, $end_date );
+		}
 		$sql     .= " GROUP BY DATE(post_date)";
 		$sql     .= " ORDER BY DATE(post_date) DESC;";
 		$results = $wpdb->get_results( $sql, ARRAY_A );
@@ -160,10 +191,13 @@ class CalendarController extends ApiController {
 	/**
 	 * Get leads counts
 	 *
+	 * @param string $start_date
+	 * @param string $end_date
+	 *
 	 * @return array
 	 */
-	public function get_leads_counts() {
-		$results = ( new Appointment() )->get_counts_group_by_created_at();
+	public function get_leads_counts( $start_date = null, $end_date = null ) {
+		$results = ( new Appointment() )->get_counts_group_by_created_at( $start_date, $end_date );
 
 		$items = [];
 		foreach ( $results as $result ) {
