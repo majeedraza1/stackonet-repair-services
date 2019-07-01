@@ -1,3 +1,14 @@
+#### 1.1.12 - July 01, 2019
+* Add - Add Square Payment integration for payment processing.
+* Add - Add settings fields for square payment.
+* Add - Add payment status widget on single support ticket page for order support ticket.
+* Add - Add order discount functionality on support ticket.
+* Add - Add Payment link send functionality over email and SMS from support ticket.
+* Fix - Fix discount is calculating wrongly for order.
+* Fix - Fix single support ticket Map zoom not working properly.
+* Fix - Fix graph data not working for previous month.
+* Tweak - Update payment form style.
+
 #### 1.1.11 - Jun 26, 2019
 * Add - Add new dashboard menu "SMS"
 * Add - Add functionality to filter data from order, lead, support ticket.
