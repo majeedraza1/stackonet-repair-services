@@ -5,7 +5,6 @@ namespace Stackonet;
 use Exception;
 use Stackonet\Integrations\GoogleMap;
 use Stackonet\Modules\SupportTicket\OrderToSupportTicket;
-use Stackonet\Modules\SupportTicket\SupportTicket;
 use Stackonet\Models\Device;
 use Stackonet\Models\DeviceIssue;
 use Stackonet\Models\Phone;
@@ -13,6 +12,7 @@ use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
 use Stackonet\Models\Testimonial;
 use Stackonet\Models\UnsupportedArea;
+use Stackonet\Modules\SupportTicket\SupportTicket;
 use Stackonet\Supports\Utils;
 use WC_Data_Exception;
 use WC_Order;
@@ -90,8 +90,7 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$checkout = new SupportTicket();
-		var_dump( $checkout->find_pre_and_next( 109 ) );
+		var_dump( current_user_can( 'delete_ticket', 240 ) );
 		die();
 	}
 

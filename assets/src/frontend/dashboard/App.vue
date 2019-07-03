@@ -43,26 +43,23 @@
 				</header>
 
 				<nav class="demo-navigation mdl-navigation">
-					<router-link class="mdl-navigation__link" tag="div" to="/report" active-class="is-active">Dashboard
-					</router-link>
-					<router-link class="mdl-navigation__link" tag="div" to="/ticket" active-class="is-active">Support
-					</router-link>
-					<router-link class="mdl-navigation__link" tag="div" to="/survey" active-class="is-active">Survey
-					</router-link>
-					<router-link class="mdl-navigation__link" tag="div" to="/carrier-stores" active-class="is-active">
-						Carrier Stores
-					</router-link>
-					<router-link class="mdl-navigation__link" tag="div" to="/lead" active-class="is-active">
-						Lead
-					</router-link>
-					<router-link class="mdl-navigation__link" tag="div" to="/sms" active-class="is-active">
-						SMS
-					</router-link>
-					<router-link class="mdl-navigation__link" tag="div" to="/checkout-analysis"
-								 active-class="is-active"> Checkout Analysis
-					</router-link>
-					<a href="https://analytics.google.com/analytics/web/" target="_blank" class="mdl-navigation__link">Google
-						Analytics</a>
+					<template v-for="_menuItem in menu_items">
+						<template v-if="_menuItem.type && _menuItem.type === 'link'">
+							<a
+								:href="_menuItem.url"
+								:target="_menuItem.target"
+								class="mdl-navigation__link">{{_menuItem.label}}</a>
+						</template>
+						<template v-else>
+							<router-link
+								class="mdl-navigation__link"
+								tag="div"
+								:to="_menuItem.router"
+								active-class="is-active">
+								{{_menuItem.label}}
+							</router-link>
+						</template>
+					</template>
 				</nav>
 			</div>
 
@@ -101,6 +98,9 @@
 		computed: {
 			...mapState(['loading', 'title']),
 			...mapGetters(['display_name', 'user_email', 'avatar_url', 'logout_url', 'home_url']),
+			menu_items() {
+				return StackonetDashboard.menuItems;
+			},
 		}
 	}
 </script>

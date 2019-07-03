@@ -907,4 +907,53 @@ class SupportTicket extends DatabaseModel {
 			update_option( 'stackonet_support_ticket_table_version', '1.0.1' );
 		}
 	}
+
+	/**
+	 * Map meta capability for support ticket
+	 *
+	 * @param array $caps
+	 * @param string $cap
+	 * @param int $user_id
+	 * @param array $args
+	 *
+	 * @return array
+	 */
+	public static function map_meta_cap( $caps, $cap, $user_id, $args ) {
+		/* If editing, deleting, or reading a movie, get the post and post type object. */
+		if ( 'edit_ticket' == $cap || 'delete_ticket' == $cap || 'read_ticket' == $cap ) {
+
+			$object_id = isset( $args[0] ) ? $args[0] : 0;
+			$ticket    = ( new static )->find_by_id( $object_id );
+			$caps      = [];
+
+			/* If editing a movie, assign the required capability. */
+			if ( 'edit_ticket' == $cap ) {
+				if ( $user_id == $ticket->get( 'agent_created' ) ) {
+					$caps[] = 'edit_tickets';
+				} else {
+					$caps[] = 'edit_others_tickets';
+				}
+			}
+
+			/* If deleting a movie, assign the required capability. */
+			if ( 'delete_ticket' == $cap ) {
+				if ( $user_id == $ticket->get( 'agent_created' ) ) {
+					$caps[] = 'delete_tickets';
+				} else {
+					$caps[] = 'delete_others_tickets';
+				}
+			}
+
+			/* If reading a private movie, assign the required capability. */
+			if ( 'read_ticket' == $cap ) {
+				if ( $user_id == $ticket->get( 'agent_created' ) ) {
+					$caps[] = 'read_tickets';
+				} else {
+					$caps[] = 'read_others_tickets';
+				}
+			}
+		}
+
+		return $caps;
+	}
 }

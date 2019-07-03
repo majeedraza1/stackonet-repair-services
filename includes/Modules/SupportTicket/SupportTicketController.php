@@ -281,7 +281,7 @@ class SupportTicketController extends ApiController {
 			'ticket_category'  => get_option( 'wpsc_default_ticket_category' ),
 			'ticket_priority'  => get_option( 'wpsc_default_ticket_priority' ),
 			'ip_address'       => isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '',
-			'agent_created'    => 0,
+			'agent_created'    => $user->ID,
 			'ticket_auth_code' => bin2hex( random_bytes( 5 ) ),
 			'active'           => 1
 		];

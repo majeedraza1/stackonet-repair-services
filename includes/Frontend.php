@@ -50,8 +50,8 @@ class Frontend {
 			add_shortcode( 'stackonet_survey_form', [ self::$instance, 'survey_form' ] );
 
 			// For Admin
-			add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_dashboard_scripts' ] );
-			add_shortcode( 'stackonet_frontend_dashboard', [ self::$instance, 'frontend_dashboard' ] );
+			// add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_dashboard_scripts' ] );
+			// add_shortcode( 'stackonet_frontend_dashboard', [ self::$instance, 'frontend_dashboard' ] );
 		}
 
 		return self::$instance;
@@ -186,6 +186,8 @@ class Frontend {
 
 		$data['search_categories'] = (array) get_option( 'stackonet_ticket_search_categories' );
 		$data['order_statuses']    = wc_get_order_statuses();
+
+		var_dump( $data );
 
 		wp_localize_script( 'stackonet-frontend-dashboard', 'SupportTickets', $data );
 

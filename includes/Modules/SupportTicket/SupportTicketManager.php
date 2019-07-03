@@ -25,6 +25,7 @@ class SupportTicketManager {
 			add_action( 'wpsc_set_gerneral_settings', [ self::$instance, 'save_settings' ] );
 			add_shortcode( 'stackonet_support_ticket_form', [ self::$instance, 'support_ticket_form' ] );
 			add_action( 'wp_ajax_download_support_ticket', [ self::$instance, 'download_support_ticket' ] );
+			add_filter( 'map_meta_cap', [ new SupportTicket(), 'map_meta_cap' ], 10, 4 );
 
 			SupportTicketController::init();
 		}
