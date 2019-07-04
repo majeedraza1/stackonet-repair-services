@@ -5,9 +5,6 @@ namespace Stackonet\Modules\SupportTicket;
 use DateTime;
 use Exception;
 use Stackonet\Abstracts\DatabaseModel;
-use Stackonet\Supports\Logger;
-use Stackonet\Supports\Utils;
-use WC_Order;
 use WP_Post;
 use WP_Term;
 use WP_Term_Query;
@@ -16,6 +13,13 @@ use WP_User;
 defined( 'ABSPATH' ) or exit;
 
 class SupportTicket extends DatabaseModel {
+
+	/**
+	 * Get current user support agent id
+	 *
+	 * @var int
+	 */
+	private static $current_user_agent_id = 0;
 
 	/**
 	 * Post type name
@@ -454,6 +458,23 @@ class SupportTicket extends DatabaseModel {
 		$wpdb->insert( $table, $data );
 	}
 
+	/**
+	 * Get current user agent id
+	 */
+	public static function get_current_user_agent_id() {
+		if ( empty( self::$current_user_agent_id ) ) {
+			$agents  = SupportAgent::get_all();
+			$user_id = get_current_user_id();
+
+			foreach ( $agents as $agent ) {
+				if ( $agent->get_user()->ID == $user_id ) {
+					self::$current_user_agent_id = $agent->get( 'term_id' );
+				}
+			}
+		}
+
+		return self::$current_user_agent_id;
+	}
 
 	/**
 	 * Find multiple records from database
@@ -475,9 +496,27 @@ class SupportTicket extends DatabaseModel {
 		$ticket_status = isset( $args['ticket_status'] ) ? $args['ticket_status'] : 'all';
 
 		global $wpdb;
-		$table = $wpdb->prefix . $this->table;
+		$table      = $wpdb->prefix . $this->table;
+		$meta_table = $wpdb->prefix . $this->meta_table;
 
-		$query = "SELECT * FROM {$table} WHERE 1=1";
+		$query = "SELECT * FROM {$table}";
+
+		if ( ! current_user_can( 'read_others_tickets' ) ) {
+			$query .= " LEFT JOIN {$meta_table} as mt ON {$table}.id = mt.ticket_id";
+		}
+
+		$query .= " WHERE 1=1";
+
+		if ( ! current_user_can( 'read_others_tickets' ) ) {
+			$user_id  = get_current_user_id();
+			$agent_id = self::get_current_user_agent_id();
+			$query    .= " AND(";
+			if ( ! empty( $agent_id ) ) {
+				$query .= $wpdb->prepare( " (mt.meta_key = %s AND mt.meta_value = %d) OR", 'assigned_agent', $agent_id );
+			}
+			$query .= $wpdb->prepare( " agent_created = %d", $user_id );
+			$query .= " )";
+		}
 
 		if ( isset( $args[ $this->created_by ] ) && is_numeric( $args[ $this->created_by ] ) ) {
 			$query .= $wpdb->prepare( " AND {$this->created_by} = %d", intval( $args[ $this->created_by ] ) );
@@ -505,7 +544,7 @@ class SupportTicket extends DatabaseModel {
 			$query .= " AND active = 1";
 		}
 
-		$query   .= " ORDER BY {$orderby} {$order}";
+		$query   .= " ORDER BY {$table}.{$orderby} {$order}";
 		$query   .= $wpdb->prepare( " LIMIT %d OFFSET %d", $per_page, $offset );
 		$results = $wpdb->get_results( $query, ARRAY_A );
 
@@ -528,6 +567,7 @@ class SupportTicket extends DatabaseModel {
 	public function search( $args, $fields = [] ) {
 		global $wpdb;
 		$table           = $wpdb->prefix . $this->table;
+		$meta_table      = $wpdb->prefix . $this->meta_table;
 		$string          = isset( $args['search'] ) ? esc_sql( $args['search'] ) : '';
 		$fields          = empty( $fields ) ? array_keys( $this->default_data ) : $fields;
 		$ticket_status   = ! empty( $args['ticket_status'] ) ? $args['ticket_status'] : 'all';
@@ -544,7 +584,24 @@ class SupportTicket extends DatabaseModel {
 
 			$terms_ids = $this->search_terms( $string );
 
-			$query = "SELECT * FROM {$table} WHERE 1 = 1";
+			$query = "SELECT * FROM {$table}";
+
+			if ( ! current_user_can( 'read_others_tickets' ) ) {
+				$query .= " LEFT JOIN {$meta_table} as mt ON {$table}.id = mt.ticket_id";
+			}
+
+			$query .= " WHERE 1=1";
+
+			if ( ! current_user_can( 'read_others_tickets' ) ) {
+				$user_id  = get_current_user_id();
+				$agent_id = self::get_current_user_agent_id();
+				$query    .= " AND(";
+				if ( ! empty( $agent_id ) ) {
+					$query .= $wpdb->prepare( " (mt.meta_key = %s AND mt.meta_value = %d) OR", 'assigned_agent', $agent_id );
+				}
+				$query .= $wpdb->prepare( " agent_created = %d", $user_id );
+				$query .= " )";
+			}
 
 			if ( isset( $args[ $this->created_by ] ) && is_numeric( $args[ $this->created_by ] ) ) {
 				$query .= $wpdb->prepare( " AND {$this->created_by} = %d", intval( $args[ $this->created_by ] ) );
@@ -581,7 +638,7 @@ class SupportTicket extends DatabaseModel {
 				}
 			}
 
-			$query .= " ORDER BY {$orderby} {$order}";
+			$query .= " ORDER BY {$table}.{$orderby} {$order}";
 
 			$items = $wpdb->get_results( $query, ARRAY_A );
 			if ( $items ) {
@@ -768,11 +825,30 @@ class SupportTicket extends DatabaseModel {
 	 */
 	public function count_records() {
 		global $wpdb;
-		$table    = $wpdb->prefix . $this->table;
-		$statuses = $this->get_ticket_statuses_terms();
-		$counts   = wp_cache_get( 'support_tickets_count', $this->cache_group );
+		$table      = $wpdb->prefix . $this->table;
+		$meta_table = $wpdb->prefix . $this->meta_table;
+		$statuses   = $this->get_ticket_statuses_terms();
+		$counts     = wp_cache_get( 'support_tickets_count', $this->cache_group );
 		if ( false === $counts ) {
-			$query   = "SELECT ticket_status, COUNT( * ) AS num_entries FROM {$table} WHERE active = 1";
+			$query = "SELECT ticket_status, COUNT( * ) AS num_entries FROM {$table}";
+
+			if ( ! current_user_can( 'read_others_tickets' ) ) {
+				$query .= " LEFT JOIN {$meta_table} as mt ON {$table}.id = mt.ticket_id";
+			}
+
+			$query .= " WHERE active = 1";
+
+			if ( ! current_user_can( 'read_others_tickets' ) ) {
+				$user_id  = get_current_user_id();
+				$agent_id = self::get_current_user_agent_id();
+				$query    .= " AND(";
+				if ( ! empty( $agent_id ) ) {
+					$query .= $wpdb->prepare( " (mt.meta_key = %s AND mt.meta_value = %d) OR", 'assigned_agent', $agent_id );
+				}
+				$query .= $wpdb->prepare( " agent_created = %d", $user_id );
+				$query .= " )";
+			}
+
 			$query   .= " GROUP BY ticket_status";
 			$results = $wpdb->get_results( $query, ARRAY_A );
 

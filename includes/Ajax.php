@@ -90,7 +90,8 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		var_dump( current_user_can( 'delete_ticket', 240 ) );
+		$tickets = ( new SupportTicket() )->find();
+		var_dump( $tickets );
 		die();
 	}
 
