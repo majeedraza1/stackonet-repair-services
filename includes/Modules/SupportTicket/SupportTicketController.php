@@ -102,7 +102,7 @@ class SupportTicketController extends ApiController {
 	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function send_sms( $request ) {
-		if ( ! current_user_can( 'read' ) ) {
+		if ( ! current_user_can( 'create_twilio_messages' ) ) {
 			return $this->respondUnauthorized();
 		}
 
@@ -190,7 +190,7 @@ class SupportTicketController extends ApiController {
 	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function get_items( $request ) {
-		if ( ! current_user_can( 'read' ) ) {
+		if ( ! current_user_can( 'read_tickets' ) ) {
 			return $this->respondUnauthorized();
 		}
 
@@ -229,7 +229,7 @@ class SupportTicketController extends ApiController {
 			'totalCount'  => $counts[ $status ],
 			'limit'       => $per_page,
 			'currentPage' => $paged,
-		] );;
+		] );
 
 		$response = [ 'items' => $items, 'counts' => $counts, 'pagination' => $pagination ];
 
@@ -245,7 +245,7 @@ class SupportTicketController extends ApiController {
 	 * @throws Exception
 	 */
 	public function create_item( $request ) {
-		if ( ! current_user_can( 'read' ) ) {
+		if ( ! current_user_can( 'create_tickets' ) ) {
 			return $this->respondUnauthorized();
 		}
 
@@ -399,8 +399,8 @@ class SupportTicketController extends ApiController {
 	 * @throws Exception
 	 */
 	public function get_item( $request ) {
-		if ( ! current_user_can( 'read' ) ) {
-			// return $this->respondUnauthorized();
+		if ( ! current_user_can( 'read_tickets' ) ) {
+			return $this->respondUnauthorized();
 		}
 
 		$id = (int) $request->get_param( 'id' );
@@ -465,16 +465,16 @@ class SupportTicketController extends ApiController {
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function update_item( $request ) {
-		if ( ! current_user_can( 'read' ) ) {
-			return $this->respondUnauthorized();
-		}
-
 		$id = (int) $request->get_param( 'id' );
 
 		$supportTicket = ( new SupportTicket )->find_by_id( $id );
 
 		if ( ! $supportTicket instanceof SupportTicket ) {
 			return $this->respondNotFound();
+		}
+
+		if ( ! current_user_can( 'edit_ticket', $id ) ) {
+			return $this->respondUnauthorized();
 		}
 
 		$data = $request->get_params();
@@ -494,9 +494,6 @@ class SupportTicketController extends ApiController {
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function delete_item( $request ) {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return $this->respondUnauthorized();
-		}
 		$id     = $request->get_param( 'id' );
 		$action = $request->get_param( 'action' );
 
@@ -512,6 +509,10 @@ class SupportTicketController extends ApiController {
 
 		if ( ! $survey instanceof SupportTicket ) {
 			return $this->respondNotFound();
+		}
+
+		if ( ! current_user_can( 'delete_ticket', $id ) ) {
+			return $this->respondUnauthorized();
 		}
 
 		if ( 'trash' == $action ) {
@@ -535,10 +536,6 @@ class SupportTicketController extends ApiController {
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function delete_items( $request ) {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return $this->respondUnauthorized();
-		}
-
 		$ids    = $request->get_param( 'ids' );
 		$ids    = is_array( $ids ) ? array_map( 'intval', $ids ) : [];
 		$action = $request->get_param( 'action' );
@@ -551,6 +548,11 @@ class SupportTicketController extends ApiController {
 		$class = new SupportTicket();
 
 		foreach ( $ids as $id ) {
+
+			if ( ! current_user_can( 'delete_ticket', $id ) ) {
+				continue;
+			}
+
 			if ( 'trash' == $action ) {
 				$class->trash( $id );
 			}
@@ -573,10 +575,6 @@ class SupportTicketController extends ApiController {
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function create_thread( $request ) {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return $this->respondUnauthorized();
-		}
-
 		$id                 = (int) $request->get_param( 'id' );
 		$thread_type        = $request->get_param( 'thread_type' );
 		$thread_content     = $request->get_param( 'thread_content' );
@@ -595,6 +593,10 @@ class SupportTicketController extends ApiController {
 
 		if ( ! $support_ticket instanceof SupportTicket ) {
 			return $this->respondNotFound();
+		}
+
+		if ( ! current_user_can( 'edit_ticket', $id ) ) {
+			return $this->respondUnauthorized();
 		}
 
 		$user = wp_get_current_user();
@@ -618,10 +620,6 @@ class SupportTicketController extends ApiController {
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function update_thread( $request ) {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return $this->respondUnauthorized();
-		}
-
 		$id           = (int) $request->get_param( 'id' );
 		$thread_id    = (int) $request->get_param( 'thread_id' );
 		$post_content = $request->get_param( 'post_content' );
@@ -634,6 +632,10 @@ class SupportTicketController extends ApiController {
 
 		if ( ! $support_ticket instanceof SupportTicket ) {
 			return $this->respondNotFound();
+		}
+
+		if ( ! current_user_can( 'edit_ticket', $id ) ) {
+			return $this->respondUnauthorized();
 		}
 
 		$thread = get_post( $thread_id );
@@ -662,10 +664,6 @@ class SupportTicketController extends ApiController {
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function update_agent( $request ) {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return $this->respondUnauthorized();
-		}
-
 		$id    = (int) $request->get_param( 'id' );
 		$agent = $request->get_param( 'agents_ids' );
 
@@ -673,6 +671,10 @@ class SupportTicketController extends ApiController {
 
 		if ( ! $support_ticket instanceof SupportTicket ) {
 			return $this->respondNotFound();
+		}
+
+		if ( ! current_user_can( 'edit_ticket', $id ) ) {
+			return $this->respondUnauthorized();
 		}
 
 		$support_ticket->update_agent( $agent );
@@ -688,10 +690,6 @@ class SupportTicketController extends ApiController {
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function delete_thread( $request ) {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return $this->respondUnauthorized();
-		}
-
 		$id        = (int) $request->get_param( 'id' );
 		$thread_id = (int) $request->get_param( 'thread_id' );
 
@@ -699,6 +697,10 @@ class SupportTicketController extends ApiController {
 
 		if ( ! $support_ticket instanceof SupportTicket ) {
 			return $this->respondNotFound();
+		}
+
+		if ( ! current_user_can( 'delete_ticket', $id ) ) {
+			return $this->respondUnauthorized();
 		}
 
 		if ( $support_ticket->delete_thread( $thread_id ) ) {
@@ -716,16 +718,16 @@ class SupportTicketController extends ApiController {
 	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function create_order( $request ) {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return $this->respondUnauthorized();
-		}
-
 		$id = (int) $request->get_param( 'id' );
 
 		$support_ticket = ( new SupportTicket )->find_by_id( $id );
 
 		if ( ! $support_ticket instanceof SupportTicket ) {
 			return $this->respondNotFound();
+		}
+
+		if ( ! current_user_can( 'edit_ticket', $id ) ) {
+			return $this->respondUnauthorized();
 		}
 
 		$created_via   = $support_ticket->created_via();

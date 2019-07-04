@@ -192,7 +192,7 @@
 					})
 					.catch((error) => {
 						this.$store.commit('SET_LOADING_STATUS', false);
-						alert('Some thing went wrong. Please try again.');
+						console.log(error);
 					});
 			},
 			validateEmail(email) {

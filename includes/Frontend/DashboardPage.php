@@ -59,7 +59,9 @@ class DashboardPage {
 			$data['logo_url'] = $_logo_url[0];
 		}
 
-		if ( ! current_user_can( 'add_survey' ) ) {
+		$user = wp_get_current_user();
+
+		if ( ! $user->exists() ) {
 			wp_localize_script( 'stackonet-frontend-dashboard', 'SupportTickets', $data );
 
 			return '<div id="stackonet_repair_services_dashboard_login"></div>';
@@ -122,21 +124,38 @@ class DashboardPage {
 	 * @return array
 	 */
 	public function menu() {
-		$menu = [
-			[ 'router' => '/report', 'label' => 'Dashboard' ],
-			[ 'router' => '/ticket', 'label' => 'Support' ],
-			[ 'router' => '/survey', 'label' => 'Survey' ],
-			[ 'router' => '/carrier-stores', 'label' => 'Carrier Stores' ],
-			[ 'router' => '/lead', 'label' => 'Lead' ],
-			[ 'router' => '/sms', 'label' => 'SMS' ],
-			[ 'router' => '/checkout-analysis', 'label' => 'Checkout Analysis' ],
-			[
+		$menu = [];
+
+		if ( current_user_can( 'read_reports' ) ) {
+			$menu[] = [ 'router' => '/report', 'label' => 'Dashboard' ];
+		}
+
+		if ( current_user_can( 'read_tickets' ) ) {
+			$menu[] = [ 'router' => '/ticket', 'label' => 'Support' ];
+		}
+
+		if ( current_user_can( 'read_surveys' ) ) {
+			$menu[] = [ 'router' => '/survey', 'label' => 'Survey' ];
+			$menu[] = [ 'router' => '/carrier-stores', 'label' => 'Carrier Stores' ];
+			$menu[] = [ 'router' => '/lead', 'label' => 'Lead' ];
+		}
+
+		if ( current_user_can( 'read_twilio_messages' ) ) {
+			$menu[] = [ 'router' => '/sms', 'label' => 'SMS' ];
+		}
+
+		if ( current_user_can( 'read_checkout_analysis_records' ) ) {
+			$menu[] = [ 'router' => '/checkout-analysis', 'label' => 'Checkout Analysis' ];
+		}
+
+		if ( current_user_can( 'manage_options' ) ) {
+			$menu[] = [
 				'type'   => 'link',
 				'label'  => 'Google Analytics',
 				'url'    => 'https://analytics.google.com/analytics/web/',
 				'target' => '_blank'
-			],
-		];
+			];
+		}
 
 		return $menu;
 	}

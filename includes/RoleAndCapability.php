@@ -9,12 +9,20 @@ defined( 'ABSPATH' ) || exit;
 class RoleAndCapability {
 
 	/**
+	 * Dashboard capabilities
+	 *
+	 * @var array
+	 */
+	protected static $dashboard_capabilities = [
+		'read_reports',
+	];
+
+	/**
 	 * Support Ticket capabilities
 	 *
 	 * @var array
 	 */
 	protected static $ticket_capabilities = [
-		'manage_tickets',
 		'delete_others_tickets',
 		'delete_tickets',
 		'edit_others_tickets',
@@ -30,10 +38,15 @@ class RoleAndCapability {
 	 * @var array
 	 */
 	protected static $survey_capabilities = [
-		'read_survey',
+		'delete_others_surveys',
+		'delete_surveys',
+		'edit_others_surveys',
+		'edit_surveys',
+		'create_surveys',
+		'read_others_surveys',
+		'read_surveys',
+		// Backup capabilities
 		'add_survey',
-		'delete_survey',
-		'manage_survey',
 	];
 
 	/**
@@ -42,10 +55,36 @@ class RoleAndCapability {
 	 * @var array
 	 */
 	protected static $device_capabilities = [
-		'read_phone',
-		'add_phone',
-		'delete_phone',
+		'delete_others_devices',
+		'delete_devices',
+		'edit_others_devices',
+		'edit_devices',
+		'create_devices',
+		'read_others_devices',
+		'read_devices',
+		// Backup capabilities
 		'manage_phones',
+	];
+
+	/**
+	 * Checkout Analysis capabilities
+	 *
+	 * @var array
+	 */
+	protected static $checkout_analysis_capabilities = [
+		'read_checkout_analysis_records',
+	];
+
+	/**
+	 * Twilio message capabilities
+	 *
+	 * @var array
+	 */
+	protected static $twilio_message_capabilities = [
+		'delete_twilio_messages',
+		'edit_twilio_messages',
+		'create_twilio_messages',
+		'read_twilio_messages',
 	];
 
 	/**
@@ -57,6 +96,9 @@ class RoleAndCapability {
 		self::add_survey_capabilities();
 		self::add_device_capabilities();
 		self::add_support_ticket_capabilities();
+		self::add_checkout_analysis_capabilities();
+		self::add_twilio_message_capabilities();
+		self::add_dashboard_capabilities();
 	}
 
 	/**
@@ -83,7 +125,7 @@ class RoleAndCapability {
 	public static function add_survey_capabilities() {
 		self::add_capabilities_to_roles(
 			[ 'administrator', 'editor', 'manager', 'agent' ],
-			array_fill_keys( self::$ticket_capabilities, true )
+			array_fill_keys( self::$survey_capabilities, true )
 		);
 	}
 
@@ -104,6 +146,36 @@ class RoleAndCapability {
 		self::add_capabilities_to_roles(
 			[ 'administrator', 'editor', 'manager' ],
 			array_fill_keys( self::$ticket_capabilities, true )
+		);
+	}
+
+	/**
+	 * Add checkout analysis capabilities
+	 */
+	private static function add_checkout_analysis_capabilities() {
+		self::add_capabilities_to_roles(
+			[ 'administrator', 'editor', 'manager' ],
+			array_fill_keys( self::$checkout_analysis_capabilities, true )
+		);
+	}
+
+	/**
+	 * Add twilio messages capabilities
+	 */
+	private static function add_twilio_message_capabilities() {
+		self::add_capabilities_to_roles(
+			[ 'administrator', 'editor', 'manager' ],
+			array_fill_keys( self::$twilio_message_capabilities, true )
+		);
+	}
+
+	/**
+	 * Add dashboard capabilities
+	 */
+	private static function add_dashboard_capabilities() {
+		self::add_capabilities_to_roles(
+			[ 'administrator', 'editor', 'manager' ],
+			array_fill_keys( self::$dashboard_capabilities, true )
 		);
 	}
 

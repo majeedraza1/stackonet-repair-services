@@ -922,35 +922,25 @@ class SupportTicket extends DatabaseModel {
 		/* If editing, deleting, or reading a movie, get the post and post type object. */
 		if ( 'edit_ticket' == $cap || 'delete_ticket' == $cap || 'read_ticket' == $cap ) {
 
-			$object_id = isset( $args[0] ) ? $args[0] : 0;
-			$ticket    = ( new static )->find_by_id( $object_id );
-			$caps      = [];
+			$object_id    = isset( $args[0] ) ? $args[0] : 0;
+			$ticket       = ( new static )->find_by_id( $object_id );
+			$is_same_user = false;
+			if ( $user_id == $ticket->get( 'agent_created' ) || in_array( $user_id, $ticket->get_assigned_agents_ids() ) ) {
+				$is_same_user = true;
+			}
 
-			/* If editing a movie, assign the required capability. */
+			$caps = [];
+
 			if ( 'edit_ticket' == $cap ) {
-				if ( $user_id == $ticket->get( 'agent_created' ) ) {
-					$caps[] = 'edit_tickets';
-				} else {
-					$caps[] = 'edit_others_tickets';
-				}
+				$caps[] = $is_same_user ? 'edit_tickets' : 'edit_others_tickets';
 			}
 
-			/* If deleting a movie, assign the required capability. */
 			if ( 'delete_ticket' == $cap ) {
-				if ( $user_id == $ticket->get( 'agent_created' ) ) {
-					$caps[] = 'delete_tickets';
-				} else {
-					$caps[] = 'delete_others_tickets';
-				}
+				$caps[] = $is_same_user ? 'delete_tickets' : 'delete_others_tickets';
 			}
 
-			/* If reading a private movie, assign the required capability. */
 			if ( 'read_ticket' == $cap ) {
-				if ( $user_id == $ticket->get( 'agent_created' ) ) {
-					$caps[] = 'read_tickets';
-				} else {
-					$caps[] = 'read_others_tickets';
-				}
+				$caps[] = $is_same_user ? 'read_tickets' : 'read_others_tickets';
 			}
 		}
 
