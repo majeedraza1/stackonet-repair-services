@@ -2,6 +2,7 @@
 
 namespace Stackonet\REST;
 
+use Exception;
 use Stackonet\Emails\PaymentLinkCustomerEmail;
 use Stackonet\Integrations\Twilio;
 use Stackonet\Models\Settings;
@@ -43,10 +44,16 @@ class OrderController extends ApiController {
 	 */
 	public function register_routes() {
 		register_rest_route( $this->namespace, '/order/(?P<id>\d+)/discount', [
-			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'add_discount' ], ],
+			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'add_discount' ] ],
+		] );
+		register_rest_route( $this->namespace, '/order/(?P<id>\d+)/custom-payment-amount', [
+			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'add_custom_amount' ] ],
+		] );
+		register_rest_route( $this->namespace, '/order/(?P<id>\d+)/custom-payment-sms', [
+			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'send_custom_payment_sms' ] ],
 		] );
 		register_rest_route( $this->namespace, '/order/(?P<id>\d+)/sms', [
-			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'send_sms' ], ],
+			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'send_sms' ] ],
 		] );
 	}
 
@@ -91,7 +98,7 @@ class OrderController extends ApiController {
 			$email = wc()->mailer()->get_emails();
 			/** @var PaymentLinkCustomerEmail $user_email */
 			$user_email = $email['customer_order_payment_link'];
-			$user_email->trigger( $order->get_id(), $order );
+			$user_email->trigger( $order->get_id(), $order, $payment_url );
 			$supportTicket->add_note( $ticket_id, 'Payment link email has been sent to customer.', 'email' );
 			$order->update_meta_data( '_payment_link_email_sent', 'yes' );
 			$save_order_meta = true;
@@ -114,6 +121,67 @@ class OrderController extends ApiController {
 
 		if ( $save_order_meta ) {
 			$order->save_meta_data();
+		}
+
+		return $this->respondOK();
+	}
+
+	/**
+	 * @param WP_REST_Request $request
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function send_custom_payment_sms( $request ) {
+		$order_id  = (int) $request->get_param( 'id' );
+		$ticket_id = $request->get_param( 'ticket_id' );
+		$amount    = $request->get_param( 'amount' );
+		$hash      = $request->get_param( 'hash' );
+		$media     = $request->get_param( 'media' );
+
+		if ( ! in_array( $media, [ 'sms', 'email', 'both' ] ) ) {
+			return $this->respondUnprocessableEntity( null, 'Unsupported media type' );
+		}
+
+		$order = wc_get_order( $order_id );
+
+		if ( ! $order instanceof WC_Order ) {
+			return $this->respondNotFound( null, 'No order found!' );
+		}
+
+		$supportTicket = ( new SupportTicket )->find_by_id( $ticket_id );
+		if ( ! $supportTicket instanceof SupportTicket ) {
+			return $this->respondNotFound( null, 'No support ticket found!' );
+		}
+
+		$payment_page_id = Settings::get_payment_page_id();
+		$page_url        = get_permalink( $payment_page_id );
+		$payment_url     = add_query_arg( [
+			'order' => $order->get_id(),
+			'token' => $order->get_meta( '_reschedule_hash', true ),
+			'_type' => 'custom',
+			'_hash' => $hash,
+		], $page_url );
+
+		$payment_url = Utils::shorten_url( $payment_url );
+
+		if ( in_array( $media, [ 'email', 'both' ] ) ) {
+			$email = wc()->mailer()->get_emails();
+			/** @var PaymentLinkCustomerEmail $user_email */
+			$user_email = $email['customer_custom_payment_link_email'];
+			$user_email->trigger( $order->get_id(), $order, $payment_url );
+			$supportTicket->add_note( $ticket_id, 'Custom Payment link email has been sent to customer.', 'email' );
+		}
+
+		if ( in_array( $media, [ 'sms', 'both' ] ) ) {
+			$sms_content = sprintf(
+				"Hi %s, Please click the link to make a payment %s",
+				$order->get_formatted_billing_full_name(),
+				$payment_url
+			);
+			$supportTicket->add_note( $ticket_id, $sms_content, 'sms' );
+
+			$phones = [ $order->get_billing_phone() ];
+			( new Twilio() )->send_support_ticket_sms( $phones, $sms_content );
 		}
 
 		return $this->respondOK();
@@ -168,5 +236,44 @@ class OrderController extends ApiController {
 		}
 
 		return $this->respondOK();
+	}
+
+	/**
+	 * @param WP_REST_Request $request
+	 *
+	 * @return WP_REST_Response
+	 * @throws Exception
+	 */
+	public function add_custom_amount( $request ) {
+		$order_id  = (int) $request->get_param( 'id' );
+		$ticket_id = (int) $request->get_param( 'ticket_id' );
+		$amount    = (float) $request->get_param( 'amount' );
+
+		$order = wc_get_order( $order_id );
+
+		if ( ! $order instanceof WC_Order ) {
+			return $this->respondNotFound( null, 'No order found with this id.' );
+		}
+
+		$ticket = ( new SupportTicket() )->find_by_id( $ticket_id );
+
+		if ( ! $ticket instanceof SupportTicket ) {
+			return $this->respondNotFound( null, 'No support ticket found with this id.' );
+		}
+
+		$data = [
+			'support_id' => $ticket_id,
+			'order_id'   => $order_id,
+			'amount'     => $amount,
+			'hash'       => bin2hex( random_bytes( 20 ) ),
+		];
+
+		$custom_amount   = get_post_meta( $order_id, '_custom_payment_amount', true );
+		$custom_amount   = is_array( $custom_amount ) ? $custom_amount : [];
+		$custom_amount[] = $data;
+
+		update_post_meta( $order_id, '_custom_payment_amount', $custom_amount );
+
+		return $this->respondOK( $request->get_params() );
 	}
 }

@@ -3,15 +3,12 @@
 namespace Stackonet\Emails;
 
 use Exception;
-use Stackonet\Models\Settings;
-use Stackonet\Supports\Utils;
 use WC_Email;
 use WC_Order;
 
 defined( 'ABSPATH' ) || exit;
 
-class PaymentLinkCustomerEmail extends WC_Email {
-
+class CustomPaymentLinkCustomerEmail extends WC_Email {
 	/**
 	 * True when the email notification is sent to customers.
 	 *
@@ -29,7 +26,7 @@ class PaymentLinkCustomerEmail extends WC_Email {
 	 */
 	public function __construct() {
 		// set ID, this simply needs to be a unique name
-		$this->id = 'customer_order_payment_link_email';
+		$this->id = 'customer_order_custom_payment_link_email';
 		// this is the title in WooCommerce Email settings
 		$this->title = 'Customer Payment Link Mail';
 		// this is the description in WooCommerce email settings
@@ -65,11 +62,8 @@ class PaymentLinkCustomerEmail extends WC_Email {
 			return;
 		}
 
-		$this->object = $order;
-
-		if ( ! empty( $payment_url ) ) {
-			$this->payment_url = $payment_url;
-		}
+		$this->object      = $order;
+		$this->payment_url = $payment_url;
 
 		$this->placeholders['{order_date}']   = wc_format_datetime( $this->object->get_date_created() );
 		$this->placeholders['{order_number}'] = $this->object->get_order_number();
@@ -109,24 +103,13 @@ class PaymentLinkCustomerEmail extends WC_Email {
 		$order         = $this->object;
 		$customer_name = $order->get_formatted_billing_full_name();
 
-		if ( empty( $this->payment_url ) ) {
-			$payment_page_id = Settings::get_payment_page_id();
-			$page_url        = get_permalink( $payment_page_id );
-			$payment_url     = add_query_arg( [
-				'order' => $order->get_id(),
-				'token' => $order->get_meta( '_reschedule_hash', true ),
-			], $page_url );
-
-			$this->payment_url = Utils::shorten_url( $payment_url );
-		}
-
 		/**
 		 * @hooked WC_Emails::email_header() Output the email header
 		 */
 		do_action( 'woocommerce_email_header', $this->get_heading(), $this );
 
 		echo '<p style="margin: 50px;font-size: 18px;line-height: 150%">';
-		echo sprintf( "Hi %s!<br> Thanks for choosing us. We have generated a Payment Link for the order #%s", $customer_name, $order->get_id() );
+		echo sprintf( "Hi %s!<br> Thanks for choosing us. We have generated a Payment Link for the service", $customer_name );
 		echo '<a href="' . $this->payment_url . '" class="button" target="_blank" style="display: inline-block; width: 100%; min-height: 20px; padding: 10px; border-radius: 3px; color: #ffffff; font-size: 15px; line-height: 25px; text-align: center; text-decoration: none; -webkit-text-size-adjust: none;background-color: #f9a73b;">
 			Click Here to Pay Now 
         </a>';
@@ -138,7 +121,7 @@ class PaymentLinkCustomerEmail extends WC_Email {
 		 * @hooked WC_Structured_Data::output_structured_data() Outputs structured data.
 		 * @since 2.5.0
 		 */
-		do_action( 'woocommerce_email_order_details', $order, false, false, $this );
+		// do_action( 'woocommerce_email_order_details', $order, false, false, $this );
 
 		/*
 		 * @hooked WC_Emails::order_meta() Shows order meta data.

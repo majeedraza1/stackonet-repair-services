@@ -40,6 +40,9 @@ class PaymentPage {
 
 		$order_id = isset( $_GET['order'] ) ? intval( $_GET['order'] ) : 0;
 		$token    = isset( $_GET['token'] ) ? strip_tags( $_GET['token'] ) : null;
+		$type     = isset( $_GET['_type'] ) ? strip_tags( $_GET['_type'] ) : null;
+		$type     = 'custom' == $type ? 'custom' : 'default';
+		$hash     = isset( $_GET['_hash'] ) ? strip_tags( $_GET['_hash'] ) : null;
 
 		$order = wc_get_order( $order_id );
 		if ( ! $order instanceof WC_Order ) {
@@ -53,8 +56,31 @@ class PaymentPage {
 		}
 
 		$_paid_date = get_post_meta( $order_id, '_paid_date', true );
-		if ( ! empty( $_paid_date ) ) {
+		if ( ! empty( $_paid_date ) && 'custom' !== $type ) {
 			die( 'Payment is already complete. Link has been expired.' );
+		}
+
+		$order_total     = $order->get_total();
+		$pay_button_text = 'Pay ' . wc_price( $order_total );
+
+		if ( 'custom' == $type ) {
+			$hash          = isset( $_GET['_hash'] ) ? strip_tags( $_GET['_hash'] ) : null;
+			$custom_amount = get_post_meta( $order_id, '_custom_payment_amount', true );
+			$custom_amount = is_array( $custom_amount ) ? $custom_amount : [];
+
+			$data = [];
+			foreach ( $custom_amount as $item ) {
+				if ( $item['hash'] == $hash ) {
+					$data = $item;
+				}
+			}
+
+			if ( empty( $data ) ) {
+				die( 'Link has been expired.' );
+			}
+
+			$order_total = $data['amount'];
+			$pay_button_text = 'Pay Service Charge ' . wc_price( $order_total );
 		}
 
 		$device_title = $order->get_meta( '_device_title', true );
@@ -107,11 +133,17 @@ class PaymentPage {
 			$_address     .= ', ' . $full_country;
 		}
 
+		$customer_name = $order->get_formatted_billing_full_name();
+		if ( empty( $customer_name ) ) {
+			$customer_name = $order->get_billing_company();
+		}
+
 		wp_localize_script( 'stackonet-payment-form', 'StackonetPayment', [
 			'order_id'        => $order->get_id(),
+			'type'            => $type,
 			'application_id'  => Settings::get_square_payment_application_id(),
 			'location_id'     => Settings::get_square_payment_location_id(),
-			'pay_button_text' => 'Pay ' . wc_price( $order->get_total() ),
+			'pay_button_text' => $pay_button_text,
 			'thank_you_url'   => get_permalink( Settings::get_payment_thank_you_page_id() ),
 			'order'           => [
 				'id'            => $order->get_id(),
@@ -120,10 +152,10 @@ class PaymentPage {
 				'fees'          => $fees,
 				'fees_total'    => wc_price( $amount ),
 				'taxes'         => $taxes,
-				'order_total'   => $order->get_formatted_order_total(),
+				'order_total'   => wc_price( $order_total ),
 			],
 			'customer'        => [
-				'name'    => $order->get_formatted_billing_full_name(),
+				'name'    => $customer_name,
 				'email'   => $order->get_billing_email(),
 				'phone'   => $order->get_billing_phone(),
 				'address' => $_address,

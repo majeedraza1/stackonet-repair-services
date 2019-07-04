@@ -9,6 +9,7 @@ use Stackonet\Models\Appointment;
 use Stackonet\Models\Settings;
 use Stackonet\REST\ApiController;
 use Stackonet\Supports\Logger;
+use Stackonet\Supports\Utils;
 use WC_Order;
 use WP_Error;
 use WP_Post;
@@ -442,15 +443,36 @@ class SupportTicketController extends ApiController {
 				$payment_status = 'processing';
 			}
 
+			$_custom_amount = get_post_meta( $order_id, '_custom_payment_amount', true );
+			$custom_amount  = [];
+			if ( is_array( $_custom_amount ) && count( $_custom_amount ) ) {
+				foreach ( $_custom_amount as $index => $item ) {
+					if ( empty( $item['amount'] ) ) {
+						continue;
+					}
+
+					$custom_payment_url = add_query_arg( [
+						'order' => $order->get_id(),
+						'token' => $order->get_meta( '_reschedule_hash', true ),
+						'_type' => 'custom',
+						'_hash' => $item['hash'],
+					], $page_url );
+
+					$custom_amount[ $index ]                = $item;
+					$custom_amount[ $index ]['payment_url'] = Utils::shorten_url( $custom_payment_url );
+				}
+			}
+
 			$response['order'] = [
-				'id'                 => $order->get_id(),
-				'order_total'        => $order->get_formatted_order_total(),
-				'status'             => 'wc-' . $order->get_status(),
-				'order_edit_url'     => $order_url,
-				'address'            => $order->get_formatted_billing_address(),
-				'latitude_longitude' => GoogleMap::get_customer_latitude_longitude_from_order( $order ),
-				'payment_status'     => $payment_status,
-				'payment_url'        => $payment_url,
+				'id'                  => $order->get_id(),
+				'order_total'         => $order->get_formatted_order_total(),
+				'status'              => 'wc-' . $order->get_status(),
+				'order_edit_url'      => $order_url,
+				'address'             => $order->get_formatted_billing_address(),
+				'latitude_longitude'  => GoogleMap::get_customer_latitude_longitude_from_order( $order ),
+				'payment_status'      => $payment_status,
+				'payment_url'         => $payment_url,
+				'custom_amount_items' => $custom_amount,
 			];
 		}
 

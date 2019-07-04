@@ -278,6 +278,51 @@
 					</div>
 				</div>
 
+				<div class="shapla-box shapla-widget-box" v-show="order && order.order_total">
+					<div class="shapla-widget-box__heading">
+						<h5 class="shapla-widget-box__title">Custom Payment</h5>
+					</div>
+					<div class="shapla-widget-box__content">
+						<mdl-button @click="showPaymentAmount = !showPaymentAmount" type="raised" style="width: 100%;">
+							Add Payment Amount
+						</mdl-button>
+						<columns multiline v-if="showPaymentAmount" class="mdl-shadow--8dp"
+								 style="margin: 10px;padding: 10px;">
+							<column :tablet="12">
+								<input type="number" style="width: 100%" v-model="paymentAmount">
+							</column>
+							<column :tablet="12">
+								<mdl-button type="raised" color="primary" @click="addCustomPayment"
+											:disabled="!paymentAmount"
+											style="width: 100%;">Save Payment Amount
+								</mdl-button>
+							</column>
+						</columns>
+						<div style="margin-top: 10px;">
+							<accordion :title="`Payment Link ${index + 1} - (Amount: ${_item.amount})`" :key="index"
+									   v-for="(_item, index) in custom_amount_items">
+								<list-item label="Payment URL"><a target="_blank" :href="_item.payment_url">View URL</a>
+								</list-item>
+								<div>
+									Send Payment Link
+									<div style="margin-top: 10px;">
+										<label><input type="radio" value="sms"
+													  v-model="customPaymentLinkMedia">SMS</label>
+										<label><input type="radio" value="email" v-model="customPaymentLinkMedia">Email</label>
+										<label><input type="radio" value="both" v-model="customPaymentLinkMedia">Both
+											SMS &amp; Email</label>
+									</div>
+
+									<mdl-button v-if="customPaymentLinkMedia.length" type="raised" color="primary"
+												@click="sendCustomPaymentLink(_item)"
+												style="width: 100%;margin-top: 10px;">Send
+									</mdl-button>
+								</div>
+							</accordion>
+						</div>
+					</div>
+				</div>
+
 				<div class="shapla-box shapla-widget-box" v-show="isOrderTicket">
 					<div class="shapla-widget-box__heading">
 						<h5 class="shapla-widget-box__title">Map</h5>
@@ -471,10 +516,14 @@
 	import Icon from "../../shapla/icon/icon";
 	import MediaModal from "../components/MediaModal";
 	import MdlRadio from "../../material-design-lite/radio/mdlRadio";
+	import Accordion from "../../components/Accordion";
 
 	export default {
 		name: "SingleSupportTicket",
-		components: {MdlRadio, MediaModal, Icon, ImageContainer, mdlButton, columns, column, ListItem, Editor, modal},
+		components: {
+			Accordion,
+			MdlRadio, MediaModal, Icon, ImageContainer, mdlButton, columns, column, ListItem, Editor, modal
+		},
 		data() {
 			return {
 				loading: false,
@@ -515,6 +564,9 @@
 				attachments: [],
 				images: [],
 				order: {},
+				showPaymentAmount: false,
+				paymentAmount: '',
+				customPaymentLinkMedia: '',
 			}
 		},
 		watch: {
@@ -556,6 +608,13 @@
 			},
 			isOrderTicket() {
 				return !!Object.keys(this.order).length;
+			},
+			custom_amount_items() {
+				if (this.isOrderTicket) {
+					return this.order.custom_amount_items;
+				} else {
+					return [];
+				}
 			}
 		},
 		mounted() {
@@ -572,6 +631,48 @@
 			this.getImages()
 		},
 		methods: {
+			addCustomPayment() {
+				this.$store.commit('SET_LOADING_STATUS', true);
+				axios
+					.post(PhoneRepairs.rest_root + '/order/' + this.order.id + '/custom-payment-amount', {
+						ticket_id: this.id,
+						amount: this.paymentAmount,
+					})
+					.then((response) => {
+						this.$store.commit('SET_LOADING_STATUS', false);
+						this.getItem();
+						this.showPaymentAmount = false;
+						this.$root.$emit('show-snackbar', {
+							message: 'New payment amount has been added.',
+						});
+					})
+					.catch((error) => {
+						console.log(error);
+						this.$store.commit('SET_LOADING_STATUS', false);
+					});
+			},
+			sendCustomPaymentLink(item) {
+				this.$store.commit('SET_LOADING_STATUS', true);
+				axios
+					.post(PhoneRepairs.rest_root + '/order/' + this.order.id + '/custom-payment-sms', {
+						ticket_id: item.support_id,
+						order_id: item.order_id,
+						amount: item.amount,
+						hash: item.hash,
+						media: this.customPaymentLinkMedia,
+					})
+					.then((response) => {
+						this.$store.commit('SET_LOADING_STATUS', false);
+						this.$root.$emit('show-snackbar', {
+							message: 'Email/SMS has been sent with custom payment link.',
+						});
+						this.getItem();
+					})
+					.catch((error) => {
+						console.log(error);
+						this.$store.commit('SET_LOADING_STATUS', false);
+					});
+			},
 			refreshMap(position, title) {
 				let googleMap = new google.maps.Map(this.$el.querySelector('#google-map'), {
 					zoom: 15,

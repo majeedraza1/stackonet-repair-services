@@ -1,6 +1,6 @@
 <template>
 	<div class="stackonet-payment-form">
-		<div class="item-details">
+		<div class="item-details" v-if="'custom' !== type">
 			<table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable">
 				<tr>
 					<td class="mdl-data-table__cell--non-numeric" colspan="2"
@@ -135,6 +135,9 @@
 			},
 			order_id() {
 				return StackonetPayment.order_id;
+			},
+			type() {
+				return StackonetPayment.type;
 			},
 			order() {
 				return StackonetPayment.order;
