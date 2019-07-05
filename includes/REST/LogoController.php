@@ -67,11 +67,11 @@ class LogoController extends ApiController {
 		);
 		$posts_array = get_posts( $args );
 
-		if ( ! count( $posts_array ) ) {
-			return $this->respondNotFound( null, 'No logo found.' );
-		}
-
 		$response = [];
+
+		if ( ! count( $posts_array ) ) {
+			return $this->respondOK( $response );
+		}
 
 		foreach ( $posts_array as $item ) {
 			$response[] = $this->prepare_item_for_response( $item->ID, $request );

@@ -125,6 +125,28 @@ class SupportTicket extends DatabaseModel {
 	protected $assigned_agents = [];
 
 	/**
+	 * Model constructor.
+	 *
+	 * @param array $data
+	 */
+	public function __construct( $data = [] ) {
+		if ( $data ) {
+			if ( isset( $data['ticket_id'] ) && is_numeric( $data['ticket_id'] ) ) {
+				$data['id'] = intval( $data['ticket_id'] );
+				unset( $data['ticket_id'] );
+
+				if ( isset( $data['meta_key'] ) ) {
+					unset( $data['meta_key'] );
+				}
+				if ( isset( $data['meta_value'] ) ) {
+					unset( $data['meta_value'] );
+				}
+			}
+		}
+		parent::__construct( $data );
+	}
+
+	/**
 	 * Array representation of the class
 	 *
 	 * @return array

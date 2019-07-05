@@ -71,6 +71,7 @@ class LeadToSupportTicket {
 			'city'            => ! empty( $address['city']['long_name'] ) ? $address['city']['long_name'] : '',
 			'user_type'       => 'guest',
 			'ticket_category' => get_option( 'wpsc_default_spot_appointment_category' ),
+			'agent_created'   => $appointment->get( 'created_by' ),
 		];
 
 		$supportTicket = new SupportTicket();

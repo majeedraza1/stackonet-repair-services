@@ -173,6 +173,7 @@ class RoleAndCapability {
 			[ 'administrator', 'editor', 'manager' ],
 			array_fill_keys( self::$twilio_message_capabilities, true )
 		);
+		self::add_capabilities_to_roles( [ 'agent' ], [ 'create_twilio_messages' => true ] );
 	}
 
 	/**

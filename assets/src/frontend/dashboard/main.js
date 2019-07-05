@@ -13,6 +13,5 @@ if (el) {
 
 let el2 = document.querySelector('#stackonet_repair_services_dashboard_login');
 if (el2) {
-	axios.defaults.headers.common['X-WP-Nonce'] = window.PhoneRepairs.rest_nonce;
 	new Vue({el: el2, store, router, render: h => h(LoginForm)});
 }

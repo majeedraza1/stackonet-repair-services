@@ -803,6 +803,9 @@
 						if (error.response.status === 422 && error.response.data) {
 							alert(error.response.data.message);
 						}
+						if (error.response.status === 401 && error.response.data) {
+							alert(error.response.data.message);
+						}
 					});
 			},
 			agentSmsChanged() {
