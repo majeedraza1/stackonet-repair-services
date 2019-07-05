@@ -5,6 +5,7 @@ namespace Stackonet\Modules\SupportTicket;
 use DateTime;
 use Exception;
 use Stackonet\Abstracts\DatabaseModel;
+use Stackonet\Supports\Utils;
 use WP_Post;
 use WP_Term;
 use WP_Term_Query;
@@ -125,6 +126,11 @@ class SupportTicket extends DatabaseModel {
 	protected $assigned_agents = [];
 
 	/**
+	 * @var array
+	 */
+	private $ticket_threads = [];
+
+	/**
 	 * Model constructor.
 	 *
 	 * @param array $data
@@ -164,6 +170,7 @@ class SupportTicket extends DatabaseModel {
 		$data['updated_human_time'] = $this->updated_human_time();
 		$data['created_via']        = $this->created_via();
 		$data['belongs_to_id']      = $this->belongs_to_id();
+		$data['last_note_diff']     = $this->get_last_note_diff();
 
 		return $data;
 	}
@@ -200,10 +207,59 @@ class SupportTicket extends DatabaseModel {
 	/**
 	 * Get ticket threads
 	 *
-	 * @return WP_Post[]
+	 * @return TicketThread[]
 	 */
 	public function get_ticket_threads() {
-		return ( new TicketThread() )->find_by_ticket_id( $this->get_ticket_id() );
+		if ( empty( $this->ticket_threads ) ) {
+			$this->ticket_threads = ( new TicketThread() )->find_by_ticket_id( $this->get_ticket_id() );
+		}
+
+		return $this->ticket_threads;
+	}
+
+	/**
+	 * Get ticket notes
+	 *
+	 * @return array
+	 */
+	public function get_ticket_notes() {
+		$_threads = $this->get_ticket_threads();
+		$threads  = [];
+		foreach ( $_threads as $thread ) {
+			if ( 'note' == $thread->get_type() ) {
+				$threads[] = $thread;
+			}
+		}
+
+		return $threads;
+	}
+
+	/**
+	 * Get last note
+	 *
+	 * @return array|TicketThread
+	 */
+	public function get_last_ticket_note() {
+		$notes = $this->get_ticket_notes();
+
+		return isset( $notes[0] ) && ( $notes[0] instanceof TicketThread ) ? $notes[0] : [];
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function get_last_note_diff() {
+		$note = $this->get_last_ticket_note();
+		if ( $note instanceof TicketThread ) {
+			$timeZone    = Utils::get_timezone();
+			$dateCreated = new DateTime( $note->get_created(), $timeZone );
+			$now         = new DateTime( 'now', $timeZone );
+			$diff        = $now->diff( $dateCreated );
+
+			return $diff->m + ( $diff->h * 60 ) + ( $diff->days * 24 * 60 );
+		}
+
+		return 0;
 	}
 
 	/**

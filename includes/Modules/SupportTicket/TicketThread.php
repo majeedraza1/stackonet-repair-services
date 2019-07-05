@@ -21,7 +21,7 @@ class TicketThread extends PostTypeModel {
 	 *
 	 * @var array
 	 */
-	protected $valid_thread_types = [ 'report', 'log', 'reply' ];
+	protected $valid_thread_types = [ 'report', 'log', 'reply', 'note', 'sms', 'email' ];
 
 	/**
 	 * WP_Post class
@@ -78,7 +78,7 @@ class TicketThread extends PostTypeModel {
 			'thread_content'      => $this->get( 'content' ),
 			'thread_date'         => $this->get( 'created' ),
 			'human_time'          => $human_time,
-			'thread_type'         => $this->get( 'type' ),
+			'thread_type'         => $this->get_type(),
 			'customer_name'       => $this->get( 'customer_name' ),
 			'customer_email'      => $this->get( 'customer_email' ),
 			'customer_avatar_url' => $this->get_avatar_url(),
@@ -97,6 +97,24 @@ class TicketThread extends PostTypeModel {
 		}
 
 		return $this->avatar_url;
+	}
+
+	/**
+	 * Get thread type
+	 *
+	 * @return string
+	 */
+	public function get_type() {
+		return $this->get( 'type' );
+	}
+
+	/**
+	 * Get created at
+	 *
+	 * @return string
+	 */
+	public function get_created() {
+		return $this->get( 'created' );
 	}
 
 	/**

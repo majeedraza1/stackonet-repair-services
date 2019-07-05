@@ -4,6 +4,7 @@ namespace Stackonet\Supports;
 
 use DateTimeZone;
 use Exception;
+use Stackonet\DateTime\WpDateTimeZone;
 use Stackonet\Integrations\FirebaseDynamicLinks;
 use Stackonet\Models\Settings;
 use WC_Order;
@@ -108,27 +109,7 @@ class Utils {
 	 * @return DateTimeZone The blog timezone
 	 */
 	public static function get_timezone() {
-		$timezone_string = get_option( 'timezone_string' );
-		$offset          = get_option( 'gmt_offset' );
-
-		//Manual offset...
-		//@see http://us.php.net/manual/en/timezones.others.php
-		//@see https://bugs.php.net/bug.php?id=45543
-		//@see https://bugs.php.net/bug.php?id=45528
-		//IANA timezone database that provides PHP's timezone support uses POSIX (i.e. reversed) style signs
-		if ( empty( $timezone_string ) && 0 != $offset && floor( $offset ) == $offset ) {
-			$offset_st       = $offset > 0 ? "-$offset" : '+' . absint( $offset );
-			$timezone_string = 'Etc/GMT' . $offset_st;
-		}
-
-		//Issue with the timezone selected, set to 'UTC'
-		if ( empty( $timezone_string ) ) {
-			$timezone_string = 'UTC';
-		}
-
-		$timezone = new DateTimeZone( $timezone_string );
-
-		return $timezone;
+		return WpDateTimeZone::getWpTimezone();
 	}
 
 

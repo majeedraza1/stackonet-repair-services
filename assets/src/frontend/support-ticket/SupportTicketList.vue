@@ -49,6 +49,11 @@
 					<a v-else href="#" @click.prevent="onActionClick(action.key, data.row)">{{ action.label }}</a>
 					<template v-if="!hideActionSeparator(action.key)"> | </template>
 				</span>
+				<span class="note-status-circle-container" v-if="data.row.last_note_diff > 0">
+					<template> | </template>
+					<span class="note-status-circle"
+						  :class="getCircleColor(data.row.last_note_diff)"></span>
+				</span>
 			</template>
 			<template slot="filters">
 				<label for="filter-address" class="screen-reader-text">Filter by status</label>
@@ -190,6 +195,13 @@
 			},
 		},
 		methods: {
+			getCircleColor(last_note_diff) {
+				return {
+					'is-green': last_note_diff <= 1440,
+					'is-yellow': last_note_diff > 1440 && 4320 >= last_note_diff,
+					'is-red': last_note_diff > 4320,
+				}
+			},
 			openNewTicket() {
 				this.$router.push({name: 'NewSupportTicket'});
 			},
@@ -365,6 +377,11 @@
 	.stackont-support-ticket-container {
 
 		.row-actions {
+			display: flex;
+			justify-content: flex-start;
+			align-items: center;
+			visibility: visible;
+
 			> span {
 				&:not(:last-child) a {
 					margin-right: 10px;
@@ -373,6 +390,32 @@
 				&:not(:first-child) a {
 					margin-left: 10px;
 				}
+			}
+		}
+
+		.note-status-circle {
+			border: 4px solid #ddd;
+			border-radius: 50%;
+			display: inline-flex;
+			height: 16px;
+			width: 16px;
+			margin-left: 10px;
+			margin-top: 2px;
+
+			&.is-green {
+				border: 4px solid #43A047;
+			}
+
+			&.is-yellow {
+				border: 4px solid #f58730;
+			}
+
+			&.is-red {
+				border: 4px solid #b00020;
+			}
+
+			&-container {
+				display: flex;
 			}
 		}
 

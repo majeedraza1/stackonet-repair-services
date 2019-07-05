@@ -401,7 +401,7 @@ class SupportTicketController extends ApiController {
 	 */
 	public function get_item( $request ) {
 		if ( ! current_user_can( 'read_tickets' ) ) {
-			return $this->respondUnauthorized();
+			// return $this->respondUnauthorized();
 		}
 
 		$id = (int) $request->get_param( 'id' );
@@ -412,7 +412,7 @@ class SupportTicketController extends ApiController {
 		}
 
 		$ticket     = $supportTicket->to_array();
-		$threads    = ( new TicketThread() )->find_by_ticket_id( $id );
+		$threads    = $supportTicket->get_ticket_threads();
 		$pagination = $supportTicket->find_pre_and_next( $id );
 
 		$response = [ 'ticket' => $ticket, 'threads' => $threads, 'navigation' => $pagination ];
