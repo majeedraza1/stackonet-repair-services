@@ -10,12 +10,14 @@ import SpotAppointment from "./pages/SpotAppointment";
 import CheckoutAnalysis from "./pages/CheckoutAnalysis";
 import ShortMessageService from "./pages/ShortMessageService";
 import Report from "./pages/Report";
+import Map from "./pages/Map";
 
 Vue.use(VueRouter);
 
 const routes = [
 	{path: '/', name: 'Dashboard', component: Dashboard},
 	{path: '/report', name: 'Report', component: Report},
+	{path: '/map', name: 'Map', component: Map},
 	{path: '/ticket', name: 'SupportTicketList', component: SupportTicketList},
 	{path: '/ticket/:id/view', name: 'SingleSupportTicket', component: SingleSupportTicket},
 	{path: '/ticket/new', name: 'NewSupportTicket', component: NewSupportTicket},
