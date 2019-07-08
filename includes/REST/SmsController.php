@@ -327,7 +327,8 @@ class SmsController extends ApiController {
 			if ( empty( $agent->get_phone_number() ) ) {
 				continue;
 			}
-			$items[] = [
+			$registered = $agent->get_user()->user_registered;
+			$items[]    = [
 				'agent_id' => $agent->get_user()->ID,
 				'name'     => $agent->get_user()->display_name,
 				'phone'    => $agent->get_phone_number(),
@@ -347,7 +348,11 @@ class SmsController extends ApiController {
 	 * @return array
 	 */
 	private function get_survey( $date_from, $date_to ) {
-		$survey = ( new Survey() )->find( [ 'per_page' => 100 ] );
+		$survey = ( new Survey() )->find( [
+			'per_page'  => 100,
+			'date_from' => $date_from,
+			'date_to'   => $date_to,
+		] );
 		$items  = [];
 		foreach ( $survey as $agent ) {
 			if ( empty( $agent->get( 'phone' ) ) ) {
@@ -373,7 +378,11 @@ class SmsController extends ApiController {
 	 * @return array
 	 */
 	private function get_appointment( $date_from, $date_to ) {
-		$survey = ( new Appointment() )->find( [ 'per_page' => 100 ] );
+		$survey = ( new Appointment() )->find( [
+			'per_page'  => 100,
+			'date_from' => $date_from,
+			'date_to'   => $date_to,
+		] );
 		$items  = [];
 		foreach ( $survey as $agent ) {
 			if ( empty( $agent->get( 'phone' ) ) ) {
@@ -399,7 +408,11 @@ class SmsController extends ApiController {
 	 * @return array
 	 */
 	private function get_carrier_stores( $date_from, $date_to ) {
-		$survey = ( new CarrierStore() )->find( [ 'per_page' => 100 ] );
+		$survey = ( new CarrierStore() )->find( [
+			'per_page'  => 100,
+			'date_from' => $date_from,
+			'date_to'   => $date_to,
+		] );
 		$items  = [];
 		foreach ( $survey as $agent ) {
 			if ( empty( $agent->get( 'phone' ) ) ) {

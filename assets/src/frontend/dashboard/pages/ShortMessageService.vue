@@ -62,7 +62,7 @@
 
 					<columns>
 						<column>
-							<mdl-table :rows="items" :columns="columns" :total-items="items.length"
+							<mdl-table :rows="items" :columns="columns" :total-items="items.length" :mobile-width="300"
 									   @checkedItems="checkedItems" :per-page="items.length" index="phone"></mdl-table>
 						</column>
 						<column>

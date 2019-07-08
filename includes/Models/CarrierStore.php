@@ -241,6 +241,12 @@ class CarrierStore extends DatabaseModel {
 			$query .= " AND deleted_at IS NULL";
 		}
 
+		$date_from = ! empty( $args['date_from'] ) ? $args['date_from'] : null;
+		$date_to   = ! empty( $args['date_to'] ) ? $args['date_to'] : null;
+		if ( ! empty( $date_from ) && ! empty( $date_to ) ) {
+			$query .= $wpdb->prepare( " AND DATE(created_at) between %s and %s", $date_from, $date_to );
+		}
+
 		$query   .= " ORDER BY {$orderby} {$order}";
 		$query   .= $wpdb->prepare( " LIMIT %d OFFSET %d", $per_page, $offset );
 		$results = $wpdb->get_results( $query, ARRAY_A );
