@@ -538,20 +538,25 @@ class SupportTicket extends DatabaseModel {
 
 	/**
 	 * Get current user agent id
+	 *
+	 * @param int $user_id
+	 *
+	 * @return int|mixed
 	 */
-	public static function get_current_user_agent_id() {
-		if ( empty( self::$current_user_agent_id ) ) {
-			$agents  = SupportAgent::get_all();
+	public static function get_current_user_agent_id( $user_id = 0 ) {
+		$current_user_agent_id = 0;
+		$agents                = SupportAgent::get_all();
+		if ( empty( $user_id ) ) {
 			$user_id = get_current_user_id();
+		}
 
-			foreach ( $agents as $agent ) {
-				if ( $agent->get_user()->ID == $user_id ) {
-					self::$current_user_agent_id = $agent->get( 'term_id' );
-				}
+		foreach ( $agents as $agent ) {
+			if ( $agent->get_user()->ID == $user_id ) {
+				$current_user_agent_id = $agent->get( 'term_id' );
 			}
 		}
 
-		return self::$current_user_agent_id;
+		return $current_user_agent_id;
 	}
 
 	/**
@@ -572,6 +577,7 @@ class SupportTicket extends DatabaseModel {
 		}
 		$order         = isset( $args['order'] ) && 'ASC' == $args['order'] ? 'ASC' : 'DESC';
 		$ticket_status = isset( $args['ticket_status'] ) ? $args['ticket_status'] : 'all';
+		$agent         = isset( $args['agent'] ) && is_numeric( $args['agent'] ) ? intval( $args['agent'] ) : 0;
 
 		global $wpdb;
 		$table      = $wpdb->prefix . $this->table;
@@ -579,15 +585,19 @@ class SupportTicket extends DatabaseModel {
 
 		$query = "SELECT * FROM {$table}";
 
-		if ( ! current_user_can( 'read_others_tickets' ) ) {
+		if ( ! current_user_can( 'read_others_tickets' ) || $agent > 0 ) {
 			$query .= " LEFT JOIN {$meta_table} as mt ON {$table}.id = mt.ticket_id";
 		}
 
 		$query .= " WHERE 1=1";
 
-		if ( ! current_user_can( 'read_others_tickets' ) ) {
-			$user_id  = get_current_user_id();
-			$agent_id = self::get_current_user_agent_id();
+		if ( ! current_user_can( 'read_others_tickets' ) || $agent > 0 ) {
+			if ( $agent > 0 ) {
+				$user_id = $agent;
+			} else {
+				$user_id = get_current_user_id();
+			}
+			$agent_id = self::get_current_user_agent_id( $user_id );
 			$query    .= " AND(";
 			if ( ! empty( $agent_id ) ) {
 				$query .= $wpdb->prepare( " (mt.meta_key = %s AND mt.meta_value = %d) OR", 'assigned_agent', $agent_id );
@@ -672,7 +682,7 @@ class SupportTicket extends DatabaseModel {
 
 			if ( ! current_user_can( 'read_others_tickets' ) ) {
 				$user_id  = get_current_user_id();
-				$agent_id = self::get_current_user_agent_id();
+				$agent_id = self::get_current_user_agent_id( $user_id );
 				$query    .= " AND(";
 				if ( ! empty( $agent_id ) ) {
 					$query .= $wpdb->prepare( " (mt.meta_key = %s AND mt.meta_value = %d) OR", 'assigned_agent', $agent_id );
@@ -918,7 +928,7 @@ class SupportTicket extends DatabaseModel {
 
 			if ( ! current_user_can( 'read_others_tickets' ) ) {
 				$user_id  = get_current_user_id();
-				$agent_id = self::get_current_user_agent_id();
+				$agent_id = self::get_current_user_agent_id( $user_id );
 				$query    .= " AND(";
 				if ( ! empty( $agent_id ) ) {
 					$query .= $wpdb->prepare( " (mt.meta_key = %s AND mt.meta_value = %d) OR", 'assigned_agent', $agent_id );

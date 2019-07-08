@@ -51,14 +51,14 @@
 <script>
 	import {columns, column} from 'shapla-columns';
 	import draggable from 'vuedraggable'
+	import deleteIcon from "shapla-delete";
 	import Icon from "../../../shapla/icon/icon";
-	import DeleteIcon from "../../../shapla/delete/deleteIcon";
 	import SearchBox from "../../../components/SearchBox";
 	import MdlButton from "../../../material-design-lite/button/mdlButton";
 
 	export default {
 		name: "Map",
-		components: {MdlButton, SearchBox, DeleteIcon, Icon, columns, column, draggable},
+		components: {MdlButton, SearchBox, deleteIcon, Icon, columns, column, draggable},
 		data: () => {
 			return {
 				googleMap: '',

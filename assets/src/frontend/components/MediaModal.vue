@@ -33,7 +33,7 @@
 	import DropzoneUploader from './DropzoneUploader';
 	import {columns, column} from 'shapla-columns';
 	import modal from 'shapla-modal';
-	import deleteIcon from '../../shapla/delete/deleteIcon';
+	import deleteIcon from 'shapla-delete';
 
 	export default {
 		name: "MediaModal",

@@ -69,26 +69,26 @@
 				</div>
 			</main>
 		</div>
-		<div class="stackonet-dashboard-loader" :class="{'is-active':loading}">
-			<mdl-spinner :active="loading"></mdl-spinner>
-		</div>
+		<spinner :active="loading"></spinner>
+		<notification ref="notify"></notification>
 		<mdl-snackbar></mdl-snackbar>
 	</div>
 </template>
 
 <script>
 	import {mapState, mapGetters} from 'vuex';
+	import notification from 'shapla-notifications';
+	import spinner from "shapla-spinner";
 	import {MaterialLayout} from '../../material-design-lite/layout/MaterialLayout'
 	import {MaterialMenu} from '../../material-design-lite/menu/MaterialMenu'
 	import MdlButton from "../../material-design-lite/button/mdlButton";
-	import MdlSpinner from "../../material-design-lite/spinner/mdlSpinner";
 	import MdlSnackbar from "../../material-design-lite/snackbar/mdlSnackbar";
 	import Icon from "../../shapla/icon/icon";
 	import ImageContainer from "../../shapla/image/image";
 
 	export default {
 		name: "App",
-		components: {MdlSnackbar, MdlSpinner, ImageContainer, MdlButton, Icon},
+		components: {MdlSnackbar, spinner, ImageContainer, MdlButton, Icon, notification},
 		mounted() {
 			let el = this.$el;
 			new MaterialLayout(el.querySelector('.stackonet-dashboard'));
@@ -108,6 +108,7 @@
 <style lang="scss">
 	@import "../../material-design-lite/layout/layout";
 	@import "../../material-design-lite/menu/menu";
+	@import "~shapla-notifications/src/notification";
 	@import "dashboard";
 
 	body.has-shapla-modal {
@@ -118,6 +119,12 @@
 
 		#wpadminbar {
 			display: none;
+		}
+	}
+
+	body.admin-bar {
+		.shapla-notification {
+			top: 40px;
 		}
 	}
 

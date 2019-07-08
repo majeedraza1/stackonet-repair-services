@@ -202,6 +202,7 @@ class SupportTicketController extends ApiController {
 		$paged           = $request->get_param( 'paged' );
 		$city            = $request->get_param( 'city' );
 		$search          = $request->get_param( 'search' );
+		$agent           = $request->get_param( 'agent' );
 
 		$status          = ! empty( $status ) ? $status : 'all';
 		$ticket_category = ! empty( $ticket_category ) ? $ticket_category : 'all';
@@ -213,7 +214,10 @@ class SupportTicketController extends ApiController {
 		$supportTicket = new SupportTicket;
 
 		if ( ! empty( $search ) ) {
-			$items = $supportTicket->search( [ 'search' => $search, 'ticket_category' => $ticket_category ] );
+			$items = $supportTicket->search( [
+				'search'          => $search,
+				'ticket_category' => $ticket_category
+			] );
 		} else {
 			$items = $supportTicket->find( [
 				'paged'           => $paged,
@@ -222,6 +226,7 @@ class SupportTicketController extends ApiController {
 				'ticket_category' => $ticket_category,
 				'ticket_priority' => $ticket_priority,
 				'city'            => $city,
+				'agent'           => $agent,
 			] );
 		}
 		$counts = $supportTicket->count_records();

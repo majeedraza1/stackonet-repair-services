@@ -1,7 +1,7 @@
 <template>
 	<div class="stackont-support-ticket-container">
-		<div class="display-flex justify-space-between">
-			<div class="flex-item display-flex align-items-start">
+		<div class="display-flex justify-space-between" style="flex-wrap: wrap">
+			<div class="flex-item display-flex align-items-start" style="flex-wrap: wrap">
 				<mdl-button type="raised" color="primary" @click="openNewTicket">
 					<icon><i class="fa fa-plus" aria-hidden="true"></i></icon>
 					New Ticket
@@ -79,6 +79,11 @@
 					<option value="all">All Cities</option>
 					<option :value="_city" v-for="_city in cities">{{_city}}</option>
 				</select>
+				<label for="filter-agent" class="screen-reader-text">Filter by Priority</label>
+				<select id="filter-agent" v-model="agent" @change="changeStatus">
+					<option value="all">All Agents</option>
+					<option :value="_agent.id" v-for="_agent in support_agents">{{_agent.display_name}}</option>
+				</select>
 				<mdl-button type="raised" color="default" @click="clearFilter">Clear Filter</mdl-button>
 			</template>
 		</mdl-table>
@@ -94,6 +99,7 @@
 </template>
 
 <script>
+	import {mapGetters} from 'vuex';
 	import axios from 'axios';
 	import modal from 'shapla-modal'
 	import mdlTable from '../../material-design-lite/data-table/mdlTable'
@@ -136,6 +142,7 @@
 				category: 'all',
 				priority: 'all',
 				city: 'all',
+				agent: 'all',
 				query: '',
 				activeItem: {},
 				activeNoteModal: false,
@@ -156,6 +163,7 @@
 			this.search_categories = SupportTickets.search_categories;
 		},
 		computed: {
+			...mapGetters(['support_agents']),
 			dropdownCategories() {
 				let _categories = [{label: 'All', value: 'all'}], self = this;
 				self.default_categories.forEach(function (element) {
@@ -233,7 +241,7 @@
 			categorySearch(data) {
 				let self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
-				let parms = `ticket_status=${self.status}&ticket_category=${data.cat}&ticket_priority=${self.priority}&paged=${self.currentPage}&city=${self.city}&search=${data.query}`;
+				let parms = `ticket_status=${self.status}&ticket_category=${data.cat}&ticket_priority=${self.priority}&paged=${self.currentPage}&city=${self.city}&agent=${self.agent}&search=${data.query}`;
 				axios
 					.get(PhoneRepairs.rest_root + `/support-ticket?${parms}`)
 					.then((response) => {
@@ -258,7 +266,7 @@
 			getItems() {
 				let self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
-				let parms = `ticket_status=${self.status}&ticket_category=${self.category}&ticket_priority=${self.priority}&paged=${self.currentPage}&city=${self.city}&search=${self.query}`;
+				let parms = `ticket_status=${self.status}&ticket_category=${self.category}&ticket_priority=${self.priority}&paged=${self.currentPage}&city=${self.city}&agent=${self.agent}&search=${self.query}`;
 				axios
 					.get(PhoneRepairs.rest_root + `/support-ticket?${parms}`)
 					.then((response) => {
@@ -267,6 +275,10 @@
 						self.items = data.items;
 						self.counts = data.counts;
 						self.pagination = data.pagination;
+						// self.$root.$emit('show-notification', {
+						// 	type: 'info',
+						// 	message: 'Data has been updated.',
+						// });
 					})
 					.catch((error) => {
 						console.log(error);

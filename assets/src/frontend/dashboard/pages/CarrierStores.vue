@@ -142,10 +142,6 @@
 
 		<big-button fullwidth @click="handleSubmit">Submit</big-button>
 
-		<div class="loading-container" :class="{'is-active':loading}">
-			<mdl-spinner :active="loading"></mdl-spinner>
-		</div>
-
 		<modal :active="open_thank_you_model" type="box" @close="closeThankYouModel">
 			<div class="mdl-box mdl-shadow--2dp">
 				<h3>Data has been submitted successfully.</h3>
@@ -164,7 +160,6 @@
 	import BigButton from '../../../components/BigButton';
 	import imageContainer from '../../../shapla/image/image';
 	import mdlRadio from '../../../material-design-lite/radio/mdlRadio';
-	import mdlSpinner from '../../../material-design-lite/spinner/mdlSpinner';
 	import mdlButton from '../../../material-design-lite/button/mdlButton';
 	import gMapAutocomplete from '../../components/gMapAutocomplete'
 	import MediaModal from '../../components/MediaModal'
@@ -175,7 +170,6 @@
 			AnimatedInput,
 			BigButton,
 			mdlRadio,
-			mdlSpinner,
 			modal,
 			gMapAutocomplete,
 			mdlButton,
@@ -261,7 +255,7 @@
 		},
 		mounted() {
 			let self = this;
-			this.loading = false;
+			this.$store.commit('SET_LOADING_STATUS', false);
 			this.$store.commit('SET_TITLE', 'Carrier Stores');
 			this.getImages();
 			if (navigator.geolocation) {
@@ -289,6 +283,7 @@
 				});
 
 			}
+
 		},
 		methods: {
 			closeThankYouModel() {

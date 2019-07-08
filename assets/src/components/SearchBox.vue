@@ -19,11 +19,11 @@
 </template>
 
 <script>
-	import DeleteIcon from "../shapla/delete/deleteIcon";
+	import deleteIcon from "shapla-delete";
 
 	export default {
 		name: "SearchBox",
-		components: {DeleteIcon},
+		components: {deleteIcon},
 		props: {
 			value: {type: String, default: ''},
 			disabled: {type: Boolean, default: false}
