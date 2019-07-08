@@ -171,6 +171,7 @@ class SupportTicket extends DatabaseModel {
 		$data['created_via']        = $this->created_via();
 		$data['belongs_to_id']      = $this->belongs_to_id();
 		$data['last_note_diff']     = $this->get_last_note_diff();
+		$data['called_to_customer'] = $this->called_to_customer();
 
 		return $data;
 	}
@@ -202,6 +203,17 @@ class SupportTicket extends DatabaseModel {
 		$belongs_to_id = ( new SupportTicket )->get_metadata( $this->get_ticket_id(), 'belongs_to_id' );
 
 		return isset( $belongs_to_id[0] ) ? intval( $belongs_to_id[0] ) : 0;
+	}
+
+	/**
+	 * Called to customer
+	 *
+	 * @return string
+	 */
+	public function called_to_customer() {
+		$called = ( new static )->get_metadata( $this->get_ticket_id(), '_called_to_customer' );
+
+		return isset( $called[0] ) && ( 'yes' == $called[0] ) ? 'yes' : 'no';
 	}
 
 	/**
@@ -521,6 +533,8 @@ class SupportTicket extends DatabaseModel {
 	 * @param string $meta_key
 	 * @param mixed $meta_value
 	 * @param int $meta_id
+	 *
+	 * @return int
 	 */
 	public function update_metadata( $ticket_id, $meta_key, $meta_value, $meta_id = 0 ) {
 		global $wpdb;
@@ -534,6 +548,8 @@ class SupportTicket extends DatabaseModel {
 			$data['id'] = $meta_id;
 		}
 		$wpdb->insert( $table, $data );
+
+		return $meta_id ? $meta_id : $wpdb->insert_id;
 	}
 
 	/**

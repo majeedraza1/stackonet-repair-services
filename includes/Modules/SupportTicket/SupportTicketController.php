@@ -65,6 +65,10 @@ class SupportTicketController extends ApiController {
 			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_agent' ] ],
 		] );
 
+		register_rest_route( $this->namespace, '/support-ticket/(?P<id>\d+)/call', [
+			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'mark_as_called' ] ],
+		] );
+
 		register_rest_route( $this->namespace, '/support-ticket/(?P<id>\d+)/sms', [
 			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'send_sms' ] ],
 		] );
@@ -93,6 +97,30 @@ class SupportTicketController extends ApiController {
 		register_rest_route( $this->namespace, '/support-ticket/batch_delete', [
 			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'delete_items' ] ],
 		] );
+	}
+
+	/**
+	 * Retrieves a collection of devices.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
+	 */
+	public function mark_as_called( $request ) {
+		if ( ! current_user_can( 'read_tickets' ) ) {
+			return $this->respondUnauthorized();
+		}
+
+		$ticket_id = (int) $request->get_param( 'id' );
+		$ticket    = ( new SupportTicket() )->find_by_id( $ticket_id );
+
+		if ( ! $ticket instanceof SupportTicket ) {
+			return $this->respondNotFound( null, 'No ticket found.' );
+		}
+
+		$ticket->update_metadata( $ticket_id, '_called_to_customer', 'yes' );
+
+		return $this->respondOK( [ $ticket_id ] );
 	}
 
 	/**

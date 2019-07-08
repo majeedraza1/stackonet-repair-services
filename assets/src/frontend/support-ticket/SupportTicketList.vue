@@ -49,6 +49,13 @@
 					<a v-else href="#" @click.prevent="onActionClick(action.key, data.row)">{{ action.label }}</a>
 					<template v-if="!hideActionSeparator(action.key)"> | </template>
 				</span>
+				<span class="call" v-if="data.row.customer_phone">
+					<template> | </template>
+					<a :href="`tel:${data.row.customer_phone}`" @click="markAsCalled(data.row)">
+						<template v-if="data.row.called_to_customer === 'yes'">Called</template>
+						<template v-else>Call</template>
+					</a>
+				</span>
 				<span class="note-status-circle-container" v-if="data.row.last_note_diff > 0">
 					<template> | </template>
 					<span class="note-status-circle"
@@ -95,6 +102,11 @@
 				<mdl-button @click="saveNote">Save Note</mdl-button>
 			</div>
 		</modal>
+		<modal :active="activeQuickViewModal" @close="activeQuickViewModal = false" title="Quick View">
+			<template v-if="activeQuickViewItem.threads">
+				<ticket-threads :threads="activeQuickViewItem.threads"></ticket-threads>
+			</template>
+		</modal>
 	</div>
 </template>
 
@@ -109,10 +121,11 @@
 	import wpBulkActions from '../../wp/wpBulkActions'
 	import Icon from "../../shapla/icon/icon";
 	import Search from "../../shapla/search/Search";
+	import TicketThreads from "./TicketThreads";
 
 	export default {
 		name: "SupportTicketList",
-		components: {Icon, mdlTable, mdlButton, wpStatusList, wpPagination, wpBulkActions, modal, Search},
+		components: {TicketThreads, Icon, mdlTable, mdlButton, wpStatusList, wpPagination, wpBulkActions, modal, Search},
 		data() {
 			return {
 				loading: false,
@@ -146,6 +159,8 @@
 				query: '',
 				activeItem: {},
 				activeNoteModal: false,
+				activeQuickViewModal: false,
+				activeQuickViewItem: {},
 				note: '',
 			}
 		},
@@ -190,6 +205,7 @@
 
 				return [
 					{key: 'view', label: 'View'},
+					{key: 'quick_view', label: 'Quick View'},
 					{key: 'note', label: 'Note'},
 					// {key: 'trash', label: 'Trash'}
 				];
@@ -203,6 +219,19 @@
 			},
 		},
 		methods: {
+			getQuickViewItem(item_id) {
+				this.$store.commit('SET_LOADING_STATUS', true);
+				axios
+					.get(PhoneRepairs.rest_root + '/support-ticket/' + item_id)
+					.then((response) => {
+						this.$store.commit('SET_LOADING_STATUS', false);
+						this.activeQuickViewItem = response.data.data;
+					})
+					.catch((error) => {
+						console.log(error);
+						this.$store.commit('SET_LOADING_STATUS', false);
+					});
+			},
 			getCircleColor(last_note_diff) {
 				return {
 					'is-green': last_note_diff <= 1440,
@@ -212,6 +241,19 @@
 			},
 			openNewTicket() {
 				this.$router.push({name: 'NewSupportTicket'});
+			},
+			markAsCalled(data) {
+				console.log(data);
+				this.$store.commit('SET_LOADING_STATUS', true);
+				axios
+					.put(PhoneRepairs.rest_root + `/support-ticket/${data.id}/call`)
+					.then((response) => {
+						this.$store.commit('SET_LOADING_STATUS', false);
+					})
+					.catch((error) => {
+						this.$store.commit('SET_LOADING_STATUS', false);
+						console.log(error);
+					});
 			},
 			getAssignedAgents(data) {
 				if (data.length < 1) return 'None';
@@ -318,6 +360,11 @@
 			onActionClick(action, item) {
 				if ('view' === action) {
 					this.$router.push({name: 'SingleSupportTicket', params: {id: item.id}});
+				}
+				if ('quick_view' === action) {
+					this.activeQuickViewModal = true;
+					this.activeQuickViewItem = item;
+					this.getQuickViewItem(item.id);
 				}
 				if ('note' === action) {
 					this.activeNoteModal = true;
