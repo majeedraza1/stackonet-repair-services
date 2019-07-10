@@ -7,7 +7,7 @@
 				   @input="triggerInput($event)">
 		</div>
 		<div class="mdl-slider__reset" title="Reset to default value" @click="resetToDefault" v-show="showReset">
-			<mdl-button type="icon" color="primary">
+			<mdl-button type="raised" color="primary">
 				<svg class="mdl-slider__reset-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
 					 viewBox="0 0 24 24">
 					<path fill="none" d="M0 0h24v24H0V0z"></path>

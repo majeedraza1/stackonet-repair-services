@@ -132,7 +132,7 @@ class DashboardPage {
 
 		if ( current_user_can( 'read_tickets' ) ) {
 			$menu[] = [ 'router' => '/ticket', 'label' => 'Support' ];
-			// $menu[] = [ 'router' => '/map', 'label' => 'Map' ];
+			$menu[] = [ 'router' => '/map', 'label' => 'Map' ];
 		}
 
 		if ( current_user_can( 'read_surveys' ) ) {

@@ -1,8 +1,8 @@
 <template>
 	<div class="g-map-autocomplete">
 		<animated-input
-			type="textarea"
 			id="g-map-autocomplete-address"
+			:type="type"
 			:label="label"
 			:value="formatted_address"
 			@input="handleInputEvent"
@@ -20,6 +20,7 @@
 			label: {type: String, default: 'Address'},
 			value: {type: String, default: ''},
 			geolocation: {type: Boolean, default: false},
+			type: {type: String, default: 'textarea'}
 		},
 		data() {
 			return {

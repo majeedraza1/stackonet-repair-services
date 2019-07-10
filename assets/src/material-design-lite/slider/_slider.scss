@@ -1,7 +1,7 @@
 @import "../variables";
 
 .mdl-slider {
-	max-width: 25em;
+	max-width: 100%;
 	display: flex;
 	align-items: center;
 
@@ -11,7 +11,7 @@
 		height: 5px;
 		padding: 0;
 		transition: background 0.3s;
-		width: 200px;
+		width: 100%;
 
 		&:focus {
 			box-shadow: none;
@@ -80,6 +80,9 @@
 		padding: 0 10px;
 
 		.mdl-slider__input {
+			border: 1px solid $range-color;
+			border-radius: 4px;
+			height: 36px;
 			width: 4em;
 		}
 	}
@@ -88,18 +91,24 @@
 		display: inline-flex;
 		float: left;
 
+		.mdl-button {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
 		&-icon {
-			padding: 4px;
+			// padding: 4px;
 		}
 	}
 }
 
 .mdl-slider__reset-icon {
 	.mdl-button--colored & {
-		fill: unquote("rgb(#{$color-primary})");
+		fill: currentColor;
 	}
 
 	.mdl-button--accent & {
-		fill: unquote("rgb(#{$color-accent})");
+		fill: currentColor;
 	}
 }
