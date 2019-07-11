@@ -9,17 +9,10 @@
 				</div>
 
 				<div class="places-box">
-					<div
-						class="places-box__item mdl-shadow--4dp"
-						v-for="(_place, index) in places"
-						:key="index"
-						:class="itemClass(_place)"
-						@click="selectPlace(_place)"
-					>
-						<div class="places-box__name">{{_place.name}}</div>
-						<div class="places-box__formatted_address">{{_place.formatted_address}}</div>
-						<div class="places-box__formatted_distance" v-html="metres_to_km(_place.distance)"></div>
-					</div>
+					<address-box
+						v-for="(_place, index) in places" :key="index + 100" :place="_place"
+						:active="(-1 !== selectedPlaces.indexOf(_place))" @click="selectPlace"
+					/>
 					<div class="places-box__more" v-if="hasNextPage">
 						<mdl-button type="raised" color="primary" style="width: 100%;" @click="loadMore">Load More
 						</mdl-button>
@@ -35,24 +28,49 @@
 							{{!showDateTime ? 'Show Time':'Hide Time'}}
 						</mdl-button>
 					</div>
-					<draggable v-model="selectedPlaces" class="shapla-columns is-multiline">
-						<column :tablet="6" v-for="(_place, index) in selectedPlaces" :key="index">
-							<div class="places-box__item places-box__selected-item mdl-shadow--4dp">
+					<columns>
+						<column>
+							<div v-if="user_formatted_address.length"
+								 class="places-box__item places-box__selected-item mdl-shadow--4dp">
 								<div class="places-box__left">
-									<div class="places-box__name">{{_place.name}}</div>
-									<div class="places-box__formatted_address">{{_place.formatted_address}}</div>
-									<div class="places-box__formatted_distance"
-										 v-html="metres_to_km(_place.distance)"></div>
+									<div class="places-box__name">Base Address:</div>
+									<div class="places-box__formatted_address" v-html="user_formatted_address"></div>
 								</div>
 								<div class="places-box__right">
-									<div>Jul 10, 2019</div>
-									<div>08:55 PM</div>
+									<div class="places-box__index">A</div>
+									<div v-html="formatDate(baseTime)"></div>
+									<div v-html="formatTime(baseTime)">08:55 PM</div>
 									<div>
-										<flat-pickr value="" placeholder="Select date"/>
-										<input type="time" name="" id="">
+										<flat-pickr
+											:config="flatpickrConfig"
+											:value="baseTime"
+											@input="chooseBaseDateTime"
+											placeholder="Select date"/>
 									</div>
 								</div>
 							</div>
+						</column>
+						<column>
+							<label for="travelMode">Mode of Travel:</label>
+							<select id="travelMode" v-model="travelMode">
+								<option value="DRIVING">Driving</option>
+								<option value="WALKING">Walking</option>
+								<option value="BICYCLING">Bicycling</option>
+								<option value="TRANSIT">Transit</option>
+							</select>
+						</column>
+					</columns>
+					<draggable v-model="selectedPlaces" class="shapla-columns is-multiline" @change="updateMapRoute">
+						<column :tablet="6" v-for="(_place, index) in selectedPlaces" :key="index">
+							<address-box :key="index + 200" :place="_place">
+								<div class="places-box__index">{{alphabets[index+1]}}</div>
+								<div>Jul 10, 2019</div>
+								<div>08:55 PM</div>
+								<div>
+									<flat-pickr :config="flatpickrConfig" value="" @input="chooseDate($event)"
+												placeholder="Select date"/>
+								</div>
+							</address-box>
 						</column>
 					</draggable>
 				</div>
@@ -71,10 +89,14 @@
 	import MdlSlider from "../../../material-design-lite/slider/mdlSlider";
 	import GMapAutocomplete from "../../components/gMapAutocomplete";
 	import FlatPickr from "vue-flatpickr-component/src/component";
+	import AddressBox from "../../../components/AddressBox";
+
+	let mapStyles = require('./map-style.json');
 
 	export default {
 		name: "Map",
 		components: {
+			AddressBox,
 			FlatPickr,
 			GMapAutocomplete, MdlSlider, MdlButton, SearchBox, deleteIcon, Icon, columns, column, draggable
 		},
@@ -98,6 +120,13 @@
 				longitude: 0,
 				user_formatted_address: '',
 				address: '',
+				travelMode: 'DRIVING',
+				flatpickrConfig: {
+					dateFormat: 'd-m-Y H:i:s',
+					enableTime: true,
+				},
+				alphabets: [],
+				baseTime: '',
 			}
 		},
 		watch: {
@@ -110,27 +139,8 @@
 					position: latLng
 				});
 			},
-			selectedPlaces(newValue) {
-				let totalItem = newValue.length;
-				if (totalItem < 2) return;
-				let firstItem = newValue[0];
-				let lastItem = newValue[totalItem - 1];
-				let waypoints = [];
-				for (let i = 0; i < totalItem; i++) {
-					if (i !== 0 && i !== (totalItem - 1)) {
-						waypoints.push({
-							location: newValue[i].formatted_address,
-							stopover: true
-						});
-					}
-				}
-				console.log(waypoints);
-				// Display Route
-				this.displayRoute(
-					firstItem.geometry.location,
-					lastItem.geometry.location,
-					waypoints
-				);
+			travelMode() {
+				this.updateMapRoute();
 			}
 		},
 		computed: {
@@ -142,32 +152,28 @@
 			let self = this;
 			this.$store.commit('SET_LOADING_STATUS', false);
 
-			if (navigator.geolocation && self.geolocation) {
-				let geocoder = new google.maps.Geocoder;
+			// Set base time
+			this.baseTime = new Date();
 
+			// Get user location from geo-location
+			if (navigator.geolocation && self.geolocation) {
 				navigator.geolocation.getCurrentPosition(function (position) {
 					self.latitude = position.coords.latitude;
 					self.longitude = position.coords.longitude;
-
-					geocoder.geocode({'location': {lat: self.latitude, lng: self.longitude}},
-						function (results, status) {
-							if (status === 'OK') {
-								if (results[0]) {
-									self.user_formatted_address = results[0].formatted_address;
-								}
-							}
-						}
-					);
+					self.geoCodeToAddress(position.coords.latitude, position.coords.longitude);
 				});
 			}
 
+			this.alphabets = String.fromCharCode(..." ".repeat(26).split("").map((e, i) => i + 'A'.charCodeAt())).split('');
+
 			// Test Value
-			// this.latitude = 12.9372094;
-			// this.longitude = 77.61974409999993;
-			// this.place_text = 'Anand sweets';
-			// setTimeout(() => {
-			// 	self.updatePlaceData();
-			// }, 1000);
+			this.latitude = 12.9372094;
+			this.longitude = 77.61974409999993;
+			this.place_text = 'Anand sweets';
+			setTimeout(() => {
+				self.updatePlaceData();
+				self.geoCodeToAddress(this.latitude, this.longitude);
+			}, 1000);
 			// Test Value End
 
 			// Create the map.
@@ -175,6 +181,7 @@
 			this.googleMap = new google.maps.Map(this.$el.querySelector('#map'), {
 				center: self.location,
 				zoom: 17,
+				styles: mapStyles
 			});
 			// Create the places service.
 			this.placesService = new google.maps.places.PlacesService(self.googleMap);
@@ -185,6 +192,53 @@
 			});
 		},
 		methods: {
+			updateSelectedPlace() {
+
+			},
+			chooseDate(event) {
+				console.log(event);
+			},
+			chooseBaseDateTime(value) {
+				// this.baseTime = new Date(value);
+			},
+			formatDate(date) {
+				let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+				let day = date.getDate();
+				let monthIndex = date.getMonth();
+				let year = date.getFullYear();
+
+				// Jul 10, 2019
+				return `${monthNames[monthIndex]} ${day}, ${year}`;
+			},
+			formatTime(date) {
+				let hr = date.getHours(), min = date.getMinutes();
+
+				if (min < 10) {
+					min = "0" + min;
+				}
+				let ampm = "AM";
+				if (hr > 12) {
+					hr -= 12;
+					ampm = "PM";
+				}
+				// 08:12 PM
+				return `${hr}:${min} ${ampm}`;
+			},
+			geoCodeToAddress(latitude, longitude) {
+				let self = this,
+					geocoder = new google.maps.Geocoder;
+				geocoder.geocode({'location': {lat: latitude, lng: longitude}},
+					function (results, status) {
+						if (status === 'OK') {
+							if (results[0]) {
+								self.address = results[0];
+								self.user_formatted_address = results[0].formatted_address;
+							}
+						}
+					}
+				);
+			},
 			//Returns Distance between two latlng objects using haversine formula
 			distance(placeOne, placeTwo) {
 				if (!placeOne || !placeTwo) return 0;
@@ -198,24 +252,10 @@
 				let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 				return R * c;
 			},
-			displayRoute(origin, destination, waypoints = []) {
-				let self = this, request = {
-					origin: origin,
-					waypoints: waypoints,
-					destination: destination,
-					travelMode: 'DRIVING',
-					avoidTolls: true
-				};
-				this.directionsService.route(request, function (response, status) {
-					if (status === 'OK') {
-						self.directionsRenderer.setDirections(response);
-					}
-				});
-			},
 			metres_to_km(metres) {
-				if (metres < 100) return Math.round(metres) + " metres";
-				if (metres < 1000) return (metres / 1000).toFixed(2) + " km";
-				return (metres / 1000).toFixed(1) + " km";
+				if (metres < 100) return Math.round(metres) + " metres away";
+				if (metres < 1000) return (metres / 1000).toFixed(2) + " km away";
+				return (metres / 1000).toFixed(1) + " km away";
 			},
 			setBaseAddress(placeData) {
 				this.latitude = placeData.latitude;
@@ -235,15 +275,19 @@
 				} else {
 					this.selectedPlaces.push(place);
 				}
+				this.updateMapRoute();
 			},
 			clearPlaceData() {
 				this.places = [];
-				this.selectedPlaces = [];
 				this.hasNextPage = false;
 				this.dataLoaded = false;
 				this.clearMarkers();
 			},
 			updatePlaceData() {
+				if (this.place_text.length < 3) {
+					alert('Please enter at least three characters.');
+					return;
+				}
 				let self = this,
 					request = {
 						location: self.location,
@@ -293,7 +337,13 @@
 					place.distance = self.distance(self.location, place.geometry.location);
 
 					self.markers.push(marker);
-					self.places.push(place);
+
+					self.places.push({
+						name: place.name,
+						formatted_address: place.formatted_address,
+						location: place.geometry.location,
+						distance: place.distance,
+					});
 
 					bounds.extend(place.geometry.location);
 				}
@@ -304,7 +354,59 @@
 					this.markers[i].setMap(null);
 				}
 				this.markers = [];
-			}
+			},
+
+			/**
+			 * Update map routes
+			 */
+			updateMapRoute() {
+				// Clear current route
+				this.directionsRenderer.setDirections({routes: []});
+
+				// Get total selected item length
+				let totalItem = this.selectedPlaces.length;
+
+				// Exit if length is less than 1
+				if (totalItem < 1) return;
+
+				let lastIndex = totalItem - 1,
+					lastItem = this.selectedPlaces[lastIndex];
+
+				let waypoints = [];
+				for (let i = 0; i < totalItem; i++) {
+					if (i !== lastIndex) {
+						waypoints.push({
+							location: this.selectedPlaces[i].formatted_address,
+							stopover: true
+						});
+					}
+				}
+				// Display Route
+				this.displayRoute(
+					this.address.geometry.location,
+					lastItem.location,
+					waypoints
+				);
+			},
+			displayRoute(origin, destination, waypoints = []) {
+				let self = this,
+					request = {
+						origin: origin,
+						waypoints: waypoints,
+						destination: destination,
+						travelMode: google.maps.TravelMode[this.travelMode],
+						avoidTolls: true,
+						drivingOptions: {
+							departureTime: new Date(this.baseTime),
+							trafficModel: 'optimistic'
+						}
+					};
+				this.directionsService.route(request, function (response, status) {
+					if (status === 'OK') {
+						self.directionsRenderer.setDirections(response);
+					}
+				});
+			},
 		}
 	}
 </script>
@@ -324,6 +426,7 @@
 
 		&__selected-item {
 			display: flex;
+			position: relative;
 
 			.places-box__right {
 				display: flex;
@@ -354,6 +457,26 @@
 
 		&__more {
 			margin-bottom: 1rem;
+		}
+
+		&__index {
+			background-color: #f58730;
+			color: #ffffff;
+			width: 32px;
+			height: 32px;
+			position: absolute;
+			top: 0;
+			right: 0;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		&__formatted_distance {
+			background: #faa644;
+			display: inline-flex;
+			padding: 0.5rem 1rem;
+			margin-top: 1rem;
 		}
 	}
 
