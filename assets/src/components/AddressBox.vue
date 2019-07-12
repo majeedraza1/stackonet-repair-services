@@ -6,8 +6,18 @@
 				<div class="google-address-box__name" v-if="place.name" v-text="place.name"></div>
 				<div class="google-address-box__formatted_address" v-if="place.formatted_address"
 					 v-html="place.formatted_address"></div>
-				<div class="google-address-box__formatted_distance" v-if="place.distance"
-					 v-html="metres_to_km(place.distance)"></div>
+				<template v-if="place.leg">
+					<div class="google-address-box__formatted_distance" v-if="place.leg.distance">
+						{{place.leg.distance.text}}
+					</div>
+					<div class="google-address-box__formatted_distance" v-if="place.leg.distance">
+						{{place.leg.duration.text}}
+					</div>
+				</template>
+				<template v-else>
+					<div class="google-address-box__formatted_distance" v-if="place.distance"
+						 v-html="metres_to_km(place.distance)"></div>
+				</template>
 			</div>
 		</slot>
 		<div class="google-address-box__right">

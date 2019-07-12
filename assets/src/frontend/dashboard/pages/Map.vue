@@ -20,7 +20,7 @@
 				</div>
 			</column>
 			<column :tablet="8">
-				<g-map-autocomplete label="Base Address" @change="setBaseAddress"></g-map-autocomplete>
+				<g-map-autocomplete type="text" label="Base Address" @change="setBaseAddress"></g-map-autocomplete>
 				<div id="map"></div>
 				<div class="selected-places">
 					<div style="display: none;">
@@ -38,19 +38,33 @@
 								</div>
 								<div class="places-box__right">
 									<div class="places-box__index">A</div>
-									<div v-html="formatDate(baseTime)"></div>
-									<div v-html="formatTime(baseTime)">08:55 PM</div>
-									<div>
+									<div style="position: relative;">
+										<a class="input-button" title="toggle" data-toggle>
+											<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+												 viewBox="0 0 32 32">
+												<title>clock</title>
+												<path
+													d="M16 32c8.822 0 16-7.178 16-16s-7.178-16-16-16-16 7.178-16 16 7.178 16 16 16zM16 1c8.271 0 15 6.729 15 15s-6.729 15-15 15-15-6.729-15-15 6.729-15 15-15zM20.061 21.768c0.098 0.098 0.226 0.146 0.354 0.146s0.256-0.049 0.354-0.146c0.195-0.195 0.195-0.512 0-0.707l-4.769-4.768v-6.974c0-0.276-0.224-0.5-0.5-0.5s-0.5 0.224-0.5 0.5v7.181c0 0.133 0.053 0.26 0.146 0.354l4.915 4.914zM3 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM27 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 4c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 28c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM23 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM24 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1z"></path>
+											</svg>
+										</a>
 										<flat-pickr
+											style="visibility: hidden;width: 1px;height: 1px;position: absolute;top: 0;left: 0;"
 											:config="flatpickrConfig"
-											:value="baseTime"
-											@input="chooseBaseDateTime"
+											v-model="baseTime"
 											placeholder="Select date"/>
 									</div>
+									<div v-html="formatDate(baseTime)"></div>
+									<div v-html="formatTime(baseTime)"></div>
 								</div>
 							</div>
 						</column>
 						<column>
+							<div v-if="selectedPlaces.length > 1">
+								<mdl-button type="raised" color="primary" @click="showFilterModal = true">
+									Re-Arrange Address
+								</mdl-button>
+							</div>
+
 							<label for="travelMode">Mode of Travel:</label>
 							<select id="travelMode" v-model="travelMode">
 								<option value="DRIVING">Driving</option>
@@ -60,22 +74,77 @@
 							</select>
 						</column>
 					</columns>
-					<draggable v-model="selectedPlaces" class="shapla-columns is-multiline" @change="updateMapRoute">
+					<columns multiline>
 						<column :tablet="6" v-for="(_place, index) in selectedPlaces" :key="index">
 							<address-box :key="index + 200" :place="_place">
 								<div class="places-box__index">{{alphabets[index+1]}}</div>
-								<div>Jul 10, 2019</div>
-								<div>08:55 PM</div>
-								<div>
-									<flat-pickr :config="flatpickrConfig" value="" @input="chooseDate($event)"
-												placeholder="Select date"/>
+								<div class="places-box__action">
+									<mdl-button type="icon" @click="openBoxActionModal = true">+</mdl-button>
+								</div>
+								<div style="position: relative;display: none;">
+									<a class="input-button" title="toggle" data-toggle>
+										<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+											 viewBox="0 0 32 32">
+											<title>clock</title>
+											<path
+												d="M16 32c8.822 0 16-7.178 16-16s-7.178-16-16-16-16 7.178-16 16 7.178 16 16 16zM16 1c8.271 0 15 6.729 15 15s-6.729 15-15 15-15-6.729-15-15 6.729-15 15-15zM20.061 21.768c0.098 0.098 0.226 0.146 0.354 0.146s0.256-0.049 0.354-0.146c0.195-0.195 0.195-0.512 0-0.707l-4.769-4.768v-6.974c0-0.276-0.224-0.5-0.5-0.5s-0.5 0.224-0.5 0.5v7.181c0 0.133 0.053 0.26 0.146 0.354l4.915 4.914zM3 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM27 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 4c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 28c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM23 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM24 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1z"></path>
+										</svg>
+									</a>
+									<flat-pickr
+										style="visibility: hidden;width: 1px;height: 1px;position: absolute;top: 0;left: 0;"
+										:config="flatpickrConfig"
+										value=""
+										@input="chooseDate($event)"
+										placeholder="Select date"
+									/>
 								</div>
 							</address-box>
 						</column>
-					</draggable>
+					</columns>
 				</div>
 			</column>
 		</columns>
+		<modal :active="showFilterModal" class="selected-places" content-size="full" title="Address"
+			   @close="showFilterModal = false">
+			<draggable v-model="selectedPlaces" class="shapla-columns is-multiline" @change="updateMapRoute">
+				<column :tablet="6" :desktop="4" v-for="(_place, index) in selectedPlaces" :key="index">
+					<address-box :key="index + 200" :place="_place">
+						<div class="places-box__index">{{alphabets[index+1]}}</div>
+						<div style="position: relative;display: none">
+							<a class="input-button" title="toggle" data-toggle>
+								<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+									 viewBox="0 0 32 32">
+									<title>clock</title>
+									<path
+										d="M16 32c8.822 0 16-7.178 16-16s-7.178-16-16-16-16 7.178-16 16 7.178 16 16 16zM16 1c8.271 0 15 6.729 15 15s-6.729 15-15 15-15-6.729-15-15 6.729-15 15-15zM20.061 21.768c0.098 0.098 0.226 0.146 0.354 0.146s0.256-0.049 0.354-0.146c0.195-0.195 0.195-0.512 0-0.707l-4.769-4.768v-6.974c0-0.276-0.224-0.5-0.5-0.5s-0.5 0.224-0.5 0.5v7.181c0 0.133 0.053 0.26 0.146 0.354l4.915 4.914zM3 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM27 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 4c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 28c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM23 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM24 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1z"></path>
+								</svg>
+							</a>
+							<flat-pickr
+								style="visibility: hidden;width: 1px;height: 1px;position: absolute;top: 0;left: 0;"
+								:config="flatpickrConfig"
+								value=""
+								@input="chooseDate($event)"
+								placeholder="Select date"
+							/>
+						</div>
+					</address-box>
+				</column>
+			</draggable>
+			<div slot="foot">
+				<mdl-button @click="showFilterModal = false">Close</mdl-button>
+			</div>
+		</modal>
+		<modal :active="openBoxActionModal" @close="openBoxActionModal = false" title="Interval Hours"
+			   content-size="small">
+			<div>
+				<label for="hours">Hours</label>
+				<input type="text" name="" id="hours">
+			</div>
+			<div>
+				<label for="minutes">Minutes</label>
+				<input type="text" name="" id="minutes">
+			</div>
+		</modal>
 	</div>
 </template>
 
@@ -83,6 +152,7 @@
 	import {column, columns} from 'shapla-columns';
 	import draggable from 'vuedraggable'
 	import deleteIcon from "shapla-delete";
+	import modal from "shapla-modal";
 	import Icon from "../../../shapla/icon/icon";
 	import SearchBox from "../../../components/SearchBox";
 	import MdlButton from "../../../material-design-lite/button/mdlButton";
@@ -96,12 +166,13 @@
 	export default {
 		name: "Map",
 		components: {
-			AddressBox,
-			FlatPickr,
-			GMapAutocomplete, MdlSlider, MdlButton, SearchBox, deleteIcon, Icon, columns, column, draggable
+			AddressBox, FlatPickr, GMapAutocomplete, MdlSlider, MdlButton,
+			SearchBox, deleteIcon, Icon, columns, column, modal, draggable
 		},
 		data() {
 			return {
+				showFilterModal: false,
+				openBoxActionModal: false,
 				googleMap: '',
 				placesService: '',
 				directionsService: '',
@@ -122,10 +193,13 @@
 				address: '',
 				travelMode: 'DRIVING',
 				flatpickrConfig: {
-					dateFormat: 'd-m-Y H:i:s',
+					dateFormat: 'Y-m-d h:i K',
 					enableTime: true,
+					minDate: new Date(),
+					wrap: true,
 				},
 				alphabets: [],
+				legs: [],
 				baseTime: '',
 			}
 		},
@@ -192,16 +266,11 @@
 			});
 		},
 		methods: {
-			updateSelectedPlace() {
-
-			},
 			chooseDate(event) {
 				console.log(event);
 			},
-			chooseBaseDateTime(value) {
-				// this.baseTime = new Date(value);
-			},
-			formatDate(date) {
+			formatDate(dateString) {
+				let date = new Date(dateString);
 				let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 				let day = date.getDate();
@@ -211,7 +280,8 @@
 				// Jul 10, 2019
 				return `${monthNames[monthIndex]} ${day}, ${year}`;
 			},
-			formatTime(date) {
+			formatTime(dateString) {
+				let date = new Date(dateString);
 				let hr = date.getHours(), min = date.getMinutes();
 
 				if (min < 10) {
@@ -403,10 +473,29 @@
 					};
 				this.directionsService.route(request, function (response, status) {
 					if (status === 'OK') {
+						if (response.routes && response.routes[0].legs) {
+							self.addLegOnSelectedPlaces(response.routes[0].legs);
+						}
 						self.directionsRenderer.setDirections(response);
 					}
 				});
 			},
+			addLegOnSelectedPlaces(routesLegs) {
+				let legs = [], _selectedPlaces = [];
+
+				for (let i = 0; i < routesLegs.length; i++) {
+					legs.push({distance: routesLegs[i].distance, duration: routesLegs[i].duration});
+				}
+				if (legs.length) {
+					for (let i = 0; i < legs.length; i++) {
+						let _data = this.selectedPlaces[i];
+						_data.leg = legs[i];
+						_selectedPlaces.push(_data);
+					}
+
+					this.selectedPlaces = _selectedPlaces;
+				}
+			}
 		}
 	}
 </script>
@@ -478,12 +567,22 @@
 			padding: 0.5rem 1rem;
 			margin-top: 1rem;
 		}
+
+		&__action {
+			position: absolute;
+			right: 0;
+			bottom: 0;
+		}
 	}
 
-	.sortable-ghost {
-		.places-box__item {
+	.google-address-box {
+		.sortable-ghost & {
 			background-color: #f58730;
 			color: #ffffff;
+		}
+
+		.selected-places & {
+			height: 100%;
 		}
 	}
 </style>
