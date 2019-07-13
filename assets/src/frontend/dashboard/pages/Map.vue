@@ -76,27 +76,10 @@
 					</columns>
 					<columns multiline>
 						<column :tablet="6" v-for="(_place, index) in selectedPlaces" :key="index">
-							<address-box :key="index + 200" :place="_place">
+							<address-box :place="_place">
 								<div class="places-box__index">{{alphabets[index+1]}}</div>
 								<div class="places-box__action">
-									<mdl-button type="icon" @click="openBoxActionModal = true">+</mdl-button>
-								</div>
-								<div style="position: relative;display: none;">
-									<a class="input-button" title="toggle" data-toggle>
-										<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-											 viewBox="0 0 32 32">
-											<title>clock</title>
-											<path
-												d="M16 32c8.822 0 16-7.178 16-16s-7.178-16-16-16-16 7.178-16 16 7.178 16 16 16zM16 1c8.271 0 15 6.729 15 15s-6.729 15-15 15-15-6.729-15-15 6.729-15 15-15zM20.061 21.768c0.098 0.098 0.226 0.146 0.354 0.146s0.256-0.049 0.354-0.146c0.195-0.195 0.195-0.512 0-0.707l-4.769-4.768v-6.974c0-0.276-0.224-0.5-0.5-0.5s-0.5 0.224-0.5 0.5v7.181c0 0.133 0.053 0.26 0.146 0.354l4.915 4.914zM3 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM27 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 4c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 28c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM23 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM24 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1z"></path>
-										</svg>
-									</a>
-									<flat-pickr
-										style="visibility: hidden;width: 1px;height: 1px;position: absolute;top: 0;left: 0;"
-										:config="flatpickrConfig"
-										value=""
-										@input="chooseDate($event)"
-										placeholder="Select date"
-									/>
+									<mdl-button type="icon" @click="openIntervalModal(_place)">+</mdl-button>
 								</div>
 							</address-box>
 						</column>
@@ -134,15 +117,17 @@
 				<mdl-button @click="showFilterModal = false">Close</mdl-button>
 			</div>
 		</modal>
-		<modal :active="openBoxActionModal" @close="openBoxActionModal = false" title="Interval Hours"
-			   content-size="small">
+		<modal :active="openBoxActionModal" @close="closeIntervalModal" title="Interval Hours" content-size="small">
 			<div>
 				<label for="hours">Hours</label>
-				<input type="text" name="" id="hours">
+				<input type="text" id="hours" v-model="intervalHours">
 			</div>
 			<div>
 				<label for="minutes">Minutes</label>
-				<input type="text" name="" id="minutes">
+				<input type="text" id="minutes" v-model="intervalMinutes">
+			</div>
+			<div slot="foot">
+				<mdl-button type="raised" color="primary" @click="confirmInterval">Confirm</mdl-button>
 			</div>
 		</modal>
 	</div>
@@ -162,9 +147,11 @@
 	import AddressBox from "../../../components/AddressBox";
 
 	let mapStyles = require('./map-style.json');
+	import {MapMixin} from "./MapMixin";
 
 	export default {
 		name: "Map",
+		mixins: [MapMixin],
 		components: {
 			AddressBox, FlatPickr, GMapAutocomplete, MdlSlider, MdlButton,
 			SearchBox, deleteIcon, Icon, columns, column, modal, draggable
@@ -201,6 +188,9 @@
 				alphabets: [],
 				legs: [],
 				baseTime: '',
+				activePlace: {},
+				intervalHours: '',
+				intervalMinutes: '',
 			}
 		},
 		watch: {
@@ -266,34 +256,27 @@
 			});
 		},
 		methods: {
+			openIntervalModal(place) {
+				this.openBoxActionModal = true;
+				this.activePlace = place;
+				// this.intervalHours = place.interval_hour;
+				// this.intervalMinutes = place.interval_hour;
+			},
+			closeIntervalModal() {
+				this.intervalHours = '';
+				this.intervalMinutes = '';
+				this.openBoxActionModal = false;
+				this.activePlace = {};
+			},
+			confirmInterval() {
+				let index = this.selectedPlaces.indexOf(this.activePlace);
+				this.activePlace.interval_hour = this.intervalHours;
+				this.activePlace.interval_minute = this.intervalMinutes;
+				this.selectedPlaces[index] = this.activePlace;
+				this.closeIntervalModal();
+			},
 			chooseDate(event) {
 				console.log(event);
-			},
-			formatDate(dateString) {
-				let date = new Date(dateString);
-				let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-				let day = date.getDate();
-				let monthIndex = date.getMonth();
-				let year = date.getFullYear();
-
-				// Jul 10, 2019
-				return `${monthNames[monthIndex]} ${day}, ${year}`;
-			},
-			formatTime(dateString) {
-				let date = new Date(dateString);
-				let hr = date.getHours(), min = date.getMinutes();
-
-				if (min < 10) {
-					min = "0" + min;
-				}
-				let ampm = "AM";
-				if (hr > 12) {
-					hr -= 12;
-					ampm = "PM";
-				}
-				// 08:12 PM
-				return `${hr}:${min} ${ampm}`;
 			},
 			geoCodeToAddress(latitude, longitude) {
 				let self = this,
@@ -487,9 +470,19 @@
 					legs.push({distance: routesLegs[i].distance, duration: routesLegs[i].duration});
 				}
 				if (legs.length) {
+					if (typeof this.baseTime === "string") {
+						this.baseTime = new Date(this.baseTime);
+					}
 					for (let i = 0; i < legs.length; i++) {
 						let _data = this.selectedPlaces[i];
 						_data.leg = legs[i];
+						_data.interval_hour = _data.interval_hour ? _data.interval_hour : '';
+						_data.interval_minute = _data.interval_minute ? _data.interval_minute : '';
+						_data.reach_time = '';
+						_data.leave_time = '';
+						if (i === 0) {
+							_data.reach_time = this.baseTime.getTime() + (_data.leg.duration.value * 1000);
+						}
 						_selectedPlaces.push(_data);
 					}
 
