@@ -194,6 +194,7 @@ final class Stackonet_Repair_Services {
 			$this->container['rest-calendar']          = Stackonet\REST\CalendarController::init();
 			$this->container['rest-checkout']          = Stackonet\REST\CheckoutController::init();
 			$this->container['rest-order']             = Stackonet\REST\OrderController::init();
+			$this->container['rest-map']               = Stackonet\REST\MapController::init();
 
 			$this->container['page-payment']   = Stackonet\Frontend\PaymentPage::init();
 			$this->container['page-dashboard'] = Stackonet\Frontend\DashboardPage::init();
@@ -254,6 +255,8 @@ final class Stackonet_Repair_Services {
 		$support->create_table();
 		$carrierStore = new Stackonet\Models\CarrierStore();
 		$carrierStore->create_table();
+		$map = new Stackonet\Models\Map();
+		$map->create_table();
 
 		do_action( 'phone_repairs_asap_activation' );
 	}

@@ -1,96 +1,110 @@
 <template>
-	<div>
-		<columns>
-			<column :tablet="4">
+	<div class="stackonet-dashboard-map">
+		<mdl-tabs @change="refreshMapList">
+			<mdl-tab name="Map " selected>
+				<columns>
+					<column :tablet="4">
+						<search-box v-model="place_text" @submit="updatePlaceData" @clear="clearPlaceData"></search-box>
+						<div class="radius-slider">
+							<mdl-slider v-model="radius" :default="100" :max="500" :step="10"></mdl-slider>
+						</div>
 
-				<search-box v-model="place_text" @submit="updatePlaceData" @clear="clearPlaceData"></search-box>
-				<div class="radius-slider">
-					<mdl-slider v-model="radius" :default="100" :max="500" :step="10"></mdl-slider>
-				</div>
-
-				<div class="places-box">
-					<address-box
-						v-for="(_place, index) in places" :key="index + 100" :place="_place"
-						:active="(-1 !== selectedPlaces.findIndex(el => el.place_id === _place.place_id))"
-						@click="selectPlace"
-					/>
-					<div class="places-box__more" v-if="hasNextPage">
-						<mdl-button type="raised" color="primary" style="width: 100%;" @click="loadMore">Load More
-						</mdl-button>
-					</div>
-				</div>
-			</column>
-			<column :tablet="8">
-				<g-map-autocomplete type="text" label="Base Address" @change="setBaseAddress"></g-map-autocomplete>
-				<div id="map"></div>
-				<div class="selected-places">
-					<div style="display: none;">
-						<mdl-button type="raised" @click="showDateTime = !showDateTime">
-							{{!showDateTime ? 'Show Time':'Hide Time'}}
-						</mdl-button>
-					</div>
-					<columns>
-						<column>
-							<div v-if="user_formatted_address.length"
-								 class="places-box__item places-box__selected-item mdl-shadow--4dp">
-								<div class="places-box__left">
-									<div class="places-box__name">Base Address:</div>
-									<div class="places-box__formatted_address" v-html="user_formatted_address"></div>
-								</div>
-								<div class="places-box__right">
-									<div class="places-box__index">A</div>
-									<div style="position: relative;">
-										<a class="input-button" title="toggle" data-toggle>
-											<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-												 viewBox="0 0 32 32">
-												<title>clock</title>
-												<path
-													d="M16 32c8.822 0 16-7.178 16-16s-7.178-16-16-16-16 7.178-16 16 7.178 16 16 16zM16 1c8.271 0 15 6.729 15 15s-6.729 15-15 15-15-6.729-15-15 6.729-15 15-15zM20.061 21.768c0.098 0.098 0.226 0.146 0.354 0.146s0.256-0.049 0.354-0.146c0.195-0.195 0.195-0.512 0-0.707l-4.769-4.768v-6.974c0-0.276-0.224-0.5-0.5-0.5s-0.5 0.224-0.5 0.5v7.181c0 0.133 0.053 0.26 0.146 0.354l4.915 4.914zM3 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM27 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 4c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 28c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM23 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM24 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1z"></path>
-											</svg>
-										</a>
-										<flat-pickr
-											style="visibility: hidden;width: 1px;height: 1px;position: absolute;top: 0;left: 0;"
-											:config="flatpickrConfig"
-											v-model="baseTime"
-											placeholder="Select date"/>
+						<div class="places-box">
+							<address-box
+								v-for="(_place, index) in places" :key="index + 100" :place="_place"
+								:active="(-1 !== selectedPlaces.findIndex(el => el.place_id === _place.place_id))"
+								@click="selectPlace"
+							/>
+							<div class="places-box__more" v-if="hasNextPage">
+								<mdl-button type="raised" color="primary" style="width: 100%;" @click="loadMore">Load
+									More
+								</mdl-button>
+							</div>
+						</div>
+					</column>
+					<column :tablet="8">
+						<g-map-autocomplete type="text" label="Base Address"
+											@change="setBaseAddress"></g-map-autocomplete>
+						<div id="map"></div>
+						<div class="selected-places">
+							<div style="display: none;">
+								<mdl-button type="raised" @click="showDateTime = !showDateTime">
+									{{!showDateTime ? 'Show Time':'Hide Time'}}
+								</mdl-button>
+							</div>
+							<columns>
+								<column>
+									<div v-if="user_formatted_address.length"
+										 class="places-box__item places-box__selected-item mdl-shadow--4dp">
+										<div class="places-box__left">
+											<div class="places-box__name">Base Address:</div>
+											<div class="places-box__formatted_address"
+												 v-html="user_formatted_address"></div>
+										</div>
+										<div class="places-box__right">
+											<div class="places-box__index">A</div>
+											<div style="position: relative;">
+												<a class="input-button" title="toggle" data-toggle>
+													<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="24"
+														 height="24"
+														 viewBox="0 0 32 32">
+														<title>clock</title>
+														<path
+															d="M16 32c8.822 0 16-7.178 16-16s-7.178-16-16-16-16 7.178-16 16 7.178 16 16 16zM16 1c8.271 0 15 6.729 15 15s-6.729 15-15 15-15-6.729-15-15 6.729-15 15-15zM20.061 21.768c0.098 0.098 0.226 0.146 0.354 0.146s0.256-0.049 0.354-0.146c0.195-0.195 0.195-0.512 0-0.707l-4.769-4.768v-6.974c0-0.276-0.224-0.5-0.5-0.5s-0.5 0.224-0.5 0.5v7.181c0 0.133 0.053 0.26 0.146 0.354l4.915 4.914zM3 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM27 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 4c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 28c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM23 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM24 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1z"></path>
+													</svg>
+												</a>
+												<flat-pickr
+													style="visibility: hidden;width: 1px;height: 1px;position: absolute;top: 0;left: 0;"
+													:config="flatpickrConfig"
+													v-model="baseTime"
+													placeholder="Select date"/>
+											</div>
+											<div v-html="formatDate(baseTime)"></div>
+											<div v-html="formatTime(baseTime)"></div>
+										</div>
 									</div>
-									<div v-html="formatDate(baseTime)"></div>
-									<div v-html="formatTime(baseTime)"></div>
-								</div>
-							</div>
-						</column>
-						<column>
-							<div v-if="selectedPlaces.length > 1">
-								<mdl-button type="raised" color="primary" @click="showFilterModal = true">
-									Re-Arrange Address
-								</mdl-button>
-								<mdl-button type="raised" color="primary" @click="saveAsRoute">
-									Save as Route
-								</mdl-button>
-							</div>
+								</column>
+								<column>
+									<div v-if="selectedPlaces.length > 1">
+										<mdl-button type="raised" color="primary" @click="showFilterModal = true">
+											Re-Arrange Address
+										</mdl-button>
+										<mdl-button type="raised" color="primary" @click="showRecordTitleModal = true">
+											Save as Route
+										</mdl-button>
+									</div>
 
-							<label for="travelMode">Mode of Travel:</label>
-							<select id="travelMode" v-model="travelMode">
-								<option value="DRIVING">Driving</option>
-								<option value="WALKING">Walking</option>
-								<option value="BICYCLING">Bicycling</option>
-								<option value="TRANSIT">Transit</option>
-							</select>
-						</column>
-					</columns>
-					<columns multiline>
-						<column :tablet="6" v-for="(_place, index) in selectedPlaces" :key="index">
-							<address-box :place="_place">
-								<div class="places-box__index">{{alphabets[index+1]}}</div>
-								<div class="places-box__action">
-									<mdl-button type="icon" @click="openIntervalModal(_place)">+</mdl-button>
-								</div>
-							</address-box>
-						</column>
-					</columns>
-				</div>
-			</column>
-		</columns>
+									<template v-if="user_formatted_address.length">
+										<label for="travelMode">Mode of Travel:</label>
+										<select id="travelMode" v-model="travelMode">
+											<option value="DRIVING">Driving</option>
+											<option value="WALKING">Walking</option>
+											<option value="BICYCLING">Bicycling</option>
+											<option value="TRANSIT">Transit</option>
+										</select>
+									</template>
+								</column>
+							</columns>
+							<columns multiline>
+								<column :tablet="6" v-for="(_place, index) in selectedPlaces" :key="index">
+									<address-box :place="_place">
+										<div class="places-box__index">{{alphabets[index+1]}}</div>
+										<div class="places-box__action">
+											<mdl-button type="icon" @click="openIntervalModal(_place)">+</mdl-button>
+										</div>
+									</address-box>
+								</column>
+							</columns>
+						</div>
+					</column>
+				</columns>
+			</mdl-tab>
+			<mdl-tab name="Saved Maps List">
+				<map-list-table></map-list-table>
+			</mdl-tab>
+		</mdl-tabs>
+
+
 		<modal :active="showFilterModal" class="selected-places" content-size="full" title="Address"
 			   @close="showFilterModal = false">
 			<draggable v-model="selectedPlaces" class="shapla-columns is-multiline" @change="updateMapRoute">
@@ -117,10 +131,17 @@
 				<mdl-button type="raised" color="primary" @click="confirmInterval">Confirm</mdl-button>
 			</div>
 		</modal>
+		<modal :active="showRecordTitleModal" content-size="small" title="Record Title">
+			<animated-input label="Title" v-model="recordTitle"></animated-input>
+			<div slot="foot">
+				<mdl-button @click="saveAsRoute">Save</mdl-button>
+			</div>
+		</modal>
 	</div>
 </template>
 
 <script>
+	import axios from 'axios'
 	import {mapState, mapGetters} from 'vuex';
 	import {column, columns} from 'shapla-columns';
 	import draggable from 'vuedraggable'
@@ -136,11 +157,19 @@
 
 	let mapStyles = require('./map-style.json');
 	import {MapMixin} from "./MapMixin";
+	import MdlTabs from "../../../material-design-lite/tabs/mdlTabs";
+	import MdlTab from "../../../material-design-lite/tabs/mdlTab";
+	import MapListTable from "./MapListTable";
+	import AnimatedInput from "../../../components/AnimatedInput";
 
 	export default {
 		name: "Map",
 		mixins: [MapMixin],
 		components: {
+			AnimatedInput,
+			MapListTable,
+			MdlTab,
+			MdlTabs,
 			AddressBox, FlatPickr, GMapAutocomplete, MdlSlider, MdlButton,
 			SearchBox, deleteIcon, Icon, columns, column, modal, draggable
 		},
@@ -148,6 +177,7 @@
 			return {
 				showFilterModal: false,
 				openBoxActionModal: false,
+				showRecordTitleModal: false,
 				googleMap: '',
 				placesService: '',
 				directionsService: '',
@@ -179,6 +209,7 @@
 				activePlace: {},
 				intervalHours: '',
 				intervalMinutes: '',
+				recordTitle: '',
 			}
 		},
 		watch: {
@@ -236,8 +267,36 @@
 			});
 		},
 		methods: {
+			refreshMapList(){
+				this.$store.dispatch('refreshMapList')
+			},
 			saveAsRoute() {
-				console.log(JSON.stringify(this.selectedPlaces));
+				let _data = {
+					title: this.recordTitle,
+					formatted_base_address: this.user_formatted_address,
+					base_address_latitude: this.latitude,
+					base_address_longitude: this.longitude,
+					base_datetime: this.baseTime,
+					place_text: this.place_text,
+					travel_mode: this.travelMode,
+					places: this.selectedPlaces,
+				};
+				this.$store.commit('SET_LOADING_STATUS', true);
+				axios
+					.post(PhoneRepairs.rest_root + '/map', _data)
+					.then(response => {
+						this.$store.commit('SET_LOADING_STATUS', false);
+						this.showRecordTitleModal = false;
+						this.$root.$emit('show-notification', {
+							title: 'Success!',
+							message: 'Map data has been saved successfully.',
+							type: 'success',
+						});
+					})
+					.catch(error => {
+						this.$store.commit('SET_LOADING_STATUS', false);
+						console.log(error);
+					})
 			},
 			openIntervalModal(place) {
 				this.openBoxActionModal = true;
@@ -354,7 +413,19 @@
 			},
 			updatePlaceData() {
 				if (this.place_text.length < 3) {
-					alert('Please enter at least three characters.');
+					this.$root.$emit('show-notification', {
+						title: 'Error!',
+						message: 'Please enter at least three characters.',
+						type: 'error',
+					});
+					return;
+				}
+				if (!this.latitude || !this.longitude) {
+					this.$root.$emit('show-notification', {
+						title: 'Error!',
+						message: 'Please set base address first.',
+						type: 'error',
+					});
 					return;
 				}
 				let self = this,
@@ -514,6 +585,12 @@
 </script>
 
 <style lang="scss">
+	.stackonet-dashboard-map {
+		.mdl-tabs__panel.is-active {
+			margin-top: 1rem;
+		}
+	}
+
 	.radius-slider {
 		margin-top: 1rem;
 	}

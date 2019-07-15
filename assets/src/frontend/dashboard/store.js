@@ -1,5 +1,6 @@
 import Vuex from 'vuex'
 import Vue from 'vue'
+import axios from 'axios'
 
 Vue.use(Vuex);
 
@@ -9,6 +10,7 @@ export default new Vuex.Store({
 		loading: true,
 		title: 'Dashboard',
 		addresses: [],
+		places: [],
 	},
 
 	// Commit + track state changes
@@ -19,8 +21,8 @@ export default new Vuex.Store({
 		SET_TITLE(state, title) {
 			state.title = title;
 		},
-		SET_ADDRESSES(state, addresses) {
-			state.addresses = addresses;
+		SET_PLACES(state, places) {
+			state.places = places;
 		},
 	},
 
@@ -29,6 +31,19 @@ export default new Vuex.Store({
 		interval_seconds(hours, minute) {
 			return (hours * 60 * 60 * 1000) + (minute * 60 * 1000);
 		},
+		refreshMapList(context) {
+			context.commit('SET_LOADING_STATUS', true);
+			axios
+				.get(PhoneRepairs.rest_root + '/map')
+				.then(response => {
+					context.commit('SET_LOADING_STATUS', false);
+					context.commit('SET_PLACES', response.data.data.items);
+				})
+				.catch(error => {
+					context.commit('SET_LOADING_STATUS', false);
+					console.log(error);
+				})
+		}
 	},
 
 	// Save as Vue computed property

@@ -80,7 +80,7 @@ class CarrierStoreController extends ApiController {
 			'totalCount'  => $counts[ $status ],
 			'limit'       => $per_page,
 			'currentPage' => $paged,
-		] );;
+		] );
 
 		$response = [ 'items' => $items, 'counts' => $counts, 'pagination' => $pagination ];
 
