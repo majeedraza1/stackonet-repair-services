@@ -1,9 +1,7 @@
 <template>
 	<div class="stackonet-reschedule-section">
 
-		<div class="repair-services-loader" :class="{'is-active':loading}">
-			<mdl-spinner :active="loading"></mdl-spinner>
-		</div>
+		<spinner :active="loading"></spinner>
 
 		<div class="select-time-wrapper">
 
@@ -76,15 +74,15 @@
 </template>
 
 <script>
+	import spinner from "shapla-spinner";
 	import BigButton from '../../components/BigButton.vue';
 	import SectionTitle from '../components/SectionTitle'
 	import SectionInfo from '../components/SectionInfo'
 	import SectionHelp from '../components/SectionHelp'
-	import mdlSpinner from '../../material-design-lite/spinner/mdlSpinner.vue';
 
 	export default {
 		name: "Reschedule",
-		components: {BigButton, mdlSpinner, SectionTitle, SectionInfo, SectionHelp},
+		components: {BigButton, spinner, SectionTitle, SectionInfo, SectionHelp},
 		data() {
 			return {
 				loading: false,

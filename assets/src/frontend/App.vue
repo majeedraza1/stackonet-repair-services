@@ -4,21 +4,18 @@
 			<router-view></router-view>
 		</div>
 		<cart></cart>
-		<div class="repair-services-loader" :class="{'is-active':loading}">
-			<mdl-spinner :active="loading"></mdl-spinner>
-		</div>
+		<spinner :active="loading"></spinner>
 	</div>
 </template>
 
 <script>
-	import mdlSpinner from '../material-design-lite/spinner/mdlSpinner.vue';
 	import cart from './views/cart.vue';
-	import {mapState} from 'vuex';
-	import {mapGetters} from 'vuex';
+	import {mapState, mapGetters} from 'vuex';
+	import spinner from "shapla-spinner";
 
 	export default {
 		name: 'App',
-		components: {mdlSpinner, cart},
+		components: {spinner, cart},
 		data() {
 			return {}
 		},

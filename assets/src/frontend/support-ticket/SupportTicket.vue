@@ -3,21 +3,19 @@
 		<div class="support-ticket-content">
 			<router-view></router-view>
 		</div>
-		<mdl-snackbar></mdl-snackbar>
-		<div class="support-ticket-loader" :class="{'is-active':loading}">
-			<mdl-spinner :active="loading"></mdl-spinner>
-		</div>
+		<spinner :active="loading"></spinner>
+		<notification ref="notify"></notification>
 	</div>
 </template>
 
 <script>
 	import {mapState} from 'vuex';
-	import mdlSpinner from '../../material-design-lite/spinner/mdlSpinner';
-	import MdlSnackbar from "../../material-design-lite/snackbar/mdlSnackbar";
+	import notification from 'shapla-notifications';
+	import spinner from "shapla-spinner";
 
 	export default {
 		name: "SupportTicket",
-		components: {MdlSnackbar, mdlSpinner},
+		components: {notification, spinner},
 		computed: {
 			...mapState(['loading']),
 		}

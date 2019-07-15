@@ -23,22 +23,20 @@
 			<mdl-checkbox label="Remember me" v-model="remember"></mdl-checkbox>
 			<big-button fullwidth :disabled="!canSubmit">Log In</big-button>
 		</form>
-		<div class="stackonet-loading-container" :class="{'is-active':loading}">
-			<mdl-spinner :active="loading"></mdl-spinner>
-		</div>
+		<spinner :active="loading"></spinner>
 	</div>
 </template>
 
 <script>
 	import axios from 'axios';
+	import spinner from "shapla-spinner";
 	import AnimatedInput from "../../components/AnimatedInput";
 	import BigButton from "../../components/BigButton";
-	import MdlSpinner from "../../material-design-lite/spinner/mdlSpinner";
 	import MdlCheckbox from "../../material-design-lite/checkbox/mdlCheckbox";
 
 	export default {
 		name: "LoginForm",
-		components: {MdlCheckbox, MdlSpinner, BigButton, AnimatedInput},
+		components: {MdlCheckbox, spinner, BigButton, AnimatedInput},
 		data() {
 			return {
 				loading: false,

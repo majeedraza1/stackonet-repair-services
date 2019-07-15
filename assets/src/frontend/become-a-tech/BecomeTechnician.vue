@@ -39,9 +39,7 @@
 			<big-button :disabled="!canSubmit" @click="handleSubmit">Submit</big-button>
 		</div>
 
-		<div class="loading-container" :class="{'is-active':loading}">
-			<mdl-spinner :active="loading"></mdl-spinner>
-		</div>
+		<spinner :active="loading"></spinner>
 
 		<modal :active="open_thank_you_model" type="box" @close="closeThankYouModel">
 			<div class="mdl-box mdl-shadow--2dp">
@@ -57,11 +55,11 @@
 	import axios from 'axios';
 	import {columns, column} from 'shapla-columns';
 	import modal from 'shapla-modal';
+	import spinner from "shapla-spinner";
 	import AnimatedInput from '../../components/AnimatedInput';
 	import DropzoneUploader from '../components/DropzoneUploader';
 	import BigButton from '../../components/BigButton';
 	import imageContainer from '../../shapla/image/image';
-	import mdlSpinner from '../../material-design-lite/spinner/mdlSpinner';
 	import mdlButton from '../../material-design-lite/button/mdlButton';
 
 	export default {
@@ -73,7 +71,7 @@
 			columns,
 			column,
 			imageContainer,
-			mdlSpinner,
+			spinner,
 			modal,
 			mdlButton
 		},

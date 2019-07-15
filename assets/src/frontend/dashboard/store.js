@@ -8,6 +8,7 @@ export default new Vuex.Store({
 	state: {
 		loading: true,
 		title: 'Dashboard',
+		addresses: [],
 	},
 
 	// Commit + track state changes
@@ -18,13 +19,43 @@ export default new Vuex.Store({
 		SET_TITLE(state, title) {
 			state.title = title;
 		},
+		SET_ADDRESSES(state, addresses) {
+			state.addresses = addresses;
+		},
 	},
 
 	// Same as Vue methods
-	actions: {},
+	actions: {
+		interval_seconds(hours, minute) {
+			return (hours * 60 * 60 * 1000) + (minute * 60 * 1000);
+		},
+	},
 
 	// Save as Vue computed property
 	getters: {
+		filtered_addresses(state) {
+			let addresses = [], _addresses = state.addresses;
+
+			for (let i = 0; i < _addresses.length; i++) {
+				let _place = _addresses[i];
+
+				if (_place.interval_hour && _place.interval_hour.length) {
+					_place.interval_hour = parseInt(_place.interval_hour);
+				} else {
+					_place.interval_hour = 0;
+				}
+
+				if (_place.interval_minute && _place.interval_minute.length) {
+					_place.interval_minute = parseInt(_place.interval_minute);
+				} else {
+					_place.interval_minute = 0;
+				}
+
+				addresses.push(_place);
+			}
+
+			return addresses;
+		},
 		home_url() {
 			return PhoneRepairs.home_url;
 		},

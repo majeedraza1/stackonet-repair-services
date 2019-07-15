@@ -348,8 +348,9 @@
 						this.note = '';
 						this.activeNoteModal = false;
 						this.$store.commit('SET_LOADING_STATUS', false);
-						this.$root.$emit('show-snackbar', {
+						this.$root.$emit('show-notification', {
 							message: 'Note has been added successfully.',
+							type:'success',
 						});
 					})
 					.catch((error) => {

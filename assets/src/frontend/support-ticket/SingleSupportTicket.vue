@@ -576,8 +576,9 @@
 						this.$store.commit('SET_LOADING_STATUS', false);
 						this.getItem();
 						this.showPaymentAmount = false;
-						this.$root.$emit('show-snackbar', {
+						this.$root.$emit('show-notification', {
 							message: 'New payment amount has been added.',
+							type: 'success'
 						});
 					})
 					.catch((error) => {
@@ -597,8 +598,9 @@
 					})
 					.then((response) => {
 						this.$store.commit('SET_LOADING_STATUS', false);
-						this.$root.$emit('show-snackbar', {
+						this.$root.$emit('show-notification', {
 							message: 'Email/SMS has been sent with custom payment link.',
+							type: 'success'
 						});
 						this.getItem();
 					})
@@ -624,8 +626,9 @@
 					})
 					.then((response) => {
 						this.$store.commit('SET_LOADING_STATUS', false);
-						this.$root.$emit('show-snackbar', {
+						this.$root.$emit('show-notification', {
 							message: 'Order status has been changed.',
+							type: 'success'
 						});
 						this.getItem();
 					})
@@ -643,8 +646,9 @@
 					})
 					.then((response) => {
 						this.$store.commit('SET_LOADING_STATUS', false);
-						this.$root.$emit('show-snackbar', {
+						this.$root.$emit('show-notification', {
 							message: 'Email/SMS has been sent.',
+							type: 'success'
 						});
 						this.getItem();
 					})
@@ -663,8 +667,9 @@
 						.put(PhoneRepairs.rest_root + '/support-ticket/' + this.id + '/order/' + this.order.id, {status: this.order.status})
 						.then((response) => {
 							this.$store.commit('SET_LOADING_STATUS', false);
-							this.$root.$emit('show-snackbar', {
+							this.$root.$emit('show-notification', {
 								message: 'Order status has been changed.',
+								type: 'success'
 							});
 							this.getItem();
 						})
@@ -935,8 +940,9 @@
 					.post(PhoneRepairs.rest_root + '/support-ticket/' + this.id + '/order')
 					.then((response) => {
 						this.$store.commit('SET_LOADING_STATUS', false);
-						this.$root.$emit('show-snackbar', {
+						this.$root.$emit('show-notification', {
 							message: 'New order has been created.',
+							type: 'success'
 						});
 						this.getItem();
 					})

@@ -68,9 +68,7 @@
 			</div>
 		</modal>
 
-		<div class="support-ticket-loader" :class="{'is-active':loading}">
-			<mdl-spinner :active="loading"></mdl-spinner>
-		</div>
+		<spinner :active="loading"></spinner>
 	</div>
 </template>
 
@@ -79,12 +77,12 @@
 	import Editor from '@tinymce/tinymce-vue'
 	import {columns, column} from "shapla-columns";
 	import modal from "shapla-modal";
+	import spinner from "shapla-spinner";
 	import MdlButton from "../../material-design-lite/button/mdlButton";
-	import MdlSpinner from "../../material-design-lite/spinner/mdlSpinner";
 
 	export default {
 		name: "SupportTicketForm",
-		components: {MdlSpinner, modal, columns, column, MdlButton, Editor},
+		components: {spinner, modal, columns, column, MdlButton, Editor},
 		mounted() {
 			if (window.CustomerSupportTickets) {
 				this.categories = CustomerSupportTickets.categories;

@@ -26,20 +26,20 @@
 				<template v-if="place.interval_hour || place.interval_minute">
 					<div class="google-address-box__formatted_distance">
 						Interval :
-						<template v-if="place.interval_hour && place.interval_hour.length">
+						<template v-if="place.interval_hour">
 							{{parseInt(place.interval_hour)>1 ?`${place.interval_hour} hours`:`${place.interval_hour}
 							hour`}}
 						</template>
-						<template v-if="place.interval_minute && place.interval_minute.length">
+						<template v-if="place.interval_minute">
 							{{parseInt(place.interval_minute)>1 ?`${place.interval_minute}
 							mins`:`${place.interval_minute}
 							min`}}
 						</template>
 					</div>
-					<div class="google-address-box__formatted_distance">
+					<div class="google-address-box__formatted_distance" v-if="place.leave_time">
 						<span>ETD :&nbsp; </span>
-						<span v-html="formatDate(departure_time)"></span>;
-						<span v-html="formatTime(departure_time)"></span>
+						<span v-html="formatDate(place.leave_time)"></span>;
+						<span v-html="formatTime(place.leave_time)"></span>
 					</div>
 				</template>
 
@@ -63,11 +63,6 @@
 				}
 			},
 			active: {type: Boolean, required: false, default: false},
-		},
-		watch: {
-			place(newValue) {
-				console.log(newValue);
-			}
 		},
 		computed: {
 			hasPlace() {

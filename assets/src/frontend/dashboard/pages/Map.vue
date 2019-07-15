@@ -11,7 +11,8 @@
 				<div class="places-box">
 					<address-box
 						v-for="(_place, index) in places" :key="index + 100" :place="_place"
-						:active="(-1 !== selectedPlaces.indexOf(_place))" @click="selectPlace"
+						:active="(-1 !== selectedPlaces.findIndex(el => el.place_id === _place.place_id))"
+						@click="selectPlace"
 					/>
 					<div class="places-box__more" v-if="hasNextPage">
 						<mdl-button type="raised" color="primary" style="width: 100%;" @click="loadMore">Load More
@@ -63,6 +64,9 @@
 								<mdl-button type="raised" color="primary" @click="showFilterModal = true">
 									Re-Arrange Address
 								</mdl-button>
+								<mdl-button type="raised" color="primary" @click="saveAsRoute">
+									Save as Route
+								</mdl-button>
 							</div>
 
 							<label for="travelMode">Mode of Travel:</label>
@@ -93,23 +97,6 @@
 				<column :tablet="6" :desktop="4" v-for="(_place, index) in selectedPlaces" :key="index">
 					<address-box :key="index + 200" :place="_place">
 						<div class="places-box__index">{{alphabets[index+1]}}</div>
-						<div style="position: relative;display: none">
-							<a class="input-button" title="toggle" data-toggle>
-								<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-									 viewBox="0 0 32 32">
-									<title>clock</title>
-									<path
-										d="M16 32c8.822 0 16-7.178 16-16s-7.178-16-16-16-16 7.178-16 16 7.178 16 16 16zM16 1c8.271 0 15 6.729 15 15s-6.729 15-15 15-15-6.729-15-15 6.729-15 15-15zM20.061 21.768c0.098 0.098 0.226 0.146 0.354 0.146s0.256-0.049 0.354-0.146c0.195-0.195 0.195-0.512 0-0.707l-4.769-4.768v-6.974c0-0.276-0.224-0.5-0.5-0.5s-0.5 0.224-0.5 0.5v7.181c0 0.133 0.053 0.26 0.146 0.354l4.915 4.914zM3 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM27 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 4c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 28c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM23 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM24 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1z"></path>
-								</svg>
-							</a>
-							<flat-pickr
-								style="visibility: hidden;width: 1px;height: 1px;position: absolute;top: 0;left: 0;"
-								:config="flatpickrConfig"
-								value=""
-								@input="chooseDate($event)"
-								placeholder="Select date"
-							/>
-						</div>
 					</address-box>
 				</column>
 			</draggable>
@@ -134,16 +121,17 @@
 </template>
 
 <script>
+	import {mapState, mapGetters} from 'vuex';
 	import {column, columns} from 'shapla-columns';
 	import draggable from 'vuedraggable'
 	import deleteIcon from "shapla-delete";
 	import modal from "shapla-modal";
+	import FlatPickr from "vue-flatpickr-component/src/component";
 	import Icon from "../../../shapla/icon/icon";
 	import SearchBox from "../../../components/SearchBox";
 	import MdlButton from "../../../material-design-lite/button/mdlButton";
 	import MdlSlider from "../../../material-design-lite/slider/mdlSlider";
 	import GMapAutocomplete from "../../components/gMapAutocomplete";
-	import FlatPickr from "vue-flatpickr-component/src/component";
 	import AddressBox from "../../../components/AddressBox";
 
 	let mapStyles = require('./map-style.json');
@@ -208,6 +196,8 @@
 			}
 		},
 		computed: {
+			...mapState(['addresses']),
+			...mapGetters(['filtered_addresses']),
 			radius_meters() {
 				return this.radius * 100;
 			}
@@ -230,16 +220,6 @@
 
 			this.alphabets = String.fromCharCode(..." ".repeat(26).split("").map((e, i) => i + 'A'.charCodeAt())).split('');
 
-			// Test Value
-			this.latitude = 12.9372094;
-			this.longitude = 77.61974409999993;
-			this.place_text = 'Anand sweets';
-			setTimeout(() => {
-				self.updatePlaceData();
-				self.geoCodeToAddress(this.latitude, this.longitude);
-			}, 1000);
-			// Test Value End
-
 			// Create the map.
 			this.location = new google.maps.LatLng(this.latitude, this.longitude);
 			this.googleMap = new google.maps.Map(this.$el.querySelector('#map'), {
@@ -256,11 +236,12 @@
 			});
 		},
 		methods: {
+			saveAsRoute() {
+				console.log(JSON.stringify(this.selectedPlaces));
+			},
 			openIntervalModal(place) {
 				this.openBoxActionModal = true;
 				this.activePlace = place;
-				// this.intervalHours = place.interval_hour;
-				// this.intervalMinutes = place.interval_hour;
 			},
 			closeIntervalModal() {
 				this.intervalHours = '';
@@ -269,14 +250,40 @@
 				this.activePlace = {};
 			},
 			confirmInterval() {
-				let index = this.selectedPlaces.indexOf(this.activePlace);
-				this.activePlace.interval_hour = this.intervalHours;
-				this.activePlace.interval_minute = this.intervalMinutes;
-				this.selectedPlaces[index] = this.activePlace;
+				let place = this.activePlace, addresses = this.selectedPlaces;
+				let index = addresses.findIndex(el => el.place_id === place.place_id);
+				place['interval_hour'] = this.intervalHours.length ? parseInt(this.intervalHours) : 0;
+				place['interval_minute'] = this.intervalMinutes.length ? parseInt(this.intervalMinutes) : 0;
+
+				let interval_seconds = (place['interval_hour'] * 60 * 60 * 1000) + (place['interval_minute'] * 60 * 1000);
+				if (place.reach_time) {
+					place['leave_time'] = (place.reach_time + interval_seconds);
+				}
+
+				addresses[index] = place;
+				this.reCalculateArrivalAndDepartureTime(addresses);
 				this.closeIntervalModal();
 			},
-			chooseDate(event) {
-				console.log(event);
+			reCalculateArrivalAndDepartureTime(addresses) {
+				let total = addresses.length;
+				if (total < 2) {
+					return addresses;
+				}
+				let _addresses = [];
+				for (let i = 0; i < total; i++) {
+					if (i === 0) {
+						_addresses.push(current);
+						continue;
+					}
+					let pre = addresses[i - 1], current = addresses[i];
+					current['reach_time'] = pre.leave_time + (current.leg.duration.value * 1000);
+					if (current.reach_time) {
+						let interval_seconds = (current['interval_hour'] * 60 * 60 * 1000) + (current['interval_minute'] * 60 * 1000);
+						current['leave_time'] = (current.reach_time + interval_seconds);
+					}
+					_addresses.push(current);
+				}
+				// this.selectedPlaces = _addresses;
 			},
 			geoCodeToAddress(latitude, longitude) {
 				let self = this,
@@ -322,12 +329,21 @@
 				return ['is-active'];
 			},
 			selectPlace(place) {
-				let index = this.selectedPlaces.indexOf(place);
+				let _place = place, addresses = this.selectedPlaces;
+				let index = addresses.findIndex(el => el.place_id === _place.place_id);
+				_place['interval_hour'] = 0;
+				_place['interval_minute'] = 0;
+				_place['reach_time'] = 0;
+				_place['leave_time'] = 0;
+
 				if (-1 !== index) {
-					this.selectedPlaces.splice(index, 1);
+					addresses.splice(index, 1);
 				} else {
-					this.selectedPlaces.push(place);
+					addresses.push(_place);
 				}
+				// this.$store.commit('SET_ADDRESSES', []);
+				// this.$store.commit('SET_ADDRESSES', addresses);
+				this.selectedPlaces = addresses;
 				this.updateMapRoute();
 			},
 			clearPlaceData() {
@@ -392,6 +408,7 @@
 					self.markers.push(marker);
 
 					self.places.push({
+						place_id: place.place_id,
 						name: place.name,
 						formatted_address: place.formatted_address,
 						location: place.geometry.location,
@@ -416,14 +433,16 @@
 				// Clear current route
 				this.directionsRenderer.setDirections({routes: []});
 
+				let addresses = this.selectedPlaces;
+
 				// Get total selected item length
-				let totalItem = this.selectedPlaces.length;
+				let totalItem = addresses.length;
 
 				// Exit if length is less than 1
 				if (totalItem < 1) return;
 
 				let lastIndex = totalItem - 1,
-					lastItem = this.selectedPlaces[lastIndex];
+					lastItem = addresses[lastIndex];
 
 				let waypoints = [];
 				for (let i = 0; i < totalItem; i++) {
@@ -475,18 +494,19 @@
 					}
 					for (let i = 0; i < legs.length; i++) {
 						let _data = this.selectedPlaces[i];
-						_data.leg = legs[i];
-						_data.interval_hour = _data.interval_hour ? _data.interval_hour : '';
-						_data.interval_minute = _data.interval_minute ? _data.interval_minute : '';
-						_data.reach_time = '';
-						_data.leave_time = '';
+						_data['leg'] = legs[i];
+						_data['interval_hour'] = _data.interval_hour ? _data.interval_hour : 0;
+						_data['interval_minute'] = _data.interval_minute ? _data.interval_minute : 0;
+						_data['reach_time'] = _data.reach_time ? _data.reach_time : 0;
+						_data['leave_time'] = _data.leave_time ? _data.leave_time : 0;
 						if (i === 0) {
-							_data.reach_time = this.baseTime.getTime() + (_data.leg.duration.value * 1000);
+							_data['reach_time'] = this.baseTime.getTime() + (_data.leg.duration.value * 1000);
 						}
 						_selectedPlaces.push(_data);
 					}
 
 					this.selectedPlaces = _selectedPlaces;
+					// this.$store.commit('SET_ADDRESSES', _selectedPlaces);
 				}
 			}
 		}

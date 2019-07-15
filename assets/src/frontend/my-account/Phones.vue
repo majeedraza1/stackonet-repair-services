@@ -185,12 +185,8 @@
 				<mdl-button @click="closeNoteModal">Close</mdl-button>
 			</div>
 		</modal>
-		<mdl-snackbar :options="snackbar"></mdl-snackbar>
-		<div class="loading-container" :class="{'is-active':loading}">
-			<div class="mdl-loader">
-				<mdl-spinner :active="loading"></mdl-spinner>
-			</div>
-		</div>
+		<spinner :active="loading"></spinner>
+		<notification v-model="snackbar"></notification>
 	</div>
 </template>
 
@@ -198,16 +194,16 @@
 	import VueSelect from 'vue-select';
 	import {mapState} from 'vuex';
 	import modal from 'shapla-modal';
+	import notification from 'shapla-notifications';
+	import spinner from "shapla-spinner";
 	import PhoneEditModal from '../../admin/rent-a-center/PhoneEditModal.vue'
 	import mdlButton from '../../material-design-lite/button/mdlButton.vue';
-	import mdlSpinner from '../../material-design-lite/spinner/mdlSpinner.vue';
-	import mdlSnackbar from '../../material-design-lite/snackbar/mdlSnackbar.vue';
 	import AnimatedInput from '../../components/AnimatedInput.vue';
 	import ListItem from '../../components/ListItem.vue';
 
 	export default {
 		name: "Phones",
-		components: {modal, AnimatedInput, mdlButton, VueSelect, mdlSpinner, ListItem, PhoneEditModal, mdlSnackbar},
+		components: {modal, AnimatedInput, mdlButton, VueSelect, spinner, ListItem, PhoneEditModal, notification},
 		data() {
 			return {
 				isModalActive: false,

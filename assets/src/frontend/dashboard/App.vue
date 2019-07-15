@@ -71,7 +71,6 @@
 		</div>
 		<spinner :active="loading"></spinner>
 		<notification ref="notify"></notification>
-		<mdl-snackbar></mdl-snackbar>
 	</div>
 </template>
 
@@ -82,13 +81,12 @@
 	import {MaterialLayout} from '../../material-design-lite/layout/MaterialLayout'
 	import {MaterialMenu} from '../../material-design-lite/menu/MaterialMenu'
 	import MdlButton from "../../material-design-lite/button/mdlButton";
-	import MdlSnackbar from "../../material-design-lite/snackbar/mdlSnackbar";
 	import Icon from "../../shapla/icon/icon";
 	import ImageContainer from "../../shapla/image/image";
 
 	export default {
 		name: "App",
-		components: {MdlSnackbar, spinner, ImageContainer, MdlButton, Icon, notification},
+		components: {spinner, ImageContainer, MdlButton, Icon, notification},
 		mounted() {
 			let el = this.$el;
 			new MaterialLayout(el.querySelector('.stackonet-dashboard'));

@@ -1,27 +1,24 @@
 <template>
 	<div class="repair-services-container">
 		<router-view></router-view>
-		<mdl-snackbar></mdl-snackbar>
-		<div class="repair-services-loader" :class="{'is-active':loading}">
-			<mdl-spinner :active="loading"></mdl-spinner>
-		</div>
+		<spinner :active="loading"></spinner>
+		<notification ref="notify"></notification>
 	</div>
 </template>
 
 <script>
-	import mdlSnackbar from '../material-design-lite/snackbar/mdlSnackbar.vue';
-	import mdlSpinner from '../material-design-lite/spinner/mdlSpinner.vue';
+	import {mapState} from 'vuex';
+	import notification from 'shapla-notifications';
+	import spinner from "shapla-spinner";
 
 	export default {
 		name: 'App',
-		components: {mdlSnackbar, mdlSpinner},
+		components: {notification, spinner},
 		data() {
 			return {}
 		},
 		computed: {
-			loading() {
-				return this.$store.state.loading;
-			}
+			...mapState(['loading']),
 		}
 	}
 </script>
