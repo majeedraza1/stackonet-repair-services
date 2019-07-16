@@ -43,6 +43,21 @@ export default new Vuex.Store({
 					context.commit('SET_LOADING_STATUS', false);
 					console.log(error);
 				})
+		},
+		updateMapRecord({commit, state}, data) {
+			return new Promise((resolve, reject) => {
+				commit('SET_LOADING_STATUS', true);
+				axios
+					.put(PhoneRepairs.rest_root + '/map/' + data.id, data)
+					.then(response => {
+						commit('SET_LOADING_STATUS', false);
+						resolve(response);
+					})
+					.catch(error => {
+						commit('SET_LOADING_STATUS', false);
+						reject(error);
+					})
+			})
 		}
 	},
 

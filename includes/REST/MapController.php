@@ -42,6 +42,9 @@ class MapController extends ApiController {
 			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_items' ] ],
 			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'create_item' ] ],
 		] );
+		register_rest_route( $this->namespace, '/map/(?P<id>\d+)', [
+			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_item' ] ],
+		] );
 	}
 
 	/**
@@ -93,6 +96,30 @@ class MapController extends ApiController {
 			$item = ( new Map() )->find_by_id( $id );
 
 			return $this->respondCreated( $item );
+		}
+
+		return $this->respondInternalServerError();
+	}
+
+	/**
+	 * Updates one item from the collection.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
+	 */
+	public function update_item( $request ) {
+		$id = $request->get_param( 'id' );
+
+		$map  = new Map();
+		$item = $map->find_by_id( $id );
+
+		if ( ! $item instanceof Map ) {
+			return $this->respondNotFound();
+		}
+
+		if ( $map->update( $request->get_params() ) ) {
+			return $this->respondOK();
 		}
 
 		return $this->respondInternalServerError();

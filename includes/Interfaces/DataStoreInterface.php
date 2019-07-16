@@ -2,13 +2,16 @@
 
 namespace Stackonet\Interfaces;
 
+use ArrayAccess;
+use JsonSerializable;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Interface DataStoreInterface
  * @package App\Interfaces
  */
-interface DataStoreInterface extends \ArrayAccess, \JsonSerializable {
+interface DataStoreInterface extends ArrayAccess, JsonSerializable {
 
 	/**
 	 * Method to create a new record

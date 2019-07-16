@@ -3,6 +3,7 @@
 namespace Stackonet\Models;
 
 use Stackonet\Abstracts\DatabaseModel;
+use WP_User;
 
 class Map extends DatabaseModel {
 
@@ -60,13 +61,44 @@ class Map extends DatabaseModel {
 		'%s'
 	];
 
+	/**
+	 * @var WP_User
+	 */
+	private $user;
+
 	public function to_array() {
-		$data           = parent::to_array();
-		$data['places'] = $this->unserialize( $data['places'] );
+		$data = parent::to_array();
+
+		$data['id']                     = intval( $data['id'] );
+		$data['base_address_latitude']  = floatval( $data['base_address_latitude'] );
+		$data['base_address_longitude'] = floatval( $data['base_address_longitude'] );
+		$data['created_by']             = $this->author()->ID;
+		$data['author']                 = [
+			'display_name' => $this->author()->display_name,
+		];
 
 		return $data;
 	}
 
+	/**
+	 * @return bool|WP_User
+	 */
+	public function author() {
+		$created_by = $this->get( 'created_by' );
+		if ( ! $this->user instanceof WP_User ) {
+			$this->user = get_user_by( 'id', $created_by );
+		}
+
+		return $this->user;
+	}
+
+	/**
+	 * Find multiple records from database
+	 *
+	 * @param array $args
+	 *
+	 * @return array
+	 */
 	public function find( $args = [] ) {
 		$results = parent::find( $args );
 		$items   = [];
@@ -75,6 +107,19 @@ class Map extends DatabaseModel {
 		}
 
 		return $items;
+	}
+
+	/**
+	 * Find record by id
+	 *
+	 * @param int $id
+	 *
+	 * @return array|self
+	 */
+	public function find_by_id( $id ) {
+		$item = parent::find_by_id( $id );
+
+		return new self( $item );
 	}
 
 	/**

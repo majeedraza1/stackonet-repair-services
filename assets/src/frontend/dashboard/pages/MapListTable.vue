@@ -4,20 +4,25 @@
 			:rows="places"
 			:columns="columns"
 			:actions="actions"
+			@action:click="onActionClick"
 		></mdl-table>
+		<map-modal :active="showViewModal" :place="activePlace"  @close="closeViewModal"></map-modal>
 	</div>
 </template>
 
 <script>
-	import axios from 'axios';
 	import {mapState} from 'vuex';
+	import modal from 'shapla-modal';
 	import MdlTable from "../../../material-design-lite/data-table/mdlTable";
+	import MapModal from "./MapModal";
 
 	export default {
 		name: "MapListTable",
-		components: {MdlTable},
+		components: {MapModal, MdlTable, modal},
 		data() {
 			return {
+				showViewModal: false,
+				activePlace: {},
 				items: [],
 				columns: [
 					{key: 'title', label: 'Title'},
@@ -37,9 +42,20 @@
 			}
 		},
 		mounted() {
-			this.$store.dispatch('refreshMapList')
+			this.$store.dispatch('refreshMapList');
 		},
-		methods: {}
+		methods: {
+			closeViewModal() {
+				this.activePlace = {};
+				this.showViewModal = false;
+			},
+			onActionClick(action, item) {
+				if ('view' === action) {
+					this.activePlace = item;
+					this.showViewModal = true;
+				}
+			}
+		}
 	}
 </script>
 

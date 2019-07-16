@@ -1,6 +1,6 @@
 <template>
 	<div class="stackonet-dashboard-map">
-		<mdl-tabs @change="refreshMapList">
+		<mdl-tabs>
 			<mdl-tab name="Map " selected>
 				<columns>
 					<column :tablet="4">
@@ -27,11 +27,6 @@
 											@change="setBaseAddress"></g-map-autocomplete>
 						<div id="map"></div>
 						<div class="selected-places">
-							<div style="display: none;">
-								<mdl-button type="raised" @click="showDateTime = !showDateTime">
-									{{!showDateTime ? 'Show Time':'Hide Time'}}
-								</mdl-button>
-							</div>
 							<columns>
 								<column>
 									<div v-if="user_formatted_address.length"
@@ -108,7 +103,7 @@
 		<modal :active="showFilterModal" class="selected-places" content-size="full" title="Address"
 			   @close="showFilterModal = false">
 			<draggable v-model="selectedPlaces" class="shapla-columns is-multiline" @change="updateMapRoute">
-				<column :tablet="6" :desktop="4" v-for="(_place, index) in selectedPlaces" :key="index">
+				<column :tablet="6" :desktop="4" v-for="(_place, index) in selectedPlaces" :key="_place.place_id">
 					<address-box :key="index + 200" :place="_place">
 						<div class="places-box__index">{{alphabets[index+1]}}</div>
 					</address-box>
@@ -131,7 +126,8 @@
 				<mdl-button type="raised" color="primary" @click="confirmInterval">Confirm</mdl-button>
 			</div>
 		</modal>
-		<modal :active="showRecordTitleModal" content-size="small" title="Record Title">
+		<modal :active="showRecordTitleModal" content-size="small" title="Record Title"
+			   @close="showRecordTitleModal = false">
 			<animated-input label="Title" v-model="recordTitle"></animated-input>
 			<div slot="foot">
 				<mdl-button @click="saveAsRoute">Save</mdl-button>
@@ -148,19 +144,19 @@
 	import deleteIcon from "shapla-delete";
 	import modal from "shapla-modal";
 	import FlatPickr from "vue-flatpickr-component/src/component";
+	import {MapMixin} from "./MapMixin";
+	import MapListTable from "./MapListTable";
 	import Icon from "../../../shapla/icon/icon";
 	import SearchBox from "../../../components/SearchBox";
 	import MdlButton from "../../../material-design-lite/button/mdlButton";
 	import MdlSlider from "../../../material-design-lite/slider/mdlSlider";
 	import GMapAutocomplete from "../../components/gMapAutocomplete";
 	import AddressBox from "../../../components/AddressBox";
-
-	let mapStyles = require('./map-style.json');
-	import {MapMixin} from "./MapMixin";
 	import MdlTabs from "../../../material-design-lite/tabs/mdlTabs";
 	import MdlTab from "../../../material-design-lite/tabs/mdlTab";
-	import MapListTable from "./MapListTable";
 	import AnimatedInput from "../../../components/AnimatedInput";
+
+	let mapStyles = require('./map-style.json');
 
 	export default {
 		name: "Map",
@@ -267,9 +263,6 @@
 			});
 		},
 		methods: {
-			refreshMapList(){
-				this.$store.dispatch('refreshMapList')
-			},
 			saveAsRoute() {
 				let _data = {
 					title: this.recordTitle,
@@ -292,6 +285,7 @@
 							message: 'Map data has been saved successfully.',
 							type: 'success',
 						});
+						this.$store.dispatch('refreshMapList');
 					})
 					.catch(error => {
 						this.$store.commit('SET_LOADING_STATUS', false);
@@ -322,27 +316,6 @@
 				addresses[index] = place;
 				this.reCalculateArrivalAndDepartureTime(addresses);
 				this.closeIntervalModal();
-			},
-			reCalculateArrivalAndDepartureTime(addresses) {
-				let total = addresses.length;
-				if (total < 2) {
-					return addresses;
-				}
-				let _addresses = [];
-				for (let i = 0; i < total; i++) {
-					if (i === 0) {
-						_addresses.push(current);
-						continue;
-					}
-					let pre = addresses[i - 1], current = addresses[i];
-					current['reach_time'] = pre.leave_time + (current.leg.duration.value * 1000);
-					if (current.reach_time) {
-						let interval_seconds = (current['interval_hour'] * 60 * 60 * 1000) + (current['interval_minute'] * 60 * 1000);
-						current['leave_time'] = (current.reach_time + interval_seconds);
-					}
-					_addresses.push(current);
-				}
-				// this.selectedPlaces = _addresses;
 			},
 			geoCodeToAddress(latitude, longitude) {
 				let self = this,

@@ -103,7 +103,7 @@
 	}
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 	.google-address-box {
 		background: white;
 		display: flex;
