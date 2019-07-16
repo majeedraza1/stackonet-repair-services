@@ -6,7 +6,7 @@
 			:actions="actions"
 			@action:click="onActionClick"
 		></mdl-table>
-		<map-modal :active="showViewModal" :place="activePlace"  @close="closeViewModal"></map-modal>
+		<map-modal :active="showViewModal" :place="activePlace"  @close="closeViewModal" :mode="modalMode"></map-modal>
 	</div>
 </template>
 
@@ -22,6 +22,7 @@
 		data() {
 			return {
 				showViewModal: false,
+				modalMode: 'view',
 				activePlace: {},
 				items: [],
 				columns: [
@@ -37,6 +38,7 @@
 			...mapState(['places']),
 			actions() {
 				return [
+					{key: 'edit', label: 'Edit'},
 					{key: 'view', label: 'View'},
 				];
 			}
@@ -48,9 +50,16 @@
 			closeViewModal() {
 				this.activePlace = {};
 				this.showViewModal = false;
+				this.modalMode = 'view';
 			},
 			onActionClick(action, item) {
 				if ('view' === action) {
+					this.modalMode = 'view';
+					this.activePlace = item;
+					this.showViewModal = true;
+				}
+				if ('edit' === action) {
+					this.modalMode = 'edit';
 					this.activePlace = item;
 					this.showViewModal = true;
 				}

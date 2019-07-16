@@ -2,7 +2,28 @@
 	<div v-if="has_place">
 		<modal :active="active" @close="close" content-size="full" :title="title">
 			<columns multiline>
-				<column :tablet="12">
+				<template v-if="mode === 'edit'">
+					<column :tablet="4">
+						<search-box v-model="place.place_text" @submit="updatePlaceData"
+									@clear="clearPlaceData"></search-box>
+						<div class="radius-slider">
+							<mdl-slider v-model="radius" :default="100" :max="500" :step="10"></mdl-slider>
+						</div>
+						<div class="places-box">
+							<address-box
+								v-for="(_place, index) in places" :key="index + 500" :place="_place"
+								:active="(-1 !== place.places.findIndex(el => el.place_id === _place.place_id))"
+								@click="selectPlace"
+							/>
+							<div class="places-box__more" v-if="hasNextPage">
+								<mdl-button type="raised" color="primary" style="width: 100%;" @click="loadMore">
+									Load More
+								</mdl-button>
+							</div>
+						</div>
+					</column>
+				</template>
+				<column :tablet="mode === 'edit' ? 8 : 12">
 					<div id="modal-map" style="height: 300px;"></div>
 					<div>
 						<div class="selected-places">
@@ -31,6 +52,15 @@
 										<div class="places-box__index">{{alphabets[index+1]}}</div>
 										<div class="places-box__action">
 											<mdl-button type="icon" @click="openIntervalModal(_place)">+</mdl-button>
+										</div>
+										<div class="places-box__action-left">
+											<mdl-button type="icon" @click="removePlace(_place)">
+												<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+													<rect x="0" fill="none" width="20" height="20"></rect>
+													<path
+														d="M12 4h3c.6 0 1 .4 1 1v1H3V5c0-.6.5-1 1-1h3c.2-1.1 1.3-2 2.5-2s2.3.9 2.5 2zM8 4h3c-.2-.6-.9-1-1.5-1S8.2 3.4 8 4zM4 7h11l-.9 10.1c0 .5-.5.9-1 .9H5.9c-.5 0-.9-.4-1-.9L4 7z"></path>
+												</svg>
+											</mdl-button>
 										</div>
 									</address-box>
 								</column>
@@ -68,6 +98,9 @@
 	import AddressBox from "../../../components/AddressBox";
 	import GMapAutocomplete from "../../components/gMapAutocomplete";
 	import MdlButton from "../../../material-design-lite/button/mdlButton";
+	import SearchBox from "../../../components/SearchBox";
+	import MdlSlider from "../../../material-design-lite/slider/mdlSlider";
+	import Icon from "../../../shapla/icon/icon";
 
 	let mapStyles = require('./map-style.json');
 
@@ -75,6 +108,9 @@
 		name: "MapModal",
 		mixins: [MapMixin],
 		components: {
+			Icon,
+			MdlSlider,
+			SearchBox,
 			MdlButton,
 			GMapAutocomplete,
 			AddressBox,
@@ -84,6 +120,7 @@
 		},
 
 		props: {
+			mode: {type: String, default: 'view'},
 			active: {type: Boolean, default: false},
 			place: {type: Object, required: true}
 		},
@@ -100,18 +137,26 @@
 				placesService: '',
 				directionsService: '',
 				directionsRenderer: '',
+				radius: 100,
+				pagination: null,
+				hasNextPage: false,
+				places: [],
+				markers: [],
 			}
 		},
 
 		watch: {
 			place(newValue) {
 				if (!!Object.keys(newValue).length) {
-					this.updateMapRoute(
-						this.directionsService,
-						this.directionsRenderer,
-						{lat: newValue.base_address_latitude, lng: newValue.base_address_longitude},
-						newValue.places
-					);
+					// Clear current route
+					this.directionsRenderer.setDirections({routes: []});
+					this.getDirectionRoutes(this.directionsService, newValue)
+						.then(response => {
+							if (response.routes && response.routes[0].legs) {
+								// this.addLegOnSelectedPlaces(addresses, response.routes[0].legs);
+							}
+							this.directionsRenderer.setDirections(response);
+						});
 				}
 			}
 		},
@@ -125,6 +170,9 @@
 			},
 			alphabets() {
 				return String.fromCharCode(..." ".repeat(26).split("").map((e, i) => i + 'A'.charCodeAt())).split('');
+			},
+			radius_meters() {
+				return this.radius * 100;
 			}
 		},
 		mounted() {
@@ -144,6 +192,100 @@
 			});
 		},
 		methods: {
+			removePlace(place) {
+				if (confirm('Are you sure?')) {
+					let index = this.place.places.findIndex(el => el.place_id === place.place_id);
+					this.$delete(this.place.places, index);
+					this.getDirectionRoutes(this.directionsService, this.place)
+						.then(response => {
+							if (response.routes && response.routes[0].legs) {
+								this.addLegOnSelectedPlaces(this.place, response.routes[0].legs);
+							}
+							this.directionsRenderer.setDirections(response);
+						});
+					this.dataChanged = true;
+				}
+			},
+			loadMore() {
+				if (this.hasNextPage) {
+					this.pagination.nextPage();
+				}
+			},
+			updatePlaceData() {
+				if (this.place.place_text.length < 3) {
+					this.$root.$emit('show-notification', {
+						title: 'Error!',
+						message: 'Please enter at least three characters.',
+						type: 'error',
+					});
+					return;
+				}
+				if (!this.place.base_address_latitude || !this.place.base_address_longitude) {
+					this.$root.$emit('show-notification', {
+						title: 'Error!',
+						message: 'Please set base address first.',
+						type: 'error',
+					});
+					return;
+				}
+
+				let query = {
+					location: {
+						lat: this.place.base_address_latitude,
+						lng: this.place.base_address_longitude
+					},
+					radius: this.radius_meters,
+					query: this.place.place_text
+				};
+				this.$store.commit('SET_LOADING_STATUS', true);
+
+				this.textSearch(this.placesService, query)
+					.then(response => {
+						this.pagination = response.pagination;
+						this.hasNextPage = this.pagination.hasNextPage;
+
+						let location = new google.maps.LatLng(
+							this.place.base_address_latitude,
+							this.place.base_address_longitude
+						);
+						this.createMarkers(this.googleMap, location, response.results, this.places, this.markers);
+						this.$store.commit('SET_LOADING_STATUS', false);
+					})
+					.catch(error => {
+						this.$store.commit('SET_LOADING_STATUS', false);
+						console.log(error);
+					});
+			},
+			clearPlaceData() {
+				this.places = [];
+				this.hasNextPage = false;
+				this.clearMarkers(this.markers);
+			},
+			selectPlace(place) {
+				let _place = place, addresses = this.place.places;
+				let index = addresses.findIndex(el => el.place_id === _place.place_id);
+				_place['interval_hour'] = 0;
+				_place['interval_minute'] = 0;
+				_place['reach_time'] = 0;
+				_place['leave_time'] = 0;
+
+				if (-1 !== index) {
+					addresses.splice(index, 1);
+				} else {
+					addresses.push(_place);
+				}
+				this.place.places = addresses;
+
+				this.directionsRenderer.setDirections({routes: []});
+				this.getDirectionRoutes(this.directionsService, this.place)
+					.then(response => {
+						if (response.routes && response.routes[0].legs) {
+							this.addLegOnSelectedPlaces(this.place, response.routes[0].legs);
+						}
+						this.directionsRenderer.setDirections(response);
+					});
+				this.dataChanged = true;
+			},
 			openIntervalModal(place) {
 				this.showIntervalModal = true;
 				this.activePlace = place;
@@ -185,6 +327,7 @@
 			updateData() {
 				this.$store.dispatch('updateMapRecord', this.place)
 					.then(() => {
+						this.dataChanged = false;
 						this.$store.dispatch('refreshMapList');
 						this.close();
 						this.$root.$emit('show-notification', {
@@ -201,6 +344,17 @@
 	}
 </script>
 
-<style scoped>
+<style lang="scss">
+	.places-box__action-left {
+		position: absolute;
+		left: 0;
+		border: 0;
+		bottom: 0;
 
+		svg {
+			fill: currentColor;
+			width: 20px;
+			height: 20px;
+		}
+	}
 </style>

@@ -223,8 +223,6 @@
 			}
 		},
 		computed: {
-			...mapState(['addresses']),
-			...mapGetters(['filtered_addresses']),
 			radius_meters() {
 				return this.radius * 100;
 			}
@@ -331,24 +329,6 @@
 					}
 				);
 			},
-			//Returns Distance between two latlng objects using haversine formula
-			distance(placeOne, placeTwo) {
-				if (!placeOne || !placeTwo) return 0;
-
-				let R = 6371000; // Radius of the Earth in m
-				let dLat = (placeTwo.lat() - placeOne.lat()) * Math.PI / 180;
-				let dLon = (placeTwo.lng() - placeOne.lng()) * Math.PI / 180;
-				let a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-					Math.cos(placeOne.lat() * Math.PI / 180) * Math.cos(placeTwo.lat() * Math.PI / 180) *
-					Math.sin(dLon / 2) * Math.sin(dLon / 2);
-				let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-				return R * c;
-			},
-			metres_to_km(metres) {
-				if (metres < 100) return Math.round(metres) + " metres away";
-				if (metres < 1000) return (metres / 1000).toFixed(2) + " km away";
-				return (metres / 1000).toFixed(1) + " km away";
-			},
 			setBaseAddress(placeData) {
 				this.latitude = placeData.latitude;
 				this.longitude = placeData.longitude;
@@ -373,8 +353,6 @@
 				} else {
 					addresses.push(_place);
 				}
-				// this.$store.commit('SET_ADDRESSES', []);
-				// this.$store.commit('SET_ADDRESSES', addresses);
 				this.selectedPlaces = addresses;
 				this.updateMapRoute();
 			},
@@ -382,7 +360,7 @@
 				this.places = [];
 				this.hasNextPage = false;
 				this.dataLoaded = false;
-				this.clearMarkers();
+				this.clearMarkers(this.markers);
 			},
 			updatePlaceData() {
 				if (this.place_text.length < 3) {
@@ -463,13 +441,6 @@
 				}
 				self.googleMap.fitBounds(bounds);
 			},
-			clearMarkers() {
-				for (let i = 0; i < this.markers.length; i++) {
-					this.markers[i].setMap(null);
-				}
-				this.markers = [];
-			},
-
 			/**
 			 * Update map routes
 			 */
