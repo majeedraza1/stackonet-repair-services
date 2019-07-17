@@ -140,7 +140,7 @@
 						ticket_subject: self.ticket_subject,
 						ticket_content: self.ticket_content,
 					})
-					.then((response) => {
+					.then(response => {
 						self.loading = false;
 						self.activeThankYouModal = true;
 						self.phone_number = '';
@@ -148,7 +148,7 @@
 						self.ticket_subject = '';
 						self.ticket_content = '';
 					})
-					.catch((error) => {
+					.catch(error => {
 						self.loading = false;
 					});
 			}

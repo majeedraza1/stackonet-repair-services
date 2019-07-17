@@ -34,6 +34,8 @@ class Map extends DatabaseModel {
 		'place_text'             => '',
 		'travel_mode'            => '',
 		'places'                 => '',
+		'support_ticket_id'      => '',
+		'assigned_users'         => '',
 		'created_by'             => 0,
 		'created_at'             => '',
 		'updated_at'             => '',
@@ -57,6 +59,8 @@ class Map extends DatabaseModel {
 		'%s',
 		'%d',
 		'%s',
+		'%d',
+		'%s',
 		'%s',
 		'%s'
 	];
@@ -70,6 +74,7 @@ class Map extends DatabaseModel {
 		$data = parent::to_array();
 
 		$data['id']                     = intval( $data['id'] );
+		$data['support_ticket_id']      = intval( $data['support_ticket_id'] );
 		$data['base_address_latitude']  = floatval( $data['base_address_latitude'] );
 		$data['base_address_longitude'] = floatval( $data['base_address_longitude'] );
 		$data['created_by']             = $this->author()->ID;
@@ -151,6 +156,8 @@ class Map extends DatabaseModel {
                 `place_text` VARCHAR(255) DEFAULT NULL,
                 `travel_mode` VARCHAR(50) DEFAULT NULL,
                 `places` LONGTEXT DEFAULT NULL,
+                `support_ticket_id` bigint(20) DEFAULT NULL,
+                `assigned_users` TEXT DEFAULT NULL,
                 `created_by` bigint(20) DEFAULT NULL,
                 `created_at` datetime DEFAULT NULL,
                 `updated_at` datetime DEFAULT NULL,
@@ -159,5 +166,23 @@ class Map extends DatabaseModel {
             ) $collate;";
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $table_schema );
+
+		$this->add_table_columns();
+	}
+
+	/**
+	 * Add new columns to table
+	 */
+	public function add_table_columns() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . $this->table;
+
+		$row = $wpdb->get_row( "SELECT * FROM {$table_name}", ARRAY_A );
+		if ( ! isset( $row['support_ticket_id'] ) ) {
+			$wpdb->query( "ALTER TABLE {$table_name} ADD `support_ticket_id` bigint(20) NULL DEFAULT NULL AFTER `places`" );
+		}
+		if ( ! isset( $row['assigned_users'] ) ) {
+			$wpdb->query( "ALTER TABLE {$table_name} ADD `assigned_users` TEXT NULL DEFAULT NULL AFTER `support_ticket_id`" );
+		}
 	}
 }

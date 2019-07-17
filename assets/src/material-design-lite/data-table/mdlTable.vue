@@ -51,6 +51,7 @@
                     				<a href="#" @click.prevent="actionClicked(action.key, row)">{{ action.label }}</a>
 									<template v-if="!hideActionSeparator(action.key)"> | </template>
                   				</span>
+								<slot name="row-action" :row="row"></slot>
 							</slot>
 						</div>
 						<button type="button" class="toggle-row" v-if="actionColumn === column.key && hasActions"

@@ -5,6 +5,7 @@ namespace Stackonet\REST;
 use DateTime;
 use Exception;
 use Stackonet\Models\Map;
+use Stackonet\Modules\SupportTicket\MapToSupportTicket;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -44,6 +45,9 @@ class MapController extends ApiController {
 		] );
 		register_rest_route( $this->namespace, '/map/(?P<id>\d+)', [
 			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_item' ] ],
+		] );
+		register_rest_route( $this->namespace, '/map/(?P<id>\d+)/support-ticket', [
+			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'create_support_ticket' ] ],
 		] );
 	}
 
@@ -123,6 +127,33 @@ class MapController extends ApiController {
 		}
 
 		return $this->respondInternalServerError();
+	}
+
+	/**
+	 * Updates one item from the collection.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
+	 */
+	public function create_support_ticket( $request ) {
+		$id = $request->get_param( 'id' );
+
+		$map  = new Map();
+		$item = $map->find_by_id( $id );
+
+		if ( ! $item instanceof Map ) {
+			return $this->respondNotFound();
+		}
+
+		try {
+			MapToSupportTicket::process( $item );
+			$item = $map->find_by_id( $id );
+
+			return $this->respondCreated( $item );
+		} catch ( Exception $e ) {
+			return $this->respondUnprocessableEntity( $e->getMessage() );
+		}
 	}
 
 	/**
