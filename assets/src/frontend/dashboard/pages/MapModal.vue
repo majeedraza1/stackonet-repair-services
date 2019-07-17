@@ -70,6 +70,7 @@
 				</column>
 			</columns>
 			<template slot="foot">
+				<mdl-button @click="showDirectionModal = true">Get Direction</mdl-button>
 				<mdl-button v-if="dataChanged" type="raised" color="primary" @click="updateData">Update Data
 				</mdl-button>
 				<mdl-button @click="close">Close</mdl-button>
@@ -87,6 +88,56 @@
 			<div slot="foot">
 				<mdl-button type="raised" color="primary" @click="confirmInterval">Confirm</mdl-button>
 			</div>
+		</modal>
+		<modal :active="showDirectionModal" title="Get Direction" @close="closeDirectionModal">
+			<table class="mdl-data-table" v-if="place.places">
+				<thead>
+				<tr>
+					<td class="mdl-data-table__cell--non-numeric">Start Place</td>
+					<td class="mdl-data-table__cell--non-numeric">Destination</td>
+					<td>&nbsp;</td>
+				</tr>
+				</thead>
+				<tbody>
+				<tr>
+					<td class="mdl-data-table__cell--non-numeric">
+						<strong>Base Address</strong><br>
+						{{place.formatted_base_address}}
+					</td>
+					<td class="mdl-data-table__cell--non-numeric">
+						<strong>{{place.places[0].name}}</strong><br>
+						{{place.places[0].formatted_address}}
+					</td>
+					<td>
+						<mdl-button
+							@click="confirmDirection(place.formatted_base_address,place.places[0].formatted_address)">
+							Start
+						</mdl-button>
+					</td>
+				</tr>
+				<template v-for="(_place, index) in place.places" v-if="index > 0">
+					<tr>
+						<td class="mdl-data-table__cell--non-numeric">
+							<strong>{{place.places[index-1].name}}</strong><br>
+							{{place.places[index-1].formatted_address}}
+						</td>
+						<td class="mdl-data-table__cell--non-numeric">
+							<strong>{{_place.name}}</strong><br>
+							{{_place.formatted_address}}
+						</td>
+						<td>
+							<mdl-button
+								@click="confirmDirection(place.places[index-1].formatted_address,_place.formatted_address)">
+								Start
+							</mdl-button>
+						</td>
+					</tr>
+				</template>
+				</tbody>
+			</table>
+			<template slot="foot">
+				<mdl-button @click="closeDirectionModal">Close</mdl-button>
+			</template>
 		</modal>
 	</div>
 </template>
@@ -128,6 +179,7 @@
 		data() {
 			return {
 				showIntervalModal: false,
+				showDirectionModal: false,
 				dataChanged: false,
 				activePlace: {},
 				intervalHours: '',
@@ -304,6 +356,16 @@
 				setTimeout(() => {
 					document.querySelector('body').classList.add('has-shapla-modal');
 				}, 10);
+			},
+			closeDirectionModal() {
+				this.showDirectionModal = false;
+				setTimeout(() => {
+					document.querySelector('body').classList.add('has-shapla-modal');
+				}, 10);
+			},
+			confirmDirection(start, end) {
+				let url = `http://maps.google.com/maps?saddr=${encodeURI(start)}&daddr=${encodeURI(end)}`;
+				window.open(url);
 			},
 			confirmInterval() {
 				let place = this.activePlace, addresses = this.place.places;
