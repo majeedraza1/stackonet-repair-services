@@ -3,6 +3,8 @@
 namespace Stackonet\Models;
 
 use Stackonet\Abstracts\DatabaseModel;
+use Stackonet\Modules\SupportTicket\SupportAgent;
+use Stackonet\Modules\SupportTicket\SupportTicket;
 use WP_User;
 
 class Map extends DatabaseModel {
@@ -68,8 +70,18 @@ class Map extends DatabaseModel {
 	/**
 	 * @var WP_User
 	 */
-	private $user;
+	protected $user;
 
+	/**
+	 * @var WP_User[]
+	 */
+	protected $assigned_users = [];
+
+	/**
+	 * Array representation of the class
+	 *
+	 * @return array
+	 */
 	public function to_array() {
 		$data = parent::to_array();
 
@@ -81,6 +93,19 @@ class Map extends DatabaseModel {
 		$data['author']                 = [
 			'display_name' => $this->author()->display_name,
 		];
+
+		$assigned_users         = $this->get( 'assigned_users' );
+		$data['assigned_users'] = is_array( $assigned_users ) ? $assigned_users : [];
+
+		$assigned_users = $this->assigned_users();
+		if ( count( $assigned_users ) ) {
+			foreach ( $assigned_users as $user ) {
+				$data['assigned_agents'][] = [
+					'id'           => $user->ID,
+					'display_name' => $user->display_name,
+				];
+			}
+		}
 
 		return $data;
 	}
@@ -95,6 +120,21 @@ class Map extends DatabaseModel {
 		}
 
 		return $this->user;
+	}
+
+	/**
+	 * @return WP_User[]
+	 */
+	public function assigned_users() {
+		if ( empty( $this->assigned_users ) ) {
+			$assigned_users = $this->get( 'assigned_users' );
+			$assigned_users = is_array( $assigned_users ) ? array_map( 'intval', $assigned_users ) : [];
+			foreach ( $assigned_users as $user_id ) {
+				$this->assigned_users[] = get_user_by( 'id', $user_id );
+			}
+		}
+
+		return $this->assigned_users;
 	}
 
 	/**
@@ -134,6 +174,36 @@ class Map extends DatabaseModel {
 	 */
 	public function count_records() {
 		return [];
+	}
+
+	/**
+	 * @param int $map_id Map id
+	 * @param int[] $assigned_users List of users id
+	 */
+	public static function update_support_ticket_agents( $map_id, $assigned_users ) {
+		$map               = ( new static )->find_by_id( $map_id );
+		$support_ticket_id = $map->get( 'support_ticket_id' );
+		if ( ! empty( $support_ticket_id ) ) {
+			$ticket = ( new SupportTicket() )->find_by_id( $support_ticket_id );
+			if ( $ticket instanceof SupportTicket ) {
+				$ticket->update_agent( $assigned_users );
+			}
+		}
+	}
+
+	/**
+	 * @param SupportTicket $ticket
+	 * @param SupportAgent[] $agents
+	 */
+	public static function update_map_agents( $ticket, $agents ) {
+		if ( 'map' == $ticket->created_via() ) {
+			$user_ids = [];
+			foreach ( $agents as $agent ) {
+				$user_ids[] = $agent->get_user_id();
+			}
+			$map_id = $ticket->belongs_to_id();
+			( new static )->update( [ 'id' => $map_id, 'assigned_users' => $user_ids ] );
+		}
 	}
 
 	/**

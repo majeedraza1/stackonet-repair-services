@@ -49,6 +49,9 @@ class MapController extends ApiController {
 		register_rest_route( $this->namespace, '/map/(?P<id>\d+)/support-ticket', [
 			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'create_support_ticket' ] ],
 		] );
+		register_rest_route( $this->namespace, '/map/(?P<id>\d+)/agent', [
+			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_agent' ] ],
+		] );
 	}
 
 	/**
@@ -123,6 +126,39 @@ class MapController extends ApiController {
 		}
 
 		if ( $map->update( $request->get_params() ) ) {
+			return $this->respondOK();
+		}
+
+		return $this->respondInternalServerError();
+	}
+
+	/**
+	 * Updates one item from the collection.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
+	 */
+	public function update_agent( $request ) {
+		$id             = $request->get_param( 'id' );
+		$assigned_users = $request->get_param( 'assigned_users' );
+		$assigned_users = is_array( $assigned_users ) ? array_map( 'intval', $assigned_users ) : [];
+
+		$map  = new Map();
+		$item = $map->find_by_id( $id );
+
+		if ( ! $item instanceof Map ) {
+			return $this->respondNotFound();
+		}
+
+		if ( $map->update( [ 'id' => $id, 'assigned_users' => $assigned_users ] ) ) {
+
+			/**
+			 * @param int $id Map id
+			 * @param int[] $assigned_users List of users id
+			 */
+			do_action( 'save_stackonet_map_agent', $id, $assigned_users );
+
 			return $this->respondOK();
 		}
 

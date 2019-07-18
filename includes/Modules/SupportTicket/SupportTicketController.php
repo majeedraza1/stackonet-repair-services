@@ -6,6 +6,7 @@ use Exception;
 use Stackonet\Integrations\GoogleMap;
 use Stackonet\Integrations\Twilio;
 use Stackonet\Models\Appointment;
+use Stackonet\Models\Map;
 use Stackonet\Models\Settings;
 use Stackonet\REST\ApiController;
 use Stackonet\Supports\Logger;
@@ -434,7 +435,7 @@ class SupportTicketController extends ApiController {
 	 */
 	public function get_item( $request ) {
 		if ( ! current_user_can( 'read_tickets' ) ) {
-			// return $this->respondUnauthorized();
+			return $this->respondUnauthorized();
 		}
 
 		$id = (int) $request->get_param( 'id' );
@@ -507,6 +508,11 @@ class SupportTicketController extends ApiController {
 				'payment_url'         => $payment_url,
 				'custom_amount_items' => $custom_amount,
 			];
+		}
+
+		// Map Data
+		if ( $supportTicket->created_via() == 'map' ) {
+			$response['map'] = ( new Map() )->find_by_id( $supportTicket->belongs_to_id() );
 		}
 
 		return $this->respondOK( $response );

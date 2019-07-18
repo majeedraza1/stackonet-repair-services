@@ -854,7 +854,7 @@ class SupportTicket extends DatabaseModel {
 	/**
 	 * Update support ticket agents
 	 *
-	 * @param array $agents_ids
+	 * @param array $agents_ids List of WP_User[] ID
 	 */
 	public function update_agent( array $agents_ids ) {
 		global $wpdb;
@@ -870,14 +870,22 @@ class SupportTicket extends DatabaseModel {
 			}
 		}
 
-		$agents = SupportAgent::get_all();
-		foreach ( $agents as $agent ) {
+		$_agents = SupportAgent::get_all();
+		$agents  = [];
+		foreach ( $_agents as $agent ) {
 			foreach ( $agents_ids as $agents_id ) {
 				if ( $agent->get_user()->ID == $agents_id ) {
+					$agents[] = $agent;
 					$this->update_metadata( $ticket_id, $meta_key, $agent->get( 'term_id' ) );
 				}
 			}
 		}
+
+		/**
+		 * @param SupportTicket $this
+		 * @param SupportAgent[] $agents
+		 */
+		do_action( 'save_support_ticket_agent', $this, $agents );
 	}
 
 	/**
@@ -901,8 +909,7 @@ class SupportTicket extends DatabaseModel {
 	public function trash( $id ) {
 		global $wpdb;
 		$table = $wpdb->prefix . $this->table;
-		$query = $wpdb->update( $table, [ 'active' => 0 ], [ $this->primaryKey => $id ]
-		);
+		$query = $wpdb->update( $table, [ 'active' => 0 ], [ $this->primaryKey => $id ] );
 
 		return ( false !== $query );
 	}

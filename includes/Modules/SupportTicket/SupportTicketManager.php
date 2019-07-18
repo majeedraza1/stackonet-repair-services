@@ -2,6 +2,7 @@
 
 namespace Stackonet\Modules\SupportTicket;
 
+use Stackonet\Models\Map;
 use Stackonet\Supports\Logger;
 use Stackonet\Supports\Utils;
 
@@ -26,6 +27,9 @@ class SupportTicketManager {
 			add_shortcode( 'stackonet_support_ticket_form', [ self::$instance, 'support_ticket_form' ] );
 			add_action( 'wp_ajax_download_support_ticket', [ self::$instance, 'download_support_ticket' ] );
 			add_filter( 'map_meta_cap', [ new SupportTicket(), 'map_meta_cap' ], 10, 4 );
+
+			add_action( 'save_support_ticket_agent', [ new Map(), 'update_map_agents' ], 10, 2 );
+			add_action( 'save_stackonet_map_agent', [ new Map(), 'update_support_ticket_agents' ], 10, 2 );
 
 			SupportTicketController::init();
 		}

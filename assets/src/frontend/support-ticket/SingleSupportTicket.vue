@@ -14,6 +14,12 @@
 								<icon><i class="fa fa-list" aria-hidden="true"></i></icon>
 								Ticket List
 							</mdl-button>
+							<template v-if="!!Object.keys(map).length">
+								<mdl-button type="raised" color="default" @click="showViewMapModal = true">
+									<icon><i class="fa fa-map" aria-hidden="true"></i></icon>
+									View Map
+								</mdl-button>
+							</template>
 							<template v-if="item.created_via=== 'appointment'">
 								<template v-if="order.order_edit_url">
 									<a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised"
@@ -434,6 +440,8 @@
 			</template>
 		</modal>
 
+		<map-modal :place="map" :active="showViewMapModal" mode="view" @close="showViewMapModal = false"></map-modal>
+
 	</div>
 </template>
 
@@ -451,10 +459,12 @@
 	import MdlRadio from "../../material-design-lite/radio/mdlRadio";
 	import Accordion from "../../components/Accordion";
 	import TicketThreads from "./TicketThreads";
+	import MapModal from "../dashboard/pages/MapModal";
 
 	export default {
 		name: "SingleSupportTicket",
 		components: {
+			MapModal,
 			TicketThreads, Accordion, MdlRadio, MediaModal, Icon, ImageContainer,
 			mdlButton, columns, column, ListItem, Editor, modal
 		},
@@ -490,6 +500,8 @@
 				content: '',
 				item: {},
 				threads: [],
+				map: {},
+				showViewMapModal: false,
 				navigation: {
 					pre: {},
 					next: {}
@@ -963,6 +975,9 @@
 						self.navigation = response.data.data.navigation;
 						if (response.data.data.order) {
 							self.order = response.data.data.order;
+						}
+						if (response.data.data.map) {
+							self.map = response.data.data.map;
 						}
 					})
 					.catch((error) => {

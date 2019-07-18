@@ -27,7 +27,28 @@ class MapToSupportTicket {
 			'agent_created'   => $map->author()->ID,
 		];
 
-		$content = '';
+		ob_start();
+		?>
+		<table class="table--support-order">
+			<tr>
+				<td>Title:</td>
+				<td><strong><?php echo $map->get( 'title' ) ?></strong></td>
+			</tr>
+			<tr>
+				<td>Travel Date:</td>
+				<td><strong><?php echo $map->get( 'base_datetime' ) ?></strong></td>
+			</tr>
+			<tr>
+				<td>Travel Mode:</td>
+				<td><strong><?php echo $map->get( 'travel_mode' ) ?></strong></td>
+			</tr>
+			<tr>
+				<td>Base Address:</td>
+				<td><strong><?php echo $map->get( 'formatted_base_address' ) ?></strong></td>
+			</tr>
+		</table>
+		<?php
+		$content = ob_get_clean();
 
 		$supportTicket = new SupportTicket();
 		$ticket_id     = $supportTicket->create_support_ticket( $_data, $content );
