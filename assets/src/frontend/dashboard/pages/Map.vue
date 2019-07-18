@@ -138,7 +138,6 @@
 
 <script>
 	import axios from 'axios'
-	import {mapState, mapGetters} from 'vuex';
 	import {column, columns} from 'shapla-columns';
 	import draggable from 'vuedraggable'
 	import deleteIcon from "shapla-delete";
@@ -258,6 +257,26 @@
 			this.directionsService = new google.maps.DirectionsService;
 			this.directionsRenderer = new google.maps.DirectionsRenderer({
 				map: this.googleMap,
+			});
+
+			google.maps.event.addListener(this.googleMap, 'click', (event) => {
+				this.placesService.getDetails({placeId: event.placeId}, (place, status) => {
+					if (status === google.maps.places.PlacesServiceStatus.OK) {
+						let _place = {
+							place_id: place.place_id,
+							name: place.name,
+							formatted_address: place.formatted_address,
+							location: place.geometry.location,
+							distance: 0,
+							interval_hour: 0,
+							interval_minute: 0,
+							reach_time: 0,
+							leave_time: 0,
+							leg: ''
+						};
+						this.places.unshift(_place);
+					}
+				});
 			});
 		},
 		methods: {

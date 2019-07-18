@@ -192,6 +192,29 @@ const MapMixin = {
 			if (metres < 1000) return (metres / 1000).toFixed(2) + " km away";
 			return (metres / 1000).toFixed(1) + " km away";
 		},
+		getClickedLocationDetails(googleMap, placesService) {
+			return new Promise(resolve => {
+				google.maps.event.addListener(googleMap, 'click', (event) => {
+					placesService.getDetails({placeId: event.placeId}, (place, status) => {
+						if (status === google.maps.places.PlacesServiceStatus.OK) {
+							let _place = {
+								place_id: place.place_id,
+								name: place.name,
+								formatted_address: place.formatted_address,
+								location: place.geometry.location,
+								distance: 0,
+								interval_hour: 0,
+								interval_minute: 0,
+								reach_time: 0,
+								leave_time: 0,
+								leg: ''
+							};
+							resolve(_place);
+						}
+					});
+				});
+			});
+		}
 	}
 };
 
