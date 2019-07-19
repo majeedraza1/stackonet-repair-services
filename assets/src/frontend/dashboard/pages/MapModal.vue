@@ -27,42 +27,41 @@
 					<div id="modal-map" style="height: 300px;"></div>
 					<div>
 						<div class="selected-places">
-							<columns multiline>
-								<column v-if="place.formatted_base_address">
-									<div class="places-box__item places-box__selected-item mdl-shadow--4dp">
-										<div class="places-box__left">
-											<div class="places-box__name">Base Address:</div>
-											<div class="places-box__formatted_address"
+							<columns multiline class="has-gap-50">
+								<column :tablet="6" :desktop="4" v-if="place.formatted_base_address">
+									<address-box2 letter="A" :add-button="false" :remove-button="false">
+										<div class="new-design__content">
+											<div class="new-design__title">Base Address:</div>
+											<div class="new-design__description"
 												 v-html="place.formatted_base_address"></div>
-											<div class="google-address-box__formatted_distance"
-												 v-if="place.base_datetime">
-												<span>ETD :&nbsp; </span>
-												<span v-html="formatDate(place.base_datetime)"></span>;
-												<span v-html="formatTime(place.base_datetime)"></span>
+										</div>
+										<template>
+											<div class="new-design__small-box-container2">
+												<div class="shapla-box small-box-second small-box-second__ETD">
+													<div>
+														<span class="shapla-icon is-medium">
+															<svg version="1.1" xmlns="http://www.w3.org/2000/svg"
+																 width="32"
+																 height="32">
+																<use xlink:href="#icon-svg-calendar"></use>
+															</svg>
+														</span>
+													</div>
+													<span>ETD</span>
+													<span class="new-design__date"><span>Jul 15, 2019</span>;
+													<span>9:24 PM</span></span>
+												</div>
 											</div>
-										</div>
-										<div class="places-box__right">
-											<div class="places-box__index">A</div>
-										</div>
-									</div>
+										</template>
+									</address-box2>
 								</column>
 								<column :tablet="6" :desktop="4" v-for="(_place, index) in place.places"
 										:key="_place.place_id">
-									<address-box :place="_place">
-										<div class="places-box__index">{{alphabets[index+1]}}</div>
-										<div class="places-box__action">
-											<mdl-button type="icon" @click="openIntervalModal(_place)">+</mdl-button>
-										</div>
-										<div class="places-box__action-left">
-											<mdl-button type="icon" @click="removePlace(_place)">
-												<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-													<rect x="0" fill="none" width="20" height="20"></rect>
-													<path
-														d="M12 4h3c.6 0 1 .4 1 1v1H3V5c0-.6.5-1 1-1h3c.2-1.1 1.3-2 2.5-2s2.3.9 2.5 2zM8 4h3c-.2-.6-.9-1-1.5-1S8.2 3.4 8 4zM4 7h11l-.9 10.1c0 .5-.5.9-1 .9H5.9c-.5 0-.9-.4-1-.9L4 7z"></path>
-												</svg>
-											</mdl-button>
-										</div>
-									</address-box>
+									<address-box2
+										:place="_place"
+										:letter="alphabets[index+1]"
+										@button:click="handleClick"
+									></address-box2>
 								</column>
 							</columns>
 						</div>
@@ -152,6 +151,7 @@
 	import SearchBox from "../../../components/SearchBox";
 	import MdlSlider from "../../../material-design-lite/slider/mdlSlider";
 	import Icon from "../../../shapla/icon/icon";
+	import AddressBox2 from "../../../components/AddressBox2";
 
 	let mapStyles = require('./map-style.json');
 
@@ -159,6 +159,7 @@
 		name: "MapModal",
 		mixins: [MapMixin],
 		components: {
+			AddressBox2,
 			Icon,
 			MdlSlider,
 			SearchBox,
@@ -337,6 +338,13 @@
 						this.directionsRenderer.setDirections(response);
 					});
 				this.dataChanged = true;
+			},
+			handleClick(action, place) {
+				if ('trash' === action) {
+					this.removePlace(place)
+				} else {
+					this.openIntervalModal(place);
+				}
 			},
 			openIntervalModal(place) {
 				this.showIntervalModal = true;

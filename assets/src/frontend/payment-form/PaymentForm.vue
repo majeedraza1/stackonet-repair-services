@@ -94,12 +94,12 @@
 <script>
 	import axios from 'axios';
 	import {columns, column} from 'shapla-columns';
+	import spinner from "shapla-spinner";
 	import MdlButton from "../../material-design-lite/button/mdlButton";
-	import Spinner from "../../shapla/spinner/spinner";
 
 	export default {
 		name: "PaymentForm",
-		components: {Spinner, MdlButton, columns, column},
+		components: {spinner, MdlButton, columns, column},
 		data: function () {
 			return {
 				loading: false,

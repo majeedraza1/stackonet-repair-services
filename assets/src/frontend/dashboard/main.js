@@ -4,6 +4,9 @@ import App from './App'
 import router from './routers.js';
 import store from './store.js';
 import axios from "axios";
+import modal from "../../shapla/shapla-confirm-modal";
+
+Vue.use(modal);
 
 let el = document.querySelector('#stackonet_repair_services_dashboard');
 if (el) {

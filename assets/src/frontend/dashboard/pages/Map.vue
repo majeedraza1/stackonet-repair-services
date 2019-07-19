@@ -274,7 +274,19 @@
 							leave_time: 0,
 							leg: ''
 						};
-						this.places.unshift(_place);
+						this.$modal.confirm({
+							message: `Do you want to add this address to list?<br><br><strong>${place.name}</strong><br>${place.formatted_address}`,
+							confirmButton: 'Yes',
+							cancelButton: 'No'
+						}).then(confirmed => {
+							if (confirmed) {
+								this.places.unshift(_place);
+								this.selectedPlaces.push(_place);
+								setTimeout(() => {
+									this.updateMapRoute();
+								})
+							}
+						})
 					}
 				});
 			});
@@ -552,6 +564,11 @@
 		.mdl-tabs__panel.is-active {
 			margin-top: 1rem;
 		}
+	}
+
+	.selected-places {
+		margin-bottom: 3rem;
+		margin-top: 3rem;
 	}
 
 	.radius-slider {

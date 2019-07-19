@@ -71,6 +71,11 @@
 		</div>
 		<spinner :active="loading"></spinner>
 		<notification ref="notify"></notification>
+		<confirm-dialog
+			confirm-button-class="mdl-button mdl-button--raised mdl-button--primary"
+			cancel-button-class="mdl-button mdl-button--raised"
+		></confirm-dialog>
+		<svg-icon></svg-icon>
 	</div>
 </template>
 
@@ -83,10 +88,12 @@
 	import MdlButton from "../../material-design-lite/button/mdlButton";
 	import Icon from "../../shapla/icon/icon";
 	import ImageContainer from "../../shapla/image/image";
+	import ConfirmDialog from "../../shapla/shapla-confirm-modal/ConfirmDialog";
+	import SvgIcon from "../../svg-icon";
 
 	export default {
 		name: "App",
-		components: {spinner, ImageContainer, MdlButton, Icon, notification},
+		components: {SvgIcon, ConfirmDialog, spinner, ImageContainer, MdlButton, Icon, notification},
 		mounted() {
 			let el = this.$el;
 			new MaterialLayout(el.querySelector('.stackonet-dashboard'));
@@ -108,6 +115,20 @@
 	@import "../../material-design-lite/menu/menu";
 	@import "~shapla-notifications/src/notification";
 	@import "dashboard";
+
+	.no-wrap {
+		white-space: nowrap;
+	}
+
+	.has-gap-50 {
+		&.shapla-columns {
+			margin: -25px;
+
+			> .shapla-column {
+				padding: 25px;
+			}
+		}
+	}
 
 	body.has-shapla-modal {
 		.mdl-layout__drawer,

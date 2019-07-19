@@ -10,7 +10,7 @@
 					<div class="google-address-box__formatted_distance" v-if="place.leg.distance">
 						{{place.leg.distance.text}}
 					</div>
-					<div class="google-address-box__formatted_distance" v-if="place.leg.distance">
+					<div class="google-address-box__formatted_distance" v-if="place.leg.duration">
 						{{place.leg.duration.text}}
 					</div>
 				</template>
