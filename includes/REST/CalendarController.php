@@ -53,6 +53,7 @@ class CalendarController extends ApiController {
 	 * @param WP_REST_Request $request Full data about the request.
 	 *
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
+	 * @throws Exception
 	 */
 	public function get_items( $request ) {
 		$date = $request->get_param( 'date' );
@@ -91,7 +92,9 @@ class CalendarController extends ApiController {
 		$dates    = range( 1, intval( $dateTime->format( 't' ) ) );
 		$yearNum  = intval( $dateTime->format( 'Y' ) );
 		$monthNum = intval( $dateTime->format( 'm' ) );
-		$dateNum  = intval( $dateTime->format( 'd' ) );
+
+		$now     = new DateTime();
+		$dateNum = intval( $now->format( 'd' ) );
 
 		$_orders_counts = [];
 		foreach ( $orders_counts as $order_count ) {
