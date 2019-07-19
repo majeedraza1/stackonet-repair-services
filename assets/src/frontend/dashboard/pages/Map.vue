@@ -182,7 +182,6 @@
 				markers: [],
 				place_text: '',
 				location: '',
-				dataLoaded: false,
 				pagination: null,
 				hasNextPage: false,
 				showDateTime: false,
@@ -390,7 +389,6 @@
 			clearPlaceData() {
 				this.places = [];
 				this.hasNextPage = false;
-				this.dataLoaded = false;
 				this.clearMarkers(this.markers);
 			},
 			updatePlaceData() {
@@ -418,17 +416,35 @@
 					};
 				self.$store.commit('SET_LOADING_STATUS', true);
 
-				// Perform a nearby search.
+				// this.nearbySearch(this.placesService, {
+				// 	location: this.location,
+				// 	radius: this.radius_meters,
+				// 	keyword: this.place_text,
+				// 	rankby: 'distance',
+				// }).then(response => {
+				// 	console.log(response);
+				// 	this.$store.commit('SET_LOADING_STATUS', false);
+				// 	this.pagination = response.pagination;
+				// 	this.hasNextPage = response.pagination.hasNextPage;
+				// 	this.createMarkers(response.results);
+				// }).catch(() => {
+				// 	this.$store.commit('SET_LOADING_STATUS', false);
+				// });
+
+				// Perform a text search.
 				self.places = [];
-				self.placesService.textSearch(request, function (results, status, pagination) {
-						self.$store.commit('SET_LOADING_STATUS', false);
-						if (status !== 'OK') return;
-						self.pagination = pagination;
-						self.hasNextPage = pagination.hasNextPage;
-						self.createMarkers(results);
-					}
-				);
-				self.dataLoaded = true;
+				this.textSearch(this.placesService, {
+					query: this.place_text,
+					location: this.location,
+					radius: this.radius_meters,
+				}).then(response => {
+					this.$store.commit('SET_LOADING_STATUS', false);
+					this.pagination = response.pagination;
+					this.hasNextPage = response.pagination.hasNextPage;
+					this.createMarkers(response.results);
+				}).catch(error => {
+					this.$store.commit('SET_LOADING_STATUS', false);
+				});
 			},
 			loadMore() {
 				if (this.hasNextPage) {
@@ -552,7 +568,6 @@
 					}
 
 					this.selectedPlaces = _selectedPlaces;
-					// this.$store.commit('SET_ADDRESSES', _selectedPlaces);
 				}
 			}
 		}

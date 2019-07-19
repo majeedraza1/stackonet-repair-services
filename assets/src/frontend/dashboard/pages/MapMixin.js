@@ -26,6 +26,17 @@ const MapMixin = {
 			// 08:12 PM
 			return `${hr}:${min} ${ampm}`;
 		},
+		nearbySearch(PlacesService, request) {
+			return new Promise((resolve, reject) => {
+				PlacesService.nearbySearch(request, (results, status, pagination) => {
+					if (status === 'OK') {
+						resolve({results, pagination});
+					} else {
+						reject(status);
+					}
+				});
+			});
+		},
 		textSearch(PlacesService, request) {
 			return new Promise((resolve, reject) => {
 				PlacesService.textSearch(request, (results, status, pagination) => {

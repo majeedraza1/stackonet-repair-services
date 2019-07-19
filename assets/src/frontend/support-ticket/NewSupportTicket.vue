@@ -203,25 +203,26 @@
 				this.$router.push({name: 'SupportTicketList'});
 			},
 			submitTicket() {
-				let self = this;
-				self.$store.commit('SET_LOADING_STATUS', true);
+				let data = {
+					customer_name: this.customer_name,
+					customer_email: this.customer_email,
+					ticket_subject: this.ticket_subject,
+					ticket_content: this.ticket_content,
+					ticket_category: this.ticket_category,
+					ticket_priority: this.ticket_priority,
+					ticket_attachments: this.ticket_attachments,
+				};
+
+				this.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.post(PhoneRepairs.rest_root + '/support-ticket', {
-						customer_name: self.customer_name,
-						customer_email: self.customer_email,
-						ticket_subject: self.ticket_subject,
-						ticket_content: self.ticket_content,
-						ticket_category: self.ticket_category,
-						ticket_priority: self.ticket_priority,
-						ticket_attachments: self.ticket_attachments,
-					})
-					.then((response) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
+					.post(PhoneRepairs.rest_root + '/support-ticket', data)
+					.then(response => {
+						this.$store.commit('SET_LOADING_STATUS', false);
 						let id = response.data.data.ticket_id;
 						this.$router.push({name: 'SingleSupportTicket', params: {id: id}});
 					})
-					.catch((error) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
+					.catch(error => {
+						this.$store.commit('SET_LOADING_STATUS', false);
 					});
 			}
 		}

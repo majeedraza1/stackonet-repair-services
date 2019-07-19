@@ -1,3 +1,36 @@
+#### 1.1.13 - July 19, 2019
+* Add - Add option to add note from support ticket list page.
+* Dev - Add meta capability functionality for support ticket.
+* Dev - Update dashboard user permission check.
+* Dev - Update support ticket permission check functionality.
+* Add - Add custom payment link generator on order support ticket.
+* Fix - Fix support ticket is conflicting with meta table id.
+* Add - Add message sending capability for agent.
+* Add - Add note circle indicator on support ticket list table.
+* Add - Add Map menu on dashboard with text search, marker, address list functionality.
+* Add - Add agent filter option on support agent list page.
+* Add - Add call action on support list table.
+* Add - Add "Quick View" action on support list table.
+* Fix - Fix checkbox is not showing on Dashboard SMS list for mobile view.
+* Fix - Fix date filter is not working on SMS list page.
+* Add - Add base address, radius option, map route, date and time field.
+* Fix - Fix error on filter and also some improvement in design.
+* Add - Add live distance option on map.
+* Add - Update address-box component for updating estimated time.
+* Add - Complete ETA and ETD functionality.
+* Add - Add map list page.
+* Add - Add map view functionality.
+* Add - Add map edit functionality.
+* Add - Add map direction functionality.
+* Add - Add map to support ticket generation functionality.
+* Add - Add functionality to change support agent from both support ticket and map.
+* Add - Add option to view/edit map from support ticket.
+* Add - Update support ticket content for map.
+* Add - Add option to select place from map.
+* Add - Add confirm option for address select on map.
+* Add - Update address box design.
+* Fix - Fix Graph data not showing perfectly for current month.
+
 #### 1.1.12 - July 01, 2019
 * Add - Add Square Payment integration for payment processing.
 * Add - Add settings fields for square payment.
