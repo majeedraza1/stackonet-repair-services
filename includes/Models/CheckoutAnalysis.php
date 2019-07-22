@@ -48,6 +48,7 @@ class CheckoutAnalysis extends DatabaseModel {
 		'terms_and_conditions'      => null,
 		'thank_you'                 => null,
 		'extra_information'         => null,
+		'support_ticket_id'         => 0,
 		'created_by'                => 0,
 		'created_at'                => null,
 		'updated_at'                => null,
@@ -76,11 +77,26 @@ class CheckoutAnalysis extends DatabaseModel {
 		'%s',
 		'%s',
 		'%s',
+		'%d',
 		'%s',
 		'%s',
 		'%s',
 		'%s',
 	];
+
+	/**
+	 * Get extra information
+	 *
+	 * @return array
+	 */
+	public function extra_information() {
+		return is_array( $this->data['extra_information'] ) ? $this->data['extra_information'] : [];
+	}
+
+	public function get_data() {
+		$data = $this->extra_information();
+
+	}
 
 	/**
 	 * Find record by id
@@ -182,6 +198,7 @@ class CheckoutAnalysis extends DatabaseModel {
                 `terms_and_conditions` datetime DEFAULT NULL,
                 `thank_you` datetime DEFAULT NULL,
                 `extra_information` longtext DEFAULT NULL,
+                `support_ticket_id` bigint(20) DEFAULT NULL,
                 `created_by` bigint(20) DEFAULT NULL,
                 `created_at` datetime DEFAULT NULL,
                 `updated_at` datetime DEFAULT NULL,
@@ -203,13 +220,35 @@ class CheckoutAnalysis extends DatabaseModel {
 		$version    = get_option( 'stackonet_checkout_analysis_table_version' );
 		$version    = ! empty( $version ) ? $version : '1.0.0';
 
-		if ( version_compare( $version, '1.0.2', '<' ) ) {
-			$row = $wpdb->get_row( "SELECT * FROM {$table_name}", ARRAY_A );
-			if ( ! isset( $row['user_info'] ) ) {
-				$wpdb->query( "ALTER TABLE {$table_name} ADD `user_info` datetime NULL DEFAULT NULL AFTER `city`" );
-			}
+		$row = $wpdb->get_row( "SELECT * FROM {$table_name}", ARRAY_A );
 
-			update_option( 'stackonet_checkout_analysis_table_version', '1.0.2' );
+		if ( ! isset( $row['user_info'] ) ) {
+			$wpdb->query( "ALTER TABLE {$table_name} ADD `user_info` datetime NULL DEFAULT NULL AFTER `city`" );
 		}
+		if ( ! isset( $row['support_ticket_id'] ) ) {
+			$wpdb->query( "ALTER TABLE {$table_name} ADD `support_ticket_id` bigint NULL DEFAULT NULL AFTER `extra_information`" );
+		}
+	}
+
+	/**
+	 * @return array|object|null
+	 */
+	public static function needToAddSupport() {
+		global $wpdb;
+		$self       = new self();
+		$table_name = $wpdb->prefix . $self->table;
+
+		$sql     = "SELECT * FROM {$table_name} WHERE 1 = 1";
+		$sql     .= " AND ( thank_you IS NULL OR thank_you = '' )";
+		$sql     .= " AND ( support_ticket_id IS NULL OR support_ticket_id = '' OR support_ticket_id = 0 )";
+		$sql     .= " AND user_info IS NOT NULL";
+		$results = $wpdb->get_results( $sql, ARRAY_A );
+
+		$items = [];
+		foreach ( $results as $result ) {
+			$items[] = new self( $result );
+		}
+
+		return $items;
 	}
 }

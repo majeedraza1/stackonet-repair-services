@@ -63,34 +63,37 @@
 				</span>
 			</template>
 			<template slot="filters">
-				<label for="filter-address" class="screen-reader-text">Filter by status</label>
-				<select id="filter-address" v-model="status" @change="changeStatus">
-					<option :value="_status.key" v-for="_status in statuses">
-						{{_status.label}} ({{_status.count}})
-					</option>
-				</select>
-				<label for="filter-category" class="screen-reader-text">Filter by Category</label>
-				<select id="filter-category" v-model="category" @change="changeStatus">
-					<option :value="_status.key" v-for="_status in default_categories">
-						{{_status.label}}
-					</option>
-				</select>
-				<label for="filter-priority" class="screen-reader-text">Filter by Priority</label>
-				<select id="filter-priority" v-model="priority" @change="changeStatus">
-					<option :value="_status.key" v-for="_status in default_priorities">
-						{{_status.label}}
-					</option>
-				</select>
-				<label for="filter-city" class="screen-reader-text">Filter by Priority</label>
-				<select id="filter-city" v-model="city" @change="changeStatus">
-					<option value="all">All Cities</option>
-					<option :value="_city" v-for="_city in cities">{{_city}}</option>
-				</select>
-				<label for="filter-agent" class="screen-reader-text">Filter by Priority</label>
-				<select id="filter-agent" v-model="agent" @change="changeStatus">
-					<option value="all">All Agents</option>
-					<option :value="_agent.id" v-for="_agent in support_agents">{{_agent.display_name}}</option>
-				</select>
+				<div style="min-width: 150px;">
+					<v-select :options="statuses" v-model="vStatus" @input="_changeStatus" :clearable="false"
+							  placeholder="All Status">
+						<template slot="option" slot-scope="option">
+							{{option.label}} ({{option.count}})
+						</template>
+					</v-select>
+				</div>
+				<div style="min-width: 150px;">
+					<v-select :options="default_categories" v-model="vCategory" @input="_changeCategory"
+							  :clearable="false"
+							  placeholder="All Categories">
+						<template slot="option" slot-scope="option">
+							{{option.label}} ({{option.count}})
+						</template>
+					</v-select>
+				</div>
+				<div style="min-width: 120px;">
+					<v-select :options="default_priorities" v-model="vPriority" @input="_changePriority"
+							  :clearable="false"
+							  placeholder="All Priorities"></v-select>
+				</div>
+				<div style="min-width: 120px;">
+					<v-select :options="_cities" v-model="vCity" @input="_changeCity" :clearable="false"
+							  placeholder="All Cities"></v-select>
+				</div>
+				<div style="min-width: 120px;">
+					<v-select :options="support_agents" v-model="vAgent" @input="_changeAgent" :clearable="false"
+							  label="display_name"
+							  placeholder="All Agents"></v-select>
+				</div>
 				<mdl-button type="raised" color="default" @click="clearFilter">Clear Filter</mdl-button>
 			</template>
 		</mdl-table>
@@ -114,6 +117,7 @@
 	import {mapGetters} from 'vuex';
 	import axios from 'axios';
 	import modal from 'shapla-modal'
+	import vSelect from 'vue-select'
 	import mdlTable from '../../material-design-lite/data-table/mdlTable'
 	import mdlButton from '../../material-design-lite/button/mdlButton'
 	import wpStatusList from '../../wp/wpStatusList'
@@ -125,7 +129,18 @@
 
 	export default {
 		name: "SupportTicketList",
-		components: {TicketThreads, Icon, mdlTable, mdlButton, wpStatusList, wpPagination, wpBulkActions, modal, Search},
+		components: {
+			vSelect,
+			TicketThreads,
+			Icon,
+			mdlTable,
+			mdlButton,
+			wpStatusList,
+			wpPagination,
+			wpBulkActions,
+			modal,
+			Search
+		},
 		data() {
 			return {
 				loading: false,
@@ -156,6 +171,11 @@
 				priority: 'all',
 				city: 'all',
 				agent: 'all',
+				vStatus: {},
+				vCategory: {},
+				vPriority: {},
+				vCity: {},
+				vAgent: {},
 				query: '',
 				activeItem: {},
 				activeNoteModal: false,
@@ -217,6 +237,13 @@
 					return [{key: 'trash', label: 'Move to Trash'}];
 				}
 			},
+			_cities() {
+				let cities = Object.values(this.cities);
+
+				return cities.map(e => {
+					return {label: e, value: e}
+				});
+			}
 		},
 		methods: {
 			getQuickViewItem(item_id) {
@@ -270,7 +297,28 @@
 				this.category = 'all';
 				this.priority = 'all';
 				this.city = 'all';
+				this.vStatus = this.vCategory = this.vPriority = this.vCity = {};
 				this.getItems();
+			},
+			_changeStatus(value) {
+				this.status = value.key;
+				this.changeStatus();
+			},
+			_changeCategory(value) {
+				this.category = value.key;
+				this.changeStatus();
+			},
+			_changePriority(value) {
+				this.priority = value.key;
+				this.changeStatus();
+			},
+			_changeCity(value) {
+				this.city = value.value;
+				this.changeStatus();
+			},
+			_changeAgent(value) {
+				this.agent = value.id;
+				this.changeStatus();
 			},
 			changeStatus() {
 				this.currentPage = 1;
@@ -350,7 +398,7 @@
 						this.$store.commit('SET_LOADING_STATUS', false);
 						this.$root.$emit('show-notification', {
 							message: 'Note has been added successfully.',
-							type:'success',
+							type: 'success',
 						});
 					})
 					.catch((error) => {

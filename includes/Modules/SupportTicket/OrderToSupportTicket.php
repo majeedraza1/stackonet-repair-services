@@ -21,7 +21,7 @@ class OrderToSupportTicket {
 		$_device_title  = $order->get_meta( '_device_title' );
 		$_device_model  = $order->get_meta( '_device_model' );
 		$_device_issues = $order->get_meta( '_device_issues' );
-		$ticket_subject = $_device_title . ' ' . $_device_model . ' - ' . implode( ', ', $_device_issues );
+		$ticket_subject = $_device_title . ' ' . $_device_model . ' - ' . $order->get_formatted_billing_full_name() . ' - ' . implode( ', ', $_device_issues );
 		$ticket_content = self::get_support_ticket_content( $order );
 
 		$ticket_id = ( new SupportTicket() )->create_support_ticket( [

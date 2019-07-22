@@ -4,4 +4,17 @@
 	.dropdown-toggle {
 		width: 100%;
 	}
+
+	.dropdown-menu > .highlight > a {
+		/*
+         * required to override bootstrap 3's
+         * .dropdown-menu > li > a:hover {} styles
+         */
+		background: #f58730 !important;
+		color: #fff;
+	}
+
+	.no-options {
+		display: none;
+	}
 }

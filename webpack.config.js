@@ -44,6 +44,7 @@ let entryPoints = {
 	],
 	'frontend-dashboard': [
 		'./assets/src/frontend/dashboard/main.js',
+		'./assets/src/scss/vendors/_v-select.scss',
 	],
 };
 

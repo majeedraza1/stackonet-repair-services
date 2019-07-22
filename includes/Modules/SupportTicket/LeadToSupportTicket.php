@@ -64,7 +64,7 @@ class LeadToSupportTicket {
 		$address = $appointment->get( 'address' );
 
 		$_data = [
-			'ticket_subject'  => 'Lead - ' . implode( ', ', $issues ),
+			'ticket_subject'  => 'Lead - ' . $appointment->get( 'store_name' ) . ' - ' . implode( ', ', $issues ),
 			'customer_name'   => $appointment->get( 'store_name' ),
 			'customer_email'  => $appointment->get( 'email' ),
 			'customer_phone'  => $appointment->get( 'phone' ),

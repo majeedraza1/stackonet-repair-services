@@ -4,6 +4,8 @@ namespace Stackonet;
 
 use Exception;
 use Stackonet\Integrations\GoogleMap;
+use Stackonet\Models\CheckoutAnalysis;
+use Stackonet\Modules\SupportTicket\CheckoutAnalysisToSupportTicket;
 use Stackonet\Modules\SupportTicket\OrderToSupportTicket;
 use Stackonet\Models\Device;
 use Stackonet\Models\DeviceIssue;
@@ -90,8 +92,10 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$tickets = ( new SupportTicket() )->find();
-		var_dump( $tickets );
+		$tickets = ( new CheckoutAnalysis() )->needToAddSupport();
+		foreach ( $tickets as $ticket ) {
+			CheckoutAnalysisToSupportTicket::process( $ticket );
+		}
 		die();
 	}
 
