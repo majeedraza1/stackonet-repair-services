@@ -21,6 +21,7 @@ class CheckoutAnalysisToSupportTicket {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 
+			add_filter( 'cron_schedules', [ self::$instance, 'cron_schedules' ] );
 			add_action( 'wp', [ self::$instance, 'checkout_analysis_cron_job' ] );
 			add_action( 'checkout_analysis', [ self::$instance, 'checkout_analysis' ] );
 		}
@@ -28,12 +29,21 @@ class CheckoutAnalysisToSupportTicket {
 		return self::$instance;
 	}
 
+	public static function cron_schedules( $schedules ) {
+		$schedules ['minutely'] = array(
+			'interval' => MINUTE_IN_SECONDS,
+			'display'  => __( 'Once Minutely' ),
+		);
+
+		return $schedules;
+	}
+
 	/**
 	 * Schedule Cron Job Event
 	 */
 	public static function checkout_analysis_cron_job() {
 		if ( ! wp_next_scheduled( 'checkout_analysis' ) ) {
-			wp_schedule_event( time(), 'hourly', 'checkout_analysis' );
+			wp_schedule_event( time(), 'minutely', 'checkout_analysis' );
 		}
 	}
 

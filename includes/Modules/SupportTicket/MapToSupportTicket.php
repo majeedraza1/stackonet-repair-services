@@ -23,7 +23,7 @@ class MapToSupportTicket {
 			'customer_phone'  => '',
 			'city'            => '',
 			'user_type'       => 'guest',
-			'ticket_category' => get_option( 'wpsc_default_spot_appointment_category' ),
+			'ticket_category' => get_option( 'support_ticket_default_map_category' ),
 			'agent_created'   => $map->author()->ID,
 		];
 

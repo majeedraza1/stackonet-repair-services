@@ -190,6 +190,12 @@ class SupportTicketManager {
 		$carrier_store_default_category = isset( $_POST['carrier_store_default_category'] ) ? sanitize_text_field( $_POST['carrier_store_default_category'] ) : '';
 		update_option( 'carrier_store_default_category', $carrier_store_default_category );
 
+		$carrier_store_default_category = isset( $_POST['support_ticket_default_checkout_analysis_category'] ) ? sanitize_text_field( $_POST['support_ticket_default_checkout_analysis_category'] ) : '';
+		update_option( 'support_ticket_default_checkout_analysis_category', $carrier_store_default_category );
+
+		$carrier_store_default_category = isset( $_POST['support_ticket_default_map_category'] ) ? sanitize_text_field( $_POST['support_ticket_default_map_category'] ) : '';
+		update_option( 'support_ticket_default_map_category', $carrier_store_default_category );
+
 		$order_ticket_category = isset( $_POST['wpsc_default_contact_form_ticket_category'] ) ? $_POST['wpsc_default_contact_form_ticket_category'] : [];
 		if ( is_array( $order_ticket_category ) && count( $order_ticket_category ) ) {
 			$order_ticket_category = array_map( 'intval', $order_ticket_category );
@@ -249,6 +255,36 @@ class SupportTicketManager {
 			        id="wpsc_default_spot_appointment_category">
 				<?php
 				$wpsc_default_ticket_category = get_option( 'wpsc_default_spot_appointment_category' );
+				foreach ( $categories as $category ) :
+					$selected = $wpsc_default_ticket_category == $category->term_id ? 'selected="selected"' : '';
+					echo '<option ' . $selected . ' value="' . $category->term_id . '">' . $category->name . '</option>';
+				endforeach;
+				?>
+			</select>
+		</div>
+		<div class="form-group">
+			<label
+				for="support_ticket_default_checkout_analysis_category"><?php _e( 'Default ticket category for Checkout Analysis', 'supportcandy' ); ?></label>
+			<p class="help-block"><?php _e( 'This category will get applied for newly created ticket from checkout analysis.', 'supportcandy' ); ?></p>
+			<select class="form-control" name="support_ticket_default_checkout_analysis_category"
+			        id="support_ticket_default_checkout_analysis_category">
+				<?php
+				$wpsc_default_ticket_category = get_option( 'support_ticket_default_checkout_analysis_category' );
+				foreach ( $categories as $category ) :
+					$selected = $wpsc_default_ticket_category == $category->term_id ? 'selected="selected"' : '';
+					echo '<option ' . $selected . ' value="' . $category->term_id . '">' . $category->name . '</option>';
+				endforeach;
+				?>
+			</select>
+		</div>
+		<div class="form-group">
+			<label
+				for="support_ticket_default_map_category"><?php _e( 'Default ticket category for Map', 'supportcandy' ); ?></label>
+			<p class="help-block"><?php _e( 'This category will get applied for newly created ticket from map.', 'supportcandy' ); ?></p>
+			<select class="form-control" name="support_ticket_default_map_category"
+			        id="support_ticket_default_map_category">
+				<?php
+				$wpsc_default_ticket_category = get_option( 'support_ticket_default_map_category' );
 				foreach ( $categories as $category ) :
 					$selected = $wpsc_default_ticket_category == $category->term_id ? 'selected="selected"' : '';
 					echo '<option ' . $selected . ' value="' . $category->term_id . '">' . $category->name . '</option>';
