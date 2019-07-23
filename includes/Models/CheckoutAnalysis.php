@@ -2,6 +2,8 @@
 
 namespace Stackonet\Models;
 
+use DateTime;
+use Exception;
 use Stackonet\Abstracts\DatabaseModel;
 use Stackonet\Integrations\IpStack;
 use Stackonet\Supports\Utils;
@@ -93,9 +95,161 @@ class CheckoutAnalysis extends DatabaseModel {
 		return is_array( $this->data['extra_information'] ) ? $this->data['extra_information'] : [];
 	}
 
-	public function get_data() {
-		$data = $this->extra_information();
+	/**
+	 * Get first name
+	 *
+	 * @return mixed|string
+	 */
+	public function get_first_name() {
+		$extra_data = $this->extra_information();
 
+		return isset( $extra_data['user_info']['first_name'] ) ? $extra_data['user_info']['first_name'] : '';
+	}
+
+	/**
+	 * Get last name
+	 *
+	 * @return mixed|string
+	 */
+	public function get_last_name() {
+		$extra_data = $this->extra_information();
+
+		return isset( $extra_data['user_info']['last_name'] ) ? $extra_data['user_info']['last_name'] : '';
+	}
+
+	/**
+	 * Get full name
+	 *
+	 * @return mixed|string
+	 */
+	public function get_full_name() {
+		$fName = $this->get_first_name();
+		$lName = $this->get_last_name();
+
+		if ( ! empty( $fName ) && ! empty( $lName ) ) {
+			return sprintf( "%s %s", $fName, $lName );
+		}
+
+		if ( ! empty( $lName ) ) {
+			return $lName;
+		}
+
+		if ( ! empty( $fName ) ) {
+			return $fName;
+		}
+
+		return '';
+	}
+
+	/**
+	 * Get first name
+	 *
+	 * @return mixed|string
+	 */
+	public function get_phone() {
+		$extra_data = $this->extra_information();
+
+		return isset( $extra_data['user_info']['phone'] ) ? $extra_data['user_info']['phone'] : '';
+	}
+
+	/**
+	 * @return array
+	 * @throws Exception
+	 */
+	public function get_rest_response_data() {
+		$_data = $this->data;
+		$data  = [
+			'id'          => intval( $this->get( 'id' ) ),
+			'ip_address'  => $this->get( 'ip_address' ),
+			'city'        => $this->get( 'city' ),
+			'postal_code' => $this->get( 'postal_code' ),
+		];
+
+		$default_data = [
+			'user_info',
+			'device',
+			'device_model',
+			'device_color',
+			'zip_code',
+			'screen_cracked',
+			'device_issue',
+			'requested_date_time',
+			'user_address',
+			'user_details',
+			'terms_and_conditions',
+			'thank_you',
+		];
+
+		$active_item = 0;
+
+		foreach ( $_data as $key => $value ) {
+			if ( ! in_array( $key, $default_data ) ) {
+				continue;
+			}
+
+			switch ( $key ) {
+				case 'user_info';
+					$label = 'User Info';
+					break;
+				case 'device_model';
+					$label = 'Model';
+					break;
+				case 'device_color';
+					$label = 'Color';
+					break;
+				case 'zip_code';
+					$label = 'ZIP';
+					break;
+				case 'screen_cracked';
+					$label = 'Screen Crack';
+					break;
+				case 'device_issue';
+					$label = 'Issues';
+					break;
+				case 'requested_date_time';
+					$label = 'Time';
+					break;
+				case 'user_address';
+					$label = 'Address';
+					break;
+				case 'user_details';
+					$label = 'User Details';
+					break;
+				case 'terms_and_conditions';
+					$label = 'Terms';
+					break;
+				case 'thank_you';
+					$label = 'Complete';
+					break;
+				default:
+					$label = str_replace( '_', ' ', $key );
+					$label = str_replace( 'and', '&', $label );
+					$label = ucwords( $label );
+					break;
+			}
+
+			$active = ! empty( $value );
+			if ( $active ) {
+				$active_item += 1;
+			}
+
+			$dateTime = new DateTime( $value );
+
+			$data['steps'][] = [
+				'label'    => $label,
+				'datetime' => $value,
+				'date'     => $dateTime->format( 'M d, Y' ),
+				'time'     => $dateTime->format( 'H:i:s' ),
+				'active'   => $active,
+				'value'    => isset( $_data[ $key ] ) ? $_data[ $key ] : null,
+			];
+		}
+
+		$data['steps_count']      = count( $data['steps'] );
+		$data['steps_completed']  = $active_item;
+		$data['steps_percentage'] = round( ( $active_item / $data['steps_count'] ) * 100 );
+
+		return $data;
 	}
 
 	/**
@@ -242,6 +396,7 @@ class CheckoutAnalysis extends DatabaseModel {
 		$sql     .= " AND ( thank_you IS NULL OR thank_you = '' )";
 		$sql     .= " AND ( support_ticket_id IS NULL OR support_ticket_id = '' OR support_ticket_id = 0 )";
 		$sql     .= " AND user_info IS NOT NULL";
+		$sql     .= " AND updated_at < DATE_SUB( NOW(), INTERVAL 10 MINUTE )";
 		$results = $wpdb->get_results( $sql, ARRAY_A );
 
 		$items = [];

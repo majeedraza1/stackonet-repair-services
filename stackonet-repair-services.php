@@ -168,6 +168,7 @@ final class Stackonet_Repair_Services {
 
 		$this->container['my_account']     = Stackonet\Modules\MyAccount\MyAccount::init();
 		$this->container['support_ticket'] = Stackonet\Modules\SupportTicket\SupportTicketManager::init();
+		$this->container['ca_to_ticket']   = Stackonet\Modules\SupportTicket\CheckoutAnalysisToSupportTicket::init();
 
 		if ( $this->is_request( 'admin' ) ) {
 			$this->container['reschedule-date-time'] = Stackonet\Admin\RescheduleDateTime::init();

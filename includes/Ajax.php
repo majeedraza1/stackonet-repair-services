@@ -93,6 +93,7 @@ class Ajax {
 
 	public function stackonet_test() {
 		$tickets = ( new CheckoutAnalysis() )->needToAddSupport();
+		var_dump( $tickets );
 		foreach ( $tickets as $ticket ) {
 			CheckoutAnalysisToSupportTicket::process( $ticket );
 		}

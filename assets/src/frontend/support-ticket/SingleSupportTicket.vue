@@ -107,6 +107,10 @@
 					</div>
 
 					<ticket-threads :threads="threads"></ticket-threads>
+					<div class="shapla-thread shapla-thread--report" v-if="Object.keys(checkout_analysis).length">
+						<step-progress-bar :steps="checkout_analysis.steps"
+										   :selected="checkout_analysis.steps_percentage"></step-progress-bar>
+					</div>
 				</div>
 
 			</column>
@@ -460,10 +464,12 @@
 	import Accordion from "../../components/Accordion";
 	import TicketThreads from "./TicketThreads";
 	import MapModal from "../dashboard/pages/MapModal";
+	import StepProgressBar from "../../components/StepProgressBar";
 
 	export default {
 		name: "SingleSupportTicket",
 		components: {
+			StepProgressBar,
 			MapModal,
 			TicketThreads, Accordion, MdlRadio, MediaModal, Icon, ImageContainer,
 			mdlButton, columns, column, ListItem, Editor, modal
@@ -501,6 +507,7 @@
 				item: {},
 				threads: [],
 				map: {},
+				checkout_analysis: {},
 				showViewMapModal: false,
 				navigation: {
 					pre: {},
@@ -978,6 +985,9 @@
 						}
 						if (response.data.data.map) {
 							self.map = response.data.data.map;
+						}
+						if (response.data.data.checkout_analysis) {
+							self.checkout_analysis = response.data.data.checkout_analysis;
 						}
 					})
 					.catch((error) => {

@@ -43,13 +43,21 @@
 							</div>
 
 							<div class="shapla-thread__content-align-right shapla-thread__actions">
-								<icon medium><i @click="openThreadEditor(thread)"
-												class="fa fa-pencil-square-o"
-												aria-hidden="true"></i></icon>
-								<icon medium><i @click="deleteThread(thread)" class="fa fa-trash-o"
-												aria-hidden="true"></i></icon>
+								<icon medium>
+									<i @click="openThreadEditor(thread)" class="fa fa-pencil-square-o"
+									   aria-hidden="true"></i>
+								</icon>
+								<icon medium>
+									<i @click="deleteThread(thread)" class="fa fa-trash-o" aria-hidden="true"></i>
+								</icon>
 							</div>
 						</div>
+						<template v-if="thread.checkout_analysis">
+							<step-progress-bar
+								:steps="thread.checkout_analysis.steps"
+								:selected="thread.checkout_analysis.steps_percentage"
+							></step-progress-bar>
+						</template>
 						<div v-html="thread.thread_content"></div>
 						<div class="shapla-thread__content-attachment" v-if="thread.attachments.length">
 							<strong>Attachments :</strong>
@@ -72,10 +80,11 @@
 <script>
 	import ImageContainer from "../../shapla/image/image";
 	import Icon from "../../shapla/icon/icon";
+	import StepProgressBar from "../../components/StepProgressBar";
 
 	export default {
 		name: "TicketThreads",
-		components: {Icon, ImageContainer},
+		components: {StepProgressBar, Icon, ImageContainer},
 		props: {
 			threads: {type: Array}
 		},

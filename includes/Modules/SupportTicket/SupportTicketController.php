@@ -6,6 +6,7 @@ use Exception;
 use Stackonet\Integrations\GoogleMap;
 use Stackonet\Integrations\Twilio;
 use Stackonet\Models\Appointment;
+use Stackonet\Models\CheckoutAnalysis;
 use Stackonet\Models\Map;
 use Stackonet\Models\Settings;
 use Stackonet\REST\ApiController;
@@ -513,6 +514,13 @@ class SupportTicketController extends ApiController {
 		// Map Data
 		if ( $supportTicket->created_via() == 'map' ) {
 			$response['map'] = ( new Map() )->find_by_id( $supportTicket->belongs_to_id() );
+		}
+
+		// Map Data
+		if ( $supportTicket->created_via() == 'checkout_analysis' ) {
+			$checkout_analysis = ( new CheckoutAnalysis() )->find_by_id( $supportTicket->belongs_to_id() );
+
+			$response['checkout_analysis'] = $checkout_analysis->get_rest_response_data();
 		}
 
 		return $this->respondOK( $response );
