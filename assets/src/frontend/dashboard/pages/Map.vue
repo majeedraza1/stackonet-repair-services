@@ -61,7 +61,7 @@
 								</column>
 								<column>
 									<div v-if="selectedPlaces.length > 1">
-										<mdl-button type="raised" color="primary" @click="showFilterModal = true">
+										<mdl-button type="raised" color="primary" @click="showFilterModal = true" style="display: none;">
 											Re-Arrange Address
 										</mdl-button>
 										<mdl-button type="raised" color="primary" @click="showRecordTitleModal = true">
@@ -161,10 +161,7 @@
 		name: "Map",
 		mixins: [MapMixin],
 		components: {
-			AnimatedInput,
-			MapListTable,
-			MdlTab,
-			MdlTabs,
+			AnimatedInput, MapListTable, MdlTab, MdlTabs,
 			AddressBox, FlatPickr, GMapAutocomplete, MdlSlider, MdlButton,
 			SearchBox, deleteIcon, Icon, columns, column, modal, draggable
 		},
@@ -465,16 +462,16 @@
 						scaledSize: new google.maps.Size(25, 25)
 					};
 
-					let marker = new google.maps.Marker({
-						map: self.googleMap,
-						icon: image,
-						title: place.name,
-						position: place.geometry.location
-					});
+					// let marker = new google.maps.Marker({
+					// 	map: self.googleMap,
+					// 	icon: image,
+					// 	title: place.name,
+					// 	position: place.geometry.location
+					// });
+					// self.markers.push(marker);
 
 					place.distance = self.distance(self.location, place.geometry.location);
 
-					self.markers.push(marker);
 
 					self.places.push({
 						place_id: place.place_id,
@@ -530,6 +527,7 @@
 						destination: destination,
 						travelMode: google.maps.TravelMode[this.travelMode],
 						avoidTolls: true,
+						optimizeWaypoints: true,
 						drivingOptions: {
 							departureTime: new Date(this.baseTime),
 							trafficModel: 'optimistic'
@@ -540,9 +538,23 @@
 						if (response.routes && response.routes[0].legs) {
 							self.addLegOnSelectedPlaces(response.routes[0].legs);
 						}
+						// self.reArrangeSelectedAddress(response);
 						self.directionsRenderer.setDirections(response);
 					}
 				});
+			},
+			reArrangeSelectedAddress(response) {
+				if (!response.geocoded_waypoints) return;
+				let ids = response.geocoded_waypoints.map(element => element.place_id),
+					places = this.selectedPlaces, newPlaces = [];
+				ids.forEach(id => {
+					places.forEach(place => {
+						if (id === place.place_id) {
+							newPlaces.push(place);
+						}
+					});
+				});
+				console.log(response);
 			},
 			addLegOnSelectedPlaces(routesLegs) {
 				let legs = [], _selectedPlaces = [];

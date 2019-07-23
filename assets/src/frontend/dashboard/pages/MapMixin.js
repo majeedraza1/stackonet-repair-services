@@ -118,6 +118,7 @@ const MapMixin = {
 			let request = {
 				origin: origin,
 				waypoints: waypoints,
+				optimizeWaypoints: true,
 				destination: lastItem.location,
 				travelMode: 'DRIVING',
 				avoidTolls: true,

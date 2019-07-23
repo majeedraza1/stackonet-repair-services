@@ -106,7 +106,11 @@
 						</div>
 					</div>
 
-					<ticket-threads :threads="threads"></ticket-threads>
+					<ticket-threads
+						:threads="threads"
+						@thread:edit="openThreadEditor"
+						@delete:edit="deleteThread"
+					></ticket-threads>
 					<div class="shapla-thread shapla-thread--report" v-if="Object.keys(checkout_analysis).length">
 						<step-progress-bar :steps="checkout_analysis.steps"
 										   :selected="checkout_analysis.steps_percentage"></step-progress-bar>

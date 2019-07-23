@@ -95,6 +95,12 @@
 					`shapla-thread--${thread_type}`
 				]
 			},
+			openThreadEditor(thread) {
+				this.$emit('thread:edit', thread);
+			},
+			deleteThread(thread) {
+				this.$emit('delete:edit', thread);
+			},
 		}
 	}
 </script>
