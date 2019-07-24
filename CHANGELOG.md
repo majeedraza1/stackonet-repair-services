@@ -1,3 +1,10 @@
+#### 1.1.14 - July 24, 2019
+* Add - Add Type and Search the filters in support.
+* Tweak - Update option to show name for leads and orders.
+* Feature - Add option to add support from checkout analysis.
+* Tweak - Add default category for support ticket from both checkout analysis and map.
+* Feature - Add Google Map waypoints optimization feature for getting better route.
+
 #### 1.1.13 - July 19, 2019
 * Add - Add option to add note from support ticket list page.
 * Dev - Add meta capability functionality for support ticket.
