@@ -3,6 +3,10 @@
 
 	.dropdown-toggle {
 		width: 100%;
+
+		.clear {
+			height: 16px;
+		}
 	}
 
 	.dropdown-menu > .highlight > a {
@@ -14,7 +18,17 @@
 		color: #fff;
 	}
 
+	.dropdown-menu {
+		min-width: 230px !important;
+		display: flex !important;
+		flex-direction: column !important;
+	}
+
 	.no-options {
 		display: none;
+	}
+
+	.vs__actions.vs__actions {
+		align-items: center;
 	}
 }

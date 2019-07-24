@@ -73,26 +73,24 @@
 				</div>
 				<div style="min-width: 150px;">
 					<v-select :options="default_categories" v-model="vCategory" @input="_changeCategory"
-							  :clearable="false"
-							  placeholder="All Categories">
+							  :clearable="false" placeholder="All Categories">
 						<template slot="option" slot-scope="option">
-							{{option.label}} ({{option.count}})
+							{{option.label}}
 						</template>
 					</v-select>
 				</div>
 				<div style="min-width: 120px;">
 					<v-select :options="default_priorities" v-model="vPriority" @input="_changePriority"
-							  :clearable="false"
-							  placeholder="All Priorities"></v-select>
+							  :clearable="false" placeholder="All Priorities"></v-select>
 				</div>
 				<div style="min-width: 120px;">
 					<v-select :options="_cities" v-model="vCity" @input="_changeCity" :clearable="false"
 							  placeholder="All Cities"></v-select>
 				</div>
 				<div style="min-width: 120px;">
-					<v-select :options="support_agents" v-model="vAgent" @input="_changeAgent" :clearable="false"
-							  label="display_name"
-							  placeholder="All Agents"></v-select>
+					<v-select :options="_support_agents" v-model="vAgent" @input="_changeAgent" :clearable="false"
+							  label="display_name" placeholder="All Agents">
+					</v-select>
 				</div>
 				<mdl-button type="raised" color="default" @click="clearFilter">Clear Filter</mdl-button>
 			</template>
@@ -199,10 +197,15 @@
 		},
 		computed: {
 			...mapGetters(['support_agents']),
+			_support_agents() {
+				let agents = this.support_agents;
+				agents.unshift({display_name: 'All', id: 0});
+				return agents;
+			},
 			dropdownCategories() {
 				let _categories = [{label: 'All', value: 'all'}], self = this;
-				self.default_categories.forEach(function (element) {
-					if (-1 !== self.search_categories.indexOf(element.key)) {
+				this.default_categories.forEach(element => {
+					if (-1 !== this.search_categories.indexOf(element.key)) {
 						_categories.push({label: element.label, value: element.key,})
 					}
 				});
@@ -297,7 +300,8 @@
 				this.category = 'all';
 				this.priority = 'all';
 				this.city = 'all';
-				this.vStatus = this.vCategory = this.vPriority = this.vCity = {};
+				this.agent = 'all';
+				this.vStatus = this.vCategory = this.vPriority = this.vCity = this.vAgent = {};
 				this.getItems();
 			},
 			_changeStatus(value) {
