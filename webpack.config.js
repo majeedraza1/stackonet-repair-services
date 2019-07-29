@@ -58,93 +58,100 @@ plugins.push(new BrowserSyncPlugin({
 
 plugins.push(new VueLoaderPlugin());
 
-module.exports = (env, argv) => ({
-	"entry": entryPoints,
-	"output": {
-		"path": path.resolve(__dirname, 'assets/js'),
-		"filename": '[name].js'
-	},
-	"devtool": argv.mode === 'production' ? false : 'eval-source-map',
-	"module": {
-		"rules": [
-			{
-				"test": /\.js$/,
-				"exclude": /node_modules/,
-				"use": {
-					"loader": "babel-loader",
-					"options": {
-						presets: ['@babel/preset-env']
-					}
-				}
-			},
-			{
-				test: /\.vue$/,
-				loader: 'vue-loader'
-			},
-			{
-				"test": /\.scss$/,
-				"use": [
-					"vue-style-loader",
-					"style-loader",
-					MiniCssExtractPlugin.loader,
-					"css-loader",
-					{
-						loader: "postcss-loader",
-						options: {
-							plugins: () => [autoprefixer()],
-						},
-					},
-					{
-						loader: "sass-loader",
-						options: {
-							includePaths: ['./node_modules'],
-						},
-					}
-				]
-			},
-			{
-				test: /\.(png|je?pg|gif|svg|eot|ttf|woff|woff2)$/,
-				use: [
-					{
-						loader: 'file-loader',
-						options: {},
-					},
-				],
-			},
-		]
-	},
-	optimization: {
-		minimizer: [
-			new TerserPlugin(),
-			new OptimizeCSSAssetsPlugin({})
-		],
-		splitChunks: {
-			cacheGroups: {
-				vendors: {
-					test: /[\\/]node_modules[\\/]/,
-					name: 'vendors',
-					enforce: true,
-					chunks: 'all'
-				},
-				mdl: {
-					test: /[\\/]material-design-lite[\\/]/,
-					name: 'mdl',
-					enforce: true,
-					chunks: 'all'
-				},
-			}
-		}
-	},
-	resolve: {
-		alias: {
-			'vue$': 'vue/dist/vue.esm.js',
-			'@': path.resolve('./assets/src/'),
+module.exports = (env, argv) => {
+	let isDevelopment = argv.mode !== 'production';
+
+	return {
+		entry: entryPoints,
+		output: {
+			"path": path.resolve(__dirname, 'assets/js'),
+			"filename": '[name].js'
 		},
-		modules: [
-			path.resolve('./node_modules'),
-			path.resolve(path.join(__dirname, 'assets/src/')),
-		],
-		extensions: ['*', '.js', '.vue', '.json']
-	},
-	"plugins": plugins
-});
+		devtool: isDevelopment ? 'eval-source-map' : false,
+		module: {
+			"rules": [
+				{
+					"test": /\.js$/,
+					"exclude": /node_modules/,
+					"use": {
+						"loader": "babel-loader",
+						"options": {
+							presets: ['@babel/preset-env']
+						}
+					}
+				},
+				{
+					test: /\.vue$/,
+					loader: 'vue-loader'
+				},
+				{
+					"test": /\.scss$/,
+					"use": [
+						{
+							loader: isDevelopment ? "vue-style-loader" : MiniCssExtractPlugin.loader
+						},
+						{
+							loader: "css-loader",
+							options: {
+								sourceMap: isDevelopment,
+								importLoaders: 1
+							}
+						},
+						{
+							loader: "postcss-loader",
+							options: {
+								sourceMap: isDevelopment,
+								plugins: () => [autoprefixer()],
+							},
+						},
+						{
+							loader: "sass-loader",
+							options: {
+								sourceMap: isDevelopment,
+								includePaths: ['./node_modules'],
+							},
+						}
+					]
+				},
+				{
+					test: /\.(png|je?pg|gif|svg|eot|ttf|woff|woff2)$/,
+					use: [{loader: 'file-loader'}],
+				},
+			]
+		},
+		optimization: {
+			minimizer: [
+				new TerserPlugin(),
+				new OptimizeCSSAssetsPlugin({})
+			],
+			splitChunks: {
+				cacheGroups: {
+					vendors: {
+						test: /[\\/]node_modules[\\/]/,
+						name: 'vendors',
+						enforce: true,
+						chunks: 'all'
+					},
+					mdl: {
+						test: /[\\/]material-design-lite[\\/]/,
+						name: 'mdl',
+						enforce: true,
+						chunks: 'all'
+					},
+				}
+			}
+		},
+		resolve: {
+			alias: {
+				'vue$': 'vue/dist/vue.esm.js',
+				'@': path.resolve('./assets/src/'),
+			},
+			modules: [
+				path.resolve('./node_modules'),
+				path.resolve(path.join(__dirname, 'assets/src/')),
+			],
+			extensions: ['*', '.js', '.vue', '.json']
+		},
+		"plugins": plugins
+	}
+};

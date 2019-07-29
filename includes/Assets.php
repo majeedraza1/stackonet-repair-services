@@ -132,6 +132,10 @@ class Assets {
 	 * @return array
 	 */
 	public function get_styles() {
+		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+			return [];
+		}
+
 		$styles = [
 			'material-design-lite'               => [
 				'src' => STACKONET_REPAIR_SERVICES_ASSETS . '/css/mdl.css'
@@ -161,7 +165,7 @@ class Assets {
 				'deps' => [ 'stackonet-vendors' ],
 			],
 			'stackonet-payment-form'             => [
-				'src'       => STACKONET_REPAIR_SERVICES_ASSETS . '/css/payment-form.css',
+				'src' => STACKONET_REPAIR_SERVICES_ASSETS . '/css/payment-form.css',
 			],
 		];
 

@@ -186,6 +186,20 @@ const MapMixin = {
 				_addresses.push(current);
 			}
 		},
+		updateSelectedPrices(response, placeObject) {
+			let currentAddresses = placeObject.places, newAddresses = [];
+			let lastIndex = currentAddresses.length - 1,
+				lastItem = currentAddresses[lastIndex],
+				newAddressOrder = response.routes[0].waypoint_order;
+
+			for (let i = 0; i < newAddressOrder.length; i++) {
+				newAddresses.push(currentAddresses[newAddressOrder[i]]);
+			}
+
+			newAddresses.push(lastItem);
+
+			placeObject.places = newAddresses;
+		},
 		//Returns Distance between two latlng objects using haversine formula
 		distance(placeOne, placeTwo) {
 			if (!placeOne || !placeTwo) return 0;

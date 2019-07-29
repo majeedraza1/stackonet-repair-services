@@ -142,276 +142,277 @@
 </template>
 
 <script>
-	import modal from 'shapla-modal';
-	import {columns, column} from 'shapla-columns';
-	import {MapMixin} from "./MapMixin";
-	import AddressBox from "../../../components/AddressBox";
-	import GMapAutocomplete from "../../components/gMapAutocomplete";
-	import MdlButton from "../../../material-design-lite/button/mdlButton";
-	import SearchBox from "../../../components/SearchBox";
-	import MdlSlider from "../../../material-design-lite/slider/mdlSlider";
-	import Icon from "../../../shapla/icon/icon";
-	import AddressBox2 from "../../../components/AddressBox2";
+    import modal from 'shapla-modal';
+    import {columns, column} from 'shapla-columns';
+    import {MapMixin} from "./MapMixin";
+    import AddressBox from "../../../components/AddressBox";
+    import GMapAutocomplete from "../../components/gMapAutocomplete";
+    import MdlButton from "../../../material-design-lite/button/mdlButton";
+    import SearchBox from "../../../components/SearchBox";
+    import MdlSlider from "../../../material-design-lite/slider/mdlSlider";
+    import Icon from "../../../shapla/icon/icon";
+    import AddressBox2 from "../../../components/AddressBox2";
 
-	let mapStyles = require('./map-style.json');
+    let mapStyles = require('./map-style.json');
 
-	export default {
-		name: "MapModal",
-		mixins: [MapMixin],
-		components: {
-			AddressBox2,
-			Icon,
-			MdlSlider,
-			SearchBox,
-			MdlButton,
-			GMapAutocomplete,
-			AddressBox,
-			modal,
-			columns,
-			column
-		},
+    export default {
+        name: "MapModal",
+        mixins: [MapMixin],
+        components: {
+            AddressBox2,
+            Icon,
+            MdlSlider,
+            SearchBox,
+            MdlButton,
+            GMapAutocomplete,
+            AddressBox,
+            modal,
+            columns,
+            column
+        },
 
-		props: {
-			mode: {type: String, default: 'view'},
-			active: {type: Boolean, default: false},
-			place: {type: Object, required: true}
-		},
+        props: {
+            mode: {type: String, default: 'view'},
+            active: {type: Boolean, default: false},
+            place: {type: Object, required: true}
+        },
 
-		data() {
-			return {
-				showIntervalModal: false,
-				showDirectionModal: false,
-				dataChanged: false,
-				activePlace: {},
-				intervalHours: '',
-				intervalMinutes: '',
-				location: '',
-				googleMap: '',
-				placesService: '',
-				directionsService: '',
-				directionsRenderer: '',
-				radius: 100,
-				pagination: null,
-				hasNextPage: false,
-				places: [],
-				markers: [],
-			}
-		},
+        data() {
+            return {
+                showIntervalModal: false,
+                showDirectionModal: false,
+                dataChanged: false,
+                activePlace: {},
+                intervalHours: '',
+                intervalMinutes: '',
+                location: '',
+                googleMap: '',
+                placesService: '',
+                directionsService: '',
+                directionsRenderer: '',
+                radius: 100,
+                pagination: null,
+                hasNextPage: false,
+                places: [],
+                markers: [],
+            }
+        },
 
-		watch: {
-			place(newValue) {
-				if (!!Object.keys(newValue).length) {
-					// Clear current route
-					this.directionsRenderer.setDirections({routes: []});
-					this.getDirectionRoutes(this.directionsService, newValue)
-						.then(response => {
-							if (response.routes && response.routes[0].legs) {
-								// this.addLegOnSelectedPlaces(addresses, response.routes[0].legs);
-							}
-							this.directionsRenderer.setDirections(response);
-						});
-				}
-			}
-		},
+        watch: {
+            place(newValue) {
+                if (!!Object.keys(newValue).length) {
+                    // Clear current route
+                    this.directionsRenderer.setDirections({routes: []});
+                    this.getDirectionRoutes(this.directionsService, newValue)
+                        .then(response => {
+                            if (response.routes && response.routes[0].legs) {
+                                // this.addLegOnSelectedPlaces(addresses, response.routes[0].legs);
+                                this.updateSelectedPrices(response, this.place);
+                            }
+                            this.directionsRenderer.setDirections(response);
+                        });
+                }
+            }
+        },
 
-		computed: {
-			has_place() {
-				return !!Object.keys(this.place);
-			},
-			title() {
-				return `Map: ${this.place.title}`;
-			},
-			alphabets() {
-				return String.fromCharCode(..." ".repeat(26).split("").map((e, i) => i + 'A'.charCodeAt())).split('');
-			},
-			radius_meters() {
-				return this.radius * 100;
-			}
-		},
-		mounted() {
-			// Create the map.
-			this.location = new google.maps.LatLng(0, 0);
-			this.googleMap = new google.maps.Map(this.$el.querySelector('#modal-map'), {
-				center: this.location,
-				zoom: 17,
-				styles: mapStyles
-			});
-			// Create the places service.
-			this.placesService = new google.maps.places.PlacesService(this.googleMap);
-			// Create the direction service
-			this.directionsService = new google.maps.DirectionsService;
-			this.directionsRenderer = new google.maps.DirectionsRenderer({
-				map: this.googleMap,
-			});
-		},
-		methods: {
-			removePlace(place) {
-				if (confirm('Are you sure?')) {
-					let index = this.place.places.findIndex(el => el.place_id === place.place_id);
-					this.$delete(this.place.places, index);
-					this.getDirectionRoutes(this.directionsService, this.place)
-						.then(response => {
-							if (response.routes && response.routes[0].legs) {
-								this.addLegOnSelectedPlaces(this.place, response.routes[0].legs);
-							}
-							this.directionsRenderer.setDirections(response);
-						});
-					this.dataChanged = true;
-				}
-			},
-			loadMore() {
-				if (this.hasNextPage) {
-					this.pagination.nextPage();
-				}
-			},
-			updatePlaceData() {
-				if (this.place.place_text.length < 3) {
-					this.$root.$emit('show-notification', {
-						title: 'Error!',
-						message: 'Please enter at least three characters.',
-						type: 'error',
-					});
-					return;
-				}
-				if (!this.place.base_address_latitude || !this.place.base_address_longitude) {
-					this.$root.$emit('show-notification', {
-						title: 'Error!',
-						message: 'Please set base address first.',
-						type: 'error',
-					});
-					return;
-				}
+        computed: {
+            has_place() {
+                return !!Object.keys(this.place);
+            },
+            title() {
+                return `Map: ${this.place.title}`;
+            },
+            alphabets() {
+                return String.fromCharCode(..." ".repeat(26).split("").map((e, i) => i + 'A'.charCodeAt())).split('');
+            },
+            radius_meters() {
+                return this.radius * 100;
+            }
+        },
+        mounted() {
+            // Create the map.
+            this.location = new google.maps.LatLng(0, 0);
+            this.googleMap = new google.maps.Map(this.$el.querySelector('#modal-map'), {
+                center: this.location,
+                zoom: 17,
+                styles: mapStyles
+            });
+            // Create the places service.
+            this.placesService = new google.maps.places.PlacesService(this.googleMap);
+            // Create the direction service
+            this.directionsService = new google.maps.DirectionsService;
+            this.directionsRenderer = new google.maps.DirectionsRenderer({
+                map: this.googleMap,
+            });
+        },
+        methods: {
+            removePlace(place) {
+                if (confirm('Are you sure?')) {
+                    let index = this.place.places.findIndex(el => el.place_id === place.place_id);
+                    this.$delete(this.place.places, index);
+                    this.getDirectionRoutes(this.directionsService, this.place)
+                        .then(response => {
+                            if (response.routes && response.routes[0].legs) {
+                                this.addLegOnSelectedPlaces(this.place, response.routes[0].legs);
+                            }
+                            this.directionsRenderer.setDirections(response);
+                        });
+                    this.dataChanged = true;
+                }
+            },
+            loadMore() {
+                if (this.hasNextPage) {
+                    this.pagination.nextPage();
+                }
+            },
+            updatePlaceData() {
+                if (this.place.place_text.length < 3) {
+                    this.$root.$emit('show-notification', {
+                        title: 'Error!',
+                        message: 'Please enter at least three characters.',
+                        type: 'error',
+                    });
+                    return;
+                }
+                if (!this.place.base_address_latitude || !this.place.base_address_longitude) {
+                    this.$root.$emit('show-notification', {
+                        title: 'Error!',
+                        message: 'Please set base address first.',
+                        type: 'error',
+                    });
+                    return;
+                }
 
-				let query = {
-					location: {
-						lat: this.place.base_address_latitude,
-						lng: this.place.base_address_longitude
-					},
-					radius: this.radius_meters,
-					query: this.place.place_text
-				};
-				this.$store.commit('SET_LOADING_STATUS', true);
+                let query = {
+                    location: {
+                        lat: this.place.base_address_latitude,
+                        lng: this.place.base_address_longitude
+                    },
+                    radius: this.radius_meters,
+                    query: this.place.place_text
+                };
+                this.$store.commit('SET_LOADING_STATUS', true);
 
-				this.textSearch(this.placesService, query)
-					.then(response => {
-						this.pagination = response.pagination;
-						this.hasNextPage = this.pagination.hasNextPage;
+                this.textSearch(this.placesService, query)
+                    .then(response => {
+                        this.pagination = response.pagination;
+                        this.hasNextPage = this.pagination.hasNextPage;
 
-						let location = new google.maps.LatLng(
-							this.place.base_address_latitude,
-							this.place.base_address_longitude
-						);
-						this.createMarkers(this.googleMap, location, response.results, this.places, this.markers);
-						this.$store.commit('SET_LOADING_STATUS', false);
-					})
-					.catch(error => {
-						this.$store.commit('SET_LOADING_STATUS', false);
-						console.log(error);
-					});
-			},
-			clearPlaceData() {
-				this.places = [];
-				this.hasNextPage = false;
-				this.clearMarkers(this.markers);
-			},
-			selectPlace(place) {
-				let _place = place, addresses = this.place.places;
-				let index = addresses.findIndex(el => el.place_id === _place.place_id);
-				_place['interval_hour'] = 0;
-				_place['interval_minute'] = 0;
-				_place['reach_time'] = 0;
-				_place['leave_time'] = 0;
+                        let location = new google.maps.LatLng(
+                            this.place.base_address_latitude,
+                            this.place.base_address_longitude
+                        );
+                        this.createMarkers(this.googleMap, location, response.results, this.places, this.markers);
+                        this.$store.commit('SET_LOADING_STATUS', false);
+                    })
+                    .catch(error => {
+                        this.$store.commit('SET_LOADING_STATUS', false);
+                        console.log(error);
+                    });
+            },
+            clearPlaceData() {
+                this.places = [];
+                this.hasNextPage = false;
+                this.clearMarkers(this.markers);
+            },
+            selectPlace(place) {
+                let _place = place, addresses = this.place.places;
+                let index = addresses.findIndex(el => el.place_id === _place.place_id);
+                _place['interval_hour'] = 0;
+                _place['interval_minute'] = 0;
+                _place['reach_time'] = 0;
+                _place['leave_time'] = 0;
 
-				if (-1 !== index) {
-					addresses.splice(index, 1);
-				} else {
-					addresses.push(_place);
-				}
-				this.place.places = addresses;
+                if (-1 !== index) {
+                    addresses.splice(index, 1);
+                } else {
+                    addresses.push(_place);
+                }
+                this.place.places = addresses;
 
-				this.directionsRenderer.setDirections({routes: []});
-				this.getDirectionRoutes(this.directionsService, this.place)
-					.then(response => {
-						if (response.routes && response.routes[0].legs) {
-							this.addLegOnSelectedPlaces(this.place, response.routes[0].legs);
-						}
-						this.directionsRenderer.setDirections(response);
-					});
-				this.dataChanged = true;
-			},
-			handleClick(action, place) {
-				if ('trash' === action) {
-					this.removePlace(place)
-				} else {
-					this.openIntervalModal(place);
-				}
-			},
-			openIntervalModal(place) {
-				this.showIntervalModal = true;
-				this.activePlace = place;
-				if (place.interval_hour) {
-					this.intervalHours = place.interval_hour;
-				}
-				if (place.interval_minute) {
-					this.intervalMinutes = place.interval_minute;
-				}
-			},
-			closeIntervalModal() {
-				this.showIntervalModal = false;
-				this.activePlace = {};
-				this.intervalHours = '';
-				this.intervalMinutes = '';
-				setTimeout(() => {
-					document.querySelector('body').classList.add('has-shapla-modal');
-				}, 10);
-			},
-			closeDirectionModal() {
-				this.showDirectionModal = false;
-				setTimeout(() => {
-					document.querySelector('body').classList.add('has-shapla-modal');
-				}, 10);
-			},
-			confirmDirection(start, end) {
-				let url = `http://maps.google.com/maps?saddr=${encodeURI(start)}&daddr=${encodeURI(end)}`;
-				window.open(url);
-			},
-			confirmInterval() {
-				let place = this.activePlace, addresses = this.place.places;
-				let index = addresses.findIndex(el => el.place_id === place.place_id);
-				place['interval_hour'] = this.intervalHours.length ? parseInt(this.intervalHours) : 0;
-				place['interval_minute'] = this.intervalMinutes.length ? parseInt(this.intervalMinutes) : 0;
+                this.directionsRenderer.setDirections({routes: []});
+                this.getDirectionRoutes(this.directionsService, this.place)
+                    .then(response => {
+                        if (response.routes && response.routes[0].legs) {
+                            this.addLegOnSelectedPlaces(this.place, response.routes[0].legs);
+                        }
+                        this.directionsRenderer.setDirections(response);
+                    });
+                this.dataChanged = true;
+            },
+            handleClick(action, place) {
+                if ('trash' === action) {
+                    this.removePlace(place)
+                } else {
+                    this.openIntervalModal(place);
+                }
+            },
+            openIntervalModal(place) {
+                this.showIntervalModal = true;
+                this.activePlace = place;
+                if (place.interval_hour) {
+                    this.intervalHours = place.interval_hour;
+                }
+                if (place.interval_minute) {
+                    this.intervalMinutes = place.interval_minute;
+                }
+            },
+            closeIntervalModal() {
+                this.showIntervalModal = false;
+                this.activePlace = {};
+                this.intervalHours = '';
+                this.intervalMinutes = '';
+                setTimeout(() => {
+                    document.querySelector('body').classList.add('has-shapla-modal');
+                }, 10);
+            },
+            closeDirectionModal() {
+                this.showDirectionModal = false;
+                setTimeout(() => {
+                    document.querySelector('body').classList.add('has-shapla-modal');
+                }, 10);
+            },
+            confirmDirection(start, end) {
+                let url = `http://maps.google.com/maps?saddr=${encodeURI(start)}&daddr=${encodeURI(end)}`;
+                window.open(url);
+            },
+            confirmInterval() {
+                let place = this.activePlace, addresses = this.place.places;
+                let index = addresses.findIndex(el => el.place_id === place.place_id);
+                place['interval_hour'] = this.intervalHours.length ? parseInt(this.intervalHours) : 0;
+                place['interval_minute'] = this.intervalMinutes.length ? parseInt(this.intervalMinutes) : 0;
 
-				let interval_seconds = (place['interval_hour'] * 60 * 60 * 1000) + (place['interval_minute'] * 60 * 1000);
-				if (place.reach_time) {
-					place['leave_time'] = (place.reach_time + interval_seconds);
-				}
+                let interval_seconds = (place['interval_hour'] * 60 * 60 * 1000) + (place['interval_minute'] * 60 * 1000);
+                if (place.reach_time) {
+                    place['leave_time'] = (place.reach_time + interval_seconds);
+                }
 
-				addresses[index] = place;
-				this.dataChanged = true;
-				this.reCalculateArrivalAndDepartureTime(addresses);
-				this.closeIntervalModal();
-			},
-			close() {
-				this.$emit('close');
-			},
-			updateData() {
-				this.$store.dispatch('updateMapRecord', this.place)
-					.then(() => {
-						this.dataChanged = false;
-						this.$store.dispatch('refreshMapList');
-						this.close();
-						this.$root.$emit('show-notification', {
-							title: 'Success!',
-							message: 'Data has been updated successfully.',
-							type: 'success',
-						});
-					})
-					.catch(error => {
-						console.log(error);
-					});
-			}
-		}
-	}
+                addresses[index] = place;
+                this.dataChanged = true;
+                this.reCalculateArrivalAndDepartureTime(addresses);
+                this.closeIntervalModal();
+            },
+            close() {
+                this.$emit('close');
+            },
+            updateData() {
+                this.$store.dispatch('updateMapRecord', this.place)
+                    .then(() => {
+                        this.dataChanged = false;
+                        this.$store.dispatch('refreshMapList');
+                        this.close();
+                        this.$root.$emit('show-notification', {
+                            title: 'Success!',
+                            message: 'Data has been updated successfully.',
+                            type: 'success',
+                        });
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+            }
+        }
+    }
 </script>
 
 <style lang="scss">
