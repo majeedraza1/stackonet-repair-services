@@ -132,7 +132,7 @@ class Assets {
 	 * @return array
 	 */
 	public function get_styles() {
-		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+		if ( defined( 'WP_DEBUG_LOCAL' ) && WP_DEBUG_LOCAL ) {
 			return [];
 		}
 

@@ -26,6 +26,32 @@
 						<g-map-autocomplete type="text" label="Base Address"
 											@change="setBaseAddress"></g-map-autocomplete>
 						<div id="map"></div>
+						<div class="stackonet-dashboard-map__destination">
+							<div class="stackonet-dashboard-map__destination-title">Destination</div>
+							<div class="stackonet-dashboard-map__destination-actions">
+								<mdl-button type="raised" @click="destination_type = 'base-address'"
+											:color="destination_type  ==='base-address'?'primary':'default'">
+									Same as base address
+								</mdl-button>
+								<mdl-button type="raised" @click="destination_type = 'custom-address'"
+											:color="destination_type  ==='custom-address'?'primary':'default'">
+									Choose custom address
+								</mdl-button>
+								<mdl-button type="raised" v-if="selectedPlaces.length > 1"
+											@click="destination_type = 'selected-address'"
+											:color="destination_type  ==='selected-address'?'primary':'default'">
+									Choose from selected address
+								</mdl-button>
+							</div>
+							<div v-if="destination_type === 'custom-address'">
+								<g-map-autocomplete type="text" label="Destination Address"
+													@change="setDestinationAddress"></g-map-autocomplete>
+							</div>
+							<div v-if="destination_type === 'selected-address' && selectedPlaces.length > 1">
+								<v-select :options="selectedPlaces" label="formatted_address"
+										  v-model="custom_destination"></v-select>
+							</div>
+						</div>
 						<div class="selected-places">
 							<columns>
 								<column>
@@ -61,7 +87,8 @@
 								</column>
 								<column>
 									<div v-if="selectedPlaces.length > 1">
-										<mdl-button type="raised" color="primary" @click="showFilterModal = true" style="display: none;">
+										<mdl-button type="raised" color="primary" @click="showFilterModal = true"
+													style="display: none;">
 											Re-Arrange Address
 										</mdl-button>
 										<mdl-button type="raised" color="primary" @click="showRecordTitleModal = true">
@@ -137,459 +164,462 @@
 </template>
 
 <script>
-	import axios from 'axios'
-	import {column, columns} from 'shapla-columns';
-	import draggable from 'vuedraggable'
-	import deleteIcon from "shapla-delete";
-	import modal from "shapla-modal";
-	import FlatPickr from "vue-flatpickr-component/src/component";
-	import {MapMixin} from "./MapMixin";
-	import MapListTable from "./MapListTable";
-	import Icon from "../../../shapla/icon/icon";
-	import SearchBox from "../../../components/SearchBox";
-	import MdlButton from "../../../material-design-lite/button/mdlButton";
-	import MdlSlider from "../../../material-design-lite/slider/mdlSlider";
-	import GMapAutocomplete from "../../components/gMapAutocomplete";
-	import AddressBox from "../../../components/AddressBox";
-	import MdlTabs from "../../../material-design-lite/tabs/mdlTabs";
-	import MdlTab from "../../../material-design-lite/tabs/mdlTab";
-	import AnimatedInput from "../../../components/AnimatedInput";
+    import axios from 'axios'
+    import {column, columns} from 'shapla-columns';
+    import draggable from 'vuedraggable'
+    import deleteIcon from "shapla-delete";
+    import modal from "shapla-modal";
+    import vSelect from 'vue-select';
+    import FlatPickr from "vue-flatpickr-component/src/component";
+    import {MapMixin} from "./MapMixin";
+    import MapListTable from "./MapListTable";
+    import Icon from "../../../shapla/icon/icon";
+    import SearchBox from "../../../components/SearchBox";
+    import MdlButton from "../../../material-design-lite/button/mdlButton";
+    import MdlSlider from "../../../material-design-lite/slider/mdlSlider";
+    import GMapAutocomplete from "../../components/gMapAutocomplete";
+    import AddressBox from "../../../components/AddressBox";
+    import MdlTabs from "../../../material-design-lite/tabs/mdlTabs";
+    import MdlTab from "../../../material-design-lite/tabs/mdlTab";
+    import AnimatedInput from "../../../components/AnimatedInput";
+    import AddressBox2 from "../../../components/AddressBox2";
 
-	let mapStyles = require('./map-style.json');
+    let mapStyles = require('./map-style.json');
 
-	export default {
-		name: "Map",
-		mixins: [MapMixin],
-		components: {
-			AnimatedInput, MapListTable, MdlTab, MdlTabs,
-			AddressBox, FlatPickr, GMapAutocomplete, MdlSlider, MdlButton,
-			SearchBox, deleteIcon, Icon, columns, column, modal, draggable
-		},
-		data() {
-			return {
-				showFilterModal: false,
-				openBoxActionModal: false,
-				showRecordTitleModal: false,
-				googleMap: '',
-				placesService: '',
-				directionsService: '',
-				directionsRenderer: '',
-				selectedPlaces: [],
-				places: [],
-				markers: [],
-				place_text: '',
-				location: '',
-				pagination: null,
-				hasNextPage: false,
-				showDateTime: false,
-				radius: 100,
-				latitude: 0,
-				longitude: 0,
-				user_formatted_address: '',
-				address: '',
-				travelMode: 'DRIVING',
-				flatpickrConfig: {
-					dateFormat: 'Y-m-d h:i K',
-					enableTime: true,
-					minDate: new Date(),
-					wrap: true,
-				},
-				alphabets: [],
-				legs: [],
-				baseTime: '',
-				activePlace: {},
-				intervalHours: '',
-				intervalMinutes: '',
-				recordTitle: '',
-			}
-		},
-		watch: {
-			user_formatted_address(newValue) {
-				let latLng = new google.maps.LatLng(this.latitude, this.longitude);
-				this.googleMap.setCenter(latLng);
-				new google.maps.Marker({
-					map: this.googleMap,
-					title: newValue,
-					position: latLng
-				});
-			},
-			travelMode() {
-				this.updateMapRoute();
-			}
-		},
-		computed: {
-			radius_meters() {
-				return this.radius * 100;
-			}
-		},
-		mounted() {
-			let self = this;
-			this.$store.commit('SET_LOADING_STATUS', false);
+    export default {
+        name: "Map",
+        mixins: [MapMixin],
+        components: {
+            AddressBox2, vSelect, AnimatedInput, MapListTable, MdlTab, MdlTabs,
+            AddressBox, FlatPickr, GMapAutocomplete, MdlSlider, MdlButton,
+            SearchBox, deleteIcon, Icon, columns, column, modal, draggable
+        },
+        data() {
+            return {
+                showFilterModal: false,
+                openBoxActionModal: false,
+                showRecordTitleModal: false,
+                googleMap: '',
+                placesService: '',
+                directionsService: '',
+                directionsRenderer: '',
+                selectedPlaces: [],
+                selectedAddress: [],
+                places: [],
+                markers: [],
+                place_text: '',
+                location: '',
+                pagination: null,
+                hasNextPage: false,
+                showDateTime: false,
+                radius: 100,
+                latitude: 0,
+                longitude: 0,
+                user_formatted_address: '',
+                address: '',
+                travelMode: 'DRIVING',
+                flatpickrConfig: {
+                    dateFormat: 'Y-m-d h:i K',
+                    enableTime: true,
+                    minDate: new Date(),
+                    wrap: true,
+                },
+                alphabets: [],
+                legs: [],
+                baseTime: '',
+                activePlace: {},
+                intervalHours: '',
+                intervalMinutes: '',
+                recordTitle: '',
+                destination_type: 'base-address',
+                custom_destination: {},
+                destination: {},
+            }
+        },
+        watch: {
+            user_formatted_address(newValue) {
+                let latLng = new google.maps.LatLng(this.latitude, this.longitude);
+                this.googleMap.setCenter(latLng);
+                new google.maps.Marker({
+                    map: this.googleMap,
+                    title: newValue,
+                    position: latLng
+                });
+            },
+            travelMode() {
+                this.updateMapRoute();
+            }
+        },
+        computed: {
+            radius_meters() {
+                return this.radius * 100;
+            },
+            get_destination() {
+                let address = {};
+                if (this.user_formatted_address.length) { // this.destination_type === 'base-address' &&
+                    address = {
+                        formatted_address: this.user_formatted_address,
+                        location: new google.maps.LatLng(this.latitude, this.longitude)
+                    };
+                }
 
-			// Set base time
-			this.baseTime = new Date();
+                if (this.destination_type === 'custom-address' && Object.keys(this.destination).length) {
+                    address = this.destination;
+                }
 
-			// Get user location from geo-location
-			if (navigator.geolocation && self.geolocation) {
-				navigator.geolocation.getCurrentPosition(function (position) {
-					self.latitude = position.coords.latitude;
-					self.longitude = position.coords.longitude;
-					self.geoCodeToAddress(position.coords.latitude, position.coords.longitude);
-				});
-			}
+                if (this.destination_type === "selected-address" && this.custom_destination && Object.keys(this.custom_destination).length) {
+                    address = {
+                        formatted_address: this.custom_destination.formatted_address,
+                        location: this.custom_destination.location
+                    };
+                }
 
-			this.alphabets = String.fromCharCode(..." ".repeat(26).split("").map((e, i) => i + 'A'.charCodeAt())).split('');
+                return address;
+            }
+        },
+        mounted() {
+            let self = this;
+            this.$store.commit('SET_LOADING_STATUS', false);
 
-			// Create the map.
-			this.location = new google.maps.LatLng(this.latitude, this.longitude);
-			this.googleMap = new google.maps.Map(this.$el.querySelector('#map'), {
-				center: self.location,
-				zoom: 17,
-				styles: mapStyles
-			});
-			// Create the places service.
-			this.placesService = new google.maps.places.PlacesService(self.googleMap);
-			// Create the direction service
-			this.directionsService = new google.maps.DirectionsService;
-			this.directionsRenderer = new google.maps.DirectionsRenderer({
-				map: this.googleMap,
-			});
+            // Set base time
+            this.baseTime = new Date();
 
-			google.maps.event.addListener(this.googleMap, 'click', (event) => {
-				this.placesService.getDetails({placeId: event.placeId}, (place, status) => {
-					if (status === google.maps.places.PlacesServiceStatus.OK) {
-						let _place = {
-							place_id: place.place_id,
-							name: place.name,
-							formatted_address: place.formatted_address,
-							location: place.geometry.location,
-							distance: 0,
-							interval_hour: 0,
-							interval_minute: 0,
-							reach_time: 0,
-							leave_time: 0,
-							leg: ''
-						};
-						this.$modal.confirm({
-							message: `Do you want to add this address to list?<br><br><strong>${place.name}</strong><br>${place.formatted_address}`,
-							confirmButton: 'Yes',
-							cancelButton: 'No'
-						}).then(confirmed => {
-							if (confirmed) {
-								this.places.unshift(_place);
-								this.selectedPlaces.push(_place);
-								setTimeout(() => {
-									this.updateMapRoute();
-								})
-							}
-						})
-					}
-				});
-			});
-		},
-		methods: {
-			saveAsRoute() {
-				let _data = {
-					title: this.recordTitle,
-					formatted_base_address: this.user_formatted_address,
-					base_address_latitude: this.latitude,
-					base_address_longitude: this.longitude,
-					base_datetime: this.baseTime,
-					place_text: this.place_text,
-					travel_mode: this.travelMode,
-					places: this.selectedPlaces,
-				};
-				this.$store.commit('SET_LOADING_STATUS', true);
-				axios
-					.post(PhoneRepairs.rest_root + '/map', _data)
-					.then(response => {
-						this.$store.commit('SET_LOADING_STATUS', false);
-						this.showRecordTitleModal = false;
-						this.$root.$emit('show-notification', {
-							title: 'Success!',
-							message: 'Map data has been saved successfully.',
-							type: 'success',
-						});
-						this.$store.dispatch('refreshMapList');
-					})
-					.catch(error => {
-						this.$store.commit('SET_LOADING_STATUS', false);
-						console.log(error);
-					})
-			},
-			openIntervalModal(place) {
-				this.openBoxActionModal = true;
-				this.activePlace = place;
-			},
-			closeIntervalModal() {
-				this.intervalHours = '';
-				this.intervalMinutes = '';
-				this.openBoxActionModal = false;
-				this.activePlace = {};
-			},
-			confirmInterval() {
-				let place = this.activePlace, addresses = this.selectedPlaces;
-				let index = addresses.findIndex(el => el.place_id === place.place_id);
-				place['interval_hour'] = this.intervalHours.length ? parseInt(this.intervalHours) : 0;
-				place['interval_minute'] = this.intervalMinutes.length ? parseInt(this.intervalMinutes) : 0;
+            // Get user location from geo-location
+            if (navigator.geolocation && self.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    self.latitude = position.coords.latitude;
+                    self.longitude = position.coords.longitude;
+                    self.geoCodeToAddress(position.coords.latitude, position.coords.longitude);
+                });
+            }
 
-				let interval_seconds = (place['interval_hour'] * 60 * 60 * 1000) + (place['interval_minute'] * 60 * 1000);
-				if (place.reach_time) {
-					place['leave_time'] = (place.reach_time + interval_seconds);
-				}
+            this.alphabets = String.fromCharCode(..." ".repeat(26).split("").map((e, i) => i + 'A'.charCodeAt())).split('');
 
-				addresses[index] = place;
-				this.reCalculateArrivalAndDepartureTime(addresses);
-				this.closeIntervalModal();
-			},
-			geoCodeToAddress(latitude, longitude) {
-				let self = this,
-					geocoder = new google.maps.Geocoder;
-				geocoder.geocode({'location': {lat: latitude, lng: longitude}},
-					function (results, status) {
-						if (status === 'OK') {
-							if (results[0]) {
-								self.address = results[0];
-								self.user_formatted_address = results[0].formatted_address;
-							}
-						}
-					}
-				);
-			},
-			setBaseAddress(placeData) {
-				this.latitude = placeData.latitude;
-				this.longitude = placeData.longitude;
-				this.location = new google.maps.LatLng(placeData.latitude, placeData.longitude);
-				this.user_formatted_address = placeData.formatted_address;
-				this.address = placeData.address;
-			},
-			itemClass(place) {
-				if (-1 === this.selectedPlaces.indexOf(place)) return {};
-				return ['is-active'];
-			},
-			selectPlace(place) {
-				let _place = place, addresses = this.selectedPlaces;
-				let index = addresses.findIndex(el => el.place_id === _place.place_id);
-				_place['interval_hour'] = 0;
-				_place['interval_minute'] = 0;
-				_place['reach_time'] = 0;
-				_place['leave_time'] = 0;
+            // Create the map.
+            this.location = new google.maps.LatLng(this.latitude, this.longitude);
+            this.googleMap = new google.maps.Map(this.$el.querySelector('#map'), {
+                center: self.location,
+                zoom: 17,
+                styles: mapStyles
+            });
+            // Create the places service.
+            this.placesService = new google.maps.places.PlacesService(self.googleMap);
+            // Create the direction service
+            this.directionsService = new google.maps.DirectionsService;
+            this.directionsRenderer = new google.maps.DirectionsRenderer({
+                map: this.googleMap,
+            });
 
-				if (-1 !== index) {
-					addresses.splice(index, 1);
-				} else {
-					addresses.push(_place);
-				}
-				this.selectedPlaces = addresses;
-				this.updateMapRoute();
-			},
-			clearPlaceData() {
-				this.places = [];
-				this.hasNextPage = false;
-				this.clearMarkers(this.markers);
-			},
-			updatePlaceData() {
-				if (this.place_text.length < 3) {
-					this.$root.$emit('show-notification', {
-						title: 'Error!',
-						message: 'Please enter at least three characters.',
-						type: 'error',
-					});
-					return;
-				}
-				if (!this.latitude || !this.longitude) {
-					this.$root.$emit('show-notification', {
-						title: 'Error!',
-						message: 'Please set base address first.',
-						type: 'error',
-					});
-					return;
-				}
-				let self = this,
-					request = {
-						location: self.location,
-						radius: self.radius_meters,
-						query: self.place_text
-					};
-				self.$store.commit('SET_LOADING_STATUS', true);
+            google.maps.event.addListener(this.googleMap, 'click', (event) => {
+                this.placesService.getDetails({placeId: event.placeId}, (place, status) => {
+                    if (status === google.maps.places.PlacesServiceStatus.OK) {
+                        let _place = {
+                            place_id: place.place_id,
+                            name: place.name,
+                            formatted_address: place.formatted_address,
+                            location: place.geometry.location,
+                            distance: 0,
+                            interval_hour: 0,
+                            interval_minute: 0,
+                            reach_time: 0,
+                            leave_time: 0,
+                            leg: ''
+                        };
+                        this.$modal.confirm({
+                            message: `Do you want to add this address to list?<br><br><strong>${place.name}</strong><br>${place.formatted_address}`,
+                            confirmButton: 'Yes',
+                            cancelButton: 'No'
+                        }).then(confirmed => {
+                            if (confirmed) {
+                                this.places.unshift(_place);
+                                this.selectedPlaces.push(_place);
+                                setTimeout(() => {
+                                    this.updateMapRoute();
+                                })
+                            }
+                        })
+                    }
+                });
+            });
+        },
+        methods: {
+            saveAsRoute() {
+                let _data = {
+                    title: this.recordTitle,
+                    formatted_base_address: this.user_formatted_address,
+                    base_address_latitude: this.latitude,
+                    base_address_longitude: this.longitude,
+                    base_datetime: this.baseTime,
+                    place_text: this.place_text,
+                    travel_mode: this.travelMode,
+                    places: this.selectedPlaces,
+                };
+                this.$store.commit('SET_LOADING_STATUS', true);
+                axios
+                    .post(PhoneRepairs.rest_root + '/map', _data)
+                    .then(response => {
+                        this.$store.commit('SET_LOADING_STATUS', false);
+                        this.showRecordTitleModal = false;
+                        this.$root.$emit('show-notification', {
+                            title: 'Success!',
+                            message: 'Map data has been saved successfully.',
+                            type: 'success',
+                        });
+                        this.$store.dispatch('refreshMapList');
+                    })
+                    .catch(error => {
+                        this.$store.commit('SET_LOADING_STATUS', false);
+                        console.log(error);
+                    })
+            },
+            onActionClick(action, place) {
+                if (action === 'add') {
+                    this.openBoxActionModal = true;
+                    this.activePlace = place;
+                }
+            },
+            openIntervalModal(place) {
+                this.openBoxActionModal = true;
+                this.activePlace = place;
+            },
+            closeIntervalModal() {
+                this.intervalHours = '';
+                this.intervalMinutes = '';
+                this.openBoxActionModal = false;
+                this.activePlace = {};
+            },
+            confirmInterval() {
+                let place = this.activePlace, addresses = this.selectedPlaces;
+                let index = addresses.findIndex(el => el.place_id === place.place_id);
+                place['interval_hour'] = this.intervalHours.length ? parseInt(this.intervalHours) : 0;
+                place['interval_minute'] = this.intervalMinutes.length ? parseInt(this.intervalMinutes) : 0;
 
-				// this.nearbySearch(this.placesService, {
-				// 	location: this.location,
-				// 	radius: this.radius_meters,
-				// 	keyword: this.place_text,
-				// 	rankby: 'distance',
-				// }).then(response => {
-				// 	console.log(response);
-				// 	this.$store.commit('SET_LOADING_STATUS', false);
-				// 	this.pagination = response.pagination;
-				// 	this.hasNextPage = response.pagination.hasNextPage;
-				// 	this.createMarkers(response.results);
-				// }).catch(() => {
-				// 	this.$store.commit('SET_LOADING_STATUS', false);
-				// });
+                let interval_seconds = (place['interval_hour'] * 60 * 60 * 1000) + (place['interval_minute'] * 60 * 1000);
+                if (place.reach_time) {
+                    place['leave_time'] = (place.reach_time + interval_seconds);
+                }
 
-				// Perform a text search.
-				self.places = [];
-				this.textSearch(this.placesService, {
-					query: this.place_text,
-					location: this.location,
-					radius: this.radius_meters,
-				}).then(response => {
-					this.$store.commit('SET_LOADING_STATUS', false);
-					this.pagination = response.pagination;
-					this.hasNextPage = response.pagination.hasNextPage;
-					this.createMarkers(response.results);
-				}).catch(error => {
-					this.$store.commit('SET_LOADING_STATUS', false);
-				});
-			},
-			loadMore() {
-				if (this.hasNextPage) {
-					this.pagination.nextPage();
-				}
-			},
-			createMarkers(places) {
-				let self = this,
-					bounds = new google.maps.LatLngBounds();
+                addresses[index] = place;
+                this.reCalculateArrivalAndDepartureTime(addresses);
+                this.closeIntervalModal();
+            },
+            geoCodeToAddress(latitude, longitude) {
+                let self = this,
+                    geocoder = new google.maps.Geocoder;
+                geocoder.geocode({'location': {lat: latitude, lng: longitude}},
+                    function (results, status) {
+                        if (status === 'OK') {
+                            if (results[0]) {
+                                self.address = results[0];
+                                self.user_formatted_address = results[0].formatted_address;
+                            }
+                        }
+                    }
+                );
+            },
+            setBaseAddress(placeData) {
+                this.latitude = placeData.latitude;
+                this.longitude = placeData.longitude;
+                this.location = new google.maps.LatLng(placeData.latitude, placeData.longitude);
+                this.user_formatted_address = placeData.formatted_address;
+                this.address = placeData.address;
+            },
+            setDestinationAddress(placeData) {
+                this.destination = {
+                    formatted_address: placeData.formatted_address,
+                    location: new google.maps.LatLng(placeData.latitude, placeData.longitude)
+                };
+            },
+            itemClass(place) {
+                if (-1 === this.selectedPlaces.indexOf(place)) return {};
+                return ['is-active'];
+            },
+            selectPlace(place) {
+                let _place = place, addresses = this.selectedPlaces;
+                let index = addresses.findIndex(el => el.place_id === _place.place_id);
+                _place['interval_hour'] = 0;
+                _place['interval_minute'] = 0;
+                _place['reach_time'] = 0;
+                _place['leave_time'] = 0;
 
-				for (let i = 0; i < places.length; i++) {
-					let place = places[i];
-					let image = {
-						url: place.icon,
-						size: new google.maps.Size(71, 71),
-						origin: new google.maps.Point(0, 0),
-						anchor: new google.maps.Point(17, 34),
-						scaledSize: new google.maps.Size(25, 25)
-					};
+                if (-1 !== index) {
+                    addresses.splice(index, 1);
+                } else {
+                    addresses.push(_place);
+                }
+                this.selectedPlaces = addresses;
+                this.updateMapRoute();
+            },
+            clearPlaceData() {
+                this.places = [];
+                this.hasNextPage = false;
+                this.clearMarkers(this.markers);
+            },
+            updatePlaceData() {
+                if (this.place_text.length < 3) {
+                    this.$root.$emit('show-notification', {
+                        title: 'Error!',
+                        message: 'Please enter at least three characters.',
+                        type: 'error',
+                    });
+                    return;
+                }
+                if (!this.latitude || !this.longitude) {
+                    this.$root.$emit('show-notification', {
+                        title: 'Error!',
+                        message: 'Please set base address first.',
+                        type: 'error',
+                    });
+                    return;
+                }
+                let self = this,
+                    request = {
+                        location: self.location,
+                        radius: self.radius_meters,
+                        query: self.place_text
+                    };
+                self.$store.commit('SET_LOADING_STATUS', true);
 
-					// let marker = new google.maps.Marker({
-					// 	map: self.googleMap,
-					// 	icon: image,
-					// 	title: place.name,
-					// 	position: place.geometry.location
-					// });
-					// self.markers.push(marker);
+                // Perform a text search.
+                self.places = [];
+                this.textSearch(this.placesService, {
+                    query: this.place_text,
+                    location: this.location,
+                    radius: this.radius_meters,
+                }).then(response => {
+                    this.$store.commit('SET_LOADING_STATUS', false);
+                    this.pagination = response.pagination;
+                    this.hasNextPage = response.pagination.hasNextPage;
+                    this.createMarkers(response.results);
+                }).catch(error => {
+                    this.$store.commit('SET_LOADING_STATUS', false);
+                });
+            },
+            loadMore() {
+                if (this.hasNextPage) {
+                    this.pagination.nextPage();
+                }
+            },
+            createMarkers(places) {
+                let self = this,
+                    bounds = new google.maps.LatLngBounds();
 
-					place.distance = self.distance(self.location, place.geometry.location);
+                for (let i = 0; i < places.length; i++) {
+                    let place = places[i];
+                    let image = {
+                        url: place.icon,
+                        size: new google.maps.Size(71, 71),
+                        origin: new google.maps.Point(0, 0),
+                        anchor: new google.maps.Point(17, 34),
+                        scaledSize: new google.maps.Size(25, 25)
+                    };
+
+                    place.distance = self.distance(self.location, place.geometry.location);
 
 
-					self.places.push({
-						place_id: place.place_id,
-						name: place.name,
-						formatted_address: place.formatted_address,
-						location: place.geometry.location,
-						distance: place.distance,
-					});
+                    self.places.push({
+                        place_id: place.place_id,
+                        name: place.name,
+                        formatted_address: place.formatted_address,
+                        location: place.geometry.location,
+                        distance: place.distance,
+                    });
 
-					bounds.extend(place.geometry.location);
-				}
-				self.googleMap.fitBounds(bounds);
-			},
-			/**
-			 * Update map routes
-			 */
-			updateMapRoute() {
-				// Clear current route
-				this.directionsRenderer.setDirections({routes: []});
+                    bounds.extend(place.geometry.location);
+                }
+                self.googleMap.fitBounds(bounds);
+            },
+            /**
+             * Update map routes
+             */
+            updateMapRoute() {
+                // Clear current route
+                this.directionsRenderer.setDirections({routes: []});
 
-				let addresses = this.selectedPlaces;
+                let addresses = this.selectedPlaces;
 
-				// Get total selected item length
-				let totalItem = addresses.length;
+                // Get total selected item length
+                let totalItem = addresses.length;
 
-				// Exit if length is less than 1
-				if (totalItem < 1) return;
+                // Exit if length is less than 1
+                if (totalItem < 1) return;
 
-				let lastIndex = totalItem - 1,
-					lastItem = addresses[lastIndex];
+                let lastIndex = totalItem - 1,
+                    lastItem = addresses[lastIndex];
 
-				let waypoints = [];
-				for (let i = 0; i < totalItem; i++) {
-					if (i !== lastIndex) {
-						waypoints.push({
-							location: this.selectedPlaces[i].formatted_address,
-							stopover: true
-						});
-					}
-				}
-				// Display Route
-				this.displayRoute(
-					this.address.geometry.location,
-					lastItem.location,
-					waypoints
-				);
-			},
-			displayRoute(origin, destination, waypoints = []) {
-				let self = this,
-					request = {
-						origin: origin,
-						waypoints: waypoints,
-						destination: destination,
-						travelMode: google.maps.TravelMode[this.travelMode],
-						avoidTolls: true,
-						optimizeWaypoints: true,
-						drivingOptions: {
-							departureTime: new Date(this.baseTime),
-							trafficModel: 'optimistic'
-						}
-					};
-				this.directionsService.route(request, function (response, status) {
-					if (status === 'OK') {
-						if (response.routes && response.routes[0].legs) {
-							self.addLegOnSelectedPlaces(response.routes[0].legs);
-						}
-						// self.reArrangeSelectedAddress(response);
-						self.directionsRenderer.setDirections(response);
-					}
-				});
-			},
-			reArrangeSelectedAddress(response) {
-				if (!response.geocoded_waypoints) return;
-				let ids = response.geocoded_waypoints.map(element => element.place_id),
-					places = this.selectedPlaces, newPlaces = [];
-				ids.forEach(id => {
-					places.forEach(place => {
-						if (id === place.place_id) {
-							newPlaces.push(place);
-						}
-					});
-				});
-				console.log(response);
-			},
-			addLegOnSelectedPlaces(routesLegs) {
-				let legs = [], _selectedPlaces = [];
+                let waypoints = [];
+                for (let i = 0; i < totalItem; i++) {
+                    if (i !== lastIndex) {
+                        waypoints.push({
+                            location: this.selectedPlaces[i].formatted_address,
+                            stopover: true
+                        });
+                    }
+                }
+                // Display Route
+                this.getGoogleMapRoute(this.directionsService, this.address.geometry.location, lastItem.location,
+                    waypoints, google.maps.TravelMode[this.travelMode]).then(response => {
+                    if (response.routes && response.routes[0].legs) {
+                        this.addLegOnSelectedPlaces(response.routes[0].legs);
+                    }
+                    this.reArrangeSelectedAddress(response);
+                    this.directionsRenderer.setDirections(response);
+                }).catch(error => console.log(error));
+            },
+            reArrangeSelectedAddress(response) {
+                let currentAddresses = this.selectedPlaces,
+                    newAddresses = [],
+                    lastIndex = currentAddresses.length - 1,
+                    lastItem = currentAddresses[lastIndex],
+                    newAddressOrder = response.routes[0].waypoint_order;
 
-				for (let i = 0; i < routesLegs.length; i++) {
-					legs.push({distance: routesLegs[i].distance, duration: routesLegs[i].duration});
-				}
-				if (legs.length) {
-					if (typeof this.baseTime === "string") {
-						this.baseTime = new Date(this.baseTime);
-					}
-					for (let i = 0; i < legs.length; i++) {
-						let _data = this.selectedPlaces[i];
-						_data['leg'] = legs[i];
-						_data['interval_hour'] = _data.interval_hour ? _data.interval_hour : 0;
-						_data['interval_minute'] = _data.interval_minute ? _data.interval_minute : 0;
-						_data['reach_time'] = _data.reach_time ? _data.reach_time : 0;
-						_data['leave_time'] = _data.leave_time ? _data.leave_time : 0;
-						if (i === 0) {
-							_data['reach_time'] = this.baseTime.getTime() + (_data.leg.duration.value * 1000);
-						}
-						_selectedPlaces.push(_data);
-					}
+                for (let i = 0; i < newAddressOrder.length; i++) {
+                    newAddresses.push(currentAddresses[newAddressOrder[i]]);
+                }
 
-					this.selectedPlaces = _selectedPlaces;
-				}
-			}
-		}
-	}
+                newAddresses.push(lastItem);
+                this.selectedPlaces = newAddresses;
+            },
+            addLegOnSelectedPlaces(routesLegs) {
+                let legs = [], _selectedPlaces = [];
+
+                for (let i = 0; i < routesLegs.length; i++) {
+                    legs.push({distance: routesLegs[i].distance, duration: routesLegs[i].duration});
+                }
+                if (legs.length) {
+                    if (typeof this.baseTime === "string") {
+                        this.baseTime = new Date(this.baseTime);
+                    }
+                    for (let i = 0; i < legs.length; i++) {
+                        let _data = this.selectedPlaces[i];
+                        _data['leg'] = legs[i];
+                        _data['interval_hour'] = _data.interval_hour ? _data.interval_hour : 0;
+                        _data['interval_minute'] = _data.interval_minute ? _data.interval_minute : 0;
+                        _data['reach_time'] = _data.reach_time ? _data.reach_time : 0;
+                        _data['leave_time'] = _data.leave_time ? _data.leave_time : 0;
+                        if (i === 0) {
+                            _data['reach_time'] = this.baseTime.getTime() + (_data.leg.duration.value * 1000);
+                        }
+                        _selectedPlaces.push(_data);
+                    }
+
+                    this.selectedPlaces = _selectedPlaces;
+                }
+            }
+        }
+    }
 </script>
 
 <style lang="scss">
 	.stackonet-dashboard-map {
 		.mdl-tabs__panel.is-active {
 			margin-top: 1rem;
+		}
+	}
+
+	.stackonet-dashboard-map__destination {
+		&-actions {
+			margin-bottom: 1rem;
 		}
 	}
 

@@ -95,7 +95,7 @@ const MapMixin = {
 		/**
 		 * Update map routes
 		 */
-		getDirectionRoutes(directionsService, placeObject) {
+		getDirectionRoutes(directionsService, placeObject, travelMode = 'DRIVING') {
 			let origin = {lat: placeObject.base_address_latitude, lng: placeObject.base_address_longitude};
 			let addresses = placeObject.places;
 
@@ -115,12 +115,15 @@ const MapMixin = {
 				}
 			}
 
+			return this.getGoogleMapRoute(directionsService, origin, lastItem.location, waypoints, travelMode);
+		},
+		getGoogleMapRoute(directionsService, origin, destination, waypoints = [], travelMode = 'DRIVING') {
 			let request = {
 				origin: origin,
+				destination: destination,
 				waypoints: waypoints,
 				optimizeWaypoints: true,
-				destination: lastItem.location,
-				travelMode: 'DRIVING',
+				travelMode: travelMode,
 				avoidTolls: true,
 				drivingOptions: {
 					departureTime: new Date(),
