@@ -1,10 +1,11 @@
 <template>
 	<div class="stackonet-dashboard-tracker">
-		<columns>
-			<column>
-				<div id="google-map"></div>
-			</column>
-		</columns>
+		<div id="google-map"></div>
+		<div class="stackonet-dashboard-tracker__vans">
+			<div class="stackonet-dashboard-tracker__van mdl-shadow--4dp">
+				some text
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -53,7 +54,6 @@
             db.ref('Employees').on('value', snapshot => {
                 this.employees = Object.values(snapshot.val());
                 let markers = this.calculateMarkers(this.items, this.employees);
-                console.log(this.employees, markers);
                 this.clearMarkers();
                 this.updateMapMarkers(markers);
             });
@@ -121,8 +121,31 @@
 
 <style lang="scss" scoped>
 	.stackonet-dashboard-tracker {
+		margin: -30px;
+
 		#google-map {
-			height: 80vh;
+			height: calc(100vh - 64px);
+
+			.admin-bar & {
+				height: calc(100vh - 96px);
+			}
+		}
+
+		&__vans {
+			position: fixed;
+			top: 0;
+			left: 0;
+			z-index: 9999;
+			width: 300px;
+			height: 100%;
+			padding: 150px 1rem 50px;
+		}
+
+		&__van {
+			padding: 1rem;
+			background-color: #fff;
+			margin-top: 1rem;
+			margin-bottom: 1rem;
 		}
 	}
 </style>
