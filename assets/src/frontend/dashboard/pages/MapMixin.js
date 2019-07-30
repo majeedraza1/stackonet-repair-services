@@ -222,7 +222,7 @@ const MapMixin = {
 			return (metres / 1000).toFixed(1) + " km away";
 		},
 		getClickedLocationDetails(googleMap, placesService) {
-			return new Promise(resolve => {
+			return new Promise((resolve, reject) => {
 				google.maps.event.addListener(googleMap, 'click', (event) => {
 					placesService.getDetails({placeId: event.placeId}, (place, status) => {
 						if (status === google.maps.places.PlacesServiceStatus.OK) {
@@ -239,6 +239,8 @@ const MapMixin = {
 								leg: ''
 							};
 							resolve(_place);
+						} else {
+							reject(status);
 						}
 					});
 				});

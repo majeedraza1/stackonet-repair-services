@@ -26,7 +26,7 @@
 						<g-map-autocomplete type="text" label="Base Address"
 											@change="setBaseAddress"></g-map-autocomplete>
 						<div id="map"></div>
-						<div class="stackonet-dashboard-map__destination">
+						<div class="stackonet-dashboard-map__destination" style="display: none;">
 							<div class="stackonet-dashboard-map__destination-title">Destination</div>
 							<div class="stackonet-dashboard-map__destination-actions">
 								<mdl-button type="raised" @click="destination_type = 'base-address'"
@@ -115,6 +115,19 @@
 											<mdl-button type="icon" @click="openIntervalModal(_place)">+</mdl-button>
 										</div>
 									</address-box>
+								</column>
+								<column :tablet="6" style="display: none;">
+									<div class="places-box__item places-box__selected-item mdl-shadow--4dp">
+										<div class="places-box__left">
+											<div class="places-box__name">Destination Address:</div>
+											<div class="places-box__formatted_address"
+												 v-html="get_destination.formatted_address"></div>
+										</div>
+										<div class="places-box__right">
+											<div class="places-box__index">{{alphabets[selectedPlaces.length + 1]}}
+											</div>
+										</div>
+									</div>
 								</column>
 							</columns>
 						</div>
@@ -256,7 +269,7 @@
             },
             get_destination() {
                 let address = {};
-                if (this.user_formatted_address.length) { // this.destination_type === 'base-address' &&
+                if (this.user_formatted_address.length) {
                     address = {
                         formatted_address: this.user_formatted_address,
                         location: new google.maps.LatLng(this.latitude, this.longitude)
@@ -278,18 +291,17 @@
             }
         },
         mounted() {
-            let self = this;
             this.$store.commit('SET_LOADING_STATUS', false);
 
             // Set base time
             this.baseTime = new Date();
 
             // Get user location from geo-location
-            if (navigator.geolocation && self.geolocation) {
-                navigator.geolocation.getCurrentPosition(function (position) {
-                    self.latitude = position.coords.latitude;
-                    self.longitude = position.coords.longitude;
-                    self.geoCodeToAddress(position.coords.latitude, position.coords.longitude);
+            if (navigator.geolocation && this.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    this.latitude = position.coords.latitude;
+                    this.longitude = position.coords.longitude;
+                    this.geoCodeToAddress(position.coords.latitude, position.coords.longitude);
                 });
             }
 
@@ -298,49 +310,34 @@
             // Create the map.
             this.location = new google.maps.LatLng(this.latitude, this.longitude);
             this.googleMap = new google.maps.Map(this.$el.querySelector('#map'), {
-                center: self.location,
+                center: this.location,
                 zoom: 17,
                 styles: mapStyles
             });
             // Create the places service.
-            this.placesService = new google.maps.places.PlacesService(self.googleMap);
+            this.placesService = new google.maps.places.PlacesService(this.googleMap);
             // Create the direction service
             this.directionsService = new google.maps.DirectionsService;
             this.directionsRenderer = new google.maps.DirectionsRenderer({
                 map: this.googleMap,
             });
 
-            google.maps.event.addListener(this.googleMap, 'click', (event) => {
-                this.placesService.getDetails({placeId: event.placeId}, (place, status) => {
-                    if (status === google.maps.places.PlacesServiceStatus.OK) {
-                        let _place = {
-                            place_id: place.place_id,
-                            name: place.name,
-                            formatted_address: place.formatted_address,
-                            location: place.geometry.location,
-                            distance: 0,
-                            interval_hour: 0,
-                            interval_minute: 0,
-                            reach_time: 0,
-                            leave_time: 0,
-                            leg: ''
-                        };
-                        this.$modal.confirm({
-                            message: `Do you want to add this address to list?<br><br><strong>${place.name}</strong><br>${place.formatted_address}`,
-                            confirmButton: 'Yes',
-                            cancelButton: 'No'
-                        }).then(confirmed => {
-                            if (confirmed) {
-                                this.places.unshift(_place);
-                                this.selectedPlaces.push(_place);
-                                setTimeout(() => {
-                                    this.updateMapRoute();
-                                })
-                            }
-                        })
-                    }
+            this.getClickedLocationDetails(this.googleMap, this.placesService)
+                .then(place => {
+                    this.$modal.confirm({
+                        message: `Do you want to add this address to list?<br><br><strong>${place.name}</strong><br>${place.formatted_address}`,
+                        confirmButton: 'Yes',
+                        cancelButton: 'No'
+                    }).then(confirmed => {
+                        if (confirmed) {
+                            this.places.unshift(place);
+                            this.selectedPlaces.push(place);
+                            setTimeout(() => {
+                                this.updateMapRoute();
+                            })
+                        }
+                    })
                 });
-            });
         },
         methods: {
             saveAsRoute() {
@@ -357,7 +354,7 @@
                 this.$store.commit('SET_LOADING_STATUS', true);
                 axios
                     .post(PhoneRepairs.rest_root + '/map', _data)
-                    .then(response => {
+                    .then(() => {
                         this.$store.commit('SET_LOADING_STATUS', false);
                         this.showRecordTitleModal = false;
                         this.$root.$emit('show-notification', {
@@ -404,18 +401,15 @@
                 this.closeIntervalModal();
             },
             geoCodeToAddress(latitude, longitude) {
-                let self = this,
-                    geocoder = new google.maps.Geocoder;
-                geocoder.geocode({'location': {lat: latitude, lng: longitude}},
-                    function (results, status) {
-                        if (status === 'OK') {
-                            if (results[0]) {
-                                self.address = results[0];
-                                self.user_formatted_address = results[0].formatted_address;
-                            }
+                let geocoder = new google.maps.Geocoder;
+                geocoder.geocode({'location': {lat: latitude, lng: longitude}}, (results, status) => {
+                    if (status === 'OK') {
+                        if (results[0]) {
+                            this.address = results[0];
+                            this.user_formatted_address = results[0].formatted_address;
                         }
                     }
-                );
+                });
             },
             setBaseAddress(placeData) {
                 this.latitude = placeData.latitude;
@@ -457,31 +451,24 @@
             },
             updatePlaceData() {
                 if (this.place_text.length < 3) {
-                    this.$root.$emit('show-notification', {
+                    return this.$root.$emit('show-notification', {
                         title: 'Error!',
                         message: 'Please enter at least three characters.',
                         type: 'error',
                     });
-                    return;
                 }
                 if (!this.latitude || !this.longitude) {
-                    this.$root.$emit('show-notification', {
+                    return this.$root.$emit('show-notification', {
                         title: 'Error!',
                         message: 'Please set base address first.',
                         type: 'error',
                     });
-                    return;
                 }
-                let self = this,
-                    request = {
-                        location: self.location,
-                        radius: self.radius_meters,
-                        query: self.place_text
-                    };
-                self.$store.commit('SET_LOADING_STATUS', true);
+
+                this.$store.commit('SET_LOADING_STATUS', true);
 
                 // Perform a text search.
-                self.places = [];
+                this.places = [];
                 this.textSearch(this.placesService, {
                     query: this.place_text,
                     location: this.location,
@@ -506,16 +493,7 @@
 
                 for (let i = 0; i < places.length; i++) {
                     let place = places[i];
-                    let image = {
-                        url: place.icon,
-                        size: new google.maps.Size(71, 71),
-                        origin: new google.maps.Point(0, 0),
-                        anchor: new google.maps.Point(17, 34),
-                        scaledSize: new google.maps.Size(25, 25)
-                    };
-
                     place.distance = self.distance(self.location, place.geometry.location);
-
 
                     self.places.push({
                         place_id: place.place_id,
@@ -547,8 +525,9 @@
                 let lastIndex = totalItem - 1,
                     lastItem = addresses[lastIndex];
 
+
                 let waypoints = [];
-                for (let i = 0; i < totalItem; i++) {
+                for (let i = 0; i < this.selectedPlaces.length; i++) {
                     if (i !== lastIndex) {
                         waypoints.push({
                             location: this.selectedPlaces[i].formatted_address,
@@ -591,6 +570,7 @@
                         this.baseTime = new Date(this.baseTime);
                     }
                     for (let i = 0; i < legs.length; i++) {
+                        if (typeof this.selectedPlaces[i] === "undefined") continue;
                         let _data = this.selectedPlaces[i];
                         _data['leg'] = legs[i];
                         _data['interval_hour'] = _data.interval_hour ? _data.interval_hour : 0;
