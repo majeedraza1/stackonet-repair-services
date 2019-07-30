@@ -76,6 +76,11 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 	protected $cache_group;
 
 	/**
+	 * @var array
+	 */
+	protected static $information_schema = [];
+
+	/**
 	 * Model constructor.
 	 *
 	 * @param array $data
@@ -233,13 +238,14 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 		$current_time = current_time( 'mysql' );
 
 		$item = $this->find_by_id( $id );
-		if ( ! $item instanceof self ) {
+		if ( empty( $item ) ) {
 			return false;
 		}
 
 		$_data = [];
 		foreach ( $this->default_data as $key => $default ) {
-			$temp_data     = isset( $data[ $key ] ) ? $data[ $key ] : $item->get( $key );
+			$current_data  = isset( $item[ $key ] ) ? $item[ $key ] : null;
+			$temp_data     = isset( $data[ $key ] ) ? $data[ $key ] :$current_data;
 			$_data[ $key ] = $this->serialize( $temp_data );
 		}
 		$_data[ $this->primaryKey ] = $id;
@@ -310,6 +316,34 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 		$query = $wpdb->update( $table, [ $this->deleted_at => null ], [ $this->primaryKey => $id ] );
 
 		return ( false !== $query );
+	}
+
+	public function information_schema() {
+		global $wpdb;
+		$table = $wpdb->prefix . $this->table;
+		if ( empty( self::$information_schema[ $table ] ) ) {
+			$sql = $wpdb->prepare(
+				"SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s;",
+				DB_NAME,
+				$table
+			);
+
+			$results = $wpdb->get_results( $sql, ARRAY_A );
+
+			$data = [];
+			foreach ( $results as $item ) {
+				$data[ $item['COLUMN_NAME'] ] = [
+					'datatype'       => $item['DATA_TYPE'],
+					'default'        => $item['COLUMN_DEFAULT'],
+					'chr_max_length' => is_numeric( $item['CHARACTER_MAXIMUM_LENGTH'] ) ? intval( $item['CHARACTER_MAXIMUM_LENGTH'] ) : null,
+					'nullable'       => $item['IS_NULLABLE'] == "YES",
+				];
+			}
+
+			self::$information_schema[ $table ] = $data;
+		}
+
+		return self::$information_schema[ $table ];
 	}
 
 	/**

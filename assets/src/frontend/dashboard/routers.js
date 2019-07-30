@@ -9,6 +9,7 @@ import CarrierStores from "./pages/CarrierStores";
 import SpotAppointment from "./pages/SpotAppointment";
 import CheckoutAnalysis from "./pages/CheckoutAnalysis";
 import ShortMessageService from "./pages/ShortMessageService";
+import tracker from "./pages/tracker";
 import Report from "./pages/Report";
 import Map from "./pages/Map";
 
@@ -26,6 +27,7 @@ const routes = [
 	{path: '/lead', name: 'appointment', component: SpotAppointment},
 	{path: '/sms', name: 'ShortMessageService', component: ShortMessageService},
 	{path: '/checkout-analysis', name: 'checkout', component: CheckoutAnalysis},
+	{path: '/tracker', name: 'tracker', component: tracker},
 ];
 
 export default new VueRouter({

@@ -1,7 +1,7 @@
 <template>
 	<div class="stackonet-dashboard-container">
 		<div
-			class="demo-layout stackonet-dashboard mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
+			class="demo-layout stackonet-dashboard mdl-layout mdl-js-layout">
 
 			<header class="demo-header mdl-layout__header">
 				<div class="mdl-layout__header-row">

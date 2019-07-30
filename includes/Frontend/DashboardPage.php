@@ -42,6 +42,9 @@ class DashboardPage {
 		if ( $post instanceof WP_Post && has_shortcode( $post->post_content, 'stackonet_frontend_dashboard' ) ) {
 			wp_enqueue_style( 'stackonet-frontend-dashboard' );
 			wp_enqueue_script( 'stackonet-frontend-dashboard' );
+			wp_localize_script( 'stackonet-frontend-dashboard', '_stackontDashboard', [
+				'current_timestamp' => current_time( 'timestamp' ),
+			] );
 		}
 	}
 
@@ -135,6 +138,10 @@ class DashboardPage {
 			$menu[] = [ 'router' => '/map', 'label' => 'Map' ];
 		}
 
+		if ( current_user_can( 'manage_options' ) ) {
+			$menu[] = [ 'router' => '/tracker', 'label' => 'Tracker' ];
+		}
+
 		if ( current_user_can( 'read_surveys' ) ) {
 			$menu[] = [ 'router' => '/survey', 'label' => 'Survey' ];
 			$menu[] = [ 'router' => '/carrier-stores', 'label' => 'Carrier Stores' ];
@@ -170,6 +177,25 @@ class DashboardPage {
 			'libraries' => 'places'
 		), 'https://maps.googleapis.com/maps/api/js' );
 		echo '<script src="' . $map_src . '"></script>';
+		if ( current_user_can( 'manage_options' ) ) { ?>
+			<script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+			<script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-database.js"></script>
+			<script>
+                // Your web app's Firebase configuration
+                window.firebaseConfig = {
+                    apiKey: "AIzaSyBrCRpBGINZkM0VdpXcCjESj6ph4pOhBFo",
+                    authDomain: "stackonet-services.firebaseapp.com",
+                    databaseURL: "https://stackonet-services.firebaseio.com",
+                    projectId: "stackonet-services",
+                    storageBucket: "",
+                    messagingSenderId: "461716596258",
+                    appId: "1:461716596258:web:096ed4d22806024a"
+                };
+                // Initialize Firebase
+                firebase.initializeApp(firebaseConfig);
+			</script>
+			<?php
+		}
 	}
 
 	/**

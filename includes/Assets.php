@@ -133,7 +133,7 @@ class Assets {
 	 */
 	public function get_styles() {
 		if ( defined( 'WP_DEBUG_LOCAL' ) && WP_DEBUG_LOCAL ) {
-			return [];
+			// return [];
 		}
 
 		$styles = [
