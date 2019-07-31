@@ -3,6 +3,7 @@
 namespace Stackonet;
 
 use Exception;
+use Stackonet\Integrations\FirebaseDatabase;
 use Stackonet\Integrations\GoogleMap;
 use Stackonet\Models\CheckoutAnalysis;
 use Stackonet\Models\TrackableObject;
@@ -93,14 +94,6 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$tracker = new TrackableObject();
-		$id      = $tracker->create( [
-			'object_id'   => 'Bilal112',
-			'object_name' => 'Bilal 121',
-			'object_type' => 'employ',
-			'object_icon' => '4440',
-			'active'      => 1,
-		] );
 		die();
 	}
 

@@ -239,27 +239,18 @@ final class Stackonet_Repair_Services {
 	 * @throws Exception
 	 */
 	public function activation() {
-		$area = new Stackonet\Models\UnsupportedArea();
-		$area->create_table();
-		$testimonial = new Stackonet\Models\Testimonial();
-		$testimonial->create_table();
-		$phone = new Stackonet\Models\Phone();
-		$phone->create_table();
-		$survey = new Stackonet\Models\Survey();
-		$survey->create_table();
-		$technician = new Stackonet\Models\Technician();
-		$technician->create_table();
-		$appointment = new Stackonet\Models\Appointment();
-		$appointment->create_table();
-		$checkoutAnalysis = new Stackonet\Models\CheckoutAnalysis();
-		$checkoutAnalysis->create_table();
-		$support = new Stackonet\Modules\SupportTicket\SupportTicket;
-		$support->create_table();
-		$carrierStore = new Stackonet\Models\CarrierStore();
-		$carrierStore->create_table();
-		$map = new Stackonet\Models\Map();
-		$map->create_table();
-		( new Stackonet\Models\TrackableObject() )->create_table();
+		( new Stackonet\Models\UnsupportedArea )->create_table();
+		( new Stackonet\Models\Testimonial )->create_table();
+		( new Stackonet\Models\Phone )->create_table();
+		( new Stackonet\Models\Survey )->create_table();
+		( new Stackonet\Models\Technician )->create_table();
+		( new Stackonet\Models\Appointment )->create_table();
+		( new Stackonet\Models\CheckoutAnalysis )->create_table();
+		( new Stackonet\Modules\SupportTicket\SupportTicket )->create_table();
+		( new Stackonet\Models\CarrierStore )->create_table();
+		( new Stackonet\Models\Map )->create_table();
+		( new Stackonet\Models\TrackableObject )->create_table();
+		( new Stackonet\Models\TrackableObjectLog )->create_table();
 
 		do_action( 'phone_repairs_asap_activation' );
 	}
