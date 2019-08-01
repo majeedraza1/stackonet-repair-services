@@ -154,7 +154,7 @@
     }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 	.stackonet-dashboard-tracker {
 		margin: -30px;
 

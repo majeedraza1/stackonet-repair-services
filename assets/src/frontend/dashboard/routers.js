@@ -12,6 +12,7 @@ import ShortMessageService from "./pages/ShortMessageService";
 import tracker from "./pages/tracker";
 import Report from "./pages/Report";
 import Map from "./pages/Map";
+import SingleObjectTracker from "./pages/SingleObjectTracker";
 
 Vue.use(VueRouter);
 
@@ -28,6 +29,7 @@ const routes = [
 	{path: '/sms', name: 'ShortMessageService', component: ShortMessageService},
 	{path: '/checkout-analysis', name: 'checkout', component: CheckoutAnalysis},
 	{path: '/tracker', name: 'tracker', component: tracker},
+	{path: '/tracker/:object_id', name: 'SingleObjectTracker', component: SingleObjectTracker},
 ];
 
 export default new VueRouter({

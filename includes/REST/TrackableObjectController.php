@@ -42,6 +42,7 @@ class TrackableObjectController extends ApiController {
 				'args'     => $this->get_collection_params(),
 			],
 		] );
+
 		register_rest_route( $this->namespace, '/trackable-objects/log', [
 			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_locations' ] ],
 			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'log_location' ] ]
@@ -98,14 +99,30 @@ class TrackableObjectController extends ApiController {
 	 * @return WP_REST_Response
 	 */
 	public function get_locations( $request ) {
-		$log_date = $request->get_param( 'log_date' );
-		if ( empty( $log_date ) ) {
-			$log_date = date( 'Y-m-d', current_time( 'timestamp', true ) );
+		$object_id = $request->get_param( 'object_id' );
+		$log_date  = $request->get_param( 'log_date' );
+
+		if ( empty( $object_id ) ) {
+			return $this->respondUnprocessableEntity();
 		}
 
-		$items = ( new TrackableObjectLog() )->find( [ 'log_date' => $log_date ] );
+		$items = ( new TrackableObject() )->find_by_object_id( $object_id );
 
-		return $this->respondOK( [ 'items' => $items, 'counts' => [], 'pagination' => [] ] );
+		if ( ! $items instanceof TrackableObject ) {
+			return $this->respondNotFound();
+		}
+
+		$timestamp = current_time( 'timestamp', true );
+
+		if ( empty( $log_date ) ) {
+			$log_date = date( 'Y-m-d', $timestamp );
+		}
+
+		return $this->respondOK( [
+			'object'        => $items->to_rest( $log_date ),
+			'utc_timestamp' => $timestamp,
+			'idle_time'     => ( 10 * 60 ), // Ten minutes in seconds
+		] );
 	}
 
 	/**

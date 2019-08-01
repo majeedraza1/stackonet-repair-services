@@ -138,6 +138,24 @@ class TrackableObject extends DatabaseModel {
 	}
 
 	/**
+	 * @param string $object_id
+	 *
+	 * @return bool|self
+	 */
+	public function find_by_object_id( $object_id ) {
+		global $wpdb;
+		$table = $wpdb->prefix . $this->table;
+
+		$sql  = "SELECT * FROM {$table} WHERE `object_id` = %s";
+		$item = $wpdb->get_row( $wpdb->prepare( $sql, $object_id ), ARRAY_A );
+		if ( $item ) {
+			return new self( $item );
+		}
+
+		return false;
+	}
+
+	/**
 	 * Count total records from the database
 	 *
 	 * @return array

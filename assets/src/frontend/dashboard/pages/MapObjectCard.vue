@@ -30,8 +30,8 @@
 			<span class="card__activity-status" v-if="online" :class="{'is-moving':isMoving,'is-idle':!isMoving}">{{activity_status_text}}</span>
 		</div>
 
-		<div class="card__actions">
-			<mdl-button type="raised">View Timeline</mdl-button>
+		<div class="card__actions" v-if="showAction">
+			<mdl-button type="raised" @click="viewTimeline">View Timeline</mdl-button>
 		</div>
 	</div>
 </template>
@@ -50,6 +50,7 @@
                 }
             },
             online: {type: Boolean, default: false},
+            showAction: {type: Boolean, default: true},
             logoUrl: {type: String, default: ''},
             name: {type: String, default: ''},
             headerBackground: {type: String, default: '#f7fafc'},
@@ -98,6 +99,12 @@
                     }
                 });
             },
+            viewTimeline() {
+                this.$router.push({
+                    name: 'SingleObjectTracker',
+                    params: {object_id: this.object_id}
+                })
+            }
         }
     }
 </script>
