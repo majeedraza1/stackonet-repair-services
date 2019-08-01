@@ -6,8 +6,12 @@
 				<map-object-card
 					:lat_lng="_item.lat_lng"
 					:logo-url="_item.icon"
+					:object_id="_item.object_id"
 					:name="_item.name"
 					:online="_item.online"
+					:last-active-time="_item.last_activity"
+					:current-time="current_timestamp"
+					:idle-time="idle_time"
 				/>
 			</template>
 		</div>
@@ -28,50 +32,39 @@
         mixins: [CrudMixin],
         data() {
             return {
-                employees: [],
-                logs: [],
-                current_timestamp: '',
-                latitude: 0,
-                longitude: 0,
-                location: '',
-                googleMap: '',
+                current_timestamp: 0,
+                idle_time: 0,
+                googleMap: {},
                 markers: [],
             }
         },
         computed: {
             card_items() {
-                let card_items = [], items = this.items, employees = this.employees;
-                for (let i = 0; i < items.length; i++) {
-                    let _data = {
-                        object_id: items[i]['object_id'],
-                        icon: items[i]['icon'],
-                        name: items[i]['object_name'],
-                    };
-                    for (let j = 0; j < employees.length; j++) {
-                        if (employees[j]['Employee_ID'] === items[i]['object_id']) {
-                            _data['lat_lng'] = {lat: employees[j]['latitude'], lng: employees[j]['longitude']};
-                            _data['online'] = -1 !== ['true', true, 1].indexOf(employees[j]['online']);
+                return this.items.map(item => {
+                    return {
+                        object_id: item['object_id'],
+                        icon: item['icon'],
+                        name: item['object_name'],
+                        online: item['last_log']['online'],
+                        current_timestamp: this.current_timestamp,
+                        last_activity: item['last_log']['utc_timestamp'],
+                        lat_lng: {
+                            lat: item['last_log']['latitude'],
+                            lng: item['last_log']['longitude']
                         }
                     }
-                    card_items.push(_data);
-                }
-                return card_items;
+                });
             }
         },
         mounted() {
             this.$store.commit('SET_LOADING_STATUS', false);
             this.$store.commit('SET_TITLE', 'Tracker');
 
-            this.get_items(PhoneRepairs.rest_root + '/trackable-objects').catch(error => console.error(error));
-
-            if (_stackontDashboard.current_timestamp) {
-                this.current_timestamp = parseInt(_stackontDashboard.current_timestamp);
-            }
+            this.getObjects();
 
             // Create the map.
-            this.location = new google.maps.LatLng(this.latitude, this.longitude);
             this.googleMap = new google.maps.Map(this.$el.querySelector('#google-map'), {
-                center: this.location,
+                center: new google.maps.LatLng(0, 0),
                 zoom: 17,
                 // styles: mapStyles
             });
@@ -79,29 +72,35 @@
             const db = firebase.database();
 
             db.ref('Employees').on('value', snapshot => {
-                this.employees = Object.values(snapshot.val());
-                this.logToDatabase(this.employees);
-                let markers = this.calculateMarkers(this.items, this.employees);
-                this.clearMarkers();
-                this.updateMapMarkers(markers);
-                this.getLogs();
+                let employees = Object.values(snapshot.val());
+                this.logToDatabase(employees)
+                    .then(() => {
+                        this.getObjects();
+                    }).catch(error => console.error(error));
             });
         },
         methods: {
-            calculateMarkers(objects, activeObjects) {
+            getObjects() {
+                axios.get(PhoneRepairs.rest_root + '/trackable-objects').then(response => {
+                    let _data = response.data.data;
+                    this.items = _data.items;
+                    this.current_timestamp = _data.utc_timestamp;
+                    this.idle_time = _data.idle_time;
+                    let markers = this.calculateMarkers(this.items);
+                    this.clearMarkers();
+                    this.updateMapMarkers(markers);
+                }).catch(error => console.error(error))
+            },
+            calculateMarkers(objects) {
                 if (objects.length < 1) return [];
                 let markers = [];
                 for (let i = 0; i < objects.length; i++) {
-                    for (let j = 0; j < activeObjects.length; j++) {
-                        if (objects[i].object_id === activeObjects[j].Employee_ID && activeObjects[j].online === "true") {
-                            markers.push({
-                                icon: objects[i].icon,
-                                name: objects[i].object_name,
-                                lat: activeObjects[j].latitude,
-                                lng: activeObjects[j].longitude,
-                            });
-                        }
-                    }
+                    markers.push({
+                        icon: objects[i].icon,
+                        name: objects[i].object_name,
+                        lat: objects[i].last_log.latitude,
+                        lng: objects[i].last_log.longitude,
+                    });
                 }
 
                 return markers;
@@ -144,15 +143,12 @@
                     marker.setAnimation(google.maps.Animation.BOUNCE);
                 }
             },
-            getLogs() {
-                axios.get(PhoneRepairs.rest_root + '/trackable-objects/log')
-                    .then(response => {
-                        this.logs = response.data.data.items;
-                    });
-            },
             logToDatabase(employees) {
-                axios.post(PhoneRepairs.rest_root + '/trackable-objects/log', {objects: employees})
-                    .catch(error => console.log(error));
+                return new Promise((resolve, reject) => {
+                    axios.post(PhoneRepairs.rest_root + '/trackable-objects/log', {objects: employees})
+                        .then(response => resolve(response))
+                        .catch(error => reject(error));
+                });
             }
         }
     }

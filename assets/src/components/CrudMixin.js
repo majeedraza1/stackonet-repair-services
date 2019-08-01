@@ -22,7 +22,7 @@ const CrudMixin = {
 					this.items = _data.items;
 					this.counts = _data.counts;
 					this.pagination = _data.pagination;
-					resolve(response.data.data);
+					resolve(_data);
 				}).catch(error => {
 					reject(error);
 				})

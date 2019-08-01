@@ -145,13 +145,66 @@ class TrackableObjectLog extends DatabaseModel {
 	 * @return array
 	 */
 	public function find( $args = [] ) {
-		$items  = parent::find( $args );
+		$per_page     = isset( $args['per_page'] ) ? absint( $args['per_page'] ) : $this->perPage;
+		$paged        = isset( $args['paged'] ) ? absint( $args['paged'] ) : 1;
+		$current_page = $paged < 1 ? 1 : $paged;
+		$offset       = ( $current_page - 1 ) * $per_page;
+		$orderby      = $this->primaryKey;
+		if ( isset( $args['orderby'] ) && in_array( $args['orderby'], array_keys( $this->default_data ) ) ) {
+			$orderby = $args['orderby'];
+		}
+		$order = isset( $args['order'] ) && 'ASC' == $args['order'] ? 'ASC' : 'DESC';
+
+		global $wpdb;
+		$table = $wpdb->prefix . $this->table;
+
+		$query = "SELECT * FROM {$table} WHERE 1=1";
+
+		if ( ! empty( $args['log_date'] ) ) {
+			$query .= $wpdb->prepare( " AND log_date = %s", $args['log_date'] );
+		}
+
+		if ( ! empty( $args['object_id'] ) ) {
+			$query .= $wpdb->prepare( " AND object_id = %s", $args['object_id'] );
+		}
+
+		if ( isset( $args[ $this->created_by ] ) && is_numeric( $args[ $this->created_by ] ) ) {
+			$query .= $wpdb->prepare( " AND {$this->created_by} = %d", intval( $args[ $this->created_by ] ) );
+		}
+
+		$query .= " ORDER BY {$orderby} {$order}";
+		$query .= $wpdb->prepare( " LIMIT %d OFFSET %d", $per_page, $offset );
+		$items = $wpdb->get_results( $query, ARRAY_A );
+
 		$_items = [];
+
 		foreach ( $items as $item ) {
 			$_items[] = new self( $item );
 		}
 
 		return $_items;
+	}
+
+	/**
+	 * @param string $object_id
+	 * @param string|null $date
+	 *
+	 * @return self
+	 */
+	public function find_object_log( $object_id, $date ) {
+		global $wpdb;
+		$table = $wpdb->prefix . $this->table;
+
+		$query = "SELECT * FROM {$table} WHERE 1=1";
+		$query .= $wpdb->prepare( " AND object_id = %s", $object_id );
+		$query .= $wpdb->prepare( " AND log_date = %s", $date );
+		$query .= " ORDER BY id DESC";
+		$item  = $wpdb->get_row( $query, ARRAY_A );
+		if ( $item ) {
+			return new self( $item );
+		}
+
+		return null;
 	}
 
 	/**

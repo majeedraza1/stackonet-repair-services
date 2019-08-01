@@ -56,9 +56,38 @@ class TrackableObjectController extends ApiController {
 	 * @return WP_REST_Response
 	 */
 	public function get_items( $request ) {
-		$items = ( new TrackableObject() )->find();
+		$timestamp = current_time( 'timestamp', true );
+		$date      = date( 'Y-m-d', $timestamp );
+		$items     = ( new TrackableObject() )->find();
 
-		return $this->respondOK( [ 'items' => $items, 'counts' => [], 'pagination' => [] ] );
+		return $this->respondOK( [
+			'utc_timestamp' => $timestamp,
+			'idle_time'     => ( 10 * 60 ), // Ten minutes in seconds
+			'items'         => $this->prepare_items_for_response( $items, $date ),
+			'counts'        => [],
+			'pagination'    => []
+		] );
+	}
+
+	/**
+	 * @param TrackableObject[] $items
+	 * @param null|int $date
+	 *
+	 * @return array
+	 */
+	public function prepare_items_for_response( $items, $date = null ) {
+		if ( empty( $date ) ) {
+			$date = date( 'Y-m-d', current_time( 'timestamp', true ) );
+		}
+		$response = [];
+
+		foreach ( $items as $item ) {
+			$_item = $item->to_rest( $date );
+			unset( $_item['logs'] );
+			$response[] = $_item;
+		}
+
+		return $response;
 	}
 
 	/**
@@ -69,7 +98,12 @@ class TrackableObjectController extends ApiController {
 	 * @return WP_REST_Response
 	 */
 	public function get_locations( $request ) {
-		$items = ( new TrackableObjectLog() )->find();
+		$log_date = $request->get_param( 'log_date' );
+		if ( empty( $log_date ) ) {
+			$log_date = date( 'Y-m-d', current_time( 'timestamp', true ) );
+		}
+
+		$items = ( new TrackableObjectLog() )->find( [ 'log_date' => $log_date ] );
 
 		return $this->respondOK( [ 'items' => $items, 'counts' => [], 'pagination' => [] ] );
 	}
@@ -83,7 +117,7 @@ class TrackableObjectController extends ApiController {
 	 */
 	public function log_location( $request ) {
 		$objects      = $request->get_param( 'objects' );
-		$current_time = current_time( 'timestamp' );
+		$current_time = current_time( 'timestamp', true );
 
 		$item = [];
 		foreach ( $objects as $object ) {

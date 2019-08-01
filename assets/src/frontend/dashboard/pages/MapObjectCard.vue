@@ -26,68 +26,25 @@
 		</div>
 
 		<div class="card__status">
-			<span class="card__status-text">{{status_text}}</span>
+			<span class="card__online-status" :class="{'is-online':online,'is-offline':!online}">{{status_text}}</span>
+			<span class="card__activity-status" v-if="online" :class="{'is-moving':isMoving,'is-idle':!isMoving}">{{activity_status_text}}</span>
 		</div>
 
-		<div class="card__body" style="display: none">
-
-			<div class="stop-times">
-				<div class="stop-time">21:30:00</div>
-				<div class="stop-time">21:58:00</div>
-				<div class="stop-time">22:28:00</div>
-			</div>
-
-			<div class="stop-guide">
-				<svg width="16px" height="96px" viewBox="0 0 16 96">
-					<g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-						<g id="ic_stops_two">
-							<g id="top">
-								<g id="bg" fill="#FF4081">
-									<path
-										d="M16,8 C16,3.581722 12.418278,0 8,0 C3.581722,0 0,3.581722 0,8 L0,28 L16,28 L16,8 Z"
-										id="fill"></path>
-								</g>
-								<ellipse id="fill_white" fill="#FFFFFF" cx="8" cy="8" rx="5" ry="5"></ellipse>
-							</g>
-							<g id="middle" transform="translate(0.000000, 28.000000)">
-								<g id="bg" fill="#FF4081">
-									<path
-										d="M12,20 L16,20 L16,1.77635684e-14 L0,1.77635684e-14 L0,20 L4,20 C4,17.790861 5.790861,16 8,16 C10.209139,16 12,17.790861 12,20 L16,20 L16,40 L0,40 L0,20 L4,20 C4,22.209139 5.790861,24 8,24 C10.209139,24 12,22.209139 12,20 Z"
-										id="fill"></path>
-								</g>
-								<circle id="fill_opacity" fill="#FFFFFF" cx="8" cy="20" r="4"></circle>
-							</g>
-							<g id="bottom" transform="translate(0.000000, 68.000000)">
-								<g id="bg"
-								   transform="translate(8.000000, 14.000000) scale(1, -1) translate(-8.000000, -14.000000) "
-								   fill="#FF4081">
-									<path
-										d="M16,8 C16,3.581722 12.418278,0 8,0 C3.581722,0 0,3.581722 0,8 L0,28 L16,28 L16,8 Z M8,13 C10.7614237,13 13,10.7614237 13,8 C13,5.23857625 10.7614237,3 8,3 C5.23857625,3 3,5.23857625 3,8 C3,10.7614237 5.23857625,13 8,13 Z"
-										id="fill"></path>
-								</g>
-								<ellipse id="fill_opacity" fill="#FFFFFF" cx="8" cy="20" rx="5" ry="5"></ellipse>
-							</g>
-						</g>
-					</g>
-				</svg>
-			</div>
-
-			<div class="stop-names">
-				<div class="stop-name">Google I/O</div>
-				<div class="stop-name">Millbrae BART Station</div>
-				<div class="stop-name">The Westin St. Francis SF</div>
-			</div>
+		<div class="card__actions">
+			<mdl-button type="raised">View Timeline</mdl-button>
 		</div>
 	</div>
 </template>
 
 <script>
     import ImageContainer from "../../../shapla/image/image";
+    import MdlButton from "../../../material-design-lite/button/mdlButton";
 
     export default {
         name: "MapObjectCard",
-        components: {ImageContainer},
+        components: {MdlButton, ImageContainer},
         props: {
+            object_id: {type: String, default: ''},
             lat_lng: {
                 type: Object, default: () => {
                 }
@@ -97,6 +54,9 @@
             name: {type: String, default: ''},
             headerBackground: {type: String, default: '#f7fafc'},
             headerText: {type: String, default: '#000'},
+            currentTime: {type: Number, default: 0},
+            lastActiveTime: {type: Number, default: 0},
+            idleTime: {type: Number, default: 0},
         },
         data() {
             return {
@@ -104,10 +64,15 @@
             }
         },
         computed: {
+            isMoving() {
+                return ((this.lastActiveTime + this.idleTime) * 1000) >= (this.currentTime * 1000);
+            },
+            activity_status_text() {
+                return this.isMoving ? 'Moving' : 'Idle';
+            },
             status_text() {
-                if (!this.online) return 'Off Line';
-                return 'Online';
-            }
+                return this.online ? 'Online' : 'Off Line';
+            },
         },
         watch: {
             lat_lng(newValue) {
@@ -142,11 +107,10 @@
 		background-color: #ffffff;
 		border-radius: 8px;
 		box-shadow: 0 5px 10px #888888;
-		margin: 2rem 0;
-		overflow: hidden;
+		margin: 4rem 0;
 		position: relative;
 		min-width: 350px;
-		max-width: 400px;
+		max-width: 350px;
 
 		&__header {
 			display: flex;
@@ -179,67 +143,51 @@
 			// position: relative;
 		}
 
-		&__status-text {
-			display: flex;
-			background: #4CAF50;
+		&__online-status,
+		&__activity-status {
+			background-color: #f1f1f1;
 			border-radius: 4px;
-			color: rgba(#000, .85);
+			box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+			color: #fff;
+			display: flex;
 			padding: 5px;
 			line-height: 1;
 			margin: 0;
 			position: absolute;
-			top: 5px;
-			right: 5px;
 			text-align: center;
 			justify-content: center;
+			height: 1.8em;
+			width: 70px;
 		}
 
-		&__body {
-			position: relative;
-			display: flex;
-			flex-direction: row;
+		&__online-status {
+			top: -.9em;
+			right: -35px;
+
+			&.is-offline {
+				background-color: #000;
+			}
+
+			&.is-online {
+				background-color: #f44336;
+			}
 		}
-	}
 
-	.stop-times {
-		width: 80px;
-		margin-right: 16px;
-		margin-top: 24px;
-		margin-bottom: 24px;
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-		align-items: flex-end;
-	}
+		&__activity-status {
+			bottom: -.9em;
+			right: -35px;
 
-	.stop-time {
-		font-size: 18px;
-		color: rgba(0, 0, 0, 0.6);
-	}
+			&.is-idle {
+				background-color: #f9a73b;
+			}
 
-	.stop-guide {
-		width: 16px;
-		margin-top: 24px;
-		margin-bottom: 24px;
-	}
+			&.is-moving {
+				background-color: #43a047;
+			}
+		}
 
-	.stop-names {
-		margin-left: 16px;
-		margin-top: 24px;
-		margin-bottom: 24px;
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-		align-items: flex-start;
-	}
-
-	.stop-name {
-		font-size: 18px;
-		color: rgba(0, 0, 0, 0.9);
-	}
-
-	.stop-name {
-		font-size: 18px;
-		color: rgba(0, 0, 0, 0.9);
+		&__actions {
+			padding: 1rem;
+		}
 	}
 </style>

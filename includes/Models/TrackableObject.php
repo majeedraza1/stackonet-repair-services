@@ -44,6 +44,14 @@ class TrackableObject extends DatabaseModel {
 	 */
 	protected $data_format = [ '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%s' ];
 
+
+	/**
+	 * Log data
+	 *
+	 * @var array
+	 */
+	protected $log_data = [];
+
 	/**
 	 * Array representation of the class
 	 *
@@ -54,6 +62,22 @@ class TrackableObject extends DatabaseModel {
 		$data['icon'] = $this->get_object_icon();
 
 		return $data;
+	}
+
+	public function to_rest( $date ) {
+		$logs     = $this->get_log_data( $date );
+		$last_log = end( $logs );
+		$response = [
+			'id'          => intval( $this->get( 'id' ) ),
+			'object_id'   => $this->get( 'object_id' ),
+			'object_name' => $this->get( 'object_name' ),
+			'object_type' => $this->get( 'object_type' ),
+			'icon'        => $this->get_object_icon(),
+			'last_log'    => $last_log,
+			'logs'        => $logs,
+		];
+
+		return $response;
 	}
 
 	/**
@@ -70,6 +94,17 @@ class TrackableObject extends DatabaseModel {
 		}
 
 		return null;
+	}
+
+	public function get_log_data( $date = null ) {
+		if ( empty( $this->log_data[ $date ] ) ) {
+			$item = ( new TrackableObjectLog() )->find_object_log( $this->get( 'object_id' ), $date );
+			if ( $item instanceof TrackableObjectLog ) {
+				return $this->log_data[ $date ] = $item->get( 'log_data' );
+			}
+		}
+
+		return ! empty( $this->log_data[ $date ] ) ? $this->log_data[ $date ] : null;
 	}
 
 	/**
