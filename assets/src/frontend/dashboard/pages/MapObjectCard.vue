@@ -30,9 +30,11 @@
 			<span class="card__activity-status" v-if="online" :class="{'is-moving':isMoving,'is-idle':!isMoving}">{{activity_status_text}}</span>
 		</div>
 
-		<div class="card__actions" v-if="showAction">
-			<mdl-button type="raised" @click="viewTimeline">View Timeline</mdl-button>
-		</div>
+		<slot>
+			<div class="card__actions" v-if="showAction">
+				<mdl-button type="raised" @click="viewTimeline">View Timeline</mdl-button>
+			</div>
+		</slot>
 	</div>
 </template>
 

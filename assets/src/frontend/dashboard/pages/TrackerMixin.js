@@ -7,6 +7,21 @@ const TrackerMixin = {
 		}
 	},
 	methods: {
+		getRecordFromFirebase(db) {
+			return new Promise(resolve => {
+				db.ref('Employees').on('value', snapshot => {
+					let employees = Object.values(snapshot.val());
+					resolve(employees);
+				});
+			})
+		},
+		getTrackableObjects() {
+			return new Promise((resolve, reject) => {
+				axios.get(PhoneRepairs.rest_root + '/trackable-objects')
+					.then(response => resolve(response.data.data))
+					.catch(error => reject(error))
+			});
+		},
 		logToDatabase(objects) {
 			return new Promise((resolve, reject) => {
 				axios
@@ -15,18 +30,13 @@ const TrackerMixin = {
 					.catch(error => reject(error));
 			});
 		},
-		runSnapToRoad(path) {
+		getObject(object_id) {
 			return new Promise((resolve, reject) => {
-				axios
-					.get('https://roads.googleapis.com/v1/snapToRoads',
-						{
-							interpolate: true,
-							params: {path: path}
-						}
-					).then(response => resolve(response))
-					.catch(error => reject(error));
-			});
-		}
+				axios.get(PhoneRepairs.rest_root + '/trackable-objects/log', {params: {object_id}})
+					.then(response => resolve(response.data.data))
+					.catch(error => reject(error))
+			})
+		},
 	}
 };
 export {TrackerMixin};

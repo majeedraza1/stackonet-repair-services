@@ -2,6 +2,7 @@
 
 namespace Stackonet\REST;
 
+use Stackonet\Models\Settings;
 use Stackonet\Models\TrackableObject;
 use Stackonet\Models\TrackableObjectLog;
 use WP_REST_Request;
@@ -118,9 +119,14 @@ class TrackableObjectController extends ApiController {
 			$log_date = date( 'Y-m-d', $timestamp );
 		}
 
+		$object = $items->to_rest( $log_date );
+
+		$snappedPoints = $this->get_snapped_points( $object['logs'] );
+
 		return $this->respondOK( [
-			'object'        => $items->to_rest( $log_date ),
+			'object'        => $object,
 			'utc_timestamp' => $timestamp,
+			'snappedPoints' => $snappedPoints,
 			'idle_time'     => ( 10 * 60 ), // Ten minutes in seconds
 		] );
 	}
@@ -153,5 +159,49 @@ class TrackableObjectController extends ApiController {
 		TrackableObjectLog::log_objects( $item );
 
 		return $this->respondCreated();
+	}
+
+	/**
+	 * Get snapped points
+	 *
+	 * @param array $logs
+	 *
+	 * @return array
+	 */
+	private function get_snapped_points( $logs ) {
+		if ( count( $logs ) > 100 ) {
+			$logs = $this->get_hundred_path( $logs );
+		}
+		$path = [];
+		foreach ( $logs as $log ) {
+			$path[] = sprintf( "%s,%s", $log['latitude'], $log['longitude'] );
+		}
+
+		$url = add_query_arg( [
+			'key'         => Settings::get_map_api_key(),
+			'path'        => implode( "|", $path ),
+			'interpolate' => false,
+		], 'https://roads.googleapis.com/v1/snapToRoads' );
+
+		$response = wp_remote_get( $url );
+		if ( is_wp_error( $response ) ) {
+			return [];
+		}
+
+		$body    = wp_remote_retrieve_body( $response );
+		$objects = json_decode( $body, true );
+
+		return isset( $objects['snappedPoints'] ) ? $objects['snappedPoints'] : [];
+	}
+
+	/**
+	 * Get only hundred logs
+	 *
+	 * @param array $logs
+	 *
+	 * @return mixed
+	 */
+	private function get_hundred_path( $logs ) {
+		return $logs;
 	}
 }
