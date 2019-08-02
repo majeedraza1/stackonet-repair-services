@@ -1,3 +1,19 @@
+#### 1.1.15 - August 02, 2019
+* Fix - Fix support ticket dropdown issue.
+* Add - Add address re-arrange functionality based on google map provided order for edit/view map.
+* Add - Add option to sort selected places based on map route.
+* Add - Add tracker menu on admin dashboard.
+* Add - Add live asset detection on google map.
+* Add - Add functionality to latLan on database for later use.
+* Add - Add moving and idle status on map card.
+* Add - Add individual object activity view page.
+* Add - Add cron job to sync data from Firebase evey minute.
+* Tweak - Make layout header visible on small screen.
+* Tweak - Update single tracker page polyline with live update.
+* Fix - Fix support ticket city showing number.
+* Fix - Fix map selected item become unselect as it reload after routing.
+* Fix - Fix idle/moving status is not working perfectly.
+
 #### 1.1.14 - July 24, 2019
 * Add - Add Type and Search the filters in support.
 * Tweak - Update option to show name for leads and orders.
