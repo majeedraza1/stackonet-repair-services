@@ -94,6 +94,8 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
+		$db = new FirebaseDatabase();
+		var_dump( $db->getEmployees() );
 		die();
 	}
 

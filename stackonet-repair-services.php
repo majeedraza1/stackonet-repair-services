@@ -76,6 +76,8 @@ final class Stackonet_Repair_Services {
 			// Include Classes
 			self::$instance->include_classes();
 
+			add_filter( 'cron_schedules', [ self::$instance, 'custom_cron_schedules' ] );
+
 			// initialize the classes
 			add_action( 'plugins_loaded', array( self::$instance, 'init_classes' ) );
 
@@ -168,6 +170,7 @@ final class Stackonet_Repair_Services {
 
 		$this->container['my_account']     = Stackonet\Modules\MyAccount\MyAccount::init();
 		$this->container['support_ticket'] = Stackonet\Modules\SupportTicket\SupportTicketManager::init();
+		$this->container['firebase_sync']  = Stackonet\Integrations\FirebaseDatabase::init();
 		$this->container['ca_to_ticket']   = Stackonet\Modules\SupportTicket\CheckoutAnalysisToSupportTicket::init();
 
 		if ( $this->is_request( 'admin' ) ) {
@@ -205,6 +208,17 @@ final class Stackonet_Repair_Services {
 		if ( $this->is_request( 'ajax' ) ) {
 			$this->container['ajax'] = Stackonet\Ajax::init();
 		}
+	}
+
+	/**
+	 * @param array $schedules
+	 *
+	 * @return array
+	 */
+	public function custom_cron_schedules( $schedules ) {
+		$schedules ['every_minute'] = array( 'interval' => 60, 'display' => 'Every minute', );
+
+		return $schedules;
 	}
 
 	/**
