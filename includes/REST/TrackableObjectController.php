@@ -65,7 +65,7 @@ class TrackableObjectController extends ApiController {
 		return $this->respondOK( [
 			'utc_timestamp' => $timestamp,
 			'idle_time'     => ( 10 * 60 ), // Ten minutes in seconds
-			'items'         => $this->prepare_items_for_response( $items, $date ),
+			'items'         => $this->prepare_items_for_response( $items, $timestamp ),
 			'counts'        => [],
 			'pagination'    => []
 		] );
@@ -73,20 +73,22 @@ class TrackableObjectController extends ApiController {
 
 	/**
 	 * @param TrackableObject[] $items
-	 * @param null|int $date
+	 * @param int $timestamp
 	 *
 	 * @return array
 	 */
-	public function prepare_items_for_response( $items, $date = null ) {
-		if ( empty( $date ) ) {
-			$date = date( 'Y-m-d', current_time( 'timestamp', true ) );
+	public function prepare_items_for_response( $items, $timestamp = null ) {
+		if ( empty( $timestamp ) ) {
+			$timestamp = current_time( 'timestamp', true );
 		}
+		$date     = date( 'Y-m-d', $timestamp );
 		$response = [];
 
 		foreach ( $items as $item ) {
 			$_item = $item->to_rest( $date );
 			unset( $_item['logs'] );
-			$response[] = $_item;
+			$_item['moving'] = ( $_item['last_log']['utc_timestamp'] + 600 ) > $timestamp;
+			$response[]      = $_item;
 		}
 
 		return $response;
@@ -119,7 +121,8 @@ class TrackableObjectController extends ApiController {
 			$log_date = date( 'Y-m-d', $timestamp );
 		}
 
-		$object = $items->to_rest( $log_date );
+		$object          = $items->to_rest( $log_date );
+		$_item['moving'] = ( $object['last_log']['utc_timestamp'] + 600 ) > $timestamp;
 
 		$snappedPoints = $this->get_snapped_points( $object['logs'] );
 

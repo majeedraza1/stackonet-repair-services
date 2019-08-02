@@ -12,6 +12,7 @@
 				:name="object.object_name"
 				:online="object.last_log.online"
 				:last-active-time="object.last_log.utc_timestamp"
+				:moving="object.moving"
 				:idle-time="idle_time"
 				:show-action="false"
 			>
@@ -83,8 +84,11 @@
 
                 this.snappedPolyline = this.get_polyline(this.snappedPoints);
                 this.snappedPolyline.setMap(this.googleMap);
-
-            }).catch(error => console.error(error));
+                this.$store.commit('SET_LOADING_STATUS', false);
+            }).catch(error => {
+                console.error(error);
+                this.$store.commit('SET_LOADING_STATUS', false);
+            });
 
             const db = firebase.database();
             db.ref('Employees').on('value', snapshot => {

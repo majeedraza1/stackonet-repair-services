@@ -52,6 +52,7 @@
                 }
             },
             online: {type: Boolean, default: false},
+            moving: {type: Boolean},
             showAction: {type: Boolean, default: true},
             logoUrl: {type: String, default: ''},
             name: {type: String, default: ''},
@@ -68,6 +69,7 @@
         },
         computed: {
             isMoving() {
+                if (typeof this.moving !== "undefined") return this.moving;
                 return ((this.lastActiveTime + this.idleTime) * 1000) >= (this.currentTime * 1000);
             },
             activity_status_text() {

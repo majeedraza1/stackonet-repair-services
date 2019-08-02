@@ -10,6 +10,7 @@
 					:name="_item.name"
 					:online="_item.online"
 					:last-active-time="_item.last_activity"
+					:moving="_item.moving"
 					:current-time="current_timestamp"
 					:idle-time="idle_time"
 				/>
@@ -73,14 +74,14 @@
 
             db.ref('Employees').on('value', snapshot => {
                 let employees = Object.values(snapshot.val());
-                this.logToDatabase(employees)
-                    .then(() => {
-                        this.getObjects();
-                    }).catch(error => console.error(error));
+                this.logToDatabase(employees).then(() => {
+                    this.getObjects();
+                }).catch(error => console.error(error));
             });
         },
         methods: {
             getObjects() {
+                this.$store.commit('SET_LOADING_STATUS', true);
                 axios.get(PhoneRepairs.rest_root + '/trackable-objects').then(response => {
                     let _data = response.data.data;
                     this.items = _data.items;
@@ -89,7 +90,11 @@
                     let markers = this.calculateMarkers(this.items);
                     this.clearMarkers();
                     this.updateMapMarkers(markers);
-                }).catch(error => console.error(error))
+                    this.$store.commit('SET_LOADING_STATUS', false);
+                }).catch(error => {
+                    this.$store.commit('SET_LOADING_STATUS', false);
+                    console.error(error)
+                })
             },
             calculateMarkers(objects) {
                 if (objects.length < 1) return [];
