@@ -800,8 +800,14 @@ class SupportTicket extends DatabaseModel {
 
 		$cities = [];
 		if ( is_array( $results ) && count( $results ) ) {
-			$cities = wp_list_pluck( $results, 'city' );
-			$cities = array_filter( array_values( $cities ) );
+			$_cities = wp_list_pluck( $results, 'city' );
+			foreach ( $_cities as $city ) {
+				if ( is_numeric( $city ) || empty( $city ) || preg_match( '/[0-9]/', $city ) ) {
+					continue;
+				}
+
+				$cities[] = $city;
+			}
 		}
 
 		return $cities;

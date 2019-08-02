@@ -94,8 +94,17 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$db = new FirebaseDatabase();
-		var_dump( $db->getEmployees() );
+		$object = new TrackableObject();
+		$item   = $object->find_by_object_id( 'simpi' );
+		if ( ! $item instanceof TrackableObject ) {
+			$object->create( [
+				'object_id'   => 'simpi',
+				'object_name' => 'Simpi Singh',
+				'object_type' => 'employ',
+				'object_icon' => '4936',
+				'active'      => 1,
+			] );
+		}
 		die();
 	}
 

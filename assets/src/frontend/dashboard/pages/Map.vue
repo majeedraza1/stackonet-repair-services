@@ -429,6 +429,7 @@
                 return ['is-active'];
             },
             selectPlace(place) {
+                this.$store.commit('SET_LOADING_STATUS', true);
                 let _place = place, addresses = this.selectedPlaces;
                 let index = addresses.findIndex(el => el.place_id === _place.place_id);
                 _place['interval_hour'] = 0;
@@ -543,7 +544,11 @@
                     }
                     this.reArrangeSelectedAddress(response);
                     this.directionsRenderer.setDirections(response);
-                }).catch(error => console.log(error));
+                    this.$store.commit('SET_LOADING_STATUS', false);
+                }).catch(error => {
+                    console.log(error);
+                    this.$store.commit('SET_LOADING_STATUS', false);
+                });
             },
             reArrangeSelectedAddress(response) {
                 let currentAddresses = this.selectedPlaces,
