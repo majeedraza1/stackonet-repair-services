@@ -3,11 +3,8 @@
 namespace Stackonet;
 
 use Exception;
-use Stackonet\Integrations\FirebaseDatabase;
 use Stackonet\Integrations\GoogleMap;
-use Stackonet\Models\CheckoutAnalysis;
 use Stackonet\Models\TrackableObject;
-use Stackonet\Modules\SupportTicket\CheckoutAnalysisToSupportTicket;
 use Stackonet\Modules\SupportTicket\OrderToSupportTicket;
 use Stackonet\Models\Device;
 use Stackonet\Models\DeviceIssue;
@@ -16,7 +13,6 @@ use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
 use Stackonet\Models\Testimonial;
 use Stackonet\Models\UnsupportedArea;
-use Stackonet\Modules\SupportTicket\SupportTicket;
 use Stackonet\Supports\Utils;
 use WC_Data_Exception;
 use WC_Order;
@@ -94,17 +90,7 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$object = new TrackableObject();
-		$item   = $object->find_by_object_id( 'simpi' );
-		if ( ! $item instanceof TrackableObject ) {
-			$object->create( [
-				'object_id'   => 'simpi',
-				'object_name' => 'Simpi Singh',
-				'object_type' => 'employ',
-				'object_icon' => '4936',
-				'active'      => 1,
-			] );
-		}
+		TrackableObject::add_initial_users();
 		die();
 	}
 

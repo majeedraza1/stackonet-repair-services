@@ -190,4 +190,31 @@ class TrackableObject extends DatabaseModel {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $table_schema );
 	}
+
+	/**
+	 * Add initial users
+	 */
+	public static function add_initial_users() {
+		$object = new TrackableObject();
+		$item   = $object->find_by_object_id( 'van1' );
+		if ( ! $item instanceof TrackableObject ) {
+			$object->create( [
+				'object_id'   => 'van1',
+				'object_name' => 'Van 1',
+				'object_type' => 'van',
+				'object_icon' => '6274',
+				'active'      => 1,
+			] );
+		}
+		$item = $object->find_by_object_id( 'van2' );
+		if ( ! $item instanceof TrackableObject ) {
+			$object->create( [
+				'object_id'   => 'van2',
+				'object_name' => 'Van 2',
+				'object_type' => 'van',
+				'object_icon' => '6273',
+				'active'      => 1,
+			] );
+		}
+	}
 }

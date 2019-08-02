@@ -152,8 +152,8 @@ class TrackableObjectController extends ApiController {
 				continue;
 			}
 			$item[ $object_id ] = [
-				'latitude'      => isset( $object['latitude'] ) ? $object['latitude'] : null,
-				'longitude'     => isset( $object['longitude'] ) ? $object['longitude'] : null,
+				'latitude'      => isset( $object['latitude'] ) ? $object['latitude'] : 0,
+				'longitude'     => isset( $object['longitude'] ) ? $object['longitude'] : 0,
 				'online'        => isset( $object['online'] ) && $object['online'] == 'true',
 				'utc_timestamp' => $current_time,
 			];
