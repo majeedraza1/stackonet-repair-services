@@ -121,8 +121,8 @@ class TrackableObjectController extends ApiController {
 			$log_date = date( 'Y-m-d', $timestamp );
 		}
 
-		$object          = $items->to_rest( $log_date );
-		$_item['moving'] = ( $object['last_log']['utc_timestamp'] + 600 ) > $timestamp;
+		$object           = $items->to_rest( $log_date );
+		$object['moving'] = ( $object['last_log']['utc_timestamp'] + 600 ) > $timestamp;
 
 		$snappedPoints = $this->get_snapped_points( $object['logs'] );
 
@@ -130,6 +130,7 @@ class TrackableObjectController extends ApiController {
 			'object'        => $object,
 			'utc_timestamp' => $timestamp,
 			'snappedPoints' => $snappedPoints,
+			'min_max_date'  => $items->find_min_max_log_date(),
 			'idle_time'     => ( 10 * 60 ), // Ten minutes in seconds
 		] );
 	}

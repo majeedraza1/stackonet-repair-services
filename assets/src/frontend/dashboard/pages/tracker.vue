@@ -81,7 +81,6 @@
         },
         methods: {
             getObjects() {
-                this.$store.commit('SET_LOADING_STATUS', true);
                 axios.get(PhoneRepairs.rest_root + '/trackable-objects').then(response => {
                     let _data = response.data.data;
                     this.items = _data.items;
@@ -90,9 +89,7 @@
                     let markers = this.calculateMarkers(this.items);
                     this.clearMarkers();
                     this.updateMapMarkers(markers);
-                    this.$store.commit('SET_LOADING_STATUS', false);
                 }).catch(error => {
-                    this.$store.commit('SET_LOADING_STATUS', false);
                     console.error(error)
                 })
             },

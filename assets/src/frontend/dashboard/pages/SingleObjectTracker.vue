@@ -16,8 +16,25 @@
 				:idle-time="idle_time"
 				:show-action="false"
 			>
-				<div class="card__actions">
+				<div class="card__actions" style="display: flex;">
 					<mdl-button type="raised" color="primary" @click="goBack">Go Back</mdl-button>
+					<div class="card__actions-log" style="position: relative;">
+						<span class="card__actions-log-text">{{logDateDisplay}}</span>
+						<a class="input-button" title="toggle" data-toggle style="width: 24px;height:24px">
+							<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="24"
+								 height="24"
+								 viewBox="0 0 32 32">
+								<title>clock</title>
+								<path
+									d="M16 32c8.822 0 16-7.178 16-16s-7.178-16-16-16-16 7.178-16 16 7.178 16 16 16zM16 1c8.271 0 15 6.729 15 15s-6.729 15-15 15-15-6.729-15-15 6.729-15 15-15zM20.061 21.768c0.098 0.098 0.226 0.146 0.354 0.146s0.256-0.049 0.354-0.146c0.195-0.195 0.195-0.512 0-0.707l-4.769-4.768v-6.974c0-0.276-0.224-0.5-0.5-0.5s-0.5 0.224-0.5 0.5v7.181c0 0.133 0.053 0.26 0.146 0.354l4.915 4.914zM3 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM27 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 4c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 28c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM23 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM24 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1z"></path>
+							</svg>
+						</a>
+						<flat-pickr
+							style="visibility: hidden;width: 1px;height: 1px;position: absolute;top: 0;left: 0;"
+							v-model="log_date"
+							:config="flatpickrConfig"
+							placeholder="Select date"/>
+					</div>
 				</div>
 			</map-object-card>
 		</div>
@@ -26,6 +43,7 @@
 
 <script>
     import axios from 'axios';
+    import FlatPickr from "vue-flatpickr-component/src/component";
     import MapObjectCard from "./MapObjectCard";
     import {TrackerMixin} from "./TrackerMixin";
     import MdlButton from "../../../material-design-lite/button/mdlButton";
@@ -33,7 +51,7 @@
     export default {
         name: "SingleObjectTracker",
         mixins: [TrackerMixin],
-        components: {MdlButton, MapObjectCard},
+        components: {MdlButton, MapObjectCard, FlatPickr},
         data() {
             return {
                 googleMap: {},
@@ -43,9 +61,54 @@
                 idle_time: 0,
                 snappedPoints: [],
                 snappedPolyline: {},
+                log_date: '',
+                min_max_date: {},
+            }
+        },
+        watch: {
+            log_date(newValue) {
+                this.getObject(this.$route.params.object_id, newValue).then(data => {
+                    this.current_timestamp = data.utc_timestamp;
+                    this.idle_time = data.idle_time;
+                    this.object = data.object;
+                    this.snappedPoints = data.snappedPoints;
+                    this.min_max_date = data.min_max_date;
+                    // Clear poly lines and add new poly line
+                    let location = new google.maps.LatLng(this.object.last_log.latitude, this.object.last_log.longitude);
+                    this.googleMap.setCenter(location);
+                    this.googleMap.setZoom(17);
+                    this.marker.setPosition(location);
+                    this.snappedPolyline.setMap(null);
+                    this.snappedPolyline = this.get_polyline(this.snappedPoints);
+                    this.snappedPolyline.setMap(this.googleMap);
+                }).catch(error => console.error(error));
             }
         },
         computed: {
+            flatpickrConfig() {
+                return {
+                    dateFormat: 'Y-m-d',
+                    enableTime: false,
+                    wrap: true,
+                    minDate: new Date(this.min_max_date.startDate),
+                    maxDate: new Date(this.min_max_date.endDate),
+                    defaultDate: new Date()
+                };
+            },
+            logDateDisplay() {
+                if (this.log_date.length < 1) return 'Today';
+
+                let today = new Date(), choice = new Date(this.log_date);
+                if (today.getMonth() === choice.getMonth() && today.getFullYear() === choice.getFullYear()) {
+                    if (today.getDate() === choice.getDate()) {
+                        return 'Today';
+                    }
+                    if ((today.getDate() - 1) === choice.getDate()) {
+                        return 'Yesterday';
+                    }
+                }
+                return this.formatDate(this.log_date);
+            },
             coordinates() {
                 let pathValues = this.object.logs.map(log => {
                     return `${log.latitude},${log.longitude}`
@@ -62,6 +125,7 @@
                 this.idle_time = data.idle_time;
                 this.object = data.object;
                 this.snappedPoints = data.snappedPoints;
+                this.min_max_date = data.min_max_date;
                 this.$store.commit('SET_TITLE', `Activity: ${this.object.object_name}`);
                 let location = new google.maps.LatLng(this.object.last_log.latitude, this.object.last_log.longitude);
                 this.googleMap = new google.maps.Map(this.$el.querySelector('#google-map'), {
@@ -110,6 +174,17 @@
             });
         },
         methods: {
+            formatDate(dateString) {
+                let date = new Date(dateString);
+                let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+                let day = date.getDate();
+                let monthIndex = date.getMonth();
+                let year = date.getFullYear();
+
+                // Jul 10, 2019
+                return `${monthNames[monthIndex]} ${day}, ${year}`;
+            },
             goBack() {
                 this.$router.push({name: 'tracker',})
             },
@@ -140,5 +215,27 @@
 		left: 205px;
 		position: absolute;
 		top: 10px;
+	}
+
+	.card__actions-log {
+		align-items: center;
+		display: flex;
+		justify-content: center;
+		padding: 0 1rem;
+		margin-left: 1rem;
+		position: relative;
+
+		a, & {
+			background: #f58730;
+			color: #ffffff;
+		}
+
+		&-text {
+			margin-right: .5rem;
+		}
+
+		svg {
+			fill: currentColor;
+		}
 	}
 </style>

@@ -207,6 +207,28 @@ class TrackableObjectLog extends DatabaseModel {
 		return null;
 	}
 
+
+	public static function find_min_max_log_date( $object_id ) {
+		global $wpdb;
+		$self  = new self();
+		$table = $wpdb->prefix . $self->table;
+
+		$first = $wpdb->prepare(
+			"(SELECT `log_date` FROM {$table} WHERE `object_id` = %s ORDER BY log_date ASC LIMIT 1) as startDate",
+			$object_id
+		);
+
+		$last = $wpdb->prepare(
+			"(SELECT `log_date` FROM {$table} WHERE `object_id` = %s ORDER BY log_date DESC LIMIT 1) as endDate",
+			$object_id
+		);
+
+		$sql   = "SELECT {$first}, {$last}";
+		$items = $wpdb->get_row( $sql, ARRAY_A );
+
+		return $items;
+	}
+
 	/**
 	 * Count total records from the database
 	 *

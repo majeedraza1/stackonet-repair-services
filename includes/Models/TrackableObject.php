@@ -73,8 +73,8 @@ class TrackableObject extends DatabaseModel {
 			'object_name' => $this->get( 'object_name' ),
 			'object_type' => $this->get( 'object_type' ),
 			'icon'        => $this->get_object_icon(),
-			'last_log'    => $last_log,
-			'logs'        => $logs,
+			'last_log'    => is_array( $last_log ) ? $last_log : [],
+			'logs'        => is_array( $logs ) ? $logs : [],
 		];
 
 		return $response;
@@ -153,6 +153,15 @@ class TrackableObject extends DatabaseModel {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Find min max log date
+	 *
+	 * @return array|object|null
+	 */
+	public function find_min_max_log_date() {
+		return TrackableObjectLog::find_min_max_log_date( $this->get( 'object_id' ) );
 	}
 
 	/**
