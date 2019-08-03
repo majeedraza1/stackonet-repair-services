@@ -4,6 +4,7 @@
 		<div class="stackonet-dashboard-tracker__vans">
 			<template v-for="_item in card_items">
 				<map-object-card
+					@click="handleClick"
 					:lat_lng="_item.lat_lng"
 					:logo-url="_item.icon"
 					:object_id="_item.object_id"
@@ -80,6 +81,11 @@
             });
         },
         methods: {
+            handleClick(data) {
+                let latLng = new google.maps.LatLng(data.lat_lng.lat, data.lat_lng.lng);
+                this.googleMap.setCenter(latLng);
+                this.googleMap.setZoom(17);
+            },
             getObjects() {
                 axios.get(PhoneRepairs.rest_root + '/trackable-objects').then(response => {
                     let _data = response.data.data;

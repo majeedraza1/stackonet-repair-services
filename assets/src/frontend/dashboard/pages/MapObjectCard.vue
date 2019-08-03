@@ -1,5 +1,5 @@
 <template>
-	<div class="card light">
+	<div class="card light" @click="handleClick">
 
 		<div class="card__header" :style="{backgroundColor: headerBackground}">
 			<div class="card__logo">
@@ -90,6 +90,9 @@
             }
         },
         methods: {
+            handleClick() {
+                this.$emit('click', {lat_lng: this.lat_lng});
+            },
             get_address(lat_lng) {
                 this.geoCodeToAddress(lat_lng.lat, lat_lng.lng);
             },
