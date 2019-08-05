@@ -42,6 +42,15 @@ class TrackableObjectController extends ApiController {
 				'callback' => [ $this, 'get_items' ],
 				'args'     => $this->get_collection_params(),
 			],
+			[
+				'methods'  => WP_REST_Server::CREATABLE,
+				'callback' => [ $this, 'create_item' ],
+			],
+		] );
+
+		register_rest_route( $this->namespace, '/trackable-objects/(?P<id>\d+)', [
+			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_item' ] ],
+			[ 'methods' => WP_REST_Server::DELETABLE, 'callback' => [ $this, 'delete_item' ] ],
 		] );
 
 		register_rest_route( $this->namespace, '/trackable-objects/log', [
@@ -69,6 +78,88 @@ class TrackableObjectController extends ApiController {
 			'counts'        => [],
 			'pagination'    => []
 		] );
+	}
+
+	/**
+	 * Create one item from the collection.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function create_item( $request ) {
+		$trackableObject = new TrackableObject();
+
+		$object_id   = $request->get_param( 'object_id' );
+		$object_icon = $request->get_param( 'object_icon' );
+
+		if ( empty( $object_id ) || empty( $object_icon ) ) {
+			return $this->respondUnprocessableEntity( 'Object ID and object icon id is required.' );
+		}
+
+		if ( $trackableObject->find_by_object_id( $object_id ) instanceof TrackableObject ) {
+			return $this->respondUnprocessableEntity( 'Object ID is already register' );
+		}
+
+		$object_id = $trackableObject->create( $request->get_params() );
+		$object    = $trackableObject->find_by_id( $object_id );
+
+		return $this->respondCreated( $object );
+	}
+
+	/**
+	 * Update one item from the collection.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function update_item( $request ) {
+		$id = (int) $request->get_param( 'id' );
+
+		$trackableObject = new TrackableObject();
+		$object          = $trackableObject->find_by_id( $id );
+
+		if ( ! $object instanceof TrackableObject ) {
+			return $this->respondNotFound();
+		}
+
+		$object_id = $request->get_param( 'object_id' );
+
+		if ( ! empty( $object_id ) && $object->get( 'object_id' ) != $object_id ) {
+			return $this->respondUnprocessableEntity( 'Object Id cannot be changed.' );
+		}
+
+		$data       = $request->get_params();
+		$data['id'] = $id;
+
+		$trackableObject->update( $data );
+
+		return $this->respondOK();
+	}
+
+	/**
+	 * Delete one item from the collection.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function delete_item( $request ) {
+		$id = (int) $request->get_param( 'id' );
+
+		$trackableObject = new TrackableObject();
+		$object          = $trackableObject->find_by_id( $id );
+
+		if ( ! $object instanceof TrackableObject ) {
+			return $this->respondNotFound();
+		}
+
+		if ( $trackableObject->delete( $id ) ) {
+			return $this->respondOK( [ 'id' => $id ] );
+		}
+
+		return $this->respondInternalServerError();
 	}
 
 	/**
