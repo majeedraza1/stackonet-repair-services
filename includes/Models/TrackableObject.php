@@ -100,7 +100,7 @@ class TrackableObject extends DatabaseModel {
 		if ( empty( $this->log_data[ $date ] ) ) {
 			$item = ( new TrackableObjectLog() )->find_object_log( $this->get( 'object_id' ), $date );
 			if ( $item instanceof TrackableObjectLog ) {
-				return $this->log_data[ $date ] = $item->get( 'log_data' );
+				return $this->log_data[ $date ] = $item->get_log_data();
 			}
 		}
 

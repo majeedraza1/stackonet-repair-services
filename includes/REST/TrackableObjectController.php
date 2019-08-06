@@ -269,6 +269,9 @@ class TrackableObjectController extends ApiController {
 		}
 		$path = [];
 		foreach ( $logs as $log ) {
+			if ( empty( $log['latitude'] ) || empty( $log['longitude'] ) ) {
+				continue;
+			}
 			$path[] = sprintf( "%s,%s", $log['latitude'], $log['longitude'] );
 		}
 

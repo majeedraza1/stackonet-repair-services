@@ -39,6 +39,25 @@ class TrackableObjectLog extends DatabaseModel {
 	protected $data_format = [ '%d', '%s', '%s', '%s' ];
 
 	/**
+	 * Get log data
+	 *
+	 * @return array
+	 */
+	public function get_log_data() {
+		$_logs = $this->get( 'log_data' );
+		$logs  = [];
+		foreach ( $_logs as $log ) {
+			if ( empty( $log['latitude'] ) || empty( $log['longitude'] ) ) {
+				continue;
+			}
+
+			$logs[] = $log;
+		}
+
+		return $logs;
+	}
+
+	/**
 	 * Add log data
 	 *
 	 * @param array $log

@@ -1,9 +1,6 @@
 <template>
 	<div class="stackonet-dashboard-tracker">
 		<div id="google-map"></div>
-		<div class="button--go-back">
-
-		</div>
 		<div class="stackonet-dashboard-tracker__vans" v-if="Object.keys(object).length">
 			<map-object-card
 				:lat_lng="{lat:object.last_log.latitude, lng:object.last_log.longitude}"
@@ -35,6 +32,11 @@
 							:config="flatpickrConfig"
 							placeholder="Select date"/>
 					</div>
+					<mdl-button type="raised" color="primary" v-if="useSnapToRoads" @click="lineType('actual')">Actual
+					</mdl-button>
+					<mdl-button type="raised" color="primary" v-if="!useSnapToRoads" @click="lineType('optimised')">
+						Optimised
+					</mdl-button>
 				</div>
 			</map-object-card>
 		</div>
@@ -42,7 +44,6 @@
 </template>
 
 <script>
-    import axios from 'axios';
     import FlatPickr from "vue-flatpickr-component/src/component";
     import MapObjectCard from "./MapObjectCard";
     import {TrackerMixin} from "./TrackerMixin";
@@ -54,6 +55,7 @@
         components: {MdlButton, MapObjectCard, FlatPickr},
         data() {
             return {
+                useSnapToRoads: false,
                 googleMap: {},
                 object: {},
                 marker: {},
@@ -174,6 +176,16 @@
             });
         },
         methods: {
+            lineType(type) {
+                if ('optimised' === type) {
+                    this.useSnapToRoads = true;
+                } else {
+                    this.useSnapToRoads = false;
+                }
+                this.snappedPolyline.setMap(null);
+                this.snappedPolyline = this.get_polyline(this.snappedPoints);
+                this.snappedPolyline.setMap(this.googleMap);
+            },
             formatDate(dateString) {
                 let date = new Date(dateString);
                 let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -188,17 +200,23 @@
             goBack() {
                 this.$router.push({name: 'tracker',})
             },
-            get_coordinates(logs) {
+            get_coordinates(snappedPoints) {
+                return snappedPoints.map(log => {
+                    return {lat: log.location.latitude, lng: log.location.longitude}
+                });
+            },
+            get_coordinates_from_logs(logs) {
                 return logs.map(log => {
-                    return {
-                        lat: log.location.latitude,
-                        lng: log.location.longitude
-                    }
+                    return {lat: log.latitude, lng: log.longitude}
                 });
             },
             get_polyline(snappedPoints) {
+                let path = this.get_coordinates(snappedPoints);
+                if (!this.useSnapToRoads) {
+                    path = this.get_coordinates_from_logs(this.object.logs);
+                }
                 return new google.maps.Polyline({
-                    path: this.get_coordinates(snappedPoints),
+                    path: path,
                     geodesic: true,
                     strokeColor: '#f78739',
                     strokeOpacity: 1.0,
@@ -222,7 +240,7 @@
 		display: flex;
 		justify-content: center;
 		padding: 0 1rem;
-		margin-left: 1rem;
+		margin: 0 1rem;
 		position: relative;
 
 		a, & {
