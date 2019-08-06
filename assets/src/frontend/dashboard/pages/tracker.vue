@@ -182,6 +182,12 @@
 			// width: 300px;
 			height: 100%;
 			padding: 150px 1rem 50px;
+			direction: rtl;
+			overflow-y: auto;
+
+			> * {
+				direction: ltr;
+			}
 		}
 	}
 </style>
