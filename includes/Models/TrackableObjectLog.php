@@ -205,6 +205,19 @@ class TrackableObjectLog extends DatabaseModel {
 	}
 
 	/**
+	 * Find record by id
+	 *
+	 * @param int $id
+	 *
+	 * @return array|self
+	 */
+	public function find_by_id( $id ) {
+		$item = parent::find_by_id( $id );
+
+		return new self( $item );
+	}
+
+	/**
 	 * @param string $object_id
 	 * @param string|null $date
 	 *

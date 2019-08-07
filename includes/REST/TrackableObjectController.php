@@ -53,6 +53,14 @@ class TrackableObjectController extends ApiController {
 			[ 'methods' => WP_REST_Server::DELETABLE, 'callback' => [ $this, 'delete_item' ] ],
 		] );
 
+		register_rest_route( $this->namespace, '/trackable-objects/logs', [
+			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_logs' ] ],
+		] );
+
+		register_rest_route( $this->namespace, '/trackable-objects/logs/(?P<id>\d+)', [
+			[ 'methods' => WP_REST_Server::DELETABLE, 'callback' => [ $this, 'delete_log' ] ],
+		] );
+
 		register_rest_route( $this->namespace, '/trackable-objects/log', [
 			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_locations' ] ],
 			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'log_location' ] ]
@@ -254,6 +262,58 @@ class TrackableObjectController extends ApiController {
 		TrackableObjectLog::log_objects( $item );
 
 		return $this->respondCreated();
+	}
+
+	/**
+	 * Get a collection of items.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function get_logs( $request ) {
+		$per_page  = $request->get_param( 'per_page' );
+		$paged     = $request->get_param( 'paged' );
+		$object_id = $request->get_param( 'object_id' );
+		$log_date  = $request->get_param( 'log_date' );
+
+		$args = [];
+
+		if ( ! empty( $object_id ) ) {
+			$args['object_id'] = $object_id;
+		}
+
+		if ( ! empty( $log_date ) ) {
+			$args['log_date'] = $log_date;
+		}
+
+		$_logs = ( new TrackableObjectLog() )->find( $args );
+
+		return $this->respondOK( $_logs );
+	}
+
+	/**
+	 * Get an item from collection.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function delete_log( $request ) {
+		$id = (int) $request->get_param( 'id' );
+
+		$trackableObject = new TrackableObjectLog();
+		$object          = $trackableObject->find_by_id( $id );
+
+		if ( ! $object instanceof TrackableObjectLog ) {
+			return $this->respondNotFound();
+		}
+
+		if ( $trackableObject->delete( $id ) ) {
+			return $this->respondOK( [ 'id' => $id ] );
+		}
+
+		return $this->respondInternalServerError();
 	}
 
 	/**
