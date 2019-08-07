@@ -121,7 +121,7 @@
 		background-color: #ffffff;
 		border-radius: 8px;
 		box-shadow: 0 5px 10px #888888;
-		margin: 4rem 0;
+		margin: 4rem 4rem 4rem 0;
 		position: relative;
 		min-width: 350px;
 		max-width: 350px;
