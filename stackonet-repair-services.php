@@ -172,6 +172,7 @@ final class Stackonet_Repair_Services {
 		$this->container['support_ticket'] = Stackonet\Modules\SupportTicket\SupportTicketManager::init();
 		$this->container['firebase_sync']  = Stackonet\Integrations\FirebaseDatabase::init();
 		$this->container['ca_to_ticket']   = Stackonet\Modules\SupportTicket\CheckoutAnalysisToSupportTicket::init();
+		$this->container['page_template']  = Stackonet\PageTemplater::init();
 
 		if ( $this->is_request( 'admin' ) ) {
 			$this->container['reschedule-date-time'] = Stackonet\Admin\RescheduleDateTime::init();
