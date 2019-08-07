@@ -264,9 +264,28 @@ class TrackableObjectController extends ApiController {
 	 * @return array
 	 */
 	private function get_snapped_points( $logs ) {
-		if ( count( $logs ) > 100 ) {
-			$logs = $this->get_hundred_path( $logs );
+		if ( count( $logs ) <= 100 ) {
+			return $this->get_snapped_points_for_chunk( $logs );
 		}
+
+		$chunks = array_chunk( $logs, 100 );
+		$points = [];
+
+		foreach ( $chunks as $chunk ) {
+			$points = array_merge( $points, $this->get_snapped_points_for_chunk( $chunk ) );
+		}
+
+		return $points;
+	}
+
+	/**
+	 * Get only hundred logs
+	 *
+	 * @param array $logs
+	 *
+	 * @return array
+	 */
+	private function get_snapped_points_for_chunk( $logs ) {
 		$path = [];
 		foreach ( $logs as $log ) {
 			if ( empty( $log['latitude'] ) || empty( $log['longitude'] ) ) {
@@ -278,7 +297,7 @@ class TrackableObjectController extends ApiController {
 		$url = add_query_arg( [
 			'key'         => Settings::get_map_api_key(),
 			'path'        => implode( "|", $path ),
-			'interpolate' => false,
+			'interpolate' => true,
 		], 'https://roads.googleapis.com/v1/snapToRoads' );
 
 		$response = wp_remote_get( $url );
@@ -290,16 +309,5 @@ class TrackableObjectController extends ApiController {
 		$objects = json_decode( $body, true );
 
 		return isset( $objects['snappedPoints'] ) ? $objects['snappedPoints'] : [];
-	}
-
-	/**
-	 * Get only hundred logs
-	 *
-	 * @param array $logs
-	 *
-	 * @return mixed
-	 */
-	private function get_hundred_path( $logs ) {
-		return $logs;
 	}
 }
