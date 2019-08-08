@@ -223,7 +223,7 @@ class TrackableObjectController extends ApiController {
 		$object           = $items->to_rest( $log_date );
 		$object['moving'] = ( $object['last_log']['utc_timestamp'] + 600 ) > $timestamp;
 
-		$snappedPoints = $this->get_snapped_points( $object['logs'] );
+		$snappedPoints = $this->get_snapped_points( $object['logs'], $object_id, $log_date );
 
 		return $this->respondOK( [
 			'object'        => $object,
@@ -320,19 +320,33 @@ class TrackableObjectController extends ApiController {
 	 * Get snapped points
 	 *
 	 * @param array $logs
+	 * @param string $object_id
+	 * @param string $log_date
 	 *
 	 * @return array
 	 */
-	private function get_snapped_points( $logs ) {
-		if ( count( $logs ) <= 100 ) {
-			return $this->get_snapped_points_for_chunk( $logs );
-		}
+	private function get_snapped_points( $logs, $object_id, $log_date ) {
+		$transient_name       = sprintf( '_snapped_points_%s_%s', $object_id, $log_date );
+		$transient_expiration = MINUTE_IN_SECONDS;
+		$points               = get_transient( $transient_name );
 
-		$chunks = array_chunk( $logs, 100 );
-		$points = [];
+		if ( false === $points ) {
 
-		foreach ( $chunks as $chunk ) {
-			$points = array_merge( $points, $this->get_snapped_points_for_chunk( $chunk ) );
+			if ( count( $logs ) <= 100 ) {
+				$points = $this->get_snapped_points_for_chunk( $logs );
+				set_transient( $transient_name, $points, $transient_expiration );
+
+				return $points;
+			}
+
+			$chunks = array_chunk( $logs, 100 );
+			$points = [];
+
+			foreach ( $chunks as $chunk ) {
+				$points = array_merge( $points, $this->get_snapped_points_for_chunk( $chunk ) );
+			}
+
+			set_transient( $transient_name, $points, $transient_expiration );
 		}
 
 		return $points;
