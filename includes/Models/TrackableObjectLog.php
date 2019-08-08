@@ -2,6 +2,9 @@
 
 namespace Stackonet\Models;
 
+use DateInterval;
+use DatePeriod;
+use DateTime;
 use Stackonet\Abstracts\DatabaseModel;
 
 class TrackableObjectLog extends DatabaseModel {
@@ -52,6 +55,48 @@ class TrackableObjectLog extends DatabaseModel {
 			}
 
 			$logs[] = $log;
+		}
+
+		return $logs;
+	}
+
+	public function get_log_data_by_time_range() {
+		$date  = $this->get( 'log_date' );
+		$_logs = $this->get_log_data();
+
+		$date1 = new \DateTime( $date );
+		$date1->modify( 'midnight' );
+
+		$date2 = new \DateTime( $date );
+		$date2->modify( 'tomorrow -1 second' );
+
+		$interval = new DateInterval( 'PT1H' );
+		/** @var DateTime[] $period */
+		$period = new DatePeriod( $date1, $interval, $date2 );
+
+		$_times = [];
+		foreach ( $period as $day ) {
+			$_times[] = $day->getTimestamp();
+		}
+
+		$logs = [];
+		foreach ( $period as $index => $_dateTime ) {
+
+			$logs[ $index ] = [
+				'dateTime'  => $_dateTime->format( DateTime::ISO8601 ),
+				'colorCode' => '#ff0000',
+			];
+
+			$_current = $_dateTime->getTimestamp();
+			$_dateTime->modify( '+ 1 hour' );
+			$_next = $_dateTime->getTimestamp();
+			$_dateTime->modify( '- 1 hour' );
+
+			foreach ( $_logs as $log ) {
+				if ( $log['utc_timestamp'] >= $_current && $log['utc_timestamp'] < $_next ) {
+					$logs[ $index ]['logs'][] = [ 'latitude' => $log['latitude'], 'longitude' => $log['longitude'] ];
+				}
+			}
 		}
 
 		return $logs;

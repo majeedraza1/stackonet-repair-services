@@ -2,9 +2,12 @@
 
 namespace Stackonet;
 
+use DateInterval;
+use DatePeriod;
+use DateTime;
 use Exception;
 use Stackonet\Integrations\GoogleMap;
-use Stackonet\Models\TrackableObject;
+use Stackonet\Models\TrackableObjectLog;
 use Stackonet\Modules\SupportTicket\OrderToSupportTicket;
 use Stackonet\Models\Device;
 use Stackonet\Models\DeviceIssue;
@@ -90,7 +93,10 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		TrackableObject::add_initial_users();
+		$date = date( 'Y-m-d', time() );
+
+		$log   = ( new TrackableObjectLog() )->find_object_log( 'sayful', $date );
+		var_dump( $log->get_log_data_by_time_range() );
 		die();
 	}
 
