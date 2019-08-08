@@ -65,6 +65,7 @@
                 snappedPolyline: {},
                 log_date: '',
                 min_max_date: {},
+                employees: null,
             }
         },
         watch: {
@@ -119,6 +120,9 @@
                 return pathValues.join('|');
             }
         },
+        beforeDestroy() {
+            clearInterval(this.employees)
+        },
         mounted() {
             this.$store.commit('SET_LOADING_STATUS', false);
             this.$store.commit('SET_TITLE', 'Tracker');
@@ -156,32 +160,33 @@
                 this.$store.commit('SET_LOADING_STATUS', false);
             });
 
-            const db = firebase.database();
-            db.ref('Employees').on('value', snapshot => {
-                let employees = Object.values(snapshot.val());
-                this.logToDatabase(employees).then(() => {
-                    this.getObject(this.$route.params.object_id).then(data => {
-                        this.current_timestamp = data.utc_timestamp;
-                        this.idle_time = data.idle_time;
-                        this.object = data.object;
-                        this.snappedPoints = data.snappedPoints;
-                        // Clear poly lines and add new poly line
-                        let location = new google.maps.LatLng(this.object.last_log.latitude, this.object.last_log.longitude);
-                        this.marker.setPosition(location);
-                        this.snappedPolyline.setMap(null);
-                        this.snappedPolyline = this.get_polyline(this.snappedPoints);
-                        this.snappedPolyline.setMap(this.googleMap);
-                    }).catch(error => console.error(error));
-                });
-            });
+            // employees
+            this.employees = setInterval(() => {
+                this.getObject(this.$route.params.object_id).then(data => {
+                    this.current_timestamp = data.utc_timestamp;
+                    this.idle_time = data.idle_time;
+                    this.object = data.object;
+                    this.snappedPoints = data.snappedPoints;
+                    // Clear poly lines and add new poly line
+                    let location = new google.maps.LatLng(this.object.last_log.latitude, this.object.last_log.longitude);
+                    this.marker.setPosition(location);
+                    this.snappedPolyline.setMap(null);
+                    this.snappedPolyline = this.get_polyline(this.snappedPoints);
+                    this.snappedPolyline.setMap(this.googleMap);
+                }).catch(error => console.error(error));
+            }, 5000);
+
+            // const db = firebase.database();
+            // db.ref('Employees').on('value', snapshot => {
+            //     let employees = Object.values(snapshot.val());
+            //     this.logToDatabase(employees).then(() => {
+            //
+            //     });
+            // });
         },
         methods: {
             lineType(type) {
-                if ('optimised' === type) {
-                    this.useSnapToRoads = true;
-                } else {
-                    this.useSnapToRoads = false;
-                }
+                this.useSnapToRoads = ('optimised' === type);
                 this.snappedPolyline.setMap(null);
                 this.snappedPolyline = this.get_polyline(this.snappedPoints);
                 this.snappedPolyline.setMap(this.googleMap);

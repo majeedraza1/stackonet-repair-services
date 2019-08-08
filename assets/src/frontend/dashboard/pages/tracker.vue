@@ -25,19 +25,21 @@
     import axios from 'axios';
     import {CrudMixin} from "../../../components/CrudMixin";
     import MapObjectCard from "./MapObjectCard";
+    import {TrackerMixin} from "./TrackerMixin";
 
     let mapStyles = require('./map-style.json');
 
     export default {
         name: "tracker",
         components: {MapObjectCard, columns, column},
-        mixins: [CrudMixin],
+        mixins: [CrudMixin, TrackerMixin],
         data() {
             return {
                 current_timestamp: 0,
                 idle_time: 0,
                 googleMap: {},
                 markers: [],
+                employees: null,
             }
         },
         computed: {
@@ -58,6 +60,9 @@
                 });
             }
         },
+        beforeDestroy() {
+            clearInterval(this.employees)
+        },
         mounted() {
             this.$store.commit('SET_LOADING_STATUS', false);
             this.$store.commit('SET_TITLE', 'Tracker');
@@ -71,14 +76,18 @@
                 // styles: mapStyles
             });
 
-            const db = firebase.database();
+            // employees
+            this.employees = setInterval(() => {
+                this.getObjects();
+            }, 5000);
 
-            db.ref('Employees').on('value', snapshot => {
-                let employees = Object.values(snapshot.val());
-                this.logToDatabase(employees).then(() => {
-                    this.getObjects();
-                }).catch(error => console.error(error));
-            });
+            // const db = firebase.database();
+            // db.ref('Employees').on('value', snapshot => {
+            //     let employees = Object.values(snapshot.val());
+            //     this.logToDatabase(employees).then(() => {
+            //         this.getObjects();
+            //     }).catch(error => console.error(error));
+            // });
         },
         methods: {
             handleClick(data) {
@@ -87,17 +96,14 @@
                 this.googleMap.setZoom(17);
             },
             getObjects() {
-                axios.get(PhoneRepairs.rest_root + '/trackable-objects').then(response => {
-                    let _data = response.data.data;
+                this.getTrackableObjects().then(_data => {
                     this.items = _data.items;
                     this.current_timestamp = _data.utc_timestamp;
                     this.idle_time = _data.idle_time;
                     let markers = this.calculateMarkers(this.items);
                     this.clearMarkers();
                     this.updateMapMarkers(markers);
-                }).catch(error => {
-                    console.error(error)
-                })
+                }).catch(error => console.error(error));
             },
             calculateMarkers(objects) {
                 if (objects.length < 1) return [];

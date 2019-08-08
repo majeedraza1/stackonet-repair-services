@@ -2,6 +2,7 @@
 
 namespace Stackonet\REST;
 
+use Stackonet\Integrations\FirebaseDatabase;
 use Stackonet\Models\Settings;
 use Stackonet\Models\TrackableObject;
 use Stackonet\Models\TrackableObjectLog;
@@ -75,6 +76,8 @@ class TrackableObjectController extends ApiController {
 	 * @return WP_REST_Response
 	 */
 	public function get_items( $request ) {
+		FirebaseDatabase::sync_employees();
+
 		$timestamp = current_time( 'timestamp', true );
 		$date      = date( 'Y-m-d', $timestamp );
 		$items     = ( new TrackableObject() )->find();
@@ -207,6 +210,8 @@ class TrackableObjectController extends ApiController {
 		if ( empty( $object_id ) ) {
 			return $this->respondUnprocessableEntity();
 		}
+
+		FirebaseDatabase::sync_employees();
 
 		$items = ( new TrackableObject() )->find_by_object_id( $object_id );
 
