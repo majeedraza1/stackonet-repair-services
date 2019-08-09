@@ -42,6 +42,35 @@ class TrackableObjectLog extends DatabaseModel {
 	protected $data_format = [ '%d', '%s', '%s', '%s' ];
 
 	/**
+	 * Find color code for polyline
+	 *
+	 * @param int $index
+	 *
+	 * @return string
+	 */
+	public function color( $index = 0 ) {
+		if ( $index > 10 ) {
+			$index = substr( $index, - 1 );
+		}
+		$colors = [
+			'#F44336',
+			'#9C27B0',
+			'#E91E63',
+			'#673AB7',
+			'#1E88E5',
+			'#3F51B5',
+			'#0288D1',
+			'#00796B',
+			'#43A047',
+			'#827717',
+			'#E65100',
+			'#F4511E'
+		];
+
+		return isset( $colors[ $index ] ) ? $colors[ $index ] : null;
+	}
+
+	/**
 	 * Get log data
 	 *
 	 * @return array
@@ -84,7 +113,7 @@ class TrackableObjectLog extends DatabaseModel {
 
 			$logs[ $index ] = [
 				'dateTime'  => $_dateTime->format( DateTime::ISO8601 ),
-				'colorCode' => '#ff0000',
+				'colorCode' => $this->color( $index ),
 			];
 
 			$_current = $_dateTime->getTimestamp();

@@ -71,19 +71,7 @@
         watch: {
             log_date(newValue) {
                 this.getObject(this.$route.params.object_id, newValue).then(data => {
-                    this.current_timestamp = data.utc_timestamp;
-                    this.idle_time = data.idle_time;
-                    this.object = data.object;
-                    this.snappedPoints = data.snappedPoints;
-                    this.min_max_date = data.min_max_date;
-                    // Clear poly lines and add new poly line
-                    let location = new google.maps.LatLng(this.object.last_log.latitude, this.object.last_log.longitude);
-                    this.googleMap.setCenter(location);
-                    this.googleMap.setZoom(17);
-                    this.marker.setPosition(location);
-                    this.snappedPolyline.setMap(null);
-                    this.snappedPolyline = this.get_polyline(this.snappedPoints);
-                    this.snappedPolyline.setMap(this.googleMap);
+                    this.refreshData(data);
                 }).catch(error => console.error(error));
             }
         },
@@ -162,17 +150,8 @@
 
             // employees
             this.employees = setInterval(() => {
-                this.getObject(this.$route.params.object_id).then(data => {
-                    this.current_timestamp = data.utc_timestamp;
-                    this.idle_time = data.idle_time;
-                    this.object = data.object;
-                    this.snappedPoints = data.snappedPoints;
-                    // Clear poly lines and add new poly line
-                    let location = new google.maps.LatLng(this.object.last_log.latitude, this.object.last_log.longitude);
-                    this.marker.setPosition(location);
-                    this.snappedPolyline.setMap(null);
-                    this.snappedPolyline = this.get_polyline(this.snappedPoints);
-                    this.snappedPolyline.setMap(this.googleMap);
+                this.getObject(this.$route.params.object_id, this.log_date).then(data => {
+                    this.refreshData(data);
                 }).catch(error => console.error(error));
             }, 5000);
 
@@ -185,6 +164,21 @@
             // });
         },
         methods: {
+            refreshData(data) {
+                this.current_timestamp = data.utc_timestamp;
+                this.idle_time = data.idle_time;
+                this.object = data.object;
+                this.snappedPoints = data.snappedPoints;
+                this.min_max_date = data.min_max_date;
+                // Clear poly lines and add new poly line
+                let location = new google.maps.LatLng(this.object.last_log.latitude, this.object.last_log.longitude);
+                this.googleMap.setCenter(location);
+                this.googleMap.setZoom(17);
+                this.marker.setPosition(location);
+                this.snappedPolyline.setMap(null);
+                this.snappedPolyline = this.get_polyline(this.snappedPoints);
+                this.snappedPolyline.setMap(this.googleMap);
+            },
             lineType(type) {
                 this.useSnapToRoads = ('optimised' === type);
                 this.snappedPolyline.setMap(null);
@@ -215,7 +209,7 @@
                     return {lat: log.latitude, lng: log.longitude}
                 });
             },
-            get_polyline(snappedPoints) {
+            get_polyline(snappedPoints, strokeColor = '#f78739') {
                 let path = this.get_coordinates(snappedPoints);
                 if (!this.useSnapToRoads) {
                     path = this.get_coordinates_from_logs(this.object.logs);
@@ -223,7 +217,7 @@
                 return new google.maps.Polyline({
                     path: path,
                     geodesic: true,
-                    strokeColor: '#f78739',
+                    strokeColor: strokeColor,
                     strokeOpacity: 1.0,
                     strokeWeight: 3
                 })

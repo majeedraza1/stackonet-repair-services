@@ -93,9 +93,9 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$date = date( 'Y-m-d', time() );
+		$date = date( 'Y-m-d', strtotime( 'now' ) );
 
-		$log   = ( new TrackableObjectLog() )->find_object_log( 'sayful', $date );
+		$log = ( new TrackableObjectLog() )->find_object_log( 'simpi', $date );
 		var_dump( $log->get_log_data_by_time_range() );
 		die();
 	}
