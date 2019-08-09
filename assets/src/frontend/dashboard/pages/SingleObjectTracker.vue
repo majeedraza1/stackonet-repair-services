@@ -32,11 +32,14 @@
 							:config="flatpickrConfig"
 							placeholder="Select date"/>
 					</div>
-					<mdl-button type="raised" color="primary" v-if="useSnapToRoads" @click="lineType('actual')">Actual
-					</mdl-button>
-					<mdl-button type="raised" color="primary" v-if="!useSnapToRoads" @click="lineType('optimised')">
-						Optimised
-					</mdl-button>
+					<div style="display: none">
+						<mdl-button type="raised" color="primary" v-if="useSnapToRoads" @click="lineType('actual')">
+							Actual
+						</mdl-button>
+						<mdl-button type="raised" color="primary" v-if="!useSnapToRoads" @click="lineType('optimised')">
+							Optimised
+						</mdl-button>
+					</div>
 				</div>
 				<div v-if="polylines.length">
 					<template v-for="_line in polylines" v-if="_line.logs">
@@ -188,7 +191,10 @@
             },
             lineType(type) {
                 this.useSnapToRoads = ('optimised' === type);
-                this.snappedPolyline.setMap(null);
+                this.clear_polyline();
+                if (Object.keys(this.snappedPolyline).length) {
+                    this.snappedPolyline.setMap(null);
+                }
                 this.snappedPolyline = this.get_polyline(this.snappedPoints);
                 this.snappedPolyline.setMap(this.googleMap);
             },
@@ -229,13 +235,16 @@
                     strokeWeight: 3
                 })
             },
-            update_polyline() {
+            clear_polyline() {
                 if (this.mapPolyline.length) {
                     this.mapPolyline.forEach(el => {
-                        // el.setMap(null);
+                        el.setMap(null);
                     });
                     this.mapPolyline = [];
                 }
+            },
+            update_polyline() {
+                this.clear_polyline();
 
                 if (this.polylines.length < 1) return;
 
