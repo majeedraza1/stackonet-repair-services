@@ -121,6 +121,12 @@ class TrackableObjectLog extends DatabaseModel {
 			$_next = $_dateTime->getTimestamp();
 			$_dateTime->modify( '- 1 hour' );
 
+			$logs[ $index ]['title'] = sprintf(
+				"From %s to %s",
+				date( 'ha', $_current ),
+				date( 'ha', $_next )
+			);
+
 			foreach ( $_logs as $log ) {
 				if ( $log['utc_timestamp'] >= $_current && $log['utc_timestamp'] < $_next ) {
 					$logs[ $index ]['logs'][] = [ 'latitude' => $log['latitude'], 'longitude' => $log['longitude'] ];

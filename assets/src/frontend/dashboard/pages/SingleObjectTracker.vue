@@ -38,6 +38,14 @@
 						Optimised
 					</mdl-button>
 				</div>
+				<div v-if="polylines.length">
+					<template v-for="_line in polylines" v-if="_line.logs">
+						<div class="polyline-item">
+							<div class="polyline-item__color" :style="{background:_line.colorCode}"></div>
+							<div class="polyline-item__title">{{_line.title}}</div>
+						</div>
+					</template>
+				</div>
 			</map-object-card>
 		</div>
 	</div>
@@ -66,12 +74,16 @@
                 log_date: '',
                 min_max_date: {},
                 employees: null,
+                polylines: [],
+                mapPolyline: [],
             }
         },
         watch: {
             log_date(newValue) {
                 this.getObject(this.$route.params.object_id, newValue).then(data => {
                     this.refreshData(data);
+                    let location = new google.maps.LatLng(data.object.last_log.latitude, data.object.last_log.longitude);
+                    this.googleMap.setCenter(location);
                 }).catch(error => console.error(error));
             }
         },
@@ -99,13 +111,6 @@
                     }
                 }
                 return this.formatDate(this.log_date);
-            },
-            coordinates() {
-                let pathValues = this.object.logs.map(log => {
-                    return `${log.latitude},${log.longitude}`
-                });
-
-                return pathValues.join('|');
             }
         },
         beforeDestroy() {
@@ -114,38 +119,21 @@
         mounted() {
             this.$store.commit('SET_LOADING_STATUS', false);
             this.$store.commit('SET_TITLE', 'Tracker');
+
+            this.googleMap = new google.maps.Map(this.$el.querySelector('#google-map'), {
+                center: new google.maps.LatLng(0, 0),
+                zoom: 17,
+            });
+
             this.getObject(this.$route.params.object_id).then(data => {
-                this.current_timestamp = data.utc_timestamp;
-                this.idle_time = data.idle_time;
-                this.object = data.object;
-                this.snappedPoints = data.snappedPoints;
-                this.min_max_date = data.min_max_date;
-                this.$store.commit('SET_TITLE', `Activity: ${this.object.object_name}`);
-                let location = new google.maps.LatLng(this.object.last_log.latitude, this.object.last_log.longitude);
-                this.googleMap = new google.maps.Map(this.$el.querySelector('#google-map'), {
-                    center: location,
-                    zoom: 17,
-                });
+                this.refreshData(data);
+                this.addMarker(data);
+                let location = new google.maps.LatLng(data.object.last_log.latitude, data.object.last_log.longitude);
+                this.googleMap.setCenter(location);
 
-                this.marker = new google.maps.Marker({
-                    map: this.googleMap,
-                    icon: {
-                        url: this.object.icon,
-                        size: new google.maps.Size(48, 48),
-                        origin: new google.maps.Point(0, 0),
-                        anchor: new google.maps.Point(0, 32),
-                        scaledSize: new google.maps.Size(25, 25)
-                    },
-                    title: this.object.object_name,
-                    position: location
-                });
-
-                this.snappedPolyline = this.get_polyline(this.snappedPoints);
-                this.snappedPolyline.setMap(this.googleMap);
-                this.$store.commit('SET_LOADING_STATUS', false);
+                this.$store.commit('SET_TITLE', `Activity: ${data.object.object_name}`);
             }).catch(error => {
                 console.error(error);
-                this.$store.commit('SET_LOADING_STATUS', false);
             });
 
             // employees
@@ -170,14 +158,33 @@
                 this.object = data.object;
                 this.snappedPoints = data.snappedPoints;
                 this.min_max_date = data.min_max_date;
-                // Clear poly lines and add new poly line
+                this.polylines = data.polyline;
                 let location = new google.maps.LatLng(this.object.last_log.latitude, this.object.last_log.longitude);
-                this.googleMap.setCenter(location);
-                this.googleMap.setZoom(17);
-                this.marker.setPosition(location);
-                this.snappedPolyline.setMap(null);
-                this.snappedPolyline = this.get_polyline(this.snappedPoints);
-                this.snappedPolyline.setMap(this.googleMap);
+                if (Object.keys(this.marker).length) {
+                    this.marker.setPosition(location);
+                }
+                // if (Object.keys(this.snappedPolyline).length) {
+                //     this.snappedPolyline.setMap(null);
+                // }
+                // this.snappedPolyline = this.get_polyline(this.snappedPoints);
+                // this.snappedPolyline.setMap(this.googleMap);
+
+                // Test
+                this.update_polyline();
+            },
+            addMarker(data) {
+                this.marker = new google.maps.Marker({
+                    map: this.googleMap,
+                    icon: {
+                        url: data.object.icon,
+                        size: new google.maps.Size(48, 48),
+                        origin: new google.maps.Point(0, 0),
+                        anchor: new google.maps.Point(0, 32),
+                        scaledSize: new google.maps.Size(25, 25)
+                    },
+                    title: data.object.object_name,
+                    position: new google.maps.LatLng(data.object.last_log.latitude, data.object.last_log.longitude)
+                });
             },
             lineType(type) {
                 this.useSnapToRoads = ('optimised' === type);
@@ -197,7 +204,7 @@
                 return `${monthNames[monthIndex]} ${day}, ${year}`;
             },
             goBack() {
-                this.$router.push({name: 'tracker',})
+                this.$router.push({name: 'tracker'})
             },
             get_coordinates(snappedPoints) {
                 return snappedPoints.map(log => {
@@ -221,6 +228,33 @@
                     strokeOpacity: 1.0,
                     strokeWeight: 3
                 })
+            },
+            update_polyline() {
+                if (this.mapPolyline.length) {
+                    this.mapPolyline.forEach(el => {
+                        // el.setMap(null);
+                    });
+                    this.mapPolyline = [];
+                }
+
+                if (this.polylines.length < 1) return;
+
+                for (let i = 0; i < this.polylines.length; i++) {
+                    if (this.polylines[i].logs !== undefined) {
+                        let path = this.polylines[i].logs.map(log => {
+                            return {lat: log.latitude, lng: log.longitude}
+                        });
+                        let polyline = new google.maps.Polyline({
+                            path: path,
+                            geodesic: true,
+                            strokeColor: this.polylines[i].colorCode,
+                            strokeOpacity: 1.0,
+                            strokeWeight: 3
+                        });
+                        polyline.setMap(this.googleMap);
+                        this.mapPolyline.push(polyline);
+                    }
+                }
             }
         }
     }
@@ -253,6 +287,24 @@
 
 		svg {
 			fill: currentColor;
+		}
+	}
+
+	.polyline-item {
+		display: flex;
+		padding: 1rem;
+		justify-content: flex-start;
+		align-items: center;
+
+		&__color {
+			width: 16px;
+			height: 16px;
+			display: inline-flex;
+			border-radius: 8px;
+			margin-right: 1rem;
+		}
+
+		&__title {
 		}
 	}
 </style>
