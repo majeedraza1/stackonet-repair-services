@@ -6,6 +6,7 @@ use DateInterval;
 use DatePeriod;
 use DateTime;
 use Stackonet\Abstracts\DatabaseModel;
+use Stackonet\DateTime\WpDateTimeZone;
 
 class TrackableObjectLog extends DatabaseModel {
 
@@ -92,6 +93,8 @@ class TrackableObjectLog extends DatabaseModel {
 	public function get_log_data_by_time_range() {
 		$date  = $this->get( 'log_date' );
 		$_logs = $this->get_log_data();
+
+		$timezone = WpDateTimeZone::getWpTimezone();
 
 		$date1 = new \DateTime( $date );
 		$date1->modify( 'midnight' );
