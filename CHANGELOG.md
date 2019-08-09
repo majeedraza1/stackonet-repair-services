@@ -1,3 +1,21 @@
+#### 1.1.16 - August 09, 2019
+* Add - Add option to view previous date activities for individual object.
+* Add - Add option to zoom object on map when click on object card.
+* Add - Add REST endpoint to create, update, delete trackable object.
+* Add - Add button to toggle actual/snapped view for polyline.
+* Add - Add scroll option on tracker van list.
+* Add - Add 'Phone Repairs ASAP Canvas' template.
+* Fix - Fix tracker status text is being hidden.
+* Add - Add chunk functionality if logs items is more than 100 as Google support only 100 points per request.
+* Add - Add REST endpoint to view logs and delete log by log id.
+* Add - Add transient for 1 minute for snapped points data to reduce google api request.
+* Tweak - Remove live Firebase sync with backend option for each 5 seconds.
+* Add - Add functionality to get log data by time range of a day.
+* Add - Add color option for each time frame.
+* Add - Add timeline option on single object.
+* Add - Add local timezone for trackable object timeline.
+* Tweak - Disabled optimized view as it required some more tweak.
+
 #### 1.1.15 - August 02, 2019
 * Fix - Fix support ticket dropdown issue.
 * Add - Add address re-arrange functionality based on google map provided order for edit/view map.
