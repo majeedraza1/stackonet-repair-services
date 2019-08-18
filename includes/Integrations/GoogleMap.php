@@ -27,6 +27,23 @@ class GoogleMap {
 	}
 
 	/**
+	 * @param int|float $latitude
+	 * @param int|float $longitude
+	 *
+	 * @return array|mixed|object
+	 */
+	public static function get_formatted_address_from_lat_lng( $latitude, $longitude ) {
+		$map_key  = Settings::get_map_api_key();
+		$rest_url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" . $latitude . "," . $longitude . "&key=" . $map_key;
+		$response = wp_remote_get( $rest_url );
+		$body     = wp_remote_retrieve_body( $response );
+		$data     = json_decode( $body, true );
+		$address  = isset( $data['results'][0] ) ? $data['results'][0] : [];
+
+		return $address;
+	}
+
+	/**
 	 * Get customer latitude and longitude from order
 	 *
 	 * @param WC_Order $order

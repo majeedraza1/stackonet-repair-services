@@ -3,6 +3,7 @@
 namespace Stackonet\REST;
 
 use Stackonet\Integrations\FirebaseDatabase;
+use Stackonet\Integrations\GoogleMap;
 use Stackonet\Models\Settings;
 use Stackonet\Models\TrackableObject;
 use Stackonet\Models\TrackableObjectLog;
@@ -188,9 +189,22 @@ class TrackableObjectController extends ApiController {
 
 		foreach ( $items as $item ) {
 			$_item = $item->to_rest( $date );
+			if ( empty( $_item['last_log']['latitude'] ) || empty( $_item['last_log']['longitude'] ) ) {
+				continue;
+			}
 			unset( $_item['logs'] );
 			$_item['moving'] = ( $_item['last_log']['utc_timestamp'] + 600 ) > $timestamp;
-			$response[]      = $_item;
+
+			if ( ! empty( $_item['last_log']['latitude'] ) && ! empty( $_item['last_log']['longitude'] ) ) {
+				$address                                = GoogleMap::get_formatted_address_from_lat_lng(
+					$_item['last_log']['latitude'],
+					$_item['last_log']['longitude']
+				);
+				$_item['last_log']['address']           = $address;
+				$_item['last_log']['formatted_address'] = $address['formatted_address'];
+			}
+
+			$response[] = $_item;
 		}
 
 		return $response;

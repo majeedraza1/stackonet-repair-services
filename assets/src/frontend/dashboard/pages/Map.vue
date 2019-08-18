@@ -25,6 +25,11 @@
 					<column :tablet="8">
 						<g-map-autocomplete type="text" label="Base Address"
 											@change="setBaseAddress"></g-map-autocomplete>
+						<div v-if="trackable_objects.length" style="margin-bottom: 10px">
+							<label for="trackable_object">Van Location</label>
+							<v-select placeholder="Choose base address from van location" :options="trackable_objects"
+									  label="object_name" v-model="trackable_object" id="trackable_object"></v-select>
+						</div>
 						<div id="map"></div>
 						<div class="stackonet-dashboard-map__destination" style="display: none;">
 							<div class="stackonet-dashboard-map__destination-title">Destination</div>
@@ -185,6 +190,7 @@
     import vSelect from 'vue-select';
     import FlatPickr from "vue-flatpickr-component/src/component";
     import {MapMixin} from "./MapMixin";
+    import {TrackerMixin} from "./TrackerMixin";
     import MapListTable from "./MapListTable";
     import Icon from "../../../shapla/icon/icon";
     import SearchBox from "../../../components/SearchBox";
@@ -201,7 +207,7 @@
 
     export default {
         name: "Map",
-        mixins: [MapMixin],
+        mixins: [MapMixin, TrackerMixin],
         components: {
             AddressBox2, vSelect, AnimatedInput, MapListTable, MdlTab, MdlTabs,
             AddressBox, FlatPickr, GMapAutocomplete, MdlSlider, MdlButton,
@@ -247,6 +253,8 @@
                 destination_type: 'base-address',
                 custom_destination: {},
                 destination: {},
+                trackable_objects: [],
+                trackable_object: null,
             }
         },
         watch: {
@@ -261,6 +269,23 @@
             },
             travelMode() {
                 this.updateMapRoute();
+            },
+            trackable_object(newValue) {
+                if (newValue !== null) {
+                    if (newValue.last_log.latitude) {
+                        this.latitude = newValue.last_log.latitude;
+                        this.longitude = newValue.last_log.longitude;
+                        this.location = new google.maps.LatLng(newValue.last_log.latitude, newValue.last_log.longitude);
+                        this.user_formatted_address = newValue.last_log.formatted_address;
+                        this.address = newValue.last_log.address;
+                    }
+                } else {
+                    this.latitude = 0;
+                    this.longitude = 0;
+                    this.location = new google.maps.LatLng(0, 0);
+                    this.user_formatted_address = '';
+                    this.address = [];
+                }
             }
         },
         computed: {
@@ -338,6 +363,10 @@
                         }
                     })
                 });
+
+            this.getTrackableObjects().then(response => {
+                this.trackable_objects = response.items;
+            }).catch(error => console.error(error));
         },
         methods: {
             saveAsRoute() {

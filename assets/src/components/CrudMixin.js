@@ -71,14 +71,11 @@ const CrudMixin = {
 				return;
 			}
 			return new Promise((resolve, reject) => {
-				axios
-					.post(url, {id: id, action: action})
-					.then((response) => {
-						resolve(response.data.data)
-					})
-					.catch((error) => {
-						reject(error);
-					});
+				axios.post(url, {id: id, action: action}).then((response) => {
+					resolve(response.data.data)
+				}).catch((error) => {
+					reject(error);
+				});
 			});
 		},
 		action_batch_trash(url, ids, action) {
@@ -88,14 +85,11 @@ const CrudMixin = {
 				return;
 			}
 			return new Promise((resolve, reject) => {
-				axios
-					.post(url, {ids: ids, action: action})
-					.then((response) => {
-						resolve(response.data.data);
-					})
-					.catch((error) => {
-						reject(error);
-					});
+				axios.post(url, {ids: ids, action: action}).then((response) => {
+					resolve(response.data.data);
+				}).catch((error) => {
+					reject(error);
+				});
 			});
 		}
 	}

@@ -1,5 +1,20 @@
 const MapMixin = {
 	methods: {
+		getAddressFromLatLng(latitude, longitude) {
+			return new Promise((resolve, reject) => {
+				let geocoder = new google.maps.Geocoder;
+				geocoder.geocode({'location': {lat: latitude, lng: longitude}}, (results, status) => {
+					if (status === 'OK' && results[0]) {
+						resolve({
+							address: results[0],
+							formatted_address: results[0].formatted_address,
+						});
+					} else {
+						reject(status);
+					}
+				});
+			})
+		},
 		formatDate(dateString) {
 			let date = new Date(dateString);
 			let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];

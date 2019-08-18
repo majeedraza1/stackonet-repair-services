@@ -80,14 +80,6 @@
             this.employees = setInterval(() => {
                 this.getObjects();
             }, 5000);
-
-            // const db = firebase.database();
-            // db.ref('Employees').on('value', snapshot => {
-            //     let employees = Object.values(snapshot.val());
-            //     this.logToDatabase(employees).then(() => {
-            //         this.getObjects();
-            //     }).catch(error => console.error(error));
-            // });
         },
         methods: {
             handleClick(data) {
@@ -156,13 +148,6 @@
                 } else {
                     marker.setAnimation(google.maps.Animation.BOUNCE);
                 }
-            },
-            logToDatabase(employees) {
-                return new Promise((resolve, reject) => {
-                    axios.post(PhoneRepairs.rest_root + '/trackable-objects/log', {objects: employees})
-                        .then(response => resolve(response))
-                        .catch(error => reject(error));
-                });
             }
         }
     }

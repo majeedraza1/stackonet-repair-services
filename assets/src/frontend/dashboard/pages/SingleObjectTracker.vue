@@ -145,14 +145,6 @@
                     this.refreshData(data);
                 }).catch(error => console.error(error));
             }, 5000);
-
-            // const db = firebase.database();
-            // db.ref('Employees').on('value', snapshot => {
-            //     let employees = Object.values(snapshot.val());
-            //     this.logToDatabase(employees).then(() => {
-            //
-            //     });
-            // });
         },
         methods: {
             refreshData(data) {
