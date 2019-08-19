@@ -208,4 +208,19 @@ class Utils {
 
 		return $amount;
 	}
+
+	/**
+	 * Get circle distance using Vincenty formula
+	 *
+	 * @param int|float $latitudeFrom
+	 * @param int|float $longitudeFrom
+	 * @param int|float $latitudeTo
+	 * @param int|float $longitudeTo
+	 * @param int|float $earthRadius
+	 *
+	 * @return float|int
+	 */
+	public static function get_circle_distance( $latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo, $earthRadius = 6371 ) {
+		return DistanceCalculator::getDistance( $latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo );
+	}
 }

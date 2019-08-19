@@ -27,6 +27,31 @@ class GoogleMap {
 	}
 
 	/**
+	 * @param $latitudeFrom
+	 * @param $longitudeFrom
+	 * @param $latitudeTo
+	 * @param $longitudeTo
+	 *
+	 * @return array
+	 */
+	public static function get_distance( $latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo ) {
+		$map_key  = Settings::get_map_api_key();
+		$rest_url = add_query_arg( [
+			'origins'        => $latitudeFrom . ',' . $longitudeFrom,
+			'destinations'   => $latitudeTo . ',' . $longitudeTo,
+			'departure_time' => 'now',
+			'mode'           => 'walking',
+			'units'          => 'metric',
+			'key'            => $map_key,
+		], 'https://maps.googleapis.com/maps/api/distancematrix/json' );
+		$response = wp_remote_get( $rest_url );
+		$body     = wp_remote_retrieve_body( $response );
+		$data     = json_decode( $body, true );
+
+		return $data;
+	}
+
+	/**
 	 * @param int|float $latitude
 	 * @param int|float $longitude
 	 *

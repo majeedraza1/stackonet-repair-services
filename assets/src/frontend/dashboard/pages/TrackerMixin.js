@@ -14,11 +14,11 @@ const TrackerMixin = {
 					.catch(error => reject(error))
 			});
 		},
-		getObject(object_id, date = null) {
+		getObject(object_id, date = null, snapToRoads = false) {
 			return new Promise((resolve, reject) => {
 				axios
 					.get(PhoneRepairs.rest_root + '/trackable-objects/log', {
-						params: {object_id: object_id, log_date: date,}
+						params: {object_id: object_id, log_date: date, snapToRoads: snapToRoads}
 					}).then(response => resolve(response.data.data))
 					.catch(error => reject(error))
 			})

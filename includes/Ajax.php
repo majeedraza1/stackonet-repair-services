@@ -16,6 +16,7 @@ use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
 use Stackonet\Models\Testimonial;
 use Stackonet\Models\UnsupportedArea;
+use Stackonet\Supports\DistanceCalculator;
 use Stackonet\Supports\Utils;
 use WC_Data_Exception;
 use WC_Order;
@@ -93,10 +94,40 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$date = date( 'Y-m-d', strtotime( 'yesterday' ) );
+		$date = '2019-08-19';
 
-		$log = ( new TrackableObjectLog() )->find_object_log( 'simpi', $date );
-		var_dump( $log->get_log_data_by_time_range() );
+		$log   = ( new TrackableObjectLog() )->find_object_log( 'sayful', $date );
+		$_logs = $log->get_log_data();
+
+		$logs = [];
+		foreach ( $_logs as $index => $log ) {
+			$logs[ $index ] = $log;
+			if ( 0 !== $index ) {
+				$pre = $_logs[ $index - 1 ];
+
+				$logs[ $index ]['distance'] = DistanceCalculator::getDistance(
+					$pre['latitude'],
+					$pre['longitude'],
+					$log['latitude'],
+					$log['latitude']
+				);
+			}
+		}
+
+		$distance        = DistanceCalculator::getDistance(
+			12.937410087325,
+			77.619447726756,
+			12.938200207427,
+			77.618919247761
+		);
+		$google_distance = GoogleMap::get_distance(
+			12.937410087325,
+			77.619447726756,
+			12.938200207427,
+			77.618919247761
+		);
+
+		var_dump( [ $distance, $google_distance, $logs ] );
 		die();
 	}
 

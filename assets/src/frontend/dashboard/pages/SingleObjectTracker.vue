@@ -83,7 +83,7 @@
         },
         watch: {
             log_date(newValue) {
-                this.getObject(this.$route.params.object_id, newValue).then(data => {
+                this.getObject(this.$route.params.object_id, newValue, this.useSnapToRoads).then(data => {
                     this.refreshData(data);
                     let location = new google.maps.LatLng(data.object.last_log.latitude, data.object.last_log.longitude);
                     this.googleMap.setCenter(location);
@@ -128,7 +128,7 @@
                 zoom: 17,
             });
 
-            this.getObject(this.$route.params.object_id).then(data => {
+            this.getObject(this.$route.params.object_id, this.log_date, this.useSnapToRoads).then(data => {
                 this.refreshData(data);
                 this.addMarker(data);
                 let location = new google.maps.LatLng(data.object.last_log.latitude, data.object.last_log.longitude);
@@ -141,7 +141,8 @@
 
             // employees
             this.employees = setInterval(() => {
-                this.getObject(this.$route.params.object_id, this.log_date).then(data => {
+                console.log(this.useSnapToRoads);
+                this.getObject(this.$route.params.object_id, this.log_date, this.useSnapToRoads).then(data => {
                     this.refreshData(data);
                 }).catch(error => console.error(error));
             }, 5000);

@@ -39,9 +39,11 @@ class FirebaseDatabase {
 		}
 	}
 
+	/**
+	 * Sync employees
+	 */
 	public static function sync_employees() {
 		$employees = ( new static )->getEmployees();
-		Logger::log( "Firebase employees data sync on " . date( "Y-m-d H:i:s", time() ) );
 		TrackableObjectLog::log_objects( $employees );
 	}
 

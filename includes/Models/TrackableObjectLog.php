@@ -163,7 +163,7 @@ class TrackableObjectLog extends DatabaseModel {
 	 */
 	public function get_snapped_points_by_time_range() {
 		$transient_name       = sprintf( '_snapped_points_%s_%s', $this->get( 'object_id' ), $this->get( 'log_date' ) );
-		$transient_expiration = MINUTE_IN_SECONDS * 5;
+		$transient_expiration = MINUTE_IN_SECONDS;
 		$points               = get_transient( $transient_name );
 
 		if ( false === $points ) {

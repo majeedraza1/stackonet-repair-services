@@ -220,8 +220,10 @@ class TrackableObjectController extends ApiController {
 	 * @throws Exception
 	 */
 	public function get_locations( $request ) {
-		$object_id = $request->get_param( 'object_id' );
-		$log_date  = $request->get_param( 'log_date' );
+		$object_id   = $request->get_param( 'object_id' );
+		$log_date    = $request->get_param( 'log_date' );
+		$snapToRoads = $request->get_param( 'snapToRoads' );
+		$snapToRoads = in_array( $snapToRoads, [ 1, true, 'true' ], true );
 
 		if ( empty( $object_id ) ) {
 			return $this->respondUnprocessableEntity();
@@ -244,16 +246,25 @@ class TrackableObjectController extends ApiController {
 		$object           = $items->to_rest( $log_date );
 		$object['moving'] = ( $object['last_log']['utc_timestamp'] + 600 ) > $timestamp;
 
-		$item          = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
+		$item = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
+		if ( ! $item instanceof TrackableObjectLog ) {
+			return $this->respondNotFound();
+		}
 
-		return $this->respondOK( [
+		$response = [
 			'object'        => $object,
 			'utc_timestamp' => $timestamp,
 			'polyline'      => $item->get_log_data_by_time_range(),
-			'snappedPoints' => $item->get_snapped_points_by_time_range(),
+			'snappedPoints' => [],
 			'min_max_date'  => $items->find_min_max_log_date(),
 			'idle_time'     => ( 10 * 60 ), // Ten minutes in seconds
-		] );
+		];
+
+		if ( $snapToRoads ) {
+			$response['snappedPoints'] = $item->get_snapped_points_by_time_range();
+		}
+
+		return $this->respondOK( $response );
 	}
 
 	/**
