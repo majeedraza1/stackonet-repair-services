@@ -5,8 +5,8 @@ namespace Stackonet\Models;
 use DateInterval;
 use DatePeriod;
 use DateTime;
+use Exception;
 use Stackonet\Abstracts\DatabaseModel;
-use Stackonet\DateTime\WpDateTimeZone;
 
 class TrackableObjectLog extends DatabaseModel {
 
@@ -41,6 +41,26 @@ class TrackableObjectLog extends DatabaseModel {
 	 * @var array
 	 */
 	protected $data_format = [ '%d', '%s', '%s', '%s' ];
+
+	/**
+	 * @param string $date
+	 *
+	 * @return DateTime[]
+	 * @throws Exception
+	 */
+	public static function get_periods( $date ) {
+		$date1 = new DateTime( $date );
+		$date1->modify( 'midnight' );
+
+		$date2 = new DateTime( $date );
+		$date2->modify( 'tomorrow -1 second' );
+
+		$interval = new DateInterval( 'PT1H' );
+		/** @var DateTime[] $period */
+		$period = new DatePeriod( $date1, $interval, $date2 );
+
+		return $period;
+	}
 
 	/**
 	 * Find color code for polyline
@@ -90,21 +110,17 @@ class TrackableObjectLog extends DatabaseModel {
 		return $logs;
 	}
 
+	/**
+	 * Get log data by time range
+	 *
+	 * @return array
+	 * @throws Exception
+	 */
 	public function get_log_data_by_time_range() {
 		$date  = $this->get( 'log_date' );
 		$_logs = $this->get_log_data();
 
-		$timezone = WpDateTimeZone::getWpTimezone();
-
-		$date1 = new \DateTime( $date );
-		$date1->modify( 'midnight' );
-
-		$date2 = new \DateTime( $date );
-		$date2->modify( 'tomorrow -1 second' );
-
-		$interval = new DateInterval( 'PT1H' );
-		/** @var DateTime[] $period */
-		$period = new DatePeriod( $date1, $interval, $date2 );
+		$period = self::get_periods( $date );
 
 		$_times = [];
 		foreach ( $period as $day ) {
@@ -115,7 +131,6 @@ class TrackableObjectLog extends DatabaseModel {
 		foreach ( $period as $index => $_dateTime ) {
 
 			$logs[ $index ] = [
-				'dateTime'  => $_dateTime->format( DateTime::ISO8601 ),
 				'colorCode' => $this->color( $index ),
 			];
 
@@ -138,6 +153,40 @@ class TrackableObjectLog extends DatabaseModel {
 		}
 
 		return $logs;
+	}
+
+	/**
+	 * Get log data by time range
+	 *
+	 * @return array
+	 * @throws Exception
+	 */
+	public function get_snapped_points_by_time_range() {
+		$transient_name       = sprintf( '_snapped_points_%s_%s', $this->get( 'object_id' ), $this->get( 'log_date' ) );
+		$transient_expiration = MINUTE_IN_SECONDS * 5;
+		$points               = get_transient( $transient_name );
+
+		if ( false === $points ) {
+			$points  = [];
+			$periods = $this->get_log_data_by_time_range();
+			foreach ( $periods as $period ) {
+				if ( $period['logs'] && count( $period['logs'] ) > 2 ) {
+					$_snapped_points = self::get_snapped_points( $period['logs'] );
+					$snapped_points  = [];
+					foreach ( $_snapped_points as $snapped_point ) {
+						if ( isset( $snapped_point['location'] ) ) {
+							$snapped_points[] = $snapped_point['location'];
+						}
+					}
+
+					$period['logs'] = $snapped_points;
+				}
+				$points[] = $period;
+			}
+			set_transient( $transient_name, $points, $transient_expiration );
+		}
+
+		return $points;
 	}
 
 	/**
@@ -301,8 +350,10 @@ class TrackableObjectLog extends DatabaseModel {
 	}
 
 	/**
+	 * Find object log
+	 *
 	 * @param string $object_id
-	 * @param string|null $date
+	 * @param string $date
 	 *
 	 * @return self
 	 */
@@ -322,7 +373,13 @@ class TrackableObjectLog extends DatabaseModel {
 		return null;
 	}
 
-
+	/**
+	 * Find min and max log date from log database
+	 *
+	 * @param string $object_id
+	 *
+	 * @return array
+	 */
 	public static function find_min_max_log_date( $object_id ) {
 		global $wpdb;
 		$self  = new self();
@@ -359,7 +416,6 @@ class TrackableObjectLog extends DatabaseModel {
 	 * @return void
 	 */
 	public function create_table() {
-
 		global $wpdb;
 		$table_name = $wpdb->prefix . $this->table;
 		$collate    = $wpdb->get_charset_collate();
@@ -373,5 +429,63 @@ class TrackableObjectLog extends DatabaseModel {
             ) $collate;";
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $table_schema );
+	}
+
+
+	/**
+	 * Get snapped points
+	 *
+	 * @param array $logs
+	 *
+	 * @return array
+	 */
+	public static function get_snapped_points( array $logs ) {
+		if ( count( $logs ) <= 100 ) {
+			$points = self::get_snapped_points_for_chunk( $logs );
+
+			return $points;
+		}
+
+		$chunks = array_chunk( $logs, 100 );
+		$points = [];
+
+		foreach ( $chunks as $chunk ) {
+			$points = array_merge( $points, self::get_snapped_points_for_chunk( $chunk ) );
+		}
+
+		return $points;
+	}
+
+	/**
+	 * Get snappedPoints using Google Map snapToRoads API
+	 *
+	 * @param array $logs It can take only 100 logs entries
+	 *
+	 * @return array
+	 */
+	public static function get_snapped_points_for_chunk( array $logs ) {
+		$path = [];
+		foreach ( $logs as $log ) {
+			if ( empty( $log['latitude'] ) || empty( $log['longitude'] ) ) {
+				continue;
+			}
+			$path[] = sprintf( "%s,%s", $log['latitude'], $log['longitude'] );
+		}
+
+		$url = add_query_arg( [
+			'key'         => Settings::get_map_api_key(),
+			'path'        => implode( "|", $path ),
+			'interpolate' => true,
+		], 'https://roads.googleapis.com/v1/snapToRoads' );
+
+		$response = wp_remote_get( $url );
+		if ( is_wp_error( $response ) ) {
+			return [];
+		}
+
+		$body    = wp_remote_retrieve_body( $response );
+		$objects = json_decode( $body, true );
+
+		return isset( $objects['snappedPoints'] ) ? $objects['snappedPoints'] : [];
 	}
 }

@@ -32,7 +32,7 @@
 							:config="flatpickrConfig"
 							placeholder="Select date"/>
 					</div>
-					<div style="display: none">
+					<div>
 						<mdl-button type="raised" color="primary" v-if="useSnapToRoads" @click="lineType('actual')">
 							Actual
 						</mdl-button>
@@ -158,14 +158,12 @@
                 if (Object.keys(this.marker).length) {
                     this.marker.setPosition(location);
                 }
-                // if (Object.keys(this.snappedPolyline).length) {
-                //     this.snappedPolyline.setMap(null);
-                // }
-                // this.snappedPolyline = this.get_polyline(this.snappedPoints);
-                // this.snappedPolyline.setMap(this.googleMap);
 
-                // Test
-                this.update_polyline();
+                if (this.useSnapToRoads) {
+                    this.update_polyline(this.snappedPoints);
+                } else {
+                    this.update_polyline(this.polylines);
+                }
             },
             addMarker(data) {
                 this.marker = new google.maps.Marker({
@@ -183,12 +181,11 @@
             },
             lineType(type) {
                 this.useSnapToRoads = ('optimised' === type);
-                this.clear_polyline();
-                if (Object.keys(this.snappedPolyline).length) {
-                    this.snappedPolyline.setMap(null);
+                if (this.useSnapToRoads) {
+                    this.update_polyline(this.snappedPoints);
+                } else {
+                    this.update_polyline(this.polylines);
                 }
-                this.snappedPolyline = this.get_polyline(this.snappedPoints);
-                this.snappedPolyline.setMap(this.googleMap);
             },
             formatDate(dateString) {
                 let date = new Date(dateString);
@@ -235,20 +232,30 @@
                     this.mapPolyline = [];
                 }
             },
-            update_polyline() {
+            update_polyline(polylines) {
                 this.clear_polyline();
+                let totalPolyLines = polylines.length,
+                    lastLog = {};
 
-                if (this.polylines.length < 1) return;
+                if (totalPolyLines < 1) return;
 
-                for (let i = 0; i < this.polylines.length; i++) {
-                    if (this.polylines[i].logs !== undefined) {
-                        let path = this.polylines[i].logs.map(log => {
+                for (let i = 0; i < totalPolyLines; i++) {
+
+                    if (polylines[i].logs !== undefined) {
+                        let path = polylines[i].logs.map(log => {
                             return {lat: log.latitude, lng: log.longitude}
                         });
+
+                        if (Object.keys(lastLog).length) {
+                            path.unshift(lastLog);
+                        }
+
+                        lastLog = path[path.length - 1];
+
                         let polyline = new google.maps.Polyline({
                             path: path,
                             geodesic: true,
-                            strokeColor: this.polylines[i].colorCode,
+                            strokeColor: polylines[i].colorCode,
                             strokeOpacity: 1.0,
                             strokeWeight: 3
                         });

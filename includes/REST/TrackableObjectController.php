@@ -2,6 +2,7 @@
 
 namespace Stackonet\REST;
 
+use Exception;
 use Stackonet\Integrations\FirebaseDatabase;
 use Stackonet\Integrations\GoogleMap;
 use Stackonet\Models\Settings;
@@ -216,6 +217,7 @@ class TrackableObjectController extends ApiController {
 	 * @param WP_REST_Request $request Full data about the request.
 	 *
 	 * @return WP_REST_Response
+	 * @throws Exception
 	 */
 	public function get_locations( $request ) {
 		$object_id = $request->get_param( 'object_id' );
@@ -242,14 +244,13 @@ class TrackableObjectController extends ApiController {
 		$object           = $items->to_rest( $log_date );
 		$object['moving'] = ( $object['last_log']['utc_timestamp'] + 600 ) > $timestamp;
 
-		$snappedPoints = $this->get_snapped_points( $object['logs'], $object_id, $log_date );
 		$item          = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
 
 		return $this->respondOK( [
 			'object'        => $object,
 			'utc_timestamp' => $timestamp,
-			'snappedPoints' => $snappedPoints,
 			'polyline'      => $item->get_log_data_by_time_range(),
+			'snappedPoints' => $item->get_snapped_points_by_time_range(),
 			'min_max_date'  => $items->find_min_max_log_date(),
 			'idle_time'     => ( 10 * 60 ), // Ten minutes in seconds
 		] );
@@ -293,8 +294,6 @@ class TrackableObjectController extends ApiController {
 	 * @return WP_REST_Response
 	 */
 	public function get_logs( $request ) {
-		$per_page  = $request->get_param( 'per_page' );
-		$paged     = $request->get_param( 'paged' );
 		$object_id = $request->get_param( 'object_id' );
 		$log_date  = $request->get_param( 'log_date' );
 
@@ -308,9 +307,9 @@ class TrackableObjectController extends ApiController {
 			$args['log_date'] = $log_date;
 		}
 
-		$_logs = ( new TrackableObjectLog() )->find( $args );
+		$logs = ( new TrackableObjectLog() )->find( $args );
 
-		return $this->respondOK( $_logs );
+		return $this->respondOK( $logs );
 	}
 
 	/**
@@ -335,74 +334,5 @@ class TrackableObjectController extends ApiController {
 		}
 
 		return $this->respondInternalServerError();
-	}
-
-	/**
-	 * Get snapped points
-	 *
-	 * @param array $logs
-	 * @param string $object_id
-	 * @param string $log_date
-	 *
-	 * @return array
-	 */
-	private function get_snapped_points( $logs, $object_id, $log_date ) {
-		$transient_name       = sprintf( '_snapped_points_%s_%s', $object_id, $log_date );
-		$transient_expiration = MINUTE_IN_SECONDS;
-		$points               = get_transient( $transient_name );
-
-		if ( false === $points ) {
-
-			if ( count( $logs ) <= 100 ) {
-				$points = $this->get_snapped_points_for_chunk( $logs );
-				set_transient( $transient_name, $points, $transient_expiration );
-
-				return $points;
-			}
-
-			$chunks = array_chunk( $logs, 100 );
-			$points = [];
-
-			foreach ( $chunks as $chunk ) {
-				$points = array_merge( $points, $this->get_snapped_points_for_chunk( $chunk ) );
-			}
-
-			set_transient( $transient_name, $points, $transient_expiration );
-		}
-
-		return $points;
-	}
-
-	/**
-	 * Get only hundred logs
-	 *
-	 * @param array $logs
-	 *
-	 * @return array
-	 */
-	private function get_snapped_points_for_chunk( $logs ) {
-		$path = [];
-		foreach ( $logs as $log ) {
-			if ( empty( $log['latitude'] ) || empty( $log['longitude'] ) ) {
-				continue;
-			}
-			$path[] = sprintf( "%s,%s", $log['latitude'], $log['longitude'] );
-		}
-
-		$url = add_query_arg( [
-			'key'         => Settings::get_map_api_key(),
-			'path'        => implode( "|", $path ),
-			'interpolate' => true,
-		], 'https://roads.googleapis.com/v1/snapToRoads' );
-
-		$response = wp_remote_get( $url );
-		if ( is_wp_error( $response ) ) {
-			return [];
-		}
-
-		$body    = wp_remote_retrieve_body( $response );
-		$objects = json_decode( $body, true );
-
-		return isset( $objects['snappedPoints'] ) ? $objects['snappedPoints'] : [];
 	}
 }
