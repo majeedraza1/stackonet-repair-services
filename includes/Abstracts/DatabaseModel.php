@@ -152,7 +152,7 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 	public function create( array $data ) {
 		global $wpdb;
 		$table        = $wpdb->prefix . $this->table;
-		$current_time = current_time( 'mysql', true );
+		$current_time = current_time( 'mysql' );
 
 		$_data = [];
 		foreach ( $this->default_data as $key => $default ) {
@@ -245,7 +245,7 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 		$_data = [];
 		foreach ( $this->default_data as $key => $default ) {
 			$current_data  = isset( $item[ $key ] ) ? $item[ $key ] : null;
-			$temp_data     = isset( $data[ $key ] ) ? $data[ $key ] :$current_data;
+			$temp_data     = isset( $data[ $key ] ) ? $data[ $key ] : $current_data;
 			$_data[ $key ] = $this->serialize( $temp_data );
 		}
 		$_data[ $this->primaryKey ] = $id;

@@ -80,7 +80,7 @@ class FirebaseDatabase {
 		$body    = wp_remote_retrieve_body( $response );
 		$objects = json_decode( $body, true );
 
-		$current_time = current_time( 'timestamp', true );
+		$current_time = current_time( 'timestamp' );
 
 		$items = [];
 		foreach ( $objects as $object ) {

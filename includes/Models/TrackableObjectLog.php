@@ -7,6 +7,8 @@ use DatePeriod;
 use DateTime;
 use Exception;
 use Stackonet\Abstracts\DatabaseModel;
+use Stackonet\Integrations\GoogleMap;
+use Stackonet\Supports\DistanceCalculator;
 
 class TrackableObjectLog extends DatabaseModel {
 
@@ -105,6 +107,50 @@ class TrackableObjectLog extends DatabaseModel {
 			}
 
 			$logs[] = $log;
+		}
+
+		return $logs;
+	}
+
+	/**
+	 * Get log data with distance and duration
+	 *
+	 * @return array
+	 */
+	public function get_log_data_with_distance_and_duration() {
+		$_logs = $this->get_log_data();
+		$logs  = [];
+		foreach ( $_logs as $index => $log ) {
+			$logs[ $index ] = $log;
+			if ( 0 !== $index ) {
+				$pre = $_logs[ $index - 1 ];
+
+				$logs[ $index ]['distance'] = DistanceCalculator::getDistance(
+					$pre['latitude'],
+					$pre['longitude'],
+					$log['latitude'],
+					$log['longitude']
+				);
+			}
+
+			if ( $index < count( $_logs ) - 1 ) {
+				$next = $_logs[ $index + 1 ];
+
+				$logs[ $index ]['duration'] = intval( $next['utc_timestamp'] - $log['utc_timestamp'] );
+			}
+
+			if ( $index == count( $_logs ) - 1 ) {
+				$logs[ $index ]['duration'] = intval( current_time( 'timestamp' ) - $log['utc_timestamp'] );
+			}
+
+			if ( isset( $logs[ $index ]['duration'] ) && $logs[ $index ]['duration'] >= ( 4 * MINUTE_IN_SECONDS ) ) {
+				$location = GoogleMap::get_addresses_from_lat_lng(
+					$log['latitude'],
+					$log['longitude']
+				);
+
+				$logs[ $index ]['location'] = wp_list_pluck( $location, 'formatted_address' );
+			}
 		}
 
 		return $logs;

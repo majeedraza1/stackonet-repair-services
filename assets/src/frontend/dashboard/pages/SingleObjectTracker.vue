@@ -141,7 +141,6 @@
 
             // employees
             this.employees = setInterval(() => {
-                console.log(this.useSnapToRoads);
                 this.getObject(this.$route.params.object_id, this.log_date, this.useSnapToRoads).then(data => {
                     this.refreshData(data);
                 }).catch(error => console.error(error));

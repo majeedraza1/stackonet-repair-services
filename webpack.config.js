@@ -5,12 +5,10 @@ const TerserPlugin = require('terser-webpack-plugin');
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 const autoprefixer = require('autoprefixer');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
-const package = require('./package.json');
 const config = require('./config.json');
 
 let plugins = [];
 let entryPoints = {
-	// vendors: Object.keys(package.dependencies),
 	admin: [
 		'./assets/src/admin/main.js',
 		'./assets/src/admin/become-a-tech/main.js',

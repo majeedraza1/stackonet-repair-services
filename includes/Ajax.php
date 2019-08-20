@@ -94,40 +94,15 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$date = '2019-08-19';
+		$date = '2019-08-20';
 
 		$log   = ( new TrackableObjectLog() )->find_object_log( 'sayful', $date );
-		$_logs = $log->get_log_data();
+		$_logs = $log->get_log_data_with_distance_and_duration();
 
 		$logs = [];
-		foreach ( $_logs as $index => $log ) {
-			$logs[ $index ] = $log;
-			if ( 0 !== $index ) {
-				$pre = $_logs[ $index - 1 ];
 
-				$logs[ $index ]['distance'] = DistanceCalculator::getDistance(
-					$pre['latitude'],
-					$pre['longitude'],
-					$log['latitude'],
-					$log['latitude']
-				);
-			}
-		}
 
-		$distance        = DistanceCalculator::getDistance(
-			12.937410087325,
-			77.619447726756,
-			12.938200207427,
-			77.618919247761
-		);
-		$google_distance = GoogleMap::get_distance(
-			12.937410087325,
-			77.619447726756,
-			12.938200207427,
-			77.618919247761
-		);
-
-		var_dump( [ $distance, $google_distance, $logs ] );
+		var_dump( $_logs );
 		die();
 	}
 

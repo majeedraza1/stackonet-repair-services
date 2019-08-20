@@ -80,7 +80,7 @@ class TrackableObjectController extends ApiController {
 	public function get_items( $request ) {
 		FirebaseDatabase::sync_employees();
 
-		$timestamp = current_time( 'timestamp', false );
+		$timestamp = current_time( 'timestamp' );
 		$date      = date( 'Y-m-d', $timestamp );
 		$items     = ( new TrackableObject() )->find();
 
@@ -183,7 +183,7 @@ class TrackableObjectController extends ApiController {
 	 */
 	public function prepare_items_for_response( $items, $timestamp = null ) {
 		if ( empty( $timestamp ) ) {
-			$timestamp = current_time( 'timestamp', false );
+			$timestamp = current_time( 'timestamp' );
 		}
 		$date     = date( 'Y-m-d', $timestamp );
 		$response = [];
@@ -237,7 +237,7 @@ class TrackableObjectController extends ApiController {
 			return $this->respondNotFound();
 		}
 
-		$timestamp = current_time( 'timestamp', false );
+		$timestamp = current_time( 'timestamp' );
 
 		if ( empty( $log_date ) ) {
 			$log_date = date( 'Y-m-d', $timestamp );
@@ -276,7 +276,7 @@ class TrackableObjectController extends ApiController {
 	 */
 	public function log_location( $request ) {
 		$objects      = $request->get_param( 'objects' );
-		$current_time = current_time( 'timestamp', false );
+		$current_time = current_time( 'timestamp' );
 
 		$item = [];
 		foreach ( $objects as $object ) {

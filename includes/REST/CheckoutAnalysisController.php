@@ -92,7 +92,7 @@ class CheckoutAnalysisController extends ApiController {
 	 */
 	public function create_item( $request ) {
 		$step             = $request->get_param( 'step' );
-		$now              = current_time( 'mysql', false );
+		$now              = current_time( 'mysql' );
 		$checkoutAnalysis = new CheckoutAnalysis();
 
 		$data = [ 'id' => 0 ];
@@ -122,7 +122,7 @@ class CheckoutAnalysisController extends ApiController {
 		$step      = $request->get_param( 'step' );
 		$step_data = $request->get_param( 'step_data' );
 
-		$now              = current_time( 'mysql', false );
+		$now              = current_time( 'mysql' );
 		$checkoutAnalysis = ( new CheckoutAnalysis() )->find_by_id( $id );
 
 		if ( ! $checkoutAnalysis instanceof CheckoutAnalysis ) {

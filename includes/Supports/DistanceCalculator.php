@@ -4,7 +4,7 @@ namespace Stackonet\Supports;
 
 class DistanceCalculator {
 
-	public static function getDistance( $latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo, $earthRadius = 6371 ) {
+	public static function getDistance( $latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo, $earthRadius = 6371000 ) {
 		return self::vincentyCircleDistance( $latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo, $earthRadius );
 //		return self::haversineCircleDistance( $latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo, $earthRadius );
 	}
@@ -36,7 +36,7 @@ class DistanceCalculator {
 
 		$angle = atan2( sqrt( $a ), $b );
 
-		return $angle * $earthRadius;
+		return intval( $angle * $earthRadius );
 	}
 
 	/**
