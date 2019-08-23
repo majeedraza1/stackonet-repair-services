@@ -4,6 +4,7 @@ namespace Stackonet\Integrations;
 
 use Stackonet\Models\Appointment;
 use Stackonet\Models\Settings;
+use Stackonet\Supports\Logger;
 use WC_Order;
 
 class GoogleMap {
@@ -135,5 +136,75 @@ class GoogleMap {
 		}
 
 		return [ 'lat' => floatval( $latitude ), 'lng' => floatval( $longitude ) ];
+	}
+
+	/**
+	 * Get snappedPoints using Google Map snapToRoads API
+	 *
+	 * @param array $logs It can take only 100 logs entries
+	 *
+	 * @return array
+	 */
+	public static function get_snapped_points( array $logs ) {
+		if ( count( $logs ) <= 100 ) {
+			$points = self::get_snapped_points_for_chunk( $logs );
+
+			return $points;
+		}
+
+		$chunks = array_chunk( $logs, 100 );
+		$points = [];
+
+		foreach ( $chunks as $chunk ) {
+			$points = array_merge( $points, self::get_snapped_points_for_chunk( $chunk ) );
+		}
+
+		return $points;
+	}
+
+	/**
+	 * Get snappedPoints using Google Map snapToRoads API
+	 *
+	 * @param array $logs It can take only 100 logs entries
+	 *
+	 * @return array
+	 */
+	private static function get_snapped_points_for_chunk( array $logs ) {
+		$path = [];
+		foreach ( $logs as $log ) {
+			if ( empty( $log['latitude'] ) || empty( $log['longitude'] ) ) {
+				continue;
+			}
+			$path[] = sprintf( "%s,%s", $log['latitude'], $log['longitude'] );
+		}
+
+		$path = implode( "|", $path );
+
+		$transient_name       = 'snap_to_roads_' . md5( $path );
+		$transient_expiration = DAY_IN_SECONDS;
+		$points               = get_transient( $transient_name );
+
+		if ( false !== $points ) {
+			return $points;
+		}
+
+		$points = [];
+
+		$url = add_query_arg( [
+			'key'         => Settings::get_map_api_key(),
+			'path'        => $path,
+			'interpolate' => true,
+		], 'https://roads.googleapis.com/v1/snapToRoads' );
+
+		$response = wp_remote_get( $url );
+		if ( ! is_wp_error( $response ) ) {
+			$body    = wp_remote_retrieve_body( $response );
+			$objects = json_decode( $body, true );
+			$points  = isset( $objects['snappedPoints'] ) ? $objects['snappedPoints'] : [];
+
+			set_transient( $transient_name, $points, $transient_expiration );
+		}
+
+		return $points;
 	}
 }

@@ -9,6 +9,7 @@ use Exception;
 use Stackonet\Abstracts\DatabaseModel;
 use Stackonet\Integrations\GoogleMap;
 use Stackonet\Supports\DistanceCalculator;
+use Stackonet\Supports\Logger;
 
 class TrackableObjectLog extends DatabaseModel {
 
@@ -108,6 +109,10 @@ class TrackableObjectLog extends DatabaseModel {
 
 			$logs[] = $log;
 		}
+
+//		$temp = array_chunk( $logs, 10 );
+//		$logs = array_merge( $temp[0], $temp[1], $temp[2], $temp[3], $temp[4], $temp[5] );
+//		$logs = array_merge( $temp[7], $temp[8], $temp[9], $temp[10], $temp[11], $temp[12] );
 
 		return $logs;
 	}
@@ -216,8 +221,8 @@ class TrackableObjectLog extends DatabaseModel {
 			$points  = [];
 			$periods = $this->get_log_data_by_time_range();
 			foreach ( $periods as $period ) {
-				if ( $period['logs'] && count( $period['logs'] ) > 2 ) {
-					$_snapped_points = self::get_snapped_points( $period['logs'] );
+				if ( isset( $period['logs'] ) && count( $period['logs'] ) > 2 ) {
+					$_snapped_points = GoogleMap::get_snapped_points( $period['logs'] );
 					$snapped_points  = [];
 					foreach ( $_snapped_points as $snapped_point ) {
 						if ( isset( $snapped_point['location'] ) ) {
@@ -475,63 +480,5 @@ class TrackableObjectLog extends DatabaseModel {
             ) $collate;";
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $table_schema );
-	}
-
-
-	/**
-	 * Get snapped points
-	 *
-	 * @param array $logs
-	 *
-	 * @return array
-	 */
-	public static function get_snapped_points( array $logs ) {
-		if ( count( $logs ) <= 100 ) {
-			$points = self::get_snapped_points_for_chunk( $logs );
-
-			return $points;
-		}
-
-		$chunks = array_chunk( $logs, 100 );
-		$points = [];
-
-		foreach ( $chunks as $chunk ) {
-			$points = array_merge( $points, self::get_snapped_points_for_chunk( $chunk ) );
-		}
-
-		return $points;
-	}
-
-	/**
-	 * Get snappedPoints using Google Map snapToRoads API
-	 *
-	 * @param array $logs It can take only 100 logs entries
-	 *
-	 * @return array
-	 */
-	public static function get_snapped_points_for_chunk( array $logs ) {
-		$path = [];
-		foreach ( $logs as $log ) {
-			if ( empty( $log['latitude'] ) || empty( $log['longitude'] ) ) {
-				continue;
-			}
-			$path[] = sprintf( "%s,%s", $log['latitude'], $log['longitude'] );
-		}
-
-		$url = add_query_arg( [
-			'key'         => Settings::get_map_api_key(),
-			'path'        => implode( "|", $path ),
-			'interpolate' => true,
-		], 'https://roads.googleapis.com/v1/snapToRoads' );
-
-		$response = wp_remote_get( $url );
-		if ( is_wp_error( $response ) ) {
-			return [];
-		}
-
-		$body    = wp_remote_retrieve_body( $response );
-		$objects = json_decode( $body, true );
-
-		return isset( $objects['snappedPoints'] ) ? $objects['snappedPoints'] : [];
 	}
 }
