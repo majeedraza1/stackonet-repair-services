@@ -110,9 +110,9 @@ class TrackableObjectLog extends DatabaseModel {
 			$logs[] = $log;
 		}
 
+		// $logs = array_merge( $temp[7], $temp[8], $temp[9], $temp[10], $temp[11], $temp[12] ); // Temple rode
 //		$temp = array_chunk( $logs, 10 );
-//		$logs = array_merge( $temp[0], $temp[1], $temp[2], $temp[3], $temp[4], $temp[5] );
-//		$logs = array_merge( $temp[7], $temp[8], $temp[9], $temp[10], $temp[11], $temp[12] );
+//		$logs = array_merge( $temp[2], $temp[3], $temp[4], $temp[5] ); // Only street view
 
 		return $logs;
 	}
@@ -196,9 +196,14 @@ class TrackableObjectLog extends DatabaseModel {
 				date( 'ha', $_next )
 			);
 
-			foreach ( $_logs as $log ) {
-				if ( $log['utc_timestamp'] >= $_current && $log['utc_timestamp'] < $_next ) {
-					$logs[ $index ]['logs'][] = [ 'latitude' => $log['latitude'], 'longitude' => $log['longitude'] ];
+			if ( is_array( $_logs ) && count( $_logs ) ) {
+				foreach ( $_logs as $log ) {
+					if ( $log['utc_timestamp'] >= $_current && $log['utc_timestamp'] < $_next ) {
+						$logs[ $index ]['logs'][] = [
+							'latitude'  => $log['latitude'],
+							'longitude' => $log['longitude']
+						];
+					}
 				}
 			}
 		}
@@ -221,16 +226,23 @@ class TrackableObjectLog extends DatabaseModel {
 			$points  = [];
 			$periods = $this->get_log_data_by_time_range();
 			foreach ( $periods as $period ) {
-				if ( isset( $period['logs'] ) && count( $period['logs'] ) > 2 ) {
-					$_snapped_points = GoogleMap::get_snapped_points( $period['logs'] );
-					$snapped_points  = [];
-					foreach ( $_snapped_points as $snapped_point ) {
-						if ( isset( $snapped_point['location'] ) ) {
-							$snapped_points[] = $snapped_point['location'];
+				$total_logs = isset( $period['logs'] ) && is_array( $period['logs'] ) ? count( $period['logs'] ) : 0;
+				if ( $total_logs ) {
+					if ( $total_logs > 2 ) {
+						if ( ! empty( $last_log ) ) {
+							array_unshift( $period['logs'], $last_log );
 						}
-					}
+						$_snapped_points = GoogleMap::get_snapped_points( $period['logs'] );
+						$snapped_points  = [];
+						foreach ( $_snapped_points as $snapped_point ) {
+							if ( isset( $snapped_point['location'] ) ) {
+								$snapped_points[] = $snapped_point['location'];
+							}
+						}
 
-					$period['logs'] = $snapped_points;
+						$period['logs'] = $snapped_points;
+					}
+					$last_log = $period['logs'][ $total_logs - 1 ];
 				}
 				$points[] = $period;
 			}
@@ -249,23 +261,67 @@ class TrackableObjectLog extends DatabaseModel {
 		$log_data       = $this->get( 'log_data' );
 		$log_data       = is_array( $log_data ) ? $log_data : [];
 		$log_data_count = count( $log_data );
-		$data_changed   = false;
-		if ( $log_data_count ) {
-			$last_item = end( $log_data );
-			$diff      = array_diff( $log, $last_item );
-			if ( isset( $diff['utc_timestamp'] ) ) {
-				unset( $diff['utc_timestamp'] );
-			}
-			if ( count( $diff ) ) {
-				$log_data[]   = $log;
-				$data_changed = true;
-			}
+
+		if ( $log_data_count < 1 ) {
+			return;
 		}
+
+		$last_item = $log_data[ $log_data_count - 1 ];
+
+		$diff = array_diff( $log, $last_item );
+		if ( isset( $diff['utc_timestamp'] ) ) {
+			unset( $diff['utc_timestamp'] );
+		}
+
+		if ( count( $diff ) < 1 ) {
+			return;
+		}
+
+
+		$last_address    = self::get_last_log_address( $last_item );
+		$current_address = self::get_current_log_address( $log );
+		$data_changed    = ( $last_address['place_id'] !== $current_address['place_id'] );
+
+		if ( 0 === strcmp( strtolower( $last_address['formatted_address'] ), strtolower( $current_address['formatted_address'] ) ) ) {
+			$data_changed = false;
+		}
+
 		// Save data, if data changed
 		if ( $data_changed ) {
+			$log_data[] = $log;
 			$this->set( 'log_data', $log_data );
 			$this->update( $this->data );
 		}
+	}
+
+	public static function get_last_log_address( $log ) {
+		$transient_name       = 'last_log_address_' . md5( wp_json_encode( $log ) );
+		$transient_expiration = MINUTE_IN_SECONDS * 10;
+		$address              = get_transient( $transient_name );
+		if ( false !== $address ) {
+			return $address;
+		}
+
+		$addressObject = GoogleMap::get_address_from_lat_lng( $log['latitude'], $log['longitude'] );
+		$address       = [
+			'place_id'          => $addressObject['place_id'],
+			'formatted_address' => $addressObject['formatted_address'],
+			'types'             => $addressObject['types'],
+		];
+		set_transient( $transient_name, $address, $transient_expiration );
+
+		return $address;
+	}
+
+	public static function get_current_log_address( $log ) {
+		$addressObject = GoogleMap::get_address_from_lat_lng( $log['latitude'], $log['longitude'] );
+		$address       = [
+			'place_id'          => $addressObject['place_id'],
+			'formatted_address' => $addressObject['formatted_address'],
+			'types'             => $addressObject['types'],
+		];
+
+		return $address;
 	}
 
 	/**
@@ -282,9 +338,14 @@ class TrackableObjectLog extends DatabaseModel {
 		$current_time = current_time( 'timestamp' );
 		$date         = date( 'Y-m-d', $current_time );
 
+		$_objects        = TrackableObject::getActiveObjects();
+		$objects_ids     = wp_list_pluck( $_objects, 'object_id' );
 		$current_records = self::get_current_records( $object_ids, $current_time );
 
 		foreach ( $objects as $object_id => $log ) {
+			if ( ! in_array( $object_id, $objects_ids ) ) {
+				continue;
+			}
 			if ( isset( $current_records[ $object_id ] ) ) {
 				/** @var self $_self */
 				$_self = $current_records[ $object_id ];

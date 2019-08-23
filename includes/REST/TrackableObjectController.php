@@ -5,7 +5,6 @@ namespace Stackonet\REST;
 use Exception;
 use Stackonet\Integrations\FirebaseDatabase;
 use Stackonet\Integrations\GoogleMap;
-use Stackonet\Models\Settings;
 use Stackonet\Models\TrackableObject;
 use Stackonet\Models\TrackableObjectLog;
 use WP_REST_Request;
@@ -197,7 +196,7 @@ class TrackableObjectController extends ApiController {
 			$_item['moving'] = ( $_item['last_log']['utc_timestamp'] + 600 ) > $timestamp;
 
 			if ( ! empty( $_item['last_log']['latitude'] ) && ! empty( $_item['last_log']['longitude'] ) ) {
-				$address                                = GoogleMap::get_formatted_address_from_lat_lng(
+				$address                                = GoogleMap::get_address_from_lat_lng(
 					$_item['last_log']['latitude'],
 					$_item['last_log']['longitude']
 				);
@@ -275,23 +274,8 @@ class TrackableObjectController extends ApiController {
 	 * @return WP_REST_Response
 	 */
 	public function log_location( $request ) {
-		$objects      = $request->get_param( 'objects' );
-		$current_time = current_time( 'timestamp' );
-
-		$item = [];
-		foreach ( $objects as $object ) {
-			$object_id = isset( $object['Employee_ID'] ) ? $object['Employee_ID'] : null;
-			if ( empty( $object_id ) ) {
-				continue;
-			}
-			$item[ $object_id ] = [
-				'latitude'      => isset( $object['latitude'] ) ? $object['latitude'] : 0,
-				'longitude'     => isset( $object['longitude'] ) ? $object['longitude'] : 0,
-				'online'        => isset( $object['online'] ) && $object['online'] == 'true',
-				'utc_timestamp' => $current_time,
-			];
-		}
-
+		$objects = $request->get_param( 'objects' );
+		$item    = FirebaseDatabase::format_firebase_data( $objects );
 		TrackableObjectLog::log_objects( $item );
 
 		return $this->respondCreated();

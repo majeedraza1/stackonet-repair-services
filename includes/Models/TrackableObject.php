@@ -64,6 +64,11 @@ class TrackableObject extends DatabaseModel {
 		return $data;
 	}
 
+	/**
+	 * @param $date
+	 *
+	 * @return array
+	 */
 	public function to_rest( $date ) {
 		$logs     = $this->get_log_data( $date );
 		$last_log = end( $logs );
@@ -122,6 +127,22 @@ class TrackableObject extends DatabaseModel {
 		}
 
 		return $items;
+	}
+
+	/**
+	 * Get active objects
+	 *
+	 * @return array
+	 */
+	public static function getActiveObjects() {
+		global $wpdb;
+		$self  = new static();
+		$table = $wpdb->prefix . $self->table;
+
+		$query   = "SELECT * FROM {$table} WHERE deleted_at IS NULL";
+		$results = $wpdb->get_results( $query, ARRAY_A );
+
+		return $results;
 	}
 
 	/**

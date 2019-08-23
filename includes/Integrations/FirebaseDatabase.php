@@ -3,7 +3,6 @@
 namespace Stackonet\Integrations;
 
 use Stackonet\Models\TrackableObjectLog;
-use Stackonet\Supports\Logger;
 
 class FirebaseDatabase {
 
@@ -80,6 +79,17 @@ class FirebaseDatabase {
 		$body    = wp_remote_retrieve_body( $response );
 		$objects = json_decode( $body, true );
 
+		$items = self::format_firebase_data( $objects );
+
+		return $items;
+	}
+
+	/**
+	 * @param array $objects
+	 *
+	 * @return array
+	 */
+	public static function format_firebase_data( array $objects ) {
 		$current_time = current_time( 'timestamp' );
 
 		$items = [];
@@ -91,7 +101,6 @@ class FirebaseDatabase {
 			$items[ $object_id ] = [
 				'latitude'      => isset( $object['latitude'] ) ? $object['latitude'] : null,
 				'longitude'     => isset( $object['longitude'] ) ? $object['longitude'] : null,
-				'online'        => isset( $object['online'] ) && $object['online'] == 'true',
 				'utc_timestamp' => $current_time,
 			];
 		}

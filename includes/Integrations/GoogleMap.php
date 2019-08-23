@@ -4,8 +4,9 @@ namespace Stackonet\Integrations;
 
 use Stackonet\Models\Appointment;
 use Stackonet\Models\Settings;
-use Stackonet\Supports\Logger;
 use WC_Order;
+
+defined( 'ABSPATH' ) || exit;
 
 class GoogleMap {
 
@@ -28,10 +29,12 @@ class GoogleMap {
 	}
 
 	/**
-	 * @param $latitudeFrom
-	 * @param $longitudeFrom
-	 * @param $latitudeTo
-	 * @param $longitudeTo
+	 * Get distance between two places
+	 *
+	 * @param float $latitudeFrom
+	 * @param float $longitudeFrom
+	 * @param float $latitudeTo
+	 * @param float $longitudeTo
 	 *
 	 * @return array
 	 */
@@ -75,7 +78,7 @@ class GoogleMap {
 	 *
 	 * @return array|mixed|object
 	 */
-	public static function get_formatted_address_from_lat_lng( $latitude, $longitude ) {
+	public static function get_address_from_lat_lng( $latitude, $longitude ) {
 		$map_key  = Settings::get_map_api_key();
 		$rest_url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" . $latitude . "," . $longitude . "&key=" . $map_key;
 		$response = wp_remote_get( $rest_url );

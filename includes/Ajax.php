@@ -96,11 +96,30 @@ class Ajax {
 	public function stackonet_test() {
 		$date = '2019-08-20';
 
-		$log   = ( new TrackableObjectLog() )->find_object_log( 'sayful', $date );
-		$_logs = $log->get_log_data_with_distance_and_duration();
+		$log           = ( new TrackableObjectLog() )->find_object_log( 'sayful', $date );
+		$filtered_logs = $log->get_log_data_with_distance_and_duration();
 
-		$logs = [];
+		$_logs = [];
+		foreach ( $filtered_logs as $index => $log ) {
+			$_logs[ $index ] = $log;
+			$address         = GoogleMap::get_address_from_lat_lng( $log['latitude'], $log['longitude'] );
+			$pre_log         = $index > 0 ? $filtered_logs[ $index - 1 ] : [];
 
+			if ( $pre_log ) {
+				$_logs[ $index ]['distance_from_first'] = DistanceCalculator::getDistance(
+					$pre_log['latitude'],
+					$pre_log['longitude'],
+					$log['latitude'],
+					$log['longitude']
+				);
+			}
+
+			$_logs[ $index ]['address'] = [
+				'place_id'          => $address['place_id'],
+				'formatted_address' => $address['formatted_address'],
+				'types'             => $address['types'],
+			];
+		}
 
 		var_dump( $_logs );
 		die();

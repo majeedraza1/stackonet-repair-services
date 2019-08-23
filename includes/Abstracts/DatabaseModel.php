@@ -99,15 +99,7 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 	 * @return array
 	 */
 	public function find( $args = [] ) {
-		$per_page     = isset( $args['per_page'] ) ? absint( $args['per_page'] ) : $this->perPage;
-		$paged        = isset( $args['paged'] ) ? absint( $args['paged'] ) : 1;
-		$current_page = $paged < 1 ? 1 : $paged;
-		$offset       = ( $current_page - 1 ) * $per_page;
-		$orderby      = $this->primaryKey;
-		if ( isset( $args['orderby'] ) && in_array( $args['orderby'], array_keys( $this->default_data ) ) ) {
-			$orderby = $args['orderby'];
-		}
-		$order = isset( $args['order'] ) && 'ASC' == $args['order'] ? 'ASC' : 'DESC';
+		list( $per_page, $offset, $orderby, $order ) = $this->get_pagination_and_order_data( $args );
 
 		global $wpdb;
 		$table = $wpdb->prefix . $this->table;
@@ -434,5 +426,24 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 	 */
 	public static function __callStatic( $method, $parameters ) {
 		return ( new static )->$method( ...$parameters );
+	}
+
+	/**
+	 * @param $args
+	 *
+	 * @return array
+	 */
+	protected function get_pagination_and_order_data( $args ) {
+		$per_page     = isset( $args['per_page'] ) ? absint( $args['per_page'] ) : $this->perPage;
+		$paged        = isset( $args['paged'] ) ? absint( $args['paged'] ) : 1;
+		$current_page = $paged < 1 ? 1 : $paged;
+		$offset       = ( $current_page - 1 ) * $per_page;
+		$orderby      = $this->primaryKey;
+		if ( isset( $args['orderby'] ) && in_array( $args['orderby'], array_keys( $this->default_data ) ) ) {
+			$orderby = $args['orderby'];
+		}
+		$order = isset( $args['order'] ) && 'ASC' == $args['order'] ? 'ASC' : 'DESC';
+
+		return array( $per_page, $offset, $orderby, $order );
 	}
 }
