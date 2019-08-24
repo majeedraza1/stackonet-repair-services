@@ -65,7 +65,6 @@ class TrackableObjectController extends ApiController {
 
 		register_rest_route( $this->namespace, '/trackable-objects/log', [
 			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_locations' ] ],
-			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'log_location' ] ]
 		] );
 	}
 
@@ -264,21 +263,6 @@ class TrackableObjectController extends ApiController {
 		}
 
 		return $this->respondOK( $response );
-	}
-
-	/**
-	 * Get a collection of items.
-	 *
-	 * @param WP_REST_Request $request Full data about the request.
-	 *
-	 * @return WP_REST_Response
-	 */
-	public function log_location( $request ) {
-		$objects = $request->get_param( 'objects' );
-		$item    = FirebaseDatabase::format_firebase_data( $objects );
-		TrackableObjectLog::log_objects( $item );
-
-		return $this->respondCreated();
 	}
 
 	/**

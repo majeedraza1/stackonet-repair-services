@@ -3,6 +3,7 @@
 namespace Stackonet\Integrations;
 
 use Stackonet\Models\TrackableObjectLog;
+use Stackonet\Supports\Validate;
 
 class FirebaseDatabase {
 
@@ -98,10 +99,12 @@ class FirebaseDatabase {
 			if ( empty( $object_id ) ) {
 				continue;
 			}
+			$online              = isset( $object['online'] ) && Validate::checked( $object['online'] );
 			$items[ $object_id ] = [
 				'latitude'      => isset( $object['latitude'] ) ? $object['latitude'] : null,
 				'longitude'     => isset( $object['longitude'] ) ? $object['longitude'] : null,
 				'utc_timestamp' => $current_time,
+				'online'        => $online ? 1 : 0,
 			];
 		}
 

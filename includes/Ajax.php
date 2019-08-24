@@ -94,7 +94,7 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$date = '2019-08-20';
+		$date = '2019-08-24';
 
 		$log           = ( new TrackableObjectLog() )->find_object_log( 'sayful', $date );
 		$filtered_logs = $log->get_log_data_with_distance_and_duration();

@@ -10,6 +10,7 @@ use Stackonet\Abstracts\DatabaseModel;
 use Stackonet\Integrations\GoogleMap;
 use Stackonet\Supports\DistanceCalculator;
 use Stackonet\Supports\Logger;
+use Stackonet\Supports\Validate;
 
 class TrackableObjectLog extends DatabaseModel {
 
@@ -36,6 +37,7 @@ class TrackableObjectLog extends DatabaseModel {
 		'object_id' => null,
 		'log_date'  => null,
 		'log_data'  => null,
+		'online'    => 0,
 	];
 
 	/**
@@ -43,7 +45,7 @@ class TrackableObjectLog extends DatabaseModel {
 	 *
 	 * @var array
 	 */
-	protected $data_format = [ '%d', '%s', '%s', '%s' ];
+	protected $data_format = [ '%d', '%s', '%s', '%s', '%d' ];
 
 	/**
 	 * @param string $date
@@ -95,6 +97,15 @@ class TrackableObjectLog extends DatabaseModel {
 	}
 
 	/**
+	 * Check if object is on online
+	 *
+	 * @return bool
+	 */
+	public function is_online() {
+		return in_array( $this->get( 'online' ), array( 'yes', 'on', '1', 1, true, 'true' ), true );
+	}
+
+	/**
 	 * Get log data
 	 *
 	 * @return array
@@ -109,10 +120,6 @@ class TrackableObjectLog extends DatabaseModel {
 
 			$logs[] = $log;
 		}
-
-		// $logs = array_merge( $temp[7], $temp[8], $temp[9], $temp[10], $temp[11], $temp[12] ); // Temple rode
-//		$temp = array_chunk( $logs, 10 );
-//		$logs = array_merge( $temp[2], $temp[3], $temp[4], $temp[5] ); // Only street view
 
 		return $logs;
 	}
@@ -242,7 +249,7 @@ class TrackableObjectLog extends DatabaseModel {
 
 						$period['logs'] = $snapped_points;
 					}
-					$last_log = $period['logs'][ $total_logs - 1 ];
+					$last_log = end( $period['logs'] );
 				}
 				$points[] = $period;
 			}
@@ -266,6 +273,11 @@ class TrackableObjectLog extends DatabaseModel {
 			return;
 		}
 
+		$oldOnline           = $this->is_online();
+		$currentOnline       = $log['online'];
+		$onlineStatusChanged = $oldOnline != $currentOnline;
+		unset( $log['online'] );
+
 		$last_item = $log_data[ $log_data_count - 1 ];
 
 		$diff = array_diff( $log, $last_item );
@@ -273,10 +285,9 @@ class TrackableObjectLog extends DatabaseModel {
 			unset( $diff['utc_timestamp'] );
 		}
 
-		if ( count( $diff ) < 1 ) {
+		if ( count( $diff ) < 1 && ! $onlineStatusChanged ) {
 			return;
 		}
-
 
 		$last_address    = self::get_last_log_address( $last_item );
 		$current_address = self::get_current_log_address( $log );
@@ -288,8 +299,16 @@ class TrackableObjectLog extends DatabaseModel {
 
 		// Save data, if data changed
 		if ( $data_changed ) {
-			$log_data[] = $log;
+			$log['place_id']      = $current_address['place_id'];
+			$log['address_types'] = $current_address['types'];
+			$log_data[]           = $log;
+			$this->set( 'online', $currentOnline );
 			$this->set( 'log_data', $log_data );
+			$this->update( $this->data );
+		}
+
+		if ( ! $data_changed && $onlineStatusChanged ) {
+			$this->set( 'online', $currentOnline );
 			$this->update( $this->data );
 		}
 	}
@@ -330,9 +349,6 @@ class TrackableObjectLog extends DatabaseModel {
 	 * @return bool
 	 */
 	public static function log_objects( $objects = [] ) {
-		$self = new static;
-		global $wpdb;
-		$table        = $wpdb->prefix . $self->table;
 		$object_ids   = array_keys( $objects );
 		$object_ids   = array_map( 'esc_sql', $object_ids );
 		$current_time = current_time( 'timestamp' );
@@ -356,8 +372,9 @@ class TrackableObjectLog extends DatabaseModel {
 					'object_id' => $object_id,
 					'log_date'  => $date,
 					'log_data'  => [ $log ],
+					'online'    => $log['online'],
 				];
-				$self->create( $object );
+				( new static )->create( $object );
 			}
 		}
 
@@ -393,6 +410,7 @@ class TrackableObjectLog extends DatabaseModel {
 					'object_id' => $result['object_id'],
 					'log_data'  => $self->unserialize( $result['log_data'] ),
 					'log_date'  => $result['log_date'],
+					'online'    => $result['online'],
 				] );
 			}
 		}
@@ -537,9 +555,25 @@ class TrackableObjectLog extends DatabaseModel {
                 `object_id` VARCHAR(20) DEFAULT NULL,
                 `log_date` date DEFAULT NULL,
                 `log_data` longtext DEFAULT NULL,
+                `online` tinyint(1) DEFAULT 0,
                 PRIMARY KEY (`id`)
             ) $collate;";
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $table_schema );
+
+		$this->add_table_columns();
+	}
+
+	/**
+	 * Add table column
+	 */
+	public function add_table_columns() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . $this->table;
+
+		$row = $wpdb->get_row( "SELECT * FROM {$table_name}", ARRAY_A );
+		if ( ! isset( $row['online'] ) ) {
+			$wpdb->query( "ALTER TABLE {$table_name} ADD `online` TINYINT(1) NOT NULL DEFAULT '0' AFTER `log_data`" );
+		}
 	}
 }

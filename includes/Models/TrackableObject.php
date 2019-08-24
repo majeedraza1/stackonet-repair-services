@@ -3,6 +3,7 @@
 namespace Stackonet\Models;
 
 use Stackonet\Abstracts\DatabaseModel;
+use Stackonet\Supports\Validate;
 
 class TrackableObject extends DatabaseModel {
 
@@ -70,17 +71,25 @@ class TrackableObject extends DatabaseModel {
 	 * @return array
 	 */
 	public function to_rest( $date ) {
-		$logs     = $this->get_log_data( $date );
-		$last_log = end( $logs );
 		$response = [
 			'id'          => intval( $this->get( 'id' ) ),
 			'object_id'   => $this->get( 'object_id' ),
 			'object_name' => $this->get( 'object_name' ),
 			'object_type' => $this->get( 'object_type' ),
 			'icon'        => $this->get_object_icon(),
-			'last_log'    => is_array( $last_log ) ? $last_log : [],
-			'logs'        => is_array( $logs ) ? $logs : [],
+			'last_log'    => [],
+			'logs'        => [],
 		];
+
+		$objectLog = ( new TrackableObjectLog() )->find_object_log( $this->get( 'object_id' ), $date );
+		if ( $objectLog instanceof TrackableObjectLog ) {
+			$logs     = $objectLog->get_log_data();
+			$last_log = end( $logs );
+
+			$response['logs']     = $logs;
+			$response['last_log'] = is_array( $last_log ) ? $last_log : [];
+			$response['online']   = $objectLog->is_online();
+		}
 
 		return $response;
 	}

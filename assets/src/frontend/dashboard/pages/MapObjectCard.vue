@@ -33,6 +33,7 @@
 		<slot>
 			<div class="card__actions" v-if="showAction">
 				<mdl-button type="raised" @click="viewTimeline">View Timeline</mdl-button>
+				<mdl-button type="raised" color="accent" @click="viewTimelineBeta">Timeline(beta)</mdl-button>
 			</div>
 		</slot>
 	</div>
@@ -109,6 +110,12 @@
             viewTimeline() {
                 this.$router.push({
                     name: 'SingleObjectTracker',
+                    params: {object_id: this.object_id}
+                })
+            },
+            viewTimelineBeta() {
+                this.$router.push({
+                    name: 'objectTracker',
                     params: {object_id: this.object_id}
                 })
             }

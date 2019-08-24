@@ -13,6 +13,7 @@ import tracker from "./pages/tracker";
 import Report from "./pages/Report";
 import Map from "./pages/Map";
 import SingleObjectTracker from "./pages/SingleObjectTracker";
+import TrackableObjectTimeline from "./pages/TrackableObjectTimeline";
 
 Vue.use(VueRouter);
 
@@ -30,6 +31,7 @@ const routes = [
 	{path: '/checkout-analysis', name: 'checkout', component: CheckoutAnalysis},
 	{path: '/tracker', name: 'tracker', component: tracker},
 	{path: '/tracker/:object_id', name: 'SingleObjectTracker', component: SingleObjectTracker},
+	{path: '/tracker/:object_id/beta', name: 'objectTracker', component: TrackableObjectTimeline},
 ];
 
 export default new VueRouter({
