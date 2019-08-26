@@ -73,6 +73,24 @@ class GoogleMap {
 	}
 
 	/**
+	 * Get address from place id
+	 *
+	 * @param string $place_id
+	 *
+	 * @return array
+	 */
+	public static function get_address_from_place_id( $place_id ) {
+		$map_key  = Settings::get_map_api_key();
+		$rest_url = "https://maps.googleapis.com/maps/api/place/details/json?placeid=" . $place_id . "&key=" . $map_key;
+		$response = wp_remote_get( $rest_url );
+		$body     = wp_remote_retrieve_body( $response );
+		$data     = json_decode( $body, true );
+		$address  = isset( $data['result'] ) ? $data['result'] : [];
+
+		return $address;
+	}
+
+	/**
 	 * @param int|float $latitude
 	 * @param int|float $longitude
 	 *

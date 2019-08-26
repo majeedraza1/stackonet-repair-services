@@ -1,27 +1,32 @@
 <template>
 	<div class="stackonet-dashboard-tracker">
 		<div class="stackonet-dashboard-tracker__nav">
-			<side-nav :active="sideNavActive" @close="sideNavActive = false" :show-header="false" nav-width="450px">
+			<side-nav :active="sideNavActive" @close="sideNavActive = false" :show-header="false" nav-width="400px">
 				<template slot="header">
 					<div class="shapla-sidenav__header">
 						<mdl-button type="raised" color="primary" @click="goBack">Go Back</mdl-button>
+						<mdl-button type="icon" color="accent" @click="sideNavActive = !sideNavActive"
+									title="Hide side navigation">
+							<i class="fa fa-angle-left" aria-hidden="true"></i>
+						</mdl-button>
 					</div>
 				</template>
-				<div class="button-toggle-sidenav" @click="sideNavActive = !sideNavActive">
-					<template v-if="sideNavActive">
-						<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
-							<path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/>
-							<path v-if="sideNavActive" fill="none" d="M0 0h24v24H0V0z"/>
-						</svg>
-					</template>
-					<template v-else>
-						<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
-							<path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
-							<path fill="none" d="M0 0h24v24H0V0z"/>
-						</svg>
-					</template>
+				<div class="button-toggle-sidenav" v-if="!sideNavActive" @click="sideNavActive = !sideNavActive">
+					<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
+						<path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+						<path fill="none" d="M0 0h24v24H0V0z"/>
+					</svg>
 				</div>
-				<google-timeline :items="timelineItems"></google-timeline>
+				<div class="timeline" v-if="timelineItems.length" v-for="(item, index) in timelineItems">
+					<google-timeline-item
+						:item="item"
+						:first-item="index === 0"
+						:last-item="index === (timelineItems.length - 1)"
+						:addresses="item.addresses"
+						:item-text="item.formatted_address"
+						:duration-text="item.duration"
+					></google-timeline-item>
+				</div>
 			</side-nav>
 		</div>
 		<div id="google-map"></div>
@@ -29,15 +34,16 @@
 </template>
 
 <script>
-    import GoogleTimeline from "../../../components/googleTimeline";
+    import axios from 'axios';
     import {TrackerMixin} from "./TrackerMixin";
     import sideNav from "../../../shapla/shapla-side-navigation/sideNavigation";
     import MdlButton from "../../../material-design-lite/button/mdlButton";
+    import GoogleTimelineItem from "../../../components/googleTimelineItem";
 
     export default {
         name: "TrackableObjectTimeline",
         mixins: [TrackerMixin],
-        components: {MdlButton, sideNav, GoogleTimeline},
+        components: {GoogleTimelineItem, MdlButton, sideNav},
         data() {
             return {
                 sideNavActive: true,
@@ -54,11 +60,7 @@
                 employees: null,
                 polylines: [],
                 mapPolyline: [],
-                timelineItems: [
-                    {
-                        placeIcon: 'https://maps.gstatic.com/mapsactivities/icons/poi_icons/30_regular/generic_2x.png',
-                    }
-                ],
+                timelineItems: [],
             }
         },
         watch: {
@@ -76,6 +78,8 @@
         mounted() {
             this.$store.commit('SET_LOADING_STATUS', false);
             this.$store.commit('SET_TITLE', 'Activity');
+
+            this.getTimeline();
 
             this.googleMap = new google.maps.Map(this.$el.querySelector('#google-map'), {
                 center: new google.maps.LatLng(0, 0),
@@ -101,6 +105,18 @@
             }, 5000);
         },
         methods: {
+            getTimeline() {
+                axios.get(PhoneRepairs.rest_root + '/trackable-objects/timeline', {
+                    params: {
+                        object_id: this.$route.params.object_id,
+                        log_date: this.log_date
+                    }
+                }).then(response => {
+                    this.timelineItems = response.data.data.logs;
+                }).catch(error => {
+                    console.log(error);
+                })
+            },
             refreshData(data) {
                 this.current_timestamp = data.utc_timestamp;
                 this.idle_time = data.idle_time;
@@ -229,10 +245,19 @@
 
 			.shapla-sidenav {
 				overflow: visible;
+				height: calc(100vh - 64px);
+
+				.admin-bar & {
+					height: calc(100vh - 96px);
+				}
 			}
 
 			.shapla-sidenav__header {
 				padding: 1rem;
+				border-bottom: 1px solid #f5f5f5;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
 			}
 
 			.button-toggle-sidenav {

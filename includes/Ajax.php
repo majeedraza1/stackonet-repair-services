@@ -94,16 +94,19 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$date = '2019-08-24';
-
+		$date          = '2019-08-26';
 		$log           = ( new TrackableObjectLog() )->find_object_log( 'sayful', $date );
 		$filtered_logs = $log->get_log_data_with_distance_and_duration();
 
 		$_logs = [];
 		foreach ( $filtered_logs as $index => $log ) {
 			$_logs[ $index ] = $log;
-			$address         = GoogleMap::get_address_from_lat_lng( $log['latitude'], $log['longitude'] );
-			$pre_log         = $index > 0 ? $filtered_logs[ $index - 1 ] : [];
+			if ( ! empty( $log['place_id'] ) ) {
+				$address = GoogleMap::get_address_from_place_id( $log['place_id'] );
+			} else {
+				$address = GoogleMap::get_address_from_lat_lng( $log['latitude'], $log['longitude'] );
+			}
+			$pre_log = $index > 0 ? $filtered_logs[ $index - 1 ] : [];
 
 			if ( $pre_log ) {
 				$_logs[ $index ]['distance_from_first'] = DistanceCalculator::getDistance(
@@ -114,11 +117,7 @@ class Ajax {
 				);
 			}
 
-			$_logs[ $index ]['address'] = [
-				'place_id'          => $address['place_id'],
-				'formatted_address' => $address['formatted_address'],
-				'types'             => $address['types'],
-			];
+			$_logs[ $index ]['formatted_address'] = $address['formatted_address'];
 		}
 
 		var_dump( $_logs );

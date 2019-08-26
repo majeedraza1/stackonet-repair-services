@@ -62,24 +62,34 @@
 <style lang="scss">
 
 	.shapla-sidenav {
-		background-color: #fff;
-		border: none;
+		display: flex;
+		flex-direction: column;
+		flex-wrap: nowrap;
+
 		height: 100vh;
-		left: 0;
 		max-height: 100vh;
-		// padding-top: 48px;
+
 		position: absolute;
-		overflow: hidden;
 		top: 0;
-		transition: 0.5s;
-		width: 0;
-		z-index: 1;
+		left: 0;
+
+		box-sizing: border-box;
+		background: #fafafa;
+
+		transform: translateX(-400px);
 		transform-style: preserve-3d;
 		will-change: transform;
+
+		transition: 0.5s;
 		transition-duration: 200ms;
 		transition-timing-function: cubic-bezier(.4, 0, .2, 1);
 
+		overflow: visible;
+
+		z-index: 1;
+
 		&.is-active {
+			border-right: 1px solid #e0e0e0;
 			box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .14), 0 3px 1px -2px rgba(0, 0, 0, .2), 0 1px 5px 0 rgba(0, 0, 0, .12);
 			transform: translateX(0);
 		}

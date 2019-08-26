@@ -9,8 +9,6 @@ use Exception;
 use Stackonet\Abstracts\DatabaseModel;
 use Stackonet\Integrations\GoogleMap;
 use Stackonet\Supports\DistanceCalculator;
-use Stackonet\Supports\Logger;
-use Stackonet\Supports\Validate;
 
 class TrackableObjectLog extends DatabaseModel {
 
@@ -367,11 +365,20 @@ class TrackableObjectLog extends DatabaseModel {
 				$_self = $current_records[ $object_id ];
 				$_self->add_log_data( $log );
 			} else {
-				$object = [
+				$current_address = self::get_current_log_address( $log );
+				$object          = [
 					'id'        => 0,
 					'object_id' => $object_id,
 					'log_date'  => $date,
-					'log_data'  => [ $log ],
+					'log_data'  => [
+						[
+							'latitude'      => $log['latitude'],
+							'longitude'     => $log['longitude'],
+							'utc_timestamp' => $log['utc_timestamp'],
+							'place_id'      => $current_address['place_id'],
+							'address_types' => $current_address['types'],
+						]
+					],
 					'online'    => $log['online'],
 				];
 				( new static )->create( $object );

@@ -34,6 +34,115 @@ class TrackableObjectController extends ApiController {
 		return self::$instance;
 	}
 
+	public static function format_timeline_for_response( array $logs ) {
+		$response_logs = [];
+		foreach ( $logs as $log ) {
+			$response_logs[] = [
+				'place_id'          => $log['place_id'],
+				'latitude'          => $log['latitude'],
+				'longitude'         => $log['longitude'],
+				'dateTime'          => date( \DateTime::ISO8601, $log['utc_timestamp'] ),
+				'duration'          => date( 'h:i A', $log['utc_timestamp'] ),
+				'name'              => $log['address']['name'],
+				'icon'              => $log['address']['icon'],
+				'formatted_address' => $log['address']['formatted_address'],
+				// Temp
+				'addresses'         => [
+					[
+						'name'     => $log['address']['name'],
+						'place_id' => $log['place_id'],
+					]
+				],
+			];
+		}
+
+		return $response_logs;
+	}
+
+	/**
+	 * @param array $_logs
+	 * @param $object_id
+	 * @param $log_date
+	 *
+	 * @return array|mixed
+	 */
+	public static function get_object_timeline( array $_logs, $object_id, $log_date ) {
+		$total_logs = count( $_logs );
+
+		$transient_name = sprintf( "object_time_line_%s_%s", $object_id, $log_date );
+		$logs           = get_transient( $transient_name );
+		if ( false !== $logs ) {
+			return $logs;
+		}
+
+		$logs = [];
+		foreach ( $_logs as $index => $log ) {
+			$logs[ $index ] = $log;
+
+			if ( $index < ( $total_logs - 1 ) ) {
+				$next_log = $_logs[ $index + 1 ];
+
+				$logs[ $index ]['duration'] = [
+					'value' => ( intval( $next_log['utc_timestamp'] ) - intval( $log['utc_timestamp'] ) ),
+					'unit'  => 'seconds'
+				];
+			} else {
+				$logs[ $index ]['duration'] = [
+					'value' => intval( current_time( 'timestamp' ) - $log['utc_timestamp'] ),
+					'unit'  => 'seconds'
+				];
+			}
+
+			$should_get_address = ! in_array( 'street_address', $log['address_types'] );
+			if ( $index == 0 || $index == ( $total_logs - 1 ) ) {
+				$should_get_address = true;
+			}
+
+			if ( $should_get_address ) {
+				$address = GoogleMap::get_address_from_place_id( $log['place_id'] );
+
+				$logs[ $index ]['address'] = [
+					'name'              => $address['name'],
+					'icon'              => $address['icon'],
+					'formatted_address' => $address['formatted_address'],
+				];
+			}
+		}
+
+		$final_logs          = [];
+		$last_place          = [];
+		$temp_street_address = [];
+
+		foreach ( $logs as $index => $log ) {
+			$has_address = isset( $log['address'] );
+
+			if ( ! $has_address ) {
+				$temp_street_address[] = $log;
+			}
+
+			if ( $has_address ) {
+
+				if ( ! empty( $last_place ) ) {
+					$current_name = ! empty( $log['address']['name'] ) ? $log['address']['name'] : null;
+					$last_name    = ! empty( $last_place['address']['name'] ) ? $last_place['address']['name'] : null;
+
+
+					if ( ! is_null( $last_name ) && $current_name == $last_name ) {
+						$temp_street_address = [];
+					} else {
+						$final_logs[] = $log;
+					}
+				}
+
+				$last_place = $log;
+			}
+		}
+
+		set_transient( $transient_name, $final_logs, MINUTE_IN_SECONDS );
+
+		return $final_logs;
+	}
+
 	/**
 	 * Registers the routes for the objects of the controller.
 	 */
@@ -53,6 +162,14 @@ class TrackableObjectController extends ApiController {
 		register_rest_route( $this->namespace, '/trackable-objects/(?P<id>\d+)', [
 			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_item' ] ],
 			[ 'methods' => WP_REST_Server::DELETABLE, 'callback' => [ $this, 'delete_item' ] ],
+		] );
+
+		register_rest_route( $this->namespace, '/trackable-objects/timeline', [
+			[
+				'methods'  => WP_REST_Server::READABLE,
+				'callback' => [ $this, 'get_timeline' ],
+				'args'     => $this->get_timeline_params(),
+			],
 		] );
 
 		register_rest_route( $this->namespace, '/trackable-objects/logs', [
@@ -313,5 +430,66 @@ class TrackableObjectController extends ApiController {
 		}
 
 		return $this->respondInternalServerError();
+	}
+
+	/**
+	 * Get object timeline
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function get_timeline( $request ) {
+		$object_id = $request->get_param( 'object_id' );
+		$log_date  = $request->get_param( 'log_date' );
+
+		if ( empty( $log_date ) ) {
+			$log_date = date( "Y-m-d", current_time( 'timestamp' ) );
+		}
+
+		$object = ( new TrackableObject() )->find_by_object_id( $object_id );
+
+		if ( ! $object instanceof TrackableObject ) {
+			return $this->respondNotFound();
+		}
+
+		$response = [
+			'id'          => intval( $object->get( 'id' ) ),
+			'object_id'   => $object->get( 'object_id' ),
+			'object_name' => $object->get( 'object_name' ),
+			'icon_url'    => $object->get_object_icon(),
+		];
+
+		$log   = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
+		$_logs = $log->get_log_data();
+
+		$logs             = self::get_object_timeline( $_logs, $object_id, $log_date );
+		$response['logs'] = self::format_timeline_for_response( $logs );
+
+		return $this->respondOK( $response );
+	}
+
+	/**
+	 * Retrieves the query params for the timeline.
+	 *
+	 * @return array Query parameters for the timeline.
+	 */
+	public function get_timeline_params() {
+		return [
+			'context'   => $this->get_context_param(),
+			'object_id' => [
+				'description'       => 'Object id',
+				'type'              => 'string',
+				'required'          => true,
+				'sanitize_callback' => 'sanitize_text_field',
+				'validate_callback' => 'rest_validate_request_arg',
+			],
+			'log_date'  => [
+				'description'       => 'Log date',
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+				'validate_callback' => 'rest_validate_request_arg',
+			],
+		];
 	}
 }
