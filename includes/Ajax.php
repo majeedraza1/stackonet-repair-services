@@ -8,6 +8,7 @@ use DateTime;
 use Exception;
 use Stackonet\Integrations\GoogleMap;
 use Stackonet\Models\TrackableObjectLog;
+use Stackonet\Models\TrackableObjectTimeline;
 use Stackonet\Modules\SupportTicket\OrderToSupportTicket;
 use Stackonet\Models\Device;
 use Stackonet\Models\DeviceIssue;
@@ -94,33 +95,16 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$date          = '2019-08-26';
-		$log           = ( new TrackableObjectLog() )->find_object_log( 'sayful', $date );
-		$filtered_logs = $log->get_log_data_with_distance_and_duration();
+		$object_id = 'sayful';
+		$log_date  = '2019-08-27';
 
-		$_logs = [];
-		foreach ( $filtered_logs as $index => $log ) {
-			$_logs[ $index ] = $log;
-			if ( ! empty( $log['place_id'] ) ) {
-				$address = GoogleMap::get_address_from_place_id( $log['place_id'] );
-			} else {
-				$address = GoogleMap::get_address_from_lat_lng( $log['latitude'], $log['longitude'] );
-			}
-			$pre_log = $index > 0 ? $filtered_logs[ $index - 1 ] : [];
+		$log  = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
+		$logs = $log->get_log_data();
+//		$logs     = TrackableObjectTimeline::get_duration( $logs );
+//		$new_logs = TrackableObjectTimeline::calculate_timeline( $logs );
+		$timeline = TrackableObjectTimeline::get_object_timeline( $logs, $object_id, $log_date );
 
-			if ( $pre_log ) {
-				$_logs[ $index ]['distance_from_first'] = DistanceCalculator::getDistance(
-					$pre_log['latitude'],
-					$pre_log['longitude'],
-					$log['latitude'],
-					$log['longitude']
-				);
-			}
-
-			$_logs[ $index ]['formatted_address'] = $address['formatted_address'];
-		}
-
-		var_dump( $_logs );
+		var_dump( [ $logs, $timeline ] );
 		die();
 	}
 

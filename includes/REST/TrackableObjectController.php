@@ -7,6 +7,7 @@ use Stackonet\Integrations\FirebaseDatabase;
 use Stackonet\Integrations\GoogleMap;
 use Stackonet\Models\TrackableObject;
 use Stackonet\Models\TrackableObjectLog;
+use Stackonet\Models\TrackableObjectTimeline;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -463,7 +464,7 @@ class TrackableObjectController extends ApiController {
 		$log   = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
 		$_logs = $log->get_log_data();
 
-		$logs             = self::get_object_timeline( $_logs, $object_id, $log_date );
+		$logs             = TrackableObjectTimeline::get_object_timeline( $_logs, $object_id, $log_date );
 		$response['logs'] = self::format_timeline_for_response( $logs );
 
 		return $this->respondOK( $response );

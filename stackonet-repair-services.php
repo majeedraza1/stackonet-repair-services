@@ -266,6 +266,7 @@ final class Stackonet_Repair_Services {
 		( new Stackonet\Models\Map )->create_table();
 		( new Stackonet\Models\TrackableObject )->create_table();
 		( new Stackonet\Models\TrackableObjectLog )->create_table();
+		( new Stackonet\Models\TrackableObjectTimeline )->create_table();
 
 		do_action( 'phone_repairs_asap_activation' );
 	}
