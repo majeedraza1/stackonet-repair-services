@@ -95,8 +95,8 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$object_id = 'sayful';
-		$log_date  = '2019-08-27';
+		$object_id = 'simpi';
+		$log_date  = '2019-08-29';
 
 		$log  = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
 		$logs = $log->get_log_data();
@@ -104,7 +104,7 @@ class Ajax {
 //		$new_logs = TrackableObjectTimeline::calculate_timeline( $logs );
 		$timeline = TrackableObjectTimeline::get_object_timeline( $logs, $object_id, $log_date );
 
-		var_dump( [ $logs, $timeline ] );
+		var_dump( $timeline );
 		die();
 	}
 

@@ -268,7 +268,7 @@
     }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 	.button--go-back {
 		height: 40px;
 		left: 205px;
@@ -279,6 +279,7 @@
 	.card__actions-log {
 		align-items: center;
 		display: flex;
+		height: 36px;
 		justify-content: center;
 		padding: 0 1rem;
 		margin: 0 1rem;

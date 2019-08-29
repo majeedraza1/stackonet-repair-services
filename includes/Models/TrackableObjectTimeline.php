@@ -4,6 +4,7 @@ namespace Stackonet\Models;
 
 use Stackonet\Abstracts\DatabaseModel;
 use Stackonet\Integrations\GoogleMap;
+use Stackonet\Supports\DistanceCalculator;
 
 class TrackableObjectTimeline extends DatabaseModel {
 
@@ -132,7 +133,7 @@ class TrackableObjectTimeline extends DatabaseModel {
 		foreach ( $logs as $index => $log ) {
 			$is_street_address = in_array( 'street_address', $log['address_types'] );
 			$duration          = isset( $log['duration'] ) ? $log['duration'] : 0;
-			if ( $is_street_address ) {
+			if ( $is_street_address || $duration < 60 ) {
 				$street_address[] = $log;
 			} else {
 				$count_street_address = count( $street_address );
@@ -143,6 +144,12 @@ class TrackableObjectTimeline extends DatabaseModel {
 						'start_time' => $first_street['utc_timestamp'],
 						'end_time'   => $last_street['utc_timestamp'],
 						'duration'   => array_sum( wp_list_pluck( $street_address, 'duration' ) ),
+						'distance'   => DistanceCalculator::getDistance(
+							$first_street['latitude'],
+							$first_street['longitude'],
+							$last_street['latitude'],
+							$last_street['longitude']
+						),
 					];
 				}
 				$new_logs[]     = $log;
@@ -158,6 +165,12 @@ class TrackableObjectTimeline extends DatabaseModel {
 					'start_time' => $first_street['utc_timestamp'],
 					'end_time'   => $last_street['utc_timestamp'],
 					'duration'   => array_sum( wp_list_pluck( $street_address, 'duration' ) ),
+					'distance'   => DistanceCalculator::getDistance(
+						$first_street['latitude'],
+						$first_street['longitude'],
+						$last_street['latitude'],
+						$last_street['longitude']
+					),
 				];
 				$street_address       = [];
 			}

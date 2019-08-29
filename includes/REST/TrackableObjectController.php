@@ -8,6 +8,7 @@ use Stackonet\Integrations\GoogleMap;
 use Stackonet\Models\TrackableObject;
 use Stackonet\Models\TrackableObjectLog;
 use Stackonet\Models\TrackableObjectTimeline;
+use Stackonet\Supports\DistanceCalculator;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -38,7 +39,19 @@ class TrackableObjectController extends ApiController {
 	public static function format_timeline_for_response( array $logs ) {
 		$response_logs = [];
 		foreach ( $logs as $log ) {
+			$is_address = isset( $log['address'] );
+			if ( ! $is_address ) {
+				$response_logs[] = array_merge( $log, [
+					'type'                 => 'movement',
+					'icon'                 => 'https://maps.gstatic.com/mapsactivities/icons/activity_icons/2x/ic_activity_moving_black_24dp.png',
+					'activityType'         => 'Moving',
+					'activityDistanceText' => DistanceCalculator::meter_to_human( $log['distance'] ),
+					'activityDurationText' => human_time_diff( $log['start_time'], $log['end_time'] ),
+				] );
+				continue;
+			}
 			$response_logs[] = [
+				'type'              => 'place',
 				'place_id'          => $log['place_id'],
 				'latitude'          => $log['latitude'],
 				'longitude'         => $log['longitude'],

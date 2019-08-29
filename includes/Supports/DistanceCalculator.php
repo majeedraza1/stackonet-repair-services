@@ -6,7 +6,6 @@ class DistanceCalculator {
 
 	public static function getDistance( $latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo, $earthRadius = 6371000 ) {
 		return self::vincentyCircleDistance( $latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo, $earthRadius );
-//		return self::haversineCircleDistance( $latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo, $earthRadius );
 	}
 
 	/**
@@ -65,5 +64,19 @@ class DistanceCalculator {
 		                         cos( $latFrom ) * cos( $latTo ) * pow( sin( $lonDelta / 2 ), 2 ) ) );
 
 		return $angle * $earthRadius;
+	}
+
+	/**
+	 * @param $distance
+	 *
+	 * @return string
+	 */
+	public static function meter_to_human( $distance ) {
+		$m = absint( $distance );
+		if ( $m < 1000 ) {
+			return $m . ' m';
+		}
+
+		return round( $m / 1000, 1 ) . ' km';
 	}
 }

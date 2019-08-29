@@ -35,29 +35,6 @@
 			</div>
 		</div><!-- .timeline-item -->
 
-		<div class="travel-segment" v-if="!lastItem">
-			<hr class="moment-divider">
-			<div class="activity-segment-outer">
-				<div class="timeline-item place-history-moment-outer">
-					<svg class="timeline-item-svg">
-						<line x1="7" x2="7" y1="0" y2="100%" class="timeline-item-svg-line"
-							  :style="{stroke:lineColor}"></line>
-					</svg>
-					<div class="place-history-moment-content timeline-item-content primary multi-line">
-						<div class="timeline-item-title">
-							<div class="edit-dialog-select moment-edit-control timeline-item-title-content">
-								<div class="activity-icon" :style="`backgroundImage: url(${activityIcon})`"></div>
-								<span class="activity-type">{{activityType}}</span>
-								<div class="distance-text">{{activityDistanceText}}</div>
-								<div class="duration-text">{{activityDurationText}}</div>
-							</div>
-						</div>
-					</div>
-					<hr class="moment-divider">
-				</div>
-			</div>
-		</div><!-- .travel-segment -->
-
 	</div>
 </template>
 
@@ -104,7 +81,7 @@
     }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 	.timeline-item {
 		line-height: 20px;
 		padding: 20px 16px;
