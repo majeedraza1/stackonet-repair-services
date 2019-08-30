@@ -95,18 +95,18 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$object_id = 'simpi';
-		$log_date  = '2019-08-29';
+		$object_id = 'sayful';
+		$log_date  = '2019-08-30';
 
-//		$log  = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
-//		$logs = $log->get_log_data();
-//		$logs     = TrackableObjectTimeline::get_duration( $logs );
+		$log  = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
+		$logs = $log->get_log_data();
+		$logs = TrackableObjectTimeline::add_duration_and_distance( $logs );
+		$logs = TrackableObjectTimeline::format_log( $logs );
+		$logs = TrackableObjectTimeline::add_address_data( $logs );
 //		$new_logs = TrackableObjectTimeline::calculate_timeline( $logs );
 //		$timeline = TrackableObjectTimeline::get_object_timeline( $logs, $object_id, $log_date );
 
-		$order = wc_get_order( 4642 );
-
-		var_dump( $order );
+		var_dump( $logs );
 		die();
 	}
 

@@ -78,7 +78,8 @@ class TrackableObjectTimeline extends DatabaseModel {
 
 		$new_counts = count( $logs );
 
-		$logs              = static::get_duration( $logs );
+		$logs              = static::add_duration_and_distance( $logs );
+		$logs              = static::add_address_data( $logs );
 		$new_timeline_logs = static::calculate_timeline( $logs );
 
 		$current_logs_count = count( $current_timeline_logs );
@@ -179,7 +180,74 @@ class TrackableObjectTimeline extends DatabaseModel {
 		return $new_logs;
 	}
 
-	public static function get_duration( $logs ) {
+	/**
+	 * Calculate timeline data
+	 * =======================================================================
+	 * 01. Loop through all logs
+	 * 02. If the log is a street address or duration is less than 60 seconds
+	 *     --> i. Add the log to temporary $street_address variable as an item
+	 *
+	 * 03. If the log is not a street address
+	 *     --> i. Check if temporary $street_address contains any address
+	 * =======================================================================
+	 *
+	 * @param array $logs
+	 *
+	 * @return array
+	 */
+	public static function format_log( array $logs ) {
+		$new_logs       = [];
+		$street_address = [];
+		$total_logs     = count( $logs );
+
+		foreach ( $logs as $index => $log ) {
+			$is_street_address = $log['street_address'];
+			$duration          = isset( $log['duration'] ) ? $log['duration'] : 0;
+
+			if ( $is_street_address || $duration < 10 ) {
+				$street_address[] = $log;
+			} else {
+				if ( count( $street_address ) > 0 ) {
+					$end_log        = end( $street_address );
+					$new_logs[]     = [
+						'street_address'  => true,
+						'start_timestamp' => $street_address[0]['utc_timestamp'],
+						'end_timestamp'   => $end_log['utc_timestamp'],
+						'duration'        => array_sum( wp_list_pluck( $street_address, 'duration' ) ),
+						'distance'        => array_sum( wp_list_pluck( $street_address, 'distance' ) ),
+						'steps'           => $street_address
+					];
+					$street_address = [];
+				}
+				$new_logs[] = $log;
+			}
+
+			// If this is last log and street address has some content
+			if ( $index == ( $total_logs - 1 ) && count( $street_address ) > 0 ) {
+				$end_log        = end( $street_address );
+				$new_logs[]     = [
+					'street_address'  => true,
+					'start_timestamp' => $street_address[0]['utc_timestamp'],
+					'end_timestamp'   => $end_log['utc_timestamp'],
+					'duration'        => array_sum( wp_list_pluck( $street_address, 'duration' ) ),
+					'distance'        => array_sum( wp_list_pluck( $street_address, 'distance' ) ),
+					'steps'           => $street_address
+				];
+				$street_address = [];
+			}
+		}
+
+		return $new_logs;
+	}
+
+	/**
+	 * Get duration from one location to another location
+	 *
+	 * @param array $logs
+	 *
+	 * @return array
+	 */
+	public static function add_duration_and_distance( array $logs ) {
 		$total_logs = count( $logs );
 		$new_logs   = [];
 		foreach ( $logs as $index => $log ) {
@@ -189,19 +257,51 @@ class TrackableObjectTimeline extends DatabaseModel {
 				$next_log = $logs[ $index + 1 ];
 
 				$new_logs[ $index ]['duration'] = intval( $next_log['utc_timestamp'] ) - intval( $log['utc_timestamp'] );
+				$new_logs[ $index ]['distance'] = DistanceCalculator::getDistance(
+					$log['latitude'],
+					$log['longitude'],
+					$next_log['latitude'],
+					$next_log['longitude']
+				);
 			} else {
 				$new_logs[ $index ]['duration'] = intval( current_time( 'timestamp' ) - $log['utc_timestamp'] );
+				$new_logs[ $index ]['distance'] = 0;
 			}
 
-			$should_get_address = ! in_array( 'street_address', $log['address_types'] );
-			if ( $index == 0 || $index == ( $total_logs - 1 ) ) {
-				$should_get_address = true;
+			$new_logs[ $index ]['street_address'] = self::is_street_address( $log['address_types'] );
+		}
+
+		return $new_logs;
+	}
+
+	/**
+	 * Get address data to logs
+	 * Only add address for first log, last log and log other than street address
+	 *
+	 * @param array $logs
+	 *
+	 * @return array
+	 *
+	 * @todo Getting address from Google Map API is slow and server can stop working for long data.
+	 * @todo Update functionality to get address in background
+	 */
+	public static function add_address_data( array $logs ) {
+		$total_logs = count( $logs );
+		$new_logs   = [];
+		foreach ( $logs as $index => $log ) {
+			$new_logs[ $index ] = $log;
+
+			if ( empty( $log['place_id'] ) ) {
+				continue;
 			}
 
-			if ( $should_get_address ) {
+			if ( false == $log['street_address'] || $index == 0 || $index == ( $total_logs - 1 ) ) {
 				$address = GoogleMap::get_address_from_place_id( $log['place_id'] );
 
+				unset( $new_logs[ $index ]['place_id'] );
+
 				$new_logs[ $index ]['address'] = [
+					'place_id'          => $log['place_id'],
 					'name'              => $address['name'],
 					'icon'              => $address['icon'],
 					'formatted_address' => $address['formatted_address'],
@@ -210,6 +310,24 @@ class TrackableObjectTimeline extends DatabaseModel {
 		}
 
 		return $new_logs;
+	}
+
+	/**
+	 * Check provided address is a street address
+	 *
+	 * @param array $address_types
+	 *
+	 * @return bool
+	 */
+	public static function is_street_address( array $address_types ) {
+		if ( in_array( 'street_address', $address_types ) ) {
+			return true;
+		}
+		if ( in_array( 'route', $address_types ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
