@@ -98,13 +98,15 @@ class Ajax {
 		$object_id = 'simpi';
 		$log_date  = '2019-08-29';
 
-		$log  = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
-		$logs = $log->get_log_data();
+//		$log  = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
+//		$logs = $log->get_log_data();
 //		$logs     = TrackableObjectTimeline::get_duration( $logs );
 //		$new_logs = TrackableObjectTimeline::calculate_timeline( $logs );
-		$timeline = TrackableObjectTimeline::get_object_timeline( $logs, $object_id, $log_date );
+//		$timeline = TrackableObjectTimeline::get_object_timeline( $logs, $object_id, $log_date );
 
-		var_dump( $timeline );
+		$order = wc_get_order( 4642 );
+
+		var_dump( $order );
 		die();
 	}
 
@@ -516,23 +518,28 @@ class Ajax {
 	 * @throws Exception
 	 */
 	public function confirm_appointment() {
-		$product_id        = isset( $_POST['product_id'] ) ? intval( $_POST['product_id'] ) : 0;
-		$device_id         = isset( $_POST['device_id'] ) ? sanitize_text_field( $_POST['device_id'] ) : '';
-		$device_title      = isset( $_POST['device_title'] ) ? sanitize_text_field( $_POST['device_title'] ) : '';
-		$device_color      = isset( $_POST['device_color'] ) ? sanitize_text_field( $_POST['device_color'] ) : '';
-		$device_model      = isset( $_POST['device_model'] ) ? sanitize_text_field( $_POST['device_model'] ) : '';
-		$issues            = isset( $_POST['issues'] ) && is_array( $_POST['issues'] ) ? $_POST['issues'] : [];
-		$issueDescription  = isset( $_POST['issue_description'] ) ? sanitize_text_field( $_POST['issue_description'] ) : '';
-		$date              = isset( $_POST['date'] ) ? sanitize_text_field( $_POST['date'] ) : '';
-		$time_range        = isset( $_POST['time_range'] ) ? sanitize_text_field( $_POST['time_range'] ) : '';
-		$first_name        = isset( $_POST['first_name'] ) ? sanitize_text_field( $_POST['first_name'] ) : '';
-		$last_name         = isset( $_POST['last_name'] ) ? sanitize_text_field( $_POST['last_name'] ) : '';
-		$phone             = isset( $_POST['phone'] ) ? sanitize_text_field( $_POST['phone'] ) : '';
+		$product_id   = isset( $_POST['product_id'] ) ? intval( $_POST['product_id'] ) : 0;
+		$device_id    = isset( $_POST['device_id'] ) ? sanitize_text_field( $_POST['device_id'] ) : '';
+		$device_title = isset( $_POST['device_title'] ) ? sanitize_text_field( $_POST['device_title'] ) : '';
+		$device_color = isset( $_POST['device_color'] ) ? sanitize_text_field( $_POST['device_color'] ) : '';
+		$device_model = isset( $_POST['device_model'] ) ? sanitize_text_field( $_POST['device_model'] ) : '';
+
+		$issues           = isset( $_POST['issues'] ) && is_array( $_POST['issues'] ) ? $_POST['issues'] : [];
+		$issueDescription = isset( $_POST['issue_description'] ) ? sanitize_text_field( $_POST['issue_description'] ) : '';
+		$date             = isset( $_POST['date'] ) ? sanitize_text_field( $_POST['date'] ) : '';
+		$time_range       = isset( $_POST['time_range'] ) ? sanitize_text_field( $_POST['time_range'] ) : '';
+
+		$first_name = isset( $_POST['first_name'] ) ? sanitize_text_field( $_POST['first_name'] ) : '';
+		$last_name  = isset( $_POST['last_name'] ) ? sanitize_text_field( $_POST['last_name'] ) : '';
+		$phone      = isset( $_POST['phone'] ) ? sanitize_text_field( $_POST['phone'] ) : '';
+
 		$email             = isset( $_POST['email'] ) ? sanitize_email( $_POST['email'] ) : '';
 		$address           = isset( $_POST['address'] ) && is_array( $_POST['address'] ) ? $_POST['address'] : [];
 		$instructions      = isset( $_POST['instructions'] ) ? sanitize_text_field( $_POST['instructions'] ) : '';
 		$additionalAddress = isset( $_POST['additional_address'] ) ? sanitize_text_field( $_POST['additional_address'] ) : '';
 		$signature         = isset( $_POST['signature'] ) ? wp_strip_all_tags( $_POST['signature'] ) : '';
+
+		$formatted_address = isset( $_POST['formatted_address'] ) ? sanitize_textarea_field( $_POST['formatted_address'] ) : '';
 
 		// Now we create the order
 		$order = new WC_Order();
@@ -590,12 +597,17 @@ class Ajax {
 			$device_issues[] = sanitize_text_field( $issue['title'] );
 		}
 
+		$has_notes = false;
 		if ( ! empty( $issueDescription ) ) {
+			$has_notes = true;
 			$order->add_order_note( $issueDescription, false, true );
+			$order->add_meta_data( '_additional_issues_description', $issueDescription );
 		}
 
 		if ( ! empty( $instructions ) ) {
+			$has_notes = true;
 			$order->add_order_note( $instructions, false, true );
+			$order->add_meta_data( '_additional_address_instructions', $instructions );
 		}
 
 		$order->add_meta_data( '_preferred_service_date', $date );
@@ -609,6 +621,8 @@ class Ajax {
 		$order->add_meta_data( '_device_model', $device_model );
 		$order->add_meta_data( '_device_color', $device_color );
 		$order->add_meta_data( '_device_issues', $device_issues );
+
+		$order->add_meta_data( '_formatted_address', $formatted_address );
 
 		// Add unique id for reschedule
 		$order->add_meta_data( '_reschedule_hash', bin2hex( random_bytes( 20 ) ) );
@@ -627,6 +641,19 @@ class Ajax {
 		$order->calculate_totals( false );
 		$order->set_status( 'on-hold' );
 		$order->save();
+
+		// If has note then save it
+		if ( $has_notes ) {
+			if ( ! empty( $issueDescription ) ) {
+				$order->add_order_note( $issueDescription, false, true );
+			}
+
+			if ( ! empty( $instructions ) ) {
+				$order->add_order_note( $instructions, false, true );
+			}
+
+			$order->save();
+		}
 
 		// Add Discount
 		if ( $has_discount ) {

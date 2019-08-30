@@ -71,6 +71,13 @@ class OrderToSupportTicket {
 		unset( $address['first_name'], $address['last_name'], $address['company'] );
 		$address = WC()->countries->get_formatted_address( $address, ', ' );
 
+		$issues_description   = $order->get_meta( '_additional_issues_description' );
+		$address_instructions = $order->get_meta( '_additional_address_instructions' );
+		$formatted_address    = $order->get_meta( '_formatted_address' );
+		if ( ! empty( $formatted_address ) ) {
+			$address = $formatted_address;
+		}
+
 		ob_start();
 		?>
 		<table class="table--support-order">
@@ -84,8 +91,15 @@ class OrderToSupportTicket {
 			</tr>
 			<tr>
 				<td> Customer Address:</td>
-				<td><a target="_blank"
-				       href="<?php echo $order->get_shipping_address_map_url(); ?>"><?php echo $address; ?></a></td>
+				<td>
+					<a target="_blank"
+					   href="<?php echo $order->get_shipping_address_map_url(); ?>"><?php echo $address; ?></a>
+					<?php
+					if ( ! empty( $address_instructions ) ) {
+						echo '<p>' . $address_instructions . '</p>';
+					}
+					?>
+				</td>
 			</tr>
 			<tr>
 				<td>Preferred Date & Time:</td>
@@ -109,6 +123,12 @@ class OrderToSupportTicket {
 				<td><a target="_blank" href="<?php echo $order_url; ?>"><strong><?php echo $order_url; ?></strong></a>
 				</td>
 			</tr>
+			<?php if ( ! empty( $issues_description ) ) { ?>
+				<tr>
+					<td> Issue Description:</td>
+					<td><?php echo $issues_description; ?></td>
+				</tr>
+			<?php } ?>
 		</table>
 		<hr>
 		<p>Issues:</p>

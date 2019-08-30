@@ -43,7 +43,7 @@
             },
             activityDistanceText: {
                 type: String,
-                default: '- 1.4 km'
+                default: '1.4 km'
             },
             activityDurationText: {
                 type: String,

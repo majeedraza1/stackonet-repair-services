@@ -9,8 +9,8 @@
 					:logo-url="_item.icon"
 					:object_id="_item.object_id"
 					:name="_item.name"
-					:online="_item.online"
 					:last-active-time="_item.last_activity"
+					:online="_item.online"
 					:moving="_item.moving"
 					:current-time="current_timestamp"
 					:idle-time="idle_time"
@@ -49,7 +49,8 @@
                         object_id: item['object_id'],
                         icon: item['icon'],
                         name: item['object_name'],
-                        online: item['last_log']['online'],
+                        online: item['online'],
+                        moving: item['moving'],
                         current_timestamp: this.current_timestamp,
                         last_activity: item['last_log']['utc_timestamp'],
                         lat_lng: {

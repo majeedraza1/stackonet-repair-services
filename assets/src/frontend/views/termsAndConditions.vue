@@ -29,114 +29,115 @@
 </template>
 
 <script>
-	import {mapState} from 'vuex';
-	import {columns, column} from 'shapla-columns'
-	import SectionInfo from '../components/SectionInfo'
-	import SectionTitle from '../components/SectionTitle'
-	import SectionHelp from '../components/SectionHelp'
-	import SignatureCanvas from '../components/SignatureCanvas'
-	import mdlButton from '../../material-design-lite/button/mdlButton'
+    import {mapState} from 'vuex';
+    import {columns, column} from 'shapla-columns'
+    import SectionInfo from '../components/SectionInfo'
+    import SectionTitle from '../components/SectionTitle'
+    import SectionHelp from '../components/SectionHelp'
+    import SignatureCanvas from '../components/SignatureCanvas'
+    import mdlButton from '../../material-design-lite/button/mdlButton'
 
-	export default {
-		name: "termsAndConditions",
-		components: {SectionInfo, SectionTitle, SectionHelp, columns, column, SignatureCanvas, mdlButton},
-		data() {
-			return {
-				imageData: '',
-				terms_and_conditions: '',
-			}
-		},
-		computed: {
-			...mapState([
-				'device', 'deviceModel', 'deviceColor', 'issues', 'issueDescription', 'date', 'timeRange',
-				'firstName', 'lastName', 'phone', 'emailAddress', 'addressObject', 'instructions', 'additionalAddress',
-				'checkoutAnalysisId'
-			]),
-			terms() {
-				let content = this.terms_and_conditions;
-				content = content.replace('{{first_name}}', this.firstName);
-				content = content.replace('{{last_name}}', this.lastName);
+    export default {
+        name: "termsAndConditions",
+        components: {SectionInfo, SectionTitle, SectionHelp, columns, column, SignatureCanvas, mdlButton},
+        data() {
+            return {
+                imageData: '',
+                terms_and_conditions: '',
+            }
+        },
+        computed: {
+            ...mapState([
+                'device', 'deviceModel', 'deviceColor', 'issues', 'issueDescription', 'date', 'timeRange',
+                'firstName', 'lastName', 'phone', 'emailAddress', 'addressObject', 'instructions', 'additionalAddress',
+                'checkoutAnalysisId', 'address'
+            ]),
+            terms() {
+                let content = this.terms_and_conditions;
+                content = content.replace('{{first_name}}', this.firstName);
+                content = content.replace('{{last_name}}', this.lastName);
 
-				return content;
-			},
-		},
-		mounted() {
-			this.$store.commit('SET_LOADING_STATUS', false);
-			this.$store.commit('SET_SHOW_CART', true);
-			this.$store.commit('IS_THANK_YOU_PAGE', false);
+                return content;
+            },
+        },
+        mounted() {
+            this.$store.commit('SET_LOADING_STATUS', false);
+            this.$store.commit('SET_SHOW_CART', true);
+            this.$store.commit('IS_THANK_YOU_PAGE', false);
 
-			// If no models, redirect one step back
-			if (!this.emailAddress.length) {
-				this.$router.push('/user-details');
-			}
+            // If no models, redirect one step back
+            if (!this.emailAddress.length) {
+                this.$router.push('/user-details');
+            }
 
-			this.getTermsAndConditions();
+            this.getTermsAndConditions();
 
-			this.$store.dispatch('updateCheckoutAnalysis', {
-				step: 'terms_and_conditions',
-				step_data: {
-					user_details: {
-						first_name: this.firstName,
-						last_name: this.lastName,
-						phone: this.phone,
-						email: this.emailAddress
-					},
-				}
-			});
-		},
-		methods: {
-			getTermsAndConditions() {
-				let self = this;
-				jQuery.ajax({
-					method: 'GET',
-					url: PhoneRepairs.ajaxurl,
-					data: {action: 'terms_and_conditions',},
-					success: function (response) {
-						self.terms_and_conditions = response;
-					}
-				});
-			},
-			saveCanvas(imageData) {
-				this.imageData = imageData;
-			},
-			handleSubmit() {
-				let self = this;
-				self.$store.commit('SET_LOADING_STATUS', true);
+            this.$store.dispatch('updateCheckoutAnalysis', {
+                step: 'terms_and_conditions',
+                step_data: {
+                    user_details: {
+                        first_name: this.firstName,
+                        last_name: this.lastName,
+                        phone: this.phone,
+                        email: this.emailAddress
+                    },
+                }
+            });
+        },
+        methods: {
+            getTermsAndConditions() {
+                let self = this;
+                jQuery.ajax({
+                    method: 'GET',
+                    url: PhoneRepairs.ajaxurl,
+                    data: {action: 'terms_and_conditions',},
+                    success: function (response) {
+                        self.terms_and_conditions = response;
+                    }
+                });
+            },
+            saveCanvas(imageData) {
+                this.imageData = imageData;
+            },
+            handleSubmit() {
+                let self = this;
+                self.$store.commit('SET_LOADING_STATUS', true);
 
-				window.jQuery.ajax({
-					method: 'POST',
-					url: window.Stackonet.ajaxurl,
-					data: {
-						action: 'confirm_appointment',
-						product_id: self.device.product_id,
-						device_id: self.device.id,
-						device_title: self.device.device_title,
-						device_model: self.deviceModel.title,
-						device_color: self.deviceColor.title,
-						issues: self.issues,
-						issue_description: self.issueDescription,
-						date: self.date,
-						time_range: self.timeRange,
-						first_name: self.firstName,
-						last_name: self.lastName,
-						phone: self.phone,
-						email: self.emailAddress,
-						address: self.addressObject,
-						instructions: self.instructions,
-						additional_address: self.additionalAddress,
-						signature: self.imageData,
-					},
-					success: function (response) {
-						self.$store.commit('SET_LOADING_STATUS', false);
-						self.$router.push('/thank-you');
-					},
-					error: function () {
-						self.$store.commit('SET_LOADING_STATUS', false);
-					}
-				});
-			}
-		}
-	}
+                window.jQuery.ajax({
+                    method: 'POST',
+                    url: window.Stackonet.ajaxurl,
+                    data: {
+                        action: 'confirm_appointment',
+                        product_id: self.device.product_id,
+                        device_id: self.device.id,
+                        device_title: self.device.device_title,
+                        device_model: self.deviceModel.title,
+                        device_color: self.deviceColor.title,
+                        issues: self.issues,
+                        issue_description: self.issueDescription,
+                        date: self.date,
+                        time_range: self.timeRange,
+                        first_name: self.firstName,
+                        last_name: self.lastName,
+                        phone: self.phone,
+                        email: self.emailAddress,
+                        address: self.addressObject,
+                        formatted_address: self.address,
+                        instructions: self.instructions,
+                        additional_address: self.additionalAddress,
+                        signature: self.imageData,
+                    },
+                    success: function (response) {
+                        self.$store.commit('SET_LOADING_STATUS', false);
+                        self.$router.push('/thank-you');
+                    },
+                    error: function () {
+                        self.$store.commit('SET_LOADING_STATUS', false);
+                    }
+                });
+            }
+        }
+    }
 </script>
 
 <style lang="scss">
