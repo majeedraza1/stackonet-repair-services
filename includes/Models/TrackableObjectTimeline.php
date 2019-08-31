@@ -122,6 +122,87 @@ class TrackableObjectTimeline extends DatabaseModel {
 		return $timeline_data;
 	}
 
+	public static function format_timeline_for_rest( array $logs ) {
+		$new_logs  = [];
+		$first_log = $logs[0];
+
+
+		// @todo Make some better way
+		if ( $first_log['street_address'] ) {
+			array_splice( $logs, 0, 1 );
+		}
+
+		// @todo Make some better way
+		$last_log = $logs[ count( $logs ) - 1 ];
+		if ( $last_log['street_address'] ) {
+			$_steps = $last_log['steps'];
+			array_splice( $logs, count( $logs ) - 1, 1 );
+		}
+
+		foreach ( $logs as $log ) {
+			if ( $log['street_address'] ) {
+
+				$new_logs[] = array_merge( $log, [
+					'type'                 => 'movement',
+					'icon'                 => 'https://maps.gstatic.com/mapsactivities/icons/activity_icons/2x/ic_activity_moving_black_24dp.png',
+					'activityType'         => 'Moving',
+					'activityDistanceText' => DistanceCalculator::meter_to_human( $log['distance'] ),
+					'activityDurationText' => human_time_diff( $log['start_timestamp'], $log['end_timestamp'] ),
+				] );
+
+			} else {
+
+				$new_logs[] = array_merge( $log, [
+					'type'                 => 'place',
+					'dateTime'             => date( \DateTime::ISO8601, $log['utc_timestamp'] ),
+					'activityDurationText' => date( 'h:i A', $log['utc_timestamp'] ),
+					'addresses'            => [ $log['address'] ],
+				] );
+			}
+		}
+
+		return $new_logs;
+	}
+
+	public static function format_timeline_from_logs( array $logs, $object_id, $log_date ) {
+		$length                = 0;
+		$timeline_id           = 0;
+		$current_timeline_logs = [];
+
+		$timeline = self::get_timeline( $object_id, $log_date );
+		if ( $timeline instanceof self ) {
+			$timeline_id           = $timeline->get_id();
+			$current_timeline_logs = $timeline->get_timeline_data();
+			$length                = $timeline->get_complete_log_count();
+			array_splice( $logs, 0, $length );
+		}
+
+		$new_counts = count( $logs );
+
+		$logs              = static::add_duration_and_distance( $logs );
+		$logs              = static::format_log( $logs );
+		$new_timeline_logs = static::add_address_data( $logs );
+
+		$timeline_data = array_merge( $current_timeline_logs, $new_timeline_logs );
+
+		$data = [
+			'id'                 => $timeline_id,
+			'object_id'          => $object_id,
+			'timeline_date'      => $log_date,
+			'complete_log_count' => ( $length + $new_counts ),
+			'timeline_data'      => $timeline_data,
+			'complete'           => 0,
+		];
+
+		if ( $timeline_id ) {
+			( new static )->update( $data );
+		} else {
+			( new static )->create( $data );
+		}
+
+		return $timeline_data;
+	}
+
 	/**
 	 * @param array $logs
 	 *
@@ -208,15 +289,7 @@ class TrackableObjectTimeline extends DatabaseModel {
 				$street_address[] = $log;
 			} else {
 				if ( count( $street_address ) > 0 ) {
-					$end_log        = end( $street_address );
-					$new_logs[]     = [
-						'street_address'  => true,
-						'start_timestamp' => $street_address[0]['utc_timestamp'],
-						'end_timestamp'   => $end_log['utc_timestamp'],
-						'duration'        => array_sum( wp_list_pluck( $street_address, 'duration' ) ),
-						'distance'        => array_sum( wp_list_pluck( $street_address, 'distance' ) ),
-						'steps'           => $street_address
-					];
+					$new_logs[]     = self::format_street_address( $street_address );
 					$street_address = [];
 				}
 				$new_logs[] = $log;
@@ -224,15 +297,7 @@ class TrackableObjectTimeline extends DatabaseModel {
 
 			// If this is last log and street address has some content
 			if ( $index == ( $total_logs - 1 ) && count( $street_address ) > 0 ) {
-				$end_log        = end( $street_address );
-				$new_logs[]     = [
-					'street_address'  => true,
-					'start_timestamp' => $street_address[0]['utc_timestamp'],
-					'end_timestamp'   => $end_log['utc_timestamp'],
-					'duration'        => array_sum( wp_list_pluck( $street_address, 'duration' ) ),
-					'distance'        => array_sum( wp_list_pluck( $street_address, 'distance' ) ),
-					'steps'           => $street_address
-				];
+				$new_logs[]     = self::format_street_address( $street_address );
 				$street_address = [];
 			}
 		}
@@ -366,6 +431,24 @@ class TrackableObjectTimeline extends DatabaseModel {
 		}
 
 		( new static )->create( $data );
+	}
+
+	/**
+	 * @param array $street_address
+	 *
+	 * @return array
+	 */
+	private static function format_street_address( array $street_address ) {
+		$end_log = end( $street_address );
+
+		return [
+			'street_address'  => true,
+			'start_timestamp' => $street_address[0]['utc_timestamp'],
+			'end_timestamp'   => $end_log['utc_timestamp'],
+			'duration'        => array_sum( wp_list_pluck( $street_address, 'duration' ) ),
+			'distance'        => array_sum( wp_list_pluck( $street_address, 'distance' ) ),
+			'steps'           => $street_address
+		];
 	}
 
 	/**

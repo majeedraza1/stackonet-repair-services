@@ -9,6 +9,7 @@ use Exception;
 use Stackonet\Abstracts\DatabaseModel;
 use Stackonet\Integrations\GoogleMap;
 use Stackonet\Supports\DistanceCalculator;
+use Stackonet\Supports\Logger;
 
 class TrackableObjectLog extends DatabaseModel {
 

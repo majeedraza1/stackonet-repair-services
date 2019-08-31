@@ -39,12 +39,11 @@
 					<div class="timeline" v-if="timelineItems.length" v-for="(item, index) in timelineItems">
 						<google-timeline-item
 							v-if="item.type === 'place'"
-							:item="item"
 							:first-item="index === 0"
 							:last-item="index === (timelineItems.length - 1)"
+							:item-text="item.address.formatted_address"
+							:duration-text="item.activityDurationText"
 							:addresses="item.addresses"
-							:item-text="item.formatted_address"
-							:duration-text="item.duration"
 						></google-timeline-item>
 						<google-timeline-movement
 							v-if="item.type === 'movement'"

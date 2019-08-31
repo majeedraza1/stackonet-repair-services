@@ -22,7 +22,6 @@
 						</select>
 					</div>
 					<div class="duration-text">
-						<!--<span v-if="Object.keys(address).length" class="segment-duration-part">{{address['formatted_address']}}</span>-->
 						<span class="segment-duration-part">{{durationText}}</span>
 					</div>
 					<div class="">
@@ -45,28 +44,15 @@
             firstItem: {type: Boolean, default: false},
             lastItem: {type: Boolean, default: false},
             lineColor: {type: String, default: '#03A9F4'},
-            itemText: {type: String, default: 'Electronic City, Bengaluru, Karnataka'},
-            durationText: {type: String, default: '9:41 AM'},
-            addresses: {
-                type: Array, default: () => [
-                    {
-                        place_id: 'BhoomikaTower',
-                        name: 'Bhoomika Tower',
-                        formatted_address: '19th Main Road, KHB Colony, 6th Block, Koramangala, Bengaluru, Karnataka 560095'
-                    }
-                ]
-            },
             placeIcon: {
                 type: String,
                 default: 'https://maps.gstatic.com/mapsactivities/icons/poi_icons/30_regular/generic_2x.png'
             },
-            activityIcon: {
-                type: String,
-                default: 'https://maps.gstatic.com/mapsactivities/icons/activity_icons/2x/ic_activity_walking_black_24dp.png'
+            itemText: {type: String, default: ''},
+            durationText: {type: String, default: ''},
+            addresses: {
+                type: Array, default: () => []
             },
-            activityType: {type: String, default: 'Walking'},
-            activityDistanceText: {type: String, default: '- 1.4 km'},
-            activityDurationText: {type: String, default: '10 mins'},
         },
         data() {
             return {

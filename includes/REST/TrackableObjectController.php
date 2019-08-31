@@ -36,43 +36,6 @@ class TrackableObjectController extends ApiController {
 		return self::$instance;
 	}
 
-	public static function format_timeline_for_response( array $logs ) {
-		$response_logs = [];
-		foreach ( $logs as $log ) {
-			$is_address = isset( $log['address'] );
-			if ( ! $is_address ) {
-				$response_logs[] = array_merge( $log, [
-					'type'                 => 'movement',
-					'icon'                 => 'https://maps.gstatic.com/mapsactivities/icons/activity_icons/2x/ic_activity_moving_black_24dp.png',
-					'activityType'         => 'Moving',
-					'activityDistanceText' => DistanceCalculator::meter_to_human( $log['distance'] ),
-					'activityDurationText' => human_time_diff( $log['start_time'], $log['end_time'] ),
-				] );
-				continue;
-			}
-			$response_logs[] = [
-				'type'              => 'place',
-				'place_id'          => $log['place_id'],
-				'latitude'          => $log['latitude'],
-				'longitude'         => $log['longitude'],
-				'dateTime'          => date( \DateTime::ISO8601, $log['utc_timestamp'] ),
-				'duration'          => date( 'h:i A', $log['utc_timestamp'] ),
-				'name'              => $log['address']['name'],
-				'icon'              => $log['address']['icon'],
-				'formatted_address' => $log['address']['formatted_address'],
-				// Temp
-				'addresses'         => [
-					[
-						'name'     => $log['address']['name'],
-						'place_id' => $log['place_id'],
-					]
-				],
-			];
-		}
-
-		return $response_logs;
-	}
-
 	/**
 	 * @param array $_logs
 	 * @param $object_id
@@ -477,8 +440,8 @@ class TrackableObjectController extends ApiController {
 		$log   = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
 		$_logs = $log->get_log_data();
 
-		$logs             = TrackableObjectTimeline::get_object_timeline( $_logs, $object_id, $log_date );
-		$response['logs'] = self::format_timeline_for_response( $logs );
+		$logs             = TrackableObjectTimeline::format_timeline_from_logs( $_logs, $object_id, $log_date );
+		$response['logs'] = TrackableObjectTimeline::format_timeline_for_rest( $logs );
 
 		return $this->respondOK( $response );
 	}
