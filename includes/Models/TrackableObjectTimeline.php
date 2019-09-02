@@ -63,84 +63,100 @@ class TrackableObjectTimeline extends DatabaseModel {
 		return intval( $this->get( 'complete_log_count' ) );
 	}
 
-	public static function get_object_timeline( array $logs, $object_id, $log_date ) {
-		$length                = 0;
-		$timeline_id           = 0;
-		$current_timeline_logs = [];
+	/**
+	 * Prepare timeline logs for REST
+	 *
+	 * @param array $logs
+	 *
+	 * @return array
+	 */
+	public static function format_timeline_for_rest( array $logs ) {
+		$new_logs = [];
 
-		$timeline = self::get_timeline( $object_id, $log_date );
-		if ( $timeline instanceof self ) {
-			$timeline_id           = $timeline->get_id();
-			$current_timeline_logs = $timeline->get_timeline_data();
-			$length                = $timeline->get_complete_log_count();
-			array_splice( $logs, 0, $length );
-		}
+		// If first log is street address, update it
+		$first_log = $logs[0];
+		if ( $first_log['street_address'] ) {
+			$_steps     = $first_log['steps'];
+			$_first_log = $_steps[0];
 
-		$new_counts = count( $logs );
+			$address = GoogleMap::get_address_from_place_id(
+				$_first_log['place_id']
+			);
 
-		$logs              = static::add_duration_and_distance( $logs );
-		$logs              = static::add_address_data( $logs );
-		$new_timeline_logs = static::calculate_timeline( $logs );
+			$_first_log['address'] = [
+				'place_id'          => $_first_log['place_id'],
+				'name'              => $address['name'],
+				'icon'              => $address['icon'],
+				'formatted_address' => $address['formatted_address'],
+			];
 
-		$current_logs_count = count( $current_timeline_logs );
-		$new_logs_count     = count( $new_timeline_logs );
+			$_first_log['street_address'] = false;
 
-		if ( $current_logs_count > 0 && $new_logs_count > 0 ) {
-			$last_log  = $current_timeline_logs[ $current_logs_count - 1 ];
-			$first_log = $new_timeline_logs[0];
-			// Check if current timeline last log and new timeline first log is street address
-			if ( isset( $last_log['start_time'], $first_log['end_time'] ) ) {
-				$current_timeline_logs[ $current_logs_count - 1 ] = [
-					'start_time' => $last_log['start_time'],
-					'end_time'   => $first_log['end_time'],
-					'duration'   => ( $first_log['duration'] + $last_log['duration'] ),
-				];
-				array_splice( $new_timeline_logs, 0, 1 );
-			} // Check if current timeline last log and new timeline first log is not street address and same
-			else {
-				// @TODO perform address same check
+			unset( $_first_log['place_id'] );
+
+			if ( count( $_steps ) == 1 ) {
+				$logs[0] = $_first_log;
+			} else {
+				array_splice( $_steps, 0, 1 );
+				$street_address = self::format_street_address( $_steps );
+				$logs[0]        = $street_address;
+				array_unshift( $logs, $_first_log );
 			}
 		}
 
-		$timeline_data = array_merge( $current_timeline_logs, $new_timeline_logs );
-
-		$data = [
-			'id'                 => $timeline_id,
-			'object_id'          => $object_id,
-			'timeline_date'      => $log_date,
-			'complete_log_count' => ( $length + $new_counts ),
-			'timeline_data'      => $timeline_data,
-			'complete'           => 0,
-		];
-
-		if ( $timeline_id ) {
-			( new static )->update( $data );
-		} else {
-			( new static )->create( $data );
-		}
-
-		return $timeline_data;
-	}
-
-	public static function format_timeline_for_rest( array $logs ) {
-		$new_logs  = [];
-		$first_log = $logs[0];
-
-
-		// @todo Make some better way
-		if ( $first_log['street_address'] ) {
-			array_splice( $logs, 0, 1 );
-		}
-
-		// @todo Make some better way
 		$last_log = $logs[ count( $logs ) - 1 ];
 		if ( $last_log['street_address'] ) {
-			$_steps = $last_log['steps'];
-			array_splice( $logs, count( $logs ) - 1, 1 );
+			$_steps    = $last_log['steps'];
+			$_last_log = $_steps[ count( $_steps ) - 1 ];
+
+			$address = GoogleMap::get_address_from_place_id(
+				$_last_log['place_id']
+			);
+
+			$_last_log['address'] = [
+				'place_id'          => $_last_log['place_id'],
+				'name'              => $address['name'],
+				'icon'              => $address['icon'],
+				'formatted_address' => $address['formatted_address'],
+			];
+
+			$_last_log['street_address'] = false;
+
+			unset( $_last_log['place_id'] );
+
+			if ( count( $_steps ) == 1 ) {
+				$logs[ count( $logs ) - 1 ] = $_last_log;
+			} else {
+				$logs[ count( $logs ) - 1 ] = self::format_street_address( $_steps );
+				$logs[]                     = $_last_log;
+			}
 		}
 
-		foreach ( $logs as $log ) {
+		$_logs           = [];
+		$last_street_log = [];
+		foreach ( $logs as $index => $log ) {
 			if ( $log['street_address'] ) {
+				if ( ! empty( $last_street_log ) ) {
+					$last_street_log['steps']         = array_merge( $last_street_log['steps'], $log['steps'] );
+					$last_street_log['duration']      = ( $last_street_log['duration'] + $log['duration'] );
+					$last_street_log['distance']      = ( $last_street_log['distance'] + $log['distance'] );
+					$last_street_log['end_timestamp'] = $log['end_timestamp'];
+				} else {
+					$last_street_log = $log;
+				}
+			} else {
+				if ( ! empty( $last_street_log ) ) {
+					$_logs[]         = $last_street_log;
+					$last_street_log = [];
+				}
+
+				$_logs[] = $log;
+			}
+		}
+
+		foreach ( $_logs as $log ) {
+
+			if ( isset( $log['street_address'] ) && $log['street_address'] ) {
 
 				$new_logs[] = array_merge( $log, [
 					'type'                 => 'movement',
@@ -150,7 +166,8 @@ class TrackableObjectTimeline extends DatabaseModel {
 					'activityDurationText' => human_time_diff( $log['start_timestamp'], $log['end_timestamp'] ),
 				] );
 
-			} else {
+			}
+			if ( isset( $log['street_address'] ) && ! $log['street_address'] && ! empty( $log['address'] ) ) {
 
 				$new_logs[] = array_merge( $log, [
 					'type'                 => 'place',
@@ -164,6 +181,15 @@ class TrackableObjectTimeline extends DatabaseModel {
 		return $new_logs;
 	}
 
+	/**
+	 * Format timeline from logs
+	 *
+	 * @param array $logs
+	 * @param string $object_id
+	 * @param string $log_date
+	 *
+	 * @return array
+	 */
 	public static function format_timeline_from_logs( array $logs, $object_id, $log_date ) {
 		$length                = 0;
 		$timeline_id           = 0;
@@ -204,64 +230,6 @@ class TrackableObjectTimeline extends DatabaseModel {
 	}
 
 	/**
-	 * @param array $logs
-	 *
-	 * @return array
-	 */
-	public static function calculate_timeline( array $logs ) {
-		$new_logs       = [];
-		$street_address = [];
-		$total_logs     = count( $logs );
-		foreach ( $logs as $index => $log ) {
-			$is_street_address = in_array( 'street_address', $log['address_types'] );
-			$duration          = isset( $log['duration'] ) ? $log['duration'] : 0;
-			if ( $is_street_address || $duration < 60 ) {
-				$street_address[] = $log;
-			} else {
-				$count_street_address = count( $street_address );
-				if ( $count_street_address > 0 ) {
-					$first_street = $street_address[0];
-					$last_street  = $street_address[ $count_street_address - 1 ];
-					$new_logs[]   = [
-						'start_time' => $first_street['utc_timestamp'],
-						'end_time'   => $last_street['utc_timestamp'],
-						'duration'   => array_sum( wp_list_pluck( $street_address, 'duration' ) ),
-						'distance'   => DistanceCalculator::getDistance(
-							$first_street['latitude'],
-							$first_street['longitude'],
-							$last_street['latitude'],
-							$last_street['longitude']
-						),
-					];
-				}
-				$new_logs[]     = $log;
-				$street_address = [];
-			}
-
-			// If this is last log and street address has some content
-			if ( $index == ( $total_logs - 1 ) && count( $street_address ) > 0 ) {
-				$count_street_address = count( $street_address );
-				$first_street         = $street_address[0];
-				$last_street          = $street_address[ $count_street_address - 1 ];
-				$new_logs[]           = [
-					'start_time' => $first_street['utc_timestamp'],
-					'end_time'   => $last_street['utc_timestamp'],
-					'duration'   => array_sum( wp_list_pluck( $street_address, 'duration' ) ),
-					'distance'   => DistanceCalculator::getDistance(
-						$first_street['latitude'],
-						$first_street['longitude'],
-						$last_street['latitude'],
-						$last_street['longitude']
-					),
-				];
-				$street_address       = [];
-			}
-		}
-
-		return $new_logs;
-	}
-
-	/**
 	 * Calculate timeline data
 	 * =======================================================================
 	 * 01. Loop through all logs
@@ -269,7 +237,10 @@ class TrackableObjectTimeline extends DatabaseModel {
 	 *     --> i. Add the log to temporary $street_address variable as an item
 	 *
 	 * 03. If the log is not a street address
-	 *     --> i. Check if temporary $street_address contains any address
+	 *     --> i.   Check if temporary $street_address contains any address,
+	 *                  if it contains any address then save it to $new_logs
+	 *    --> ii.   Also save current address
+	 *    --> iii.  On last log item, If street address has some content, save it also
 	 * =======================================================================
 	 *
 	 * @param array $logs
@@ -378,13 +349,33 @@ class TrackableObjectTimeline extends DatabaseModel {
 	}
 
 	/**
+	 * Format street address for saving on timeline database
+	 *
+	 * @param array $street_address
+	 *
+	 * @return array
+	 */
+	private static function format_street_address( array $street_address ) {
+		$end_log = end( $street_address );
+
+		return [
+			'street_address'  => true,
+			'start_timestamp' => $street_address[0]['utc_timestamp'],
+			'end_timestamp'   => $end_log['utc_timestamp'],
+			'duration'        => array_sum( wp_list_pluck( $street_address, 'duration' ) ),
+			'distance'        => array_sum( wp_list_pluck( $street_address, 'distance' ) ),
+			'steps'           => $street_address
+		];
+	}
+
+	/**
 	 * Check provided address is a street address
 	 *
 	 * @param array $address_types
 	 *
 	 * @return bool
 	 */
-	public static function is_street_address( array $address_types ) {
+	public static function is_street_address( $address_types ) {
 		if ( in_array( 'street_address', $address_types ) ) {
 			return true;
 		}
@@ -418,37 +409,6 @@ class TrackableObjectTimeline extends DatabaseModel {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Create timeline
-	 *
-	 * @param array $data
-	 */
-	public static function create_timeline( array $data ) {
-		if ( empty( $data['timeline_date'] ) ) {
-			$data['timeline_date'] = date( 'Y-m-d', current_time( 'timestamp' ) );
-		}
-
-		( new static )->create( $data );
-	}
-
-	/**
-	 * @param array $street_address
-	 *
-	 * @return array
-	 */
-	private static function format_street_address( array $street_address ) {
-		$end_log = end( $street_address );
-
-		return [
-			'street_address'  => true,
-			'start_timestamp' => $street_address[0]['utc_timestamp'],
-			'end_timestamp'   => $end_log['utc_timestamp'],
-			'duration'        => array_sum( wp_list_pluck( $street_address, 'duration' ) ),
-			'distance'        => array_sum( wp_list_pluck( $street_address, 'distance' ) ),
-			'steps'           => $street_address
-		];
 	}
 
 	/**

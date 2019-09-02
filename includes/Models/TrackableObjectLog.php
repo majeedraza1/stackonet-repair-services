@@ -332,12 +332,20 @@ class TrackableObjectLog extends DatabaseModel {
 	}
 
 	public static function get_current_log_address( $log ) {
+		$transient_name       = 'last_log_address_' . md5( wp_json_encode( $log ) );
+		$transient_expiration = MINUTE_IN_SECONDS * 10;
+		$address              = get_transient( $transient_name );
+		if ( false !== $address ) {
+			return $address;
+		}
+
 		$addressObject = GoogleMap::get_address_from_lat_lng( $log['latitude'], $log['longitude'] );
 		$address       = [
 			'place_id'          => $addressObject['place_id'],
 			'formatted_address' => $addressObject['formatted_address'],
 			'types'             => $addressObject['types'],
 		];
+		set_transient( $transient_name, $address, $transient_expiration );
 
 		return $address;
 	}

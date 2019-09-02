@@ -6,7 +6,9 @@ use DateInterval;
 use DatePeriod;
 use DateTime;
 use Exception;
+use Stackonet\Integrations\FirebaseDatabase;
 use Stackonet\Integrations\GoogleMap;
+use Stackonet\Models\TrackableObject;
 use Stackonet\Models\TrackableObjectLog;
 use Stackonet\Models\TrackableObjectTimeline;
 use Stackonet\Modules\SupportTicket\OrderToSupportTicket;
@@ -95,18 +97,14 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$object_id = 'sayful';
-		$log_date  = '2019-08-30';
+		$object_id = 'brian';
+		$log_date  = '2019-09-02';
 
-		$log  = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
-		$logs = $log->get_log_data();
-//		$logs = TrackableObjectTimeline::add_duration_and_distance( $logs );
-//		$logs = TrackableObjectTimeline::format_log( $logs );
-//		$logs = TrackableObjectTimeline::add_address_data( $logs );
-		$logs = TrackableObjectTimeline::format_timeline_from_logs( $logs, $object_id, $log_date );
+		$log   = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
+		$_logs = $log->get_log_data();
+
+		$logs = TrackableObjectTimeline::format_timeline_from_logs( $_logs, $object_id, $log_date );
 		$logs = TrackableObjectTimeline::format_timeline_for_rest( $logs );
-//		$new_logs = TrackableObjectTimeline::calculate_timeline( $logs );
-//		$timeline = TrackableObjectTimeline::get_object_timeline( $logs, $object_id, $log_date );
 
 		var_dump( $logs );
 		die();

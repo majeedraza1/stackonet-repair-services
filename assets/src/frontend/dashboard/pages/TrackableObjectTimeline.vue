@@ -89,6 +89,7 @@
                 log_date: '',
                 min_max_date: {},
                 employees: null,
+                timelines: null,
                 polylines: [],
                 mapPolyline: [],
                 timelineItems: [],
@@ -106,7 +107,8 @@
             }
         },
         beforeDestroy() {
-            clearInterval(this.employees)
+            clearInterval(this.employees);
+            clearInterval(this.timelines);
         },
         mounted() {
             this.$store.commit('SET_LOADING_STATUS', false);
@@ -136,6 +138,10 @@
                     this.refreshData(data);
                 }).catch(error => console.error(error));
             }, 5000);
+
+            this.timelines = setInterval(() => {
+                this.getTimeline();
+            }, 60000);
         },
         computed: {
             flatpickrConfig() {

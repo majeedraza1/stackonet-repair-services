@@ -43,8 +43,8 @@ class FirebaseDatabase {
 	 * Sync employees
 	 */
 	public static function sync_employees() {
-		$employees = ( new static )->getEmployees();
-		TrackableObjectLog::log_objects( $employees );
+		$objects = ( new static )->getEmployees();
+		TrackableObjectLog::log_objects( $objects );
 	}
 
 	/**
