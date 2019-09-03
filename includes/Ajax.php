@@ -97,6 +97,10 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
+		$string = "3655 Military Trail 321";
+		$string = preg_replace( "/[0-9 ]/", '', $string );
+//		var_dump( $string );
+//		die();
 		$object_id = 'brian';
 		$log_date  = '2019-09-02';
 

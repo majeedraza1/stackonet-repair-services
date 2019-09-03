@@ -73,88 +73,9 @@ class TrackableObjectTimeline extends DatabaseModel {
 	public static function format_timeline_for_rest( array $logs ) {
 		$new_logs = [];
 
-		// If first log is street address, update it
-		$first_log = $logs[0];
-		if ( $first_log['street_address'] ) {
-			$_steps     = $first_log['steps'];
-			$_first_log = $_steps[0];
+		$logs = self::update_last_log( $logs );
 
-			$address = GoogleMap::get_address_from_place_id(
-				$_first_log['place_id']
-			);
-
-			$_first_log['address'] = [
-				'place_id'          => $_first_log['place_id'],
-				'name'              => $address['name'],
-				'icon'              => $address['icon'],
-				'formatted_address' => $address['formatted_address'],
-			];
-
-			$_first_log['street_address'] = false;
-
-			unset( $_first_log['place_id'] );
-
-			if ( count( $_steps ) == 1 ) {
-				$logs[0] = $_first_log;
-			} else {
-				array_splice( $_steps, 0, 1 );
-				$street_address = self::format_street_address( $_steps );
-				$logs[0]        = $street_address;
-				array_unshift( $logs, $_first_log );
-			}
-		}
-
-		$last_log = $logs[ count( $logs ) - 1 ];
-		if ( $last_log['street_address'] ) {
-			$_steps    = $last_log['steps'];
-			$_last_log = $_steps[ count( $_steps ) - 1 ];
-
-			$address = GoogleMap::get_address_from_place_id(
-				$_last_log['place_id']
-			);
-
-			$_last_log['address'] = [
-				'place_id'          => $_last_log['place_id'],
-				'name'              => $address['name'],
-				'icon'              => $address['icon'],
-				'formatted_address' => $address['formatted_address'],
-			];
-
-			$_last_log['street_address'] = false;
-
-			unset( $_last_log['place_id'] );
-
-			if ( count( $_steps ) == 1 ) {
-				$logs[ count( $logs ) - 1 ] = $_last_log;
-			} else {
-				$logs[ count( $logs ) - 1 ] = self::format_street_address( $_steps );
-				$logs[]                     = $_last_log;
-			}
-		}
-
-		$_logs           = [];
-		$last_street_log = [];
-		foreach ( $logs as $index => $log ) {
-			if ( $log['street_address'] ) {
-				if ( ! empty( $last_street_log ) ) {
-					$last_street_log['steps']         = array_merge( $last_street_log['steps'], $log['steps'] );
-					$last_street_log['duration']      = ( $last_street_log['duration'] + $log['duration'] );
-					$last_street_log['distance']      = ( $last_street_log['distance'] + $log['distance'] );
-					$last_street_log['end_timestamp'] = $log['end_timestamp'];
-				} else {
-					$last_street_log = $log;
-				}
-			} else {
-				if ( ! empty( $last_street_log ) ) {
-					$_logs[]         = $last_street_log;
-					$last_street_log = [];
-				}
-
-				$_logs[] = $log;
-			}
-		}
-
-		foreach ( $_logs as $log ) {
+		foreach ( $logs as $log ) {
 
 			if ( isset( $log['street_address'] ) && $log['street_address'] ) {
 
@@ -203,13 +124,25 @@ class TrackableObjectTimeline extends DatabaseModel {
 			array_splice( $logs, 0, $length );
 		}
 
+		// If there is no new log, then return current timeline logs
 		$new_counts = count( $logs );
+		if ( $new_counts < 1 ) {
+			return $current_timeline_logs;
+		}
 
 		$logs              = static::add_duration_and_distance( $logs );
 		$logs              = static::format_log( $logs );
 		$new_timeline_logs = static::add_address_data( $logs );
 
 		$timeline_data = array_merge( $current_timeline_logs, $new_timeline_logs );
+
+		// If first log is street address, update it
+		if ( count( $current_timeline_logs ) < 1 && count( $new_timeline_logs ) > 0 ) {
+			$timeline_data = self::update_first_log( $timeline_data );
+		}
+
+		$timeline_data = self::merge_consecutive_places( $timeline_data );
+		$timeline_data = self::merge_consecutive_street_addresses( $timeline_data );
 
 		$data = [
 			'id'                 => $timeline_id,
@@ -256,7 +189,7 @@ class TrackableObjectTimeline extends DatabaseModel {
 			$is_street_address = $log['street_address'];
 			$duration          = isset( $log['duration'] ) ? $log['duration'] : 0;
 
-			if ( $is_street_address || $duration < 10 ) {
+			if ( $is_street_address || $duration < 15 ) {
 				$street_address[] = $log;
 			} else {
 				if ( count( $street_address ) > 0 ) {
@@ -409,6 +342,158 @@ class TrackableObjectTimeline extends DatabaseModel {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Merge two consecutive same address
+	 *
+	 * @param array $logs
+	 *
+	 * @return array
+	 */
+	private static function merge_consecutive_places( array $logs ) {
+		$new_logs   = [];
+		$last_place = [];
+
+		foreach ( $logs as $index => $log ) {
+			if ( ! $log['street_address'] ) {
+				if ( ! empty( $last_place ) ) {
+					$last_place_name    = preg_replace( "/[0-9 ]/", '', $last_place['address']['name'] );
+					$current_place_name = preg_replace( "/[0-9 ]/", '', $log['address']['name'] );
+					if ( strtolower( $last_place_name ) != strtolower( $current_place_name ) ) {
+						$new_logs[] = $log;
+					}
+				} else {
+					$new_logs[] = $log;
+				}
+				$last_place = $log;
+			} else {
+				$new_logs[] = $log;
+			}
+		}
+
+		return $new_logs;
+	}
+
+	/**
+	 * Merge two consecutive street address
+	 *
+	 * @param array $logs
+	 *
+	 * @return array
+	 */
+	private static function merge_consecutive_street_addresses( array $logs ) {
+		$_logs           = [];
+		$last_street_log = [];
+		$total_logs      = count( $logs );
+		foreach ( $logs as $index => $log ) {
+			if ( $log['street_address'] ) {
+				if ( ! empty( $last_street_log ) ) {
+					$last_street_log['steps']         = array_merge( $last_street_log['steps'], $log['steps'] );
+					$last_street_log['duration']      = ( $last_street_log['duration'] + $log['duration'] );
+					$last_street_log['distance']      = ( $last_street_log['distance'] + $log['distance'] );
+					$last_street_log['end_timestamp'] = $log['end_timestamp'];
+				} else {
+					$last_street_log = $log;
+				}
+
+				if ( $index == ( $total_logs - 1 ) && ! empty( $last_street_log ) ) {
+					$_logs[]         = $last_street_log;
+					$last_street_log = [];
+				}
+			} else {
+				if ( ! empty( $last_street_log ) ) {
+					$_logs[]         = $last_street_log;
+					$last_street_log = [];
+				}
+
+				$_logs[] = $log;
+			}
+		}
+
+		return $_logs;
+	}
+
+	/**
+	 * Update first log for response
+	 * We need address for first log even it is street address
+	 *
+	 * @param array $logs
+	 *
+	 * @return array
+	 */
+	private static function update_first_log( array $logs ) {
+		$first_log = $logs[0];
+		if ( $first_log['street_address'] ) {
+			$_steps     = $first_log['steps'];
+			$_first_log = $_steps[0];
+
+			$address = GoogleMap::get_address_from_place_id(
+				$_first_log['place_id']
+			);
+
+			$_first_log['address'] = [
+				'place_id'          => $_first_log['place_id'],
+				'name'              => $address['name'],
+				'icon'              => $address['icon'],
+				'formatted_address' => $address['formatted_address'],
+			];
+
+			$_first_log['street_address'] = false;
+
+			unset( $_first_log['place_id'] );
+
+			if ( count( $_steps ) == 1 ) {
+				$logs[0] = $_first_log;
+			} else {
+				array_splice( $_steps, 0, 1 );
+				$street_address = self::format_street_address( $_steps );
+				$logs[0]        = $street_address;
+				array_unshift( $logs, $_first_log );
+			}
+		}
+
+		return $logs;
+	}
+
+	/**
+	 * Update last log for response
+	 * We need address for last log even it is street address
+	 *
+	 * @param array $logs
+	 *
+	 * @return array
+	 */
+	private static function update_last_log( array $logs ) {
+		$last_log = $logs[ count( $logs ) - 1 ];
+		if ( $last_log['street_address'] ) {
+			$_steps    = $last_log['steps'];
+			$_last_log = $_steps[ count( $_steps ) - 1 ];
+
+			$address = GoogleMap::get_address_from_place_id(
+				$_last_log['place_id']
+			);
+
+			$_last_log['address'] = [
+				'place_id'          => $_last_log['place_id'],
+				'name'              => $address['name'],
+				'icon'              => $address['icon'],
+				'formatted_address' => $address['formatted_address'],
+			];
+
+			$_last_log['street_address'] = false;
+
+			unset( $_last_log['place_id'] );
+
+			if ( count( $_steps ) == 1 ) {
+				$logs[ count( $logs ) - 1 ] = $_last_log;
+			} else {
+				$logs[ count( $logs ) - 1 ] = self::format_street_address( $_steps );
+				$logs[]                     = $_last_log;
+			}
+		}
+
+		return $logs;
 	}
 
 	/**
