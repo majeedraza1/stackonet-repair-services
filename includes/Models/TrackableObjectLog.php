@@ -124,50 +124,6 @@ class TrackableObjectLog extends DatabaseModel {
 	}
 
 	/**
-	 * Get log data with distance and duration
-	 *
-	 * @return array
-	 */
-	public function get_log_data_with_distance_and_duration() {
-		$_logs = $this->get_log_data();
-		$logs  = [];
-		foreach ( $_logs as $index => $log ) {
-			$logs[ $index ] = $log;
-			if ( 0 !== $index ) {
-				$pre = $_logs[ $index - 1 ];
-
-				$logs[ $index ]['distance'] = DistanceCalculator::getDistance(
-					$pre['latitude'],
-					$pre['longitude'],
-					$log['latitude'],
-					$log['longitude']
-				);
-			}
-
-			if ( $index < count( $_logs ) - 1 ) {
-				$next = $_logs[ $index + 1 ];
-
-				$logs[ $index ]['duration'] = intval( $next['utc_timestamp'] - $log['utc_timestamp'] );
-			}
-
-			if ( $index == count( $_logs ) - 1 ) {
-				$logs[ $index ]['duration'] = intval( current_time( 'timestamp' ) - $log['utc_timestamp'] );
-			}
-
-			if ( isset( $logs[ $index ]['duration'] ) && $logs[ $index ]['duration'] >= ( 4 * MINUTE_IN_SECONDS ) ) {
-				$location = GoogleMap::get_addresses_from_lat_lng(
-					$log['latitude'],
-					$log['longitude']
-				);
-
-				$logs[ $index ]['location'] = wp_list_pluck( $location, 'formatted_address' );
-			}
-		}
-
-		return $logs;
-	}
-
-	/**
 	 * Get log data by time range
 	 *
 	 * @return array
@@ -278,6 +234,11 @@ class TrackableObjectLog extends DatabaseModel {
 		unset( $log['online'] );
 
 		$last_item = $log_data[ $log_data_count - 1 ];
+		$last_item = is_array( $last_item ) ? [
+			'latitude'      => $last_item['latitude'],
+			'longitude'     => $last_item['longitude'],
+			'utc_timestamp' => $last_item['utc_timestamp'],
+		] : [];
 
 		$diff = array_diff( $log, $last_item );
 		if ( isset( $diff['utc_timestamp'] ) ) {

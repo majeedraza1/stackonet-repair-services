@@ -3,6 +3,7 @@
 namespace Stackonet\Integrations;
 
 use Stackonet\Models\Appointment;
+use Stackonet\Models\GooglePlace;
 use Stackonet\Models\Settings;
 use WC_Order;
 
@@ -18,58 +19,23 @@ class GoogleMap {
 	 * @return array
 	 */
 	public static function get_latitude_longitude( $address ) {
-		$map_key  = Settings::get_map_api_key();
-		$rest_url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' . rawurlencode( $address ) . '&key=' . $map_key;
-		$response = wp_remote_get( $rest_url );
-		$body     = wp_remote_retrieve_body( $response );
-		$data     = json_decode( $body, true );
-		$lat_lan  = ! empty( $data['results'][0]['geometry']['location'] ) ? $data['results'][0]['geometry']['location'] : [];
+		$GooglePlace = GooglePlace::get_address_from_formatted_address( $address );
+		if ( $GooglePlace instanceof GooglePlace ) {
+			$addressObject = $GooglePlace->to_array();
+		} else {
+			$map_key       = Settings::get_map_api_key();
+			$rest_url      = 'https://maps.googleapis.com/maps/api/geocode/json?address=' . rawurlencode( $address ) . '&key=' . $map_key;
+			$response      = wp_remote_get( $rest_url );
+			$body          = wp_remote_retrieve_body( $response );
+			$data          = json_decode( $body, true );
+			$addressObject = ! empty( $data['results'][0] ) ? $data['results'][0] : [];
 
-		return $lat_lan;
-	}
+			if ( $addressObject ) {
+				GooglePlace::add_place_data_if_not_exist( $addressObject );
+			}
+		}
 
-	/**
-	 * Get distance between two places
-	 *
-	 * @param float $latitudeFrom
-	 * @param float $longitudeFrom
-	 * @param float $latitudeTo
-	 * @param float $longitudeTo
-	 *
-	 * @return array
-	 */
-	public static function get_distance( $latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo ) {
-		$map_key  = Settings::get_map_api_key();
-		$rest_url = add_query_arg( [
-			'origins'        => $latitudeFrom . ',' . $longitudeFrom,
-			'destinations'   => $latitudeTo . ',' . $longitudeTo,
-			'departure_time' => 'now',
-			'mode'           => 'walking',
-			'units'          => 'metric',
-			'key'            => $map_key,
-		], 'https://maps.googleapis.com/maps/api/distancematrix/json' );
-		$response = wp_remote_get( $rest_url );
-		$body     = wp_remote_retrieve_body( $response );
-		$data     = json_decode( $body, true );
-
-		return $data;
-	}
-
-	/**
-	 * @param int|float $latitude
-	 * @param int|float $longitude
-	 *
-	 * @return array|mixed|object
-	 */
-	public static function get_addresses_from_lat_lng( $latitude, $longitude ) {
-		$map_key  = Settings::get_map_api_key();
-		$rest_url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" . $latitude . "," . $longitude . "&key=" . $map_key;
-		$response = wp_remote_get( $rest_url );
-		$body     = wp_remote_retrieve_body( $response );
-		$data     = json_decode( $body, true );
-		$address  = isset( $data['results'] ) ? $data['results'] : [];
-
-		return $address;
+		return ! empty( $addressObject['geometry']['location'] ) ? $addressObject['geometry']['location'] : [];
 	}
 
 	/**
@@ -80,12 +46,19 @@ class GoogleMap {
 	 * @return array
 	 */
 	public static function get_address_from_place_id( $place_id ) {
+		$address = GooglePlace::get_place_from_place_id( $place_id );
+		if ( $address instanceof GooglePlace ) {
+			return $address->to_array();
+		}
+
 		$map_key  = Settings::get_map_api_key();
 		$rest_url = "https://maps.googleapis.com/maps/api/place/details/json?placeid=" . $place_id . "&key=" . $map_key;
 		$response = wp_remote_get( $rest_url );
 		$body     = wp_remote_retrieve_body( $response );
 		$data     = json_decode( $body, true );
 		$address  = isset( $data['result'] ) ? $data['result'] : [];
+
+		GooglePlace::add_place_data( $address );
 
 		return $address;
 	}
@@ -97,12 +70,19 @@ class GoogleMap {
 	 * @return array|mixed|object
 	 */
 	public static function get_address_from_lat_lng( $latitude, $longitude ) {
+		$address = GooglePlace::get_address_from_lat_lng( $latitude, $longitude );
+		if ( $address instanceof GooglePlace ) {
+			return $address->to_array();
+		}
+
 		$map_key  = Settings::get_map_api_key();
 		$rest_url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" . $latitude . "," . $longitude . "&key=" . $map_key;
 		$response = wp_remote_get( $rest_url );
 		$body     = wp_remote_retrieve_body( $response );
 		$data     = json_decode( $body, true );
 		$address  = isset( $data['results'][0] ) ? $data['results'][0] : [];
+
+		GooglePlace::add_place_data( $address );
 
 		return $address;
 	}
@@ -227,5 +207,32 @@ class GoogleMap {
 		}
 
 		return $points;
+	}
+
+	/**
+	 * Get distance between two places
+	 *
+	 * @param float $latitudeFrom
+	 * @param float $longitudeFrom
+	 * @param float $latitudeTo
+	 * @param float $longitudeTo
+	 *
+	 * @return array
+	 */
+	public static function get_distance( $latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo ) {
+		$map_key  = Settings::get_map_api_key();
+		$rest_url = add_query_arg( [
+			'origins'        => $latitudeFrom . ',' . $longitudeFrom,
+			'destinations'   => $latitudeTo . ',' . $longitudeTo,
+			'departure_time' => 'now',
+			'mode'           => 'walking',
+			'units'          => 'metric',
+			'key'            => $map_key,
+		], 'https://maps.googleapis.com/maps/api/distancematrix/json' );
+		$response = wp_remote_get( $rest_url );
+		$body     = wp_remote_retrieve_body( $response );
+		$data     = json_decode( $body, true );
+
+		return $data;
 	}
 }

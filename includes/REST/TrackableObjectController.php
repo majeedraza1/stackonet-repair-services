@@ -9,6 +9,7 @@ use Stackonet\Models\TrackableObject;
 use Stackonet\Models\TrackableObjectLog;
 use Stackonet\Models\TrackableObjectTimeline;
 use Stackonet\Supports\DistanceCalculator;
+use Stackonet\Supports\Logger;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -336,23 +337,25 @@ class TrackableObjectController extends ApiController {
 		}
 
 		$object           = $items->to_rest( $log_date );
-		$object['moving'] = ( $object['last_log']['utc_timestamp'] + 600 ) > $timestamp;
+		$object['moving'] = isset( $object['last_log']['utc_timestamp'] ) && ( $object['last_log']['utc_timestamp'] + 600 ) > $timestamp;
+
+		$polyline = [];
 
 		$item = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
-		if ( ! $item instanceof TrackableObjectLog ) {
-			return $this->respondNotFound();
+		if ( $item instanceof TrackableObjectLog ) {
+			$polyline = $item->get_log_data_by_time_range();
 		}
 
 		$response = [
 			'object'        => $object,
 			'utc_timestamp' => $timestamp,
-			'polyline'      => $item->get_log_data_by_time_range(),
+			'polyline'      => $polyline,
 			'snappedPoints' => [],
 			'min_max_date'  => $items->find_min_max_log_date(),
 			'idle_time'     => ( 10 * 60 ), // Ten minutes in seconds
 		];
 
-		if ( $snapToRoads ) {
+		if ( $snapToRoads && count( $polyline ) ) {
 			$response['snappedPoints'] = $item->get_snapped_points_by_time_range();
 		}
 
@@ -437,8 +440,12 @@ class TrackableObjectController extends ApiController {
 			'icon_url'    => $object->get_object_icon(),
 		];
 
-		$log   = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
-		$_logs = $log->get_log_data();
+		$log = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
+		if ( $log instanceof TrackableObjectLog ) {
+			$_logs = $log->get_log_data();
+		} else {
+			$_logs = [];
+		}
 
 		$logs             = TrackableObjectTimeline::format_timeline_from_logs( $_logs, $object_id, $log_date );
 		$response['logs'] = TrackableObjectTimeline::format_timeline_for_rest( $logs );

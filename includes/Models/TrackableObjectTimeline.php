@@ -309,6 +309,9 @@ class TrackableObjectTimeline extends DatabaseModel {
 	 * @return bool
 	 */
 	public static function is_street_address( $address_types ) {
+		if ( ! is_array( $address_types ) ) {
+			return false;
+		}
 		if ( in_array( 'street_address', $address_types ) ) {
 			return true;
 		}
