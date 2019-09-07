@@ -90,6 +90,11 @@ class TrackableObjectTimeline extends DatabaseModel {
 			}
 			if ( isset( $log['street_address'] ) && ! $log['street_address'] && ! empty( $log['address'] ) ) {
 
+				if ( empty( $log['address']['name'] ) ) {
+					$name                   = explode( ',', $log['address']['formatted_address'] );
+					$log['address']['name'] = count( $name ) > 0 ? trim( $name[0] ) : '';
+				}
+
 				$new_logs[] = array_merge( $log, [
 					'type'                 => 'place',
 					'dateTime'             => date( \DateTime::ISO8601, $log['utc_timestamp'] ),
@@ -237,7 +242,7 @@ class TrackableObjectTimeline extends DatabaseModel {
 				$new_logs[ $index ]['distance'] = 0;
 			}
 
-			$new_logs[ $index ]['street_address'] = self::is_street_address( $log['address_types'] );
+			$new_logs[ $index ]['street_address'] = isset( $log['address_types'] ) && self::is_street_address( $log['address_types'] );
 		}
 
 		return $new_logs;
@@ -269,9 +274,15 @@ class TrackableObjectTimeline extends DatabaseModel {
 
 				unset( $new_logs[ $index ]['place_id'] );
 
+				$name = $address['name'];
+				if ( empty( $name ) ) {
+					$name = explode( ',', $address['formatted_address'] );
+					$name = count( $name ) > 0 ? trim( $name[0] ) : '';
+				}
+
 				$new_logs[ $index ]['address'] = [
 					'place_id'          => $log['place_id'],
-					'name'              => $address['name'],
+					'name'              => $name,
 					'icon'              => $address['icon'],
 					'formatted_address' => $address['formatted_address'],
 				];
@@ -468,7 +479,11 @@ class TrackableObjectTimeline extends DatabaseModel {
 	 * @return array
 	 */
 	private static function update_last_log( array $logs ) {
-		$last_log = $logs[ count( $logs ) - 1 ];
+		$total_logs = count( $logs );
+		if ( $total_logs < 1 ) {
+			return $logs;
+		}
+		$last_log = $logs[ $total_logs - 1 ];
 		if ( $last_log['street_address'] ) {
 			$_steps    = $last_log['steps'];
 			$_last_log = $_steps[ count( $_steps ) - 1 ];
@@ -489,10 +504,10 @@ class TrackableObjectTimeline extends DatabaseModel {
 			unset( $_last_log['place_id'] );
 
 			if ( count( $_steps ) == 1 ) {
-				$logs[ count( $logs ) - 1 ] = $_last_log;
+				$logs[ $total_logs - 1 ] = $_last_log;
 			} else {
-				$logs[ count( $logs ) - 1 ] = self::format_street_address( $_steps );
-				$logs[]                     = $_last_log;
+				$logs[ $total_logs - 1 ] = self::format_street_address( $_steps );
+				$logs[]                  = $_last_log;
 			}
 		}
 

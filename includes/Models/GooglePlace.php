@@ -161,6 +161,9 @@ class GooglePlace extends DatabaseModel {
 
 		$place_id = ( new static )->create( $data );
 
+		global $wpdb;
+		// $wpdb->replace();
+
 		return $place_id;
 	}
 
@@ -172,6 +175,8 @@ class GooglePlace extends DatabaseModel {
 	 * @return int
 	 */
 	public static function add_place_data_if_not_exist( array $data ) {
+		$data = self::format_place_data( $data );
+
 		if ( empty( $data['place_id'] ) ) {
 			return 0;
 		}
@@ -230,7 +235,7 @@ class GooglePlace extends DatabaseModel {
 
 		$table_schema = "CREATE TABLE IF NOT EXISTS {$table_name} (
                 `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-                `place_id` text DEFAULT NULL,
+                `place_id` varchar(255) DEFAULT NULL,
                 `latitude` float(50) DEFAULT NULL,
                 `longitude` float(50) DEFAULT NULL,
                 `address_components` text DEFAULT NULL,
@@ -248,7 +253,8 @@ class GooglePlace extends DatabaseModel {
                 `utc_offset` int(4) DEFAULT NULL,
                 `vicinity` text DEFAULT NULL,
                 `website` varchar(255) DEFAULT NULL,
-                PRIMARY KEY (`id`)
+                PRIMARY KEY (`id`),
+                UNIQUE (place_id)
             ) $collate;";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';

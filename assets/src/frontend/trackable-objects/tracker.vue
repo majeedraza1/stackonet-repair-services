@@ -14,6 +14,7 @@
 					:moving="_item.moving"
 					:current-time="current_timestamp"
 					:idle-time="idle_time"
+					:formatted_address="_item.formatted_address"
 				/>
 			</template>
 		</div>
@@ -22,12 +23,9 @@
 
 <script>
     import {columns, column} from 'shapla-columns';
-    import axios from 'axios';
-    import {CrudMixin} from "../../../components/CrudMixin";
+    import {CrudMixin} from "../../components/CrudMixin";
     import MapObjectCard from "./MapObjectCard";
     import {TrackerMixin} from "./TrackerMixin";
-
-    let mapStyles = require('./map-style.json');
 
     export default {
         name: "tracker",
@@ -53,6 +51,7 @@
                         moving: item['moving'],
                         current_timestamp: this.current_timestamp,
                         last_activity: item['last_log']['utc_timestamp'],
+                        formatted_address: item['last_log']['formatted_address'],
                         lat_lng: {
                             lat: item['last_log']['latitude'],
                             lng: item['last_log']['longitude']
@@ -74,7 +73,6 @@
             this.googleMap = new google.maps.Map(this.$el.querySelector('#google-map'), {
                 center: new google.maps.LatLng(0, 0),
                 zoom: 17,
-                // styles: mapStyles
             });
 
             // employees

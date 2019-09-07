@@ -58,7 +58,7 @@ class GoogleMap {
 		$data     = json_decode( $body, true );
 		$address  = isset( $data['result'] ) ? $data['result'] : [];
 
-		GooglePlace::add_place_data( $address );
+		GooglePlace::add_place_data_if_not_exist( $address );
 
 		return $address;
 	}
@@ -82,7 +82,7 @@ class GoogleMap {
 		$data     = json_decode( $body, true );
 		$address  = isset( $data['results'][0] ) ? $data['results'][0] : [];
 
-		GooglePlace::add_place_data( $address );
+		GooglePlace::add_place_data_if_not_exist( $address );
 
 		return $address;
 	}

@@ -8,8 +8,6 @@ use Stackonet\Integrations\GoogleMap;
 use Stackonet\Models\TrackableObject;
 use Stackonet\Models\TrackableObjectLog;
 use Stackonet\Models\TrackableObjectTimeline;
-use Stackonet\Supports\DistanceCalculator;
-use Stackonet\Supports\Logger;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -35,90 +33,6 @@ class TrackableObjectController extends ApiController {
 		}
 
 		return self::$instance;
-	}
-
-	/**
-	 * @param array $_logs
-	 * @param $object_id
-	 * @param $log_date
-	 *
-	 * @return array|mixed
-	 */
-	public static function get_object_timeline( array $_logs, $object_id, $log_date ) {
-		$total_logs = count( $_logs );
-
-		$transient_name = sprintf( "object_time_line_%s_%s", $object_id, $log_date );
-		$logs           = get_transient( $transient_name );
-		if ( false !== $logs ) {
-			return $logs;
-		}
-
-		$logs = [];
-		foreach ( $_logs as $index => $log ) {
-			$logs[ $index ] = $log;
-
-			if ( $index < ( $total_logs - 1 ) ) {
-				$next_log = $_logs[ $index + 1 ];
-
-				$logs[ $index ]['duration'] = [
-					'value' => ( intval( $next_log['utc_timestamp'] ) - intval( $log['utc_timestamp'] ) ),
-					'unit'  => 'seconds'
-				];
-			} else {
-				$logs[ $index ]['duration'] = [
-					'value' => intval( current_time( 'timestamp' ) - $log['utc_timestamp'] ),
-					'unit'  => 'seconds'
-				];
-			}
-
-			$should_get_address = ! in_array( 'street_address', $log['address_types'] );
-			if ( $index == 0 || $index == ( $total_logs - 1 ) ) {
-				$should_get_address = true;
-			}
-
-			if ( $should_get_address ) {
-				$address = GoogleMap::get_address_from_place_id( $log['place_id'] );
-
-				$logs[ $index ]['address'] = [
-					'name'              => $address['name'],
-					'icon'              => $address['icon'],
-					'formatted_address' => $address['formatted_address'],
-				];
-			}
-		}
-
-		$final_logs          = [];
-		$last_place          = [];
-		$temp_street_address = [];
-
-		foreach ( $logs as $index => $log ) {
-			$has_address = isset( $log['address'] );
-
-			if ( ! $has_address ) {
-				$temp_street_address[] = $log;
-			}
-
-			if ( $has_address ) {
-
-				if ( ! empty( $last_place ) ) {
-					$current_name = ! empty( $log['address']['name'] ) ? $log['address']['name'] : null;
-					$last_name    = ! empty( $last_place['address']['name'] ) ? $last_place['address']['name'] : null;
-
-
-					if ( ! is_null( $last_name ) && $current_name == $last_name ) {
-						$temp_street_address = [];
-					} else {
-						$final_logs[] = $log;
-					}
-				}
-
-				$last_place = $log;
-			}
-		}
-
-		set_transient( $transient_name, $final_logs, MINUTE_IN_SECONDS );
-
-		return $final_logs;
 	}
 
 	/**
@@ -290,10 +204,14 @@ class TrackableObjectController extends ApiController {
 			$_item['moving'] = ( $_item['last_log']['utc_timestamp'] + 600 ) > $timestamp;
 
 			if ( ! empty( $_item['last_log']['latitude'] ) && ! empty( $_item['last_log']['longitude'] ) ) {
-				$address                                = GoogleMap::get_address_from_lat_lng(
-					$_item['last_log']['latitude'],
-					$_item['last_log']['longitude']
-				);
+				if ( ! empty( $_item['last_log']['place_id'] ) ) {
+					$address = GoogleMap::get_address_from_place_id( $_item['last_log']['place_id'] );
+				} else {
+					$address = GoogleMap::get_address_from_lat_lng(
+						$_item['last_log']['latitude'],
+						$_item['last_log']['longitude']
+					);
+				}
 				$_item['last_log']['address']           = $address;
 				$_item['last_log']['formatted_address'] = $address['formatted_address'];
 			}

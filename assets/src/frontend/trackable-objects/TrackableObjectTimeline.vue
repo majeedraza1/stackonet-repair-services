@@ -1,71 +1,84 @@
 <template>
 	<div class="stackonet-dashboard-tracker">
-		<div id="google-map"></div>
-		<div class="stackonet-dashboard-tracker__vans" v-if="Object.keys(object).length">
-			<map-object-card
-				:lat_lng="{lat:object.last_log.latitude, lng:object.last_log.longitude}"
-				:logo-url="object.icon"
-				:object_id="object.object_id"
-				:name="object.object_name"
-				:online="object.online"
-				:last-active-time="object.last_log.utc_timestamp"
-				:moving="object.moving"
-				:idle-time="idle_time"
-				:show-action="false"
-			>
-				<div class="card__actions" style="display: flex;">
-					<mdl-button type="raised" color="primary" @click="goBack">Go Back</mdl-button>
-					<div class="card__actions-log" style="position: relative;">
-						<span class="card__actions-log-text">{{logDateDisplay}}</span>
-						<a class="input-button" title="toggle" data-toggle style="width: 24px;height:24px">
-							<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="24"
-								 height="24"
-								 viewBox="0 0 32 32">
-								<title>clock</title>
-								<path
-									d="M16 32c8.822 0 16-7.178 16-16s-7.178-16-16-16-16 7.178-16 16 7.178 16 16 16zM16 1c8.271 0 15 6.729 15 15s-6.729 15-15 15-15-6.729-15-15 6.729-15 15-15zM20.061 21.768c0.098 0.098 0.226 0.146 0.354 0.146s0.256-0.049 0.354-0.146c0.195-0.195 0.195-0.512 0-0.707l-4.769-4.768v-6.974c0-0.276-0.224-0.5-0.5-0.5s-0.5 0.224-0.5 0.5v7.181c0 0.133 0.053 0.26 0.146 0.354l4.915 4.914zM3 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM27 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 4c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 28c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM23 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM24 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1z"></path>
-							</svg>
-						</a>
-						<flat-pickr
-							style="visibility: hidden;width: 1px;height: 1px;position: absolute;top: 0;left: 0;"
-							v-model="log_date"
-							:config="flatpickrConfig"
-							placeholder="Select date"/>
-					</div>
-					<div>
-						<mdl-button type="raised" color="primary" v-if="useSnapToRoads" @click="lineType('actual')">
-							Actual
-						</mdl-button>
-						<mdl-button type="raised" color="primary" v-if="!useSnapToRoads" @click="lineType('optimised')">
-							Optimised
-						</mdl-button>
-					</div>
-				</div>
-				<div v-if="polylines.length">
-					<template v-for="_line in polylines" v-if="_line.logs">
-						<div class="polyline-item">
-							<div class="polyline-item__color" :style="{background:_line.colorCode}"></div>
-							<div class="polyline-item__title">{{_line.title}}</div>
+		<div class="stackonet-dashboard-tracker__nav">
+			<side-nav :active="sideNavActive" @close="sideNavActive = false" :show-header="false" nav-width="400px">
+				<template slot="header">
+					<div class="shapla-sidenav__header">
+						<mdl-button type="raised" color="primary" @click="goBack">Go Back</mdl-button>
+						<div class="card__actions-log" style="position: relative;">
+							<span class="card__actions-log-text">{{logDateDisplay}}</span>
+							<a class="input-button" title="toggle" data-toggle style="width: 24px;height:24px">
+								<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="24"
+									 height="24"
+									 viewBox="0 0 32 32">
+									<title>clock</title>
+									<path
+										d="M16 32c8.822 0 16-7.178 16-16s-7.178-16-16-16-16 7.178-16 16 7.178 16 16 16zM16 1c8.271 0 15 6.729 15 15s-6.729 15-15 15-15-6.729-15-15 6.729-15 15-15zM20.061 21.768c0.098 0.098 0.226 0.146 0.354 0.146s0.256-0.049 0.354-0.146c0.195-0.195 0.195-0.512 0-0.707l-4.769-4.768v-6.974c0-0.276-0.224-0.5-0.5-0.5s-0.5 0.224-0.5 0.5v7.181c0 0.133 0.053 0.26 0.146 0.354l4.915 4.914zM3 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM27 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 4c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 28c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM23 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM24 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1z"></path>
+								</svg>
+							</a>
+							<flat-pickr
+								style="visibility: hidden;width: 1px;height: 1px;position: absolute;top: 0;left: 0;"
+								v-model="log_date"
+								:config="flatpickrConfig"
+								placeholder="Select date"/>
 						</div>
-					</template>
+						<mdl-button type="icon" color="accent" @click="sideNavActive = !sideNavActive"
+									title="Hide side navigation">
+							<i class="fa fa-angle-left" aria-hidden="true"></i>
+						</mdl-button>
+					</div>
+				</template>
+				<div class="button-toggle-sidenav" v-if="!sideNavActive" @click="sideNavActive = !sideNavActive">
+					<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
+						<path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+						<path fill="none" d="M0 0h24v24H0V0z"/>
+					</svg>
 				</div>
-			</map-object-card>
+				<div class="timeline-container">
+					<spinner :active="timelineLoading" position="absolute"></spinner>
+					<div class="timeline" v-if="timelineItems.length > 0" v-for="(item, index) in timelineItems">
+						<google-timeline-item
+							v-if="item.type === 'place'"
+							:first-item="index === 0"
+							:last-item="index === (timelineItems.length - 1)"
+							:item-text="item.address.formatted_address"
+							:duration-text="item.activityDurationText"
+							:addresses="item.addresses"
+						></google-timeline-item>
+						<google-timeline-movement
+							v-if="item.type === 'movement'"
+							:activity-icon="item.icon"
+							:activity-type="item.activityType"
+							:activity-distance-text="item.activityDistanceText"
+							:activity-duration-text="item.activityDurationText"
+						></google-timeline-movement>
+					</div>
+					<div v-if="timelineItems.length < 1" class="not-found">No timeline data found.</div>
+				</div>
+			</side-nav>
 		</div>
+		<div id="google-map"></div>
 	</div>
 </template>
 
 <script>
-    import FlatPickr from "vue-flatpickr-component/src/component";
-    import MapObjectCard from "./MapObjectCard";
+    import axios from 'axios';
+    import spinner from 'shapla-spinner';
     import {TrackerMixin} from "./TrackerMixin";
-    import MdlButton from "../../../material-design-lite/button/mdlButton";
+    import sideNav from "../../shapla/shapla-side-navigation/sideNavigation";
+    import MdlButton from "../../material-design-lite/button/mdlButton";
+    import FlatPickr from "vue-flatpickr-component/src/component";
+    import GoogleTimelineItem from "./googleTimelineItem";
+    import GoogleTimelineMovement from "./googleTimelineMovement";
 
     export default {
-        name: "SingleObjectTracker",
+        name: "TrackableObjectTimeline",
         mixins: [TrackerMixin],
-        components: {MdlButton, MapObjectCard, FlatPickr},
+        components: {spinner, GoogleTimelineMovement, GoogleTimelineItem, MdlButton, sideNav, FlatPickr},
         data() {
             return {
+                timelineLoading: false,
+                sideNavActive: true,
                 useSnapToRoads: false,
                 googleMap: {},
                 object: {},
@@ -77,8 +90,10 @@
                 log_date: '',
                 min_max_date: {},
                 employees: null,
+                timelines: null,
                 polylines: [],
                 mapPolyline: [],
+                timelineItems: [],
             }
         },
         watch: {
@@ -88,7 +103,46 @@
                     let location = new google.maps.LatLng(data.object.last_log.latitude, data.object.last_log.longitude);
                     this.googleMap.setCenter(location);
                 }).catch(error => console.error(error));
+
+                this.getTimeline();
             }
+        },
+        beforeDestroy() {
+            clearInterval(this.employees);
+            clearInterval(this.timelines);
+        },
+        mounted() {
+            this.$store.commit('SET_LOADING_STATUS', false);
+            this.$store.commit('SET_TITLE', 'Activity');
+
+            this.getTimeline();
+
+            this.googleMap = new google.maps.Map(this.$el.querySelector('#google-map'), {
+                center: new google.maps.LatLng(0, 0),
+                zoom: 17,
+            });
+
+            this.getObject(this.$route.params.object_id, this.log_date, this.useSnapToRoads).then(data => {
+                this.refreshData(data);
+                this.addMarker(data);
+                let location = new google.maps.LatLng(data.object.last_log.latitude, data.object.last_log.longitude);
+                this.googleMap.setCenter(location);
+
+                this.$store.commit('SET_TITLE', `Activity: ${data.object.object_name}`);
+            }).catch(error => {
+                console.error(error);
+            });
+
+            // employees
+            this.employees = setInterval(() => {
+                this.getObject(this.$route.params.object_id, this.log_date, this.useSnapToRoads).then(data => {
+                    this.refreshData(data);
+                }).catch(error => console.error(error));
+            }, 5000);
+
+            this.timelines = setInterval(() => {
+                this.getTimeline();
+            }, 60000);
         },
         computed: {
             flatpickrConfig() {
@@ -116,37 +170,22 @@
                 return this.formatDate(this.log_date);
             }
         },
-        beforeDestroy() {
-            clearInterval(this.employees)
-        },
-        mounted() {
-            this.$store.commit('SET_LOADING_STATUS', false);
-            this.$store.commit('SET_TITLE', 'Tracker');
-
-            this.googleMap = new google.maps.Map(this.$el.querySelector('#google-map'), {
-                center: new google.maps.LatLng(0, 0),
-                zoom: 17,
-            });
-
-            this.getObject(this.$route.params.object_id, this.log_date, this.useSnapToRoads).then(data => {
-                this.refreshData(data);
-                this.addMarker(data);
-                let location = new google.maps.LatLng(data.object.last_log.latitude, data.object.last_log.longitude);
-                this.googleMap.setCenter(location);
-
-                this.$store.commit('SET_TITLE', `Activity: ${data.object.object_name}`);
-            }).catch(error => {
-                console.error(error);
-            });
-
-            // employees
-            this.employees = setInterval(() => {
-                this.getObject(this.$route.params.object_id, this.log_date, this.useSnapToRoads).then(data => {
-                    this.refreshData(data);
-                }).catch(error => console.error(error));
-            }, 5000);
-        },
         methods: {
+            getTimeline() {
+                this.timelineLoading = true;
+                axios.get(PhoneRepairs.rest_root + '/trackable-objects/timeline', {
+                    params: {
+                        object_id: this.$route.params.object_id,
+                        log_date: this.log_date
+                    }
+                }).then(response => {
+                    this.timelineItems = response.data.data.logs;
+                    this.timelineLoading = false;
+                }).catch(error => {
+                    this.timelineLoading = false;
+                    console.log(error);
+                })
+            },
             refreshData(data) {
                 this.current_timestamp = data.utc_timestamp;
                 this.idle_time = data.idle_time;
@@ -269,51 +308,47 @@
 </script>
 
 <style lang="scss">
-	.button--go-back {
-		height: 40px;
-		left: 205px;
-		position: absolute;
-		top: 10px;
-	}
-
-	.card__actions-log {
-		align-items: center;
-		display: flex;
-		height: 36px;
-		justify-content: center;
-		padding: 0 1rem;
-		margin: 0 1rem;
-		position: relative;
-
-		a, & {
-			background: #f58730;
-			color: #ffffff;
+	.stackonet-dashboard-tracker {
+		.timeline-container {
+			position: relative;
 		}
 
-		&-text {
-			margin-right: .5rem;
+		.not-found {
+			display: block;
+			text-align: center;
+			margin-top: 2rem;
+			margin-bottom: 2rem;
 		}
 
-		svg {
-			fill: currentColor;
-		}
-	}
+		&__nav {
+			position: relative;
 
-	.polyline-item {
-		display: flex;
-		padding: 1rem;
-		justify-content: flex-start;
-		align-items: center;
+			.shapla-sidenav {
+				overflow: visible;
+				height: calc(100vh - 64px);
 
-		&__color {
-			width: 16px;
-			height: 16px;
-			display: inline-flex;
-			border-radius: 8px;
-			margin-right: 1rem;
-		}
+				.admin-bar & {
+					height: calc(100vh - 96px);
+				}
+			}
 
-		&__title {
+			.shapla-sidenav__header {
+				padding: 1rem;
+				border-bottom: 1px solid #f5f5f5;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+
+			.button-toggle-sidenav {
+				background-color: white;
+				z-index: 9999999;
+				width: 48px;
+				height: 48px;
+				position: absolute;
+				top: 60px;
+				right: -48px;
+			}
 		}
 	}
 </style>

@@ -190,7 +190,7 @@
     import vSelect from 'vue-select';
     import FlatPickr from "vue-flatpickr-component/src/component";
     import {MapMixin} from "./MapMixin";
-    import {TrackerMixin} from "./TrackerMixin";
+    import {TrackerMixin} from "../../trackable-objects/TrackerMixin";
     import MapListTable from "./MapListTable";
     import Icon from "../../../shapla/icon/icon";
     import SearchBox from "../../../components/SearchBox";

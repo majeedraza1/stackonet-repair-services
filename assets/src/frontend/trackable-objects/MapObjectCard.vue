@@ -40,8 +40,8 @@
 </template>
 
 <script>
-    import ImageContainer from "../../../shapla/image/image";
-    import MdlButton from "../../../material-design-lite/button/mdlButton";
+    import ImageContainer from "../../shapla/image/image";
+    import MdlButton from "../../material-design-lite/button/mdlButton";
 
     export default {
         name: "MapObjectCard",
@@ -62,11 +62,10 @@
             currentTime: {type: Number, default: 0},
             lastActiveTime: {type: Number, default: 0},
             idleTime: {type: Number, default: 0},
+            formatted_address: {type: String, default: ''},
         },
         data() {
-            return {
-                formatted_address: '',
-            }
+            return {}
         },
         computed: {
             isMoving() {
@@ -80,32 +79,9 @@
                 return this.online ? 'Online' : 'Off Line';
             },
         },
-        watch: {
-            lat_lng(newValue) {
-                this.get_address(newValue);
-            }
-        },
-        mounted() {
-            if (this.lat_lng) {
-                this.get_address(this.lat_lng);
-            }
-        },
         methods: {
             handleClick() {
                 this.$emit('click', {lat_lng: this.lat_lng});
-            },
-            get_address(lat_lng) {
-                this.geoCodeToAddress(lat_lng.lat, lat_lng.lng);
-            },
-            geoCodeToAddress(latitude, longitude) {
-                let geocoder = new google.maps.Geocoder;
-                geocoder.geocode({'location': {lat: latitude, lng: longitude}}, (results, status) => {
-                    if (status === 'OK') {
-                        if (results[0]) {
-                            this.formatted_address = results[0].formatted_address;
-                        }
-                    }
-                });
             },
             viewTimeline() {
                 this.$router.push({

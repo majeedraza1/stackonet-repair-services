@@ -9,11 +9,11 @@ import CarrierStores from "./pages/CarrierStores";
 import SpotAppointment from "./pages/SpotAppointment";
 import CheckoutAnalysis from "./pages/CheckoutAnalysis";
 import ShortMessageService from "./pages/ShortMessageService";
-import tracker from "./pages/tracker";
 import Report from "./pages/Report";
 import Map from "./pages/Map";
-import SingleObjectTracker from "./pages/SingleObjectTracker";
-import TrackableObjectTimeline from "./pages/TrackableObjectTimeline";
+import tracker from "../trackable-objects/tracker";
+import SingleObjectTracker from "../trackable-objects/SingleObjectTracker";
+import TrackableObjectTimeline from "../trackable-objects/TrackableObjectTimeline";
 
 Vue.use(VueRouter);
 

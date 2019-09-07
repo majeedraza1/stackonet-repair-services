@@ -361,27 +361,6 @@ class CheckoutAnalysis extends DatabaseModel {
             ) $collate;";
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $table_schema );
-
-		$this->add_table_columns();
-	}
-
-	/**
-	 * Add new columns to table
-	 */
-	public function add_table_columns() {
-		global $wpdb;
-		$table_name = $wpdb->prefix . $this->table;
-		$version    = get_option( 'stackonet_checkout_analysis_table_version' );
-		$version    = ! empty( $version ) ? $version : '1.0.0';
-
-		$row = $wpdb->get_row( "SELECT * FROM {$table_name}", ARRAY_A );
-
-		if ( ! isset( $row['user_info'] ) ) {
-			$wpdb->query( "ALTER TABLE {$table_name} ADD `user_info` datetime NULL DEFAULT NULL AFTER `city`" );
-		}
-		if ( ! isset( $row['support_ticket_id'] ) ) {
-			$wpdb->query( "ALTER TABLE {$table_name} ADD `support_ticket_id` bigint NULL DEFAULT NULL AFTER `extra_information`" );
-		}
 	}
 
 	/**
