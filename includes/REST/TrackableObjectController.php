@@ -97,7 +97,7 @@ class TrackableObjectController extends ApiController {
 		$previous_response = get_transient( $transient_name );
 		$previous_response = is_array( $previous_response ) ? $previous_response : [];
 
-		set_transient( $transient_name, $items );
+		set_transient( $transient_name, $items, HOUR_IN_SECONDS );
 
 		$diff = ArrayHelper::array_diff_recursive( $previous_response, $items );
 
@@ -277,8 +277,22 @@ class TrackableObjectController extends ApiController {
 			$polyline = $item->get_log_data_by_time_range();
 		}
 
+		$transient_name    = 'previous_object_' . md5( wp_json_encode( [
+				'object_id'   => $object_id,
+				'log_date'    => $log_date,
+				'snapToRoads' => $snapToRoads,
+				'user_id'     => get_current_user_id(),
+			] ) );
+		$previous_response = get_transient( $transient_name );
+		$previous_response = is_array( $previous_response ) ? $previous_response : [];
+
+		set_transient( $transient_name, $object, HOUR_IN_SECONDS );
+
+		$diff = ArrayHelper::array_diff_recursive( $previous_response, $object );
+
 		$response = [
 			'object'        => $object,
+			'is_changed'    => count( $diff ) > 0,
 			'utc_timestamp' => $timestamp,
 			'polyline'      => $polyline,
 			'snappedPoints' => [],

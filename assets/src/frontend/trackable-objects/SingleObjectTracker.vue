@@ -149,6 +149,9 @@
         },
         methods: {
             refreshData(data) {
+                if (!(data.is_changed || this.polylines.length < 1)) {
+                    return;
+                }
                 this.current_timestamp = data.utc_timestamp;
                 this.idle_time = data.idle_time;
                 this.object = data.object;
