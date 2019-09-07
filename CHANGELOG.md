@@ -1,3 +1,29 @@
+#### 1.1.17 - September 07, 2019
+* Add - Add van location field for choosing base address on map.
+* Add - Add actual and snap to road api view on single object tracker.
+* Tweak - Update Single object tracker to reduce snap to road api.
+* Add - Add distance and duration option on logs data.
+* Add - Add addresses where user stay more than 4 seconds.
+* Tweak - Update snapToRoad API function to reduce request quantity using cache api.
+* Tweak - Update Snap to Road api functionality.
+* Tweak - Update Object tracker background functionality to get more perfect map polyline.
+* Add - Add new single object timeline UI.
+* Add - Add timeline functionality on tracker.
+* Tweak - Update street calculation on timeline.
+* Add - Add Google Timeline Movement functionality.
+* Add - Add Date choosing functionality on Google Timeline page.
+* Fix - Fix additional address and customer issue note is not saving on checkout.
+* Tweak - Update timeline scripts to include all places.
+* Tweak - Update timeline script to merge multiple moving points into one.
+* Tweak - Update timeline script to merge recursive street address and places.
+* Add - Add functionality to save Google Place data.
+* Tweak - Update functionality to check if place ID exists in database.
+* Tweak - Update tracker frontend scrips to save 12 (in a minute for one object) Google Geocoding REST API request.
+* Add - Add trackable object default avatar image. …
+* Tweak - Update tracker script to re-draw polyline only if data changed.
+* Tweak - Update tracker timeline and single object tracker to update map if only data changed.
+* Fix - Fix Map Page choose Van option is not working.
+
 #### 1.1.16 - August 09, 2019
 * Add - Add option to view previous date activities for individual object.
 * Add - Add option to zoom object on map when click on object card.
