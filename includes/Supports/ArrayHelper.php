@@ -78,4 +78,35 @@ class ArrayHelper {
 
 		return $temp_array;
 	}
+
+	/**
+	 * Computes the difference of arrays
+	 *
+	 * @param array $array1
+	 * @param array $array2
+	 *
+	 * @return array
+	 */
+	public static function array_diff_recursive( array $array1, array $array2 ) {
+		$aReturn = array();
+
+		foreach ( $array1 as $mKey => $mValue ) {
+			if ( array_key_exists( $mKey, $array2 ) ) {
+				if ( is_array( $mValue ) ) {
+					$aRecursiveDiff = static::array_diff_recursive( $mValue, $array2[ $mKey ] );
+					if ( count( $aRecursiveDiff ) ) {
+						$aReturn[ $mKey ] = $aRecursiveDiff;
+					}
+				} else {
+					if ( $mValue != $array2[ $mKey ] ) {
+						$aReturn[ $mKey ] = $mValue;
+					}
+				}
+			} else {
+				$aReturn[ $mKey ] = $mValue;
+			}
+		}
+
+		return $aReturn;
+	}
 }

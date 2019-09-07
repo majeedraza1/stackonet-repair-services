@@ -8,6 +8,7 @@ use Stackonet\Integrations\GoogleMap;
 use Stackonet\Models\TrackableObject;
 use Stackonet\Models\TrackableObjectLog;
 use Stackonet\Models\TrackableObjectTimeline;
+use Stackonet\Supports\ArrayHelper;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -88,13 +89,23 @@ class TrackableObjectController extends ApiController {
 		FirebaseDatabase::sync_employees();
 
 		$timestamp = current_time( 'timestamp' );
-		$date      = date( 'Y-m-d', $timestamp );
 		$items     = ( new TrackableObject() )->find();
+		$items     = $this->prepare_items_for_response( $items, $request );
+
+		$user_id           = get_current_user_id();
+		$transient_name    = 'previous_objects_' . $user_id;
+		$previous_response = get_transient( $transient_name );
+		$previous_response = is_array( $previous_response ) ? $previous_response : [];
+
+		set_transient( $transient_name, $items );
+
+		$diff = ArrayHelper::array_diff_recursive( $previous_response, $items );
 
 		return $this->respondOK( [
 			'utc_timestamp' => $timestamp,
 			'idle_time'     => ( 10 * 60 ), // Ten minutes in seconds
-			'items'         => $this->prepare_items_for_response( $items, $timestamp ),
+			'items'         => $items,
+			'is_changed'    => count( $diff ) > 0,
 			'counts'        => [],
 			'pagination'    => []
 		] );
@@ -184,42 +195,45 @@ class TrackableObjectController extends ApiController {
 
 	/**
 	 * @param TrackableObject[] $items
-	 * @param int $timestamp
+	 * @param WP_REST_Request $request
 	 *
 	 * @return array
 	 */
-	public function prepare_items_for_response( $items, $timestamp = null ) {
-		if ( empty( $timestamp ) ) {
-			$timestamp = current_time( 'timestamp' );
-		}
-		$date     = date( 'Y-m-d', $timestamp );
+	public function prepare_items_for_response( $items, $request ) {
 		$response = [];
-
 		foreach ( $items as $item ) {
-			$_item = $item->to_rest( $date );
-			if ( empty( $_item['last_log']['latitude'] ) || empty( $_item['last_log']['longitude'] ) ) {
-				continue;
-			}
-			unset( $_item['logs'] );
-			$_item['moving'] = ( $_item['last_log']['utc_timestamp'] + 600 ) > $timestamp;
-
-			if ( ! empty( $_item['last_log']['latitude'] ) && ! empty( $_item['last_log']['longitude'] ) ) {
-				if ( ! empty( $_item['last_log']['place_id'] ) ) {
-					$address = GoogleMap::get_address_from_place_id( $_item['last_log']['place_id'] );
-				} else {
-					$address = GoogleMap::get_address_from_lat_lng(
-						$_item['last_log']['latitude'],
-						$_item['last_log']['longitude']
-					);
-				}
-				$_item['last_log']['address']           = $address;
-				$_item['last_log']['formatted_address'] = $address['formatted_address'];
-			}
-
-			$response[] = $_item;
+			$response[] = $this->prepare_item_for_response( $item, $request )->get_data();
 		}
 
 		return $response;
+	}
+
+	/**
+	 * @param TrackableObject $trackable_object
+	 * @param WP_REST_Request $request
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function prepare_item_for_response( $trackable_object, $request ) {
+		$timestamp = current_time( 'timestamp' );
+		$date      = date( 'Y-m-d', $timestamp );
+		$item      = $trackable_object->to_rest( $date );
+
+		unset( $item['logs'] );
+		unset( $item['last_log'] );
+
+
+		if ( ! empty( $item['place_id'] ) ) {
+			$address                   = GoogleMap::get_address_from_place_id( $item['place_id'] );
+			$item['formatted_address'] = $address['formatted_address'];
+		} else if ( ! empty( $_item['latitude'] ) && ! empty( $_item['longitude'] ) ) {
+			$address                   = GoogleMap::get_address_from_lat_lng( $item['latitude'], $item['longitude'] );
+			$item['formatted_address'] = $address['formatted_address'];
+		}
+
+		$item['moving'] = ( $item['utc_timestamp'] + 600 ) > $timestamp;
+
+		return new WP_REST_Response( $item );
 	}
 
 	/**
@@ -254,8 +268,7 @@ class TrackableObjectController extends ApiController {
 			$log_date = date( 'Y-m-d', $timestamp );
 		}
 
-		$object           = $items->to_rest( $log_date );
-		$object['moving'] = isset( $object['last_log']['utc_timestamp'] ) && ( $object['last_log']['utc_timestamp'] + 600 ) > $timestamp;
+		$object = $this->prepare_item_for_response( $items, $request )->get_data();
 
 		$polyline = [];
 

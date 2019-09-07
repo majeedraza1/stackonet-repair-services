@@ -72,23 +72,33 @@ class TrackableObject extends DatabaseModel {
 	 */
 	public function to_rest( $date ) {
 		$response = [
-			'id'          => intval( $this->get( 'id' ) ),
-			'object_id'   => $this->get( 'object_id' ),
-			'object_name' => $this->get( 'object_name' ),
-			'object_type' => $this->get( 'object_type' ),
-			'icon'        => $this->get_object_icon(),
-			'last_log'    => [],
-			'logs'        => [],
+			'id'                => intval( $this->get( 'id' ) ),
+			'object_id'         => $this->get( 'object_id' ),
+			'object_name'       => $this->get( 'object_name' ),
+			'object_type'       => $this->get( 'object_type' ),
+			'icon'              => $this->get_object_icon(),
+			'last_log'          => [],
+			'logs'              => [],
+			'formatted_address' => '',
 		];
 
 		$objectLog = ( new TrackableObjectLog() )->find_object_log( $this->get( 'object_id' ), $date );
 		if ( $objectLog instanceof TrackableObjectLog ) {
-			$logs     = $objectLog->get_log_data();
-			$last_log = end( $logs );
+			$logs = $objectLog->get_log_data();
 
-			$response['logs']     = $logs;
-			$response['last_log'] = is_array( $last_log ) ? $last_log : [];
-			$response['online']   = $objectLog->is_online();
+			$response['logs'] = $logs;
+
+			$total_logs = count( $logs );
+
+			if ( $total_logs > 0 ) {
+				$last_log                  = $logs[ $total_logs - 1 ];
+				$response['place_id']      = $last_log['place_id'];
+				$response['latitude']      = $last_log['latitude'];
+				$response['longitude']     = $last_log['longitude'];
+				$response['utc_timestamp'] = $last_log['utc_timestamp'];
+			}
+
+			$response['online'] = $objectLog->is_online();
 		}
 
 		return $response;
@@ -101,13 +111,16 @@ class TrackableObject extends DatabaseModel {
 	 */
 	public function get_object_icon() {
 		$icon_id = intval( $this->get( 'object_icon' ) );
+		$default = STACKONET_REPAIR_SERVICES_ASSETS . '/img/avatar.png';
 		if ( $icon_id ) {
 			$src = wp_get_attachment_image_src( $icon_id );
 
-			return isset( $src[0] ) ? $src[0] : null;
+			if ( isset( $src[0] ) && filter_var( $src[0], FILTER_VALIDATE_URL ) ) {
+				return $src[0];
+			}
 		}
 
-		return null;
+		return $default;
 	}
 
 	public function get_log_data( $date = null ) {

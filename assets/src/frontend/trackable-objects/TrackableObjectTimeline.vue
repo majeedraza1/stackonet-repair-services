@@ -100,7 +100,7 @@
             log_date(newValue) {
                 this.getObject(this.$route.params.object_id, newValue, this.useSnapToRoads).then(data => {
                     this.refreshData(data);
-                    let location = new google.maps.LatLng(data.object.last_log.latitude, data.object.last_log.longitude);
+                    let location = new google.maps.LatLng(data.object.latitude, data.object.longitude);
                     this.googleMap.setCenter(location);
                 }).catch(error => console.error(error));
 
@@ -125,7 +125,7 @@
             this.getObject(this.$route.params.object_id, this.log_date, this.useSnapToRoads).then(data => {
                 this.refreshData(data);
                 this.addMarker(data);
-                let location = new google.maps.LatLng(data.object.last_log.latitude, data.object.last_log.longitude);
+                let location = new google.maps.LatLng(data.object.latitude, data.object.longitude);
                 this.googleMap.setCenter(location);
 
                 this.$store.commit('SET_TITLE', `Activity: ${data.object.object_name}`);
@@ -193,7 +193,7 @@
                 this.snappedPoints = data.snappedPoints;
                 this.min_max_date = data.min_max_date;
                 this.polylines = data.polyline;
-                let location = new google.maps.LatLng(this.object.last_log.latitude, this.object.last_log.longitude);
+                let location = new google.maps.LatLng(this.object.latitude, this.object.longitude);
                 if (Object.keys(this.marker).length) {
                     this.marker.setPosition(location);
                 }
@@ -215,7 +215,7 @@
                         scaledSize: new google.maps.Size(25, 25)
                     },
                     title: data.object.object_name,
-                    position: new google.maps.LatLng(data.object.last_log.latitude, data.object.last_log.longitude)
+                    position: new google.maps.LatLng(data.object.latitude, data.object.longitude)
                 });
             },
             lineType(type) {

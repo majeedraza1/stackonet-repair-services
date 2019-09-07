@@ -50,11 +50,11 @@
                         online: item['online'],
                         moving: item['moving'],
                         current_timestamp: this.current_timestamp,
-                        last_activity: item['last_log']['utc_timestamp'],
-                        formatted_address: item['last_log']['formatted_address'],
+                        last_activity: item['timestamp'],
+                        formatted_address: item['formatted_address'],
                         lat_lng: {
-                            lat: item['last_log']['latitude'],
-                            lng: item['last_log']['longitude']
+                            lat: item['latitude'],
+                            lng: item['longitude']
                         }
                     }
                 });
@@ -88,12 +88,14 @@
             },
             getObjects() {
                 this.getTrackableObjects().then(_data => {
-                    this.items = _data.items;
-                    this.current_timestamp = _data.utc_timestamp;
-                    this.idle_time = _data.idle_time;
-                    let markers = this.calculateMarkers(this.items);
-                    this.clearMarkers();
-                    this.updateMapMarkers(markers);
+                    if (_data.is_changed || this.items.length < 1) {
+                        this.items = _data.items;
+                        this.current_timestamp = _data.utc_timestamp;
+                        this.idle_time = _data.idle_time;
+                        let markers = this.calculateMarkers(this.items);
+                        this.clearMarkers();
+                        this.updateMapMarkers(markers);
+                    }
                 }).catch(error => console.error(error));
             },
             calculateMarkers(objects) {
@@ -103,8 +105,8 @@
                     markers.push({
                         icon: objects[i].icon,
                         name: objects[i].object_name,
-                        lat: objects[i].last_log.latitude,
-                        lng: objects[i].last_log.longitude,
+                        lat: objects[i].latitude,
+                        lng: objects[i].longitude,
                     });
                 }
 
