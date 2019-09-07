@@ -272,12 +272,14 @@
             },
             trackable_object(newValue) {
                 if (newValue !== null) {
-                    if (newValue.last_log.latitude) {
-                        this.latitude = newValue.last_log.latitude;
-                        this.longitude = newValue.last_log.longitude;
-                        this.location = new google.maps.LatLng(newValue.last_log.latitude, newValue.last_log.longitude);
-                        this.user_formatted_address = newValue.last_log.formatted_address;
-                        this.address = newValue.last_log.address;
+                    if (newValue.latitude) {
+                        this.latitude = newValue.latitude;
+                        this.longitude = newValue.longitude;
+                        this.location = new google.maps.LatLng(newValue.latitude, newValue.longitude);
+                        this.user_formatted_address = newValue.formatted_address;
+                        // this.address = newValue.last_log.address;
+                        this.address = []; // @todo update above option
+                        this.geoCodeToAddress(this.latitude, this.longitude);
                     }
                 } else {
                     this.latitude = 0;
