@@ -78,7 +78,7 @@
             // employees
             this.employees = setInterval(() => {
                 this.getObjects();
-            }, 5000);
+            }, 60000);
         },
         methods: {
             handleClick(data) {

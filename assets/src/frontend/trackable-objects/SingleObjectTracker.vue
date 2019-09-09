@@ -33,7 +33,7 @@
 							:config="flatpickrConfig"
 							placeholder="Select date"/>
 					</div>
-					<div>
+					<div style="display: none">
 						<mdl-button type="raised" color="primary" v-if="useSnapToRoads" @click="lineType('actual')">
 							Actual
 						</mdl-button>
@@ -85,6 +85,7 @@
         watch: {
             log_date(newValue) {
                 this.getObject(this.$route.params.object_id, newValue, this.useSnapToRoads).then(data => {
+                    data.is_changed = true;
                     this.refreshData(data);
                     let location = new google.maps.LatLng(data.object.latitude, data.object.longitude);
                     this.googleMap.setCenter(location);
@@ -145,7 +146,7 @@
                 this.getObject(this.$route.params.object_id, this.log_date, this.useSnapToRoads).then(data => {
                     this.refreshData(data);
                 }).catch(error => console.error(error));
-            }, 5000);
+            }, 60000);
         },
         methods: {
             refreshData(data) {

@@ -2,12 +2,9 @@
 
 namespace Stackonet\REST;
 
-use Exception;
 use Stackonet\Integrations\FirebaseDatabase;
 use Stackonet\Integrations\GoogleMap;
 use Stackonet\Models\TrackableObject;
-use Stackonet\Models\TrackableObjectLog;
-use Stackonet\Models\TrackableObjectTimeline;
 use Stackonet\Supports\ArrayHelper;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -52,29 +49,17 @@ class TrackableObjectController extends ApiController {
 			],
 		] );
 
-		register_rest_route( $this->namespace, '/trackable-objects/(?P<id>\d+)', [
-			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_item' ] ],
-			[ 'methods' => WP_REST_Server::DELETABLE, 'callback' => [ $this, 'delete_item' ] ],
-		] );
-
-		register_rest_route( $this->namespace, '/trackable-objects/timeline', [
+		register_rest_route( $this->namespace, '/trackable-objects/batch', [
 			[
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => [ $this, 'get_timeline' ],
-				'args'     => $this->get_timeline_params(),
+				'methods'  => WP_REST_Server::EDITABLE,
+				'callback' => [ $this, 'update_batch_items' ],
+				'args'     => $this->get_batch_params(),
 			],
 		] );
 
-		register_rest_route( $this->namespace, '/trackable-objects/logs', [
-			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_logs' ] ],
-		] );
-
-		register_rest_route( $this->namespace, '/trackable-objects/logs/(?P<id>\d+)', [
-			[ 'methods' => WP_REST_Server::DELETABLE, 'callback' => [ $this, 'delete_log' ] ],
-		] );
-
-		register_rest_route( $this->namespace, '/trackable-objects/log', [
-			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_locations' ] ],
+		register_rest_route( $this->namespace, '/trackable-objects/(?P<id>\d+)', [
+			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_item' ] ],
+			[ 'methods' => WP_REST_Server::DELETABLE, 'callback' => [ $this, 'delete_item' ] ],
 		] );
 	}
 
@@ -86,10 +71,19 @@ class TrackableObjectController extends ApiController {
 	 * @return WP_REST_Response
 	 */
 	public function get_items( $request ) {
+		$per_page = $request->get_param( 'per_page' );
+		$page     = $request->get_param( 'page' );
+		$status   = $request->get_param( 'status' );
+		$status   = ( 'trash' == $status ) ? $status : 'all';
+
 		FirebaseDatabase::sync_employees();
 
 		$timestamp = current_time( 'timestamp' );
-		$items     = ( new TrackableObject() )->find();
+		$items     = ( new TrackableObject )->find( [
+			'per_page' => $per_page,
+			'page'     => $page,
+			'status'   => $status,
+		] );
 		$items     = $this->prepare_items_for_response( $items, $request );
 
 		$user_id           = get_current_user_id();
@@ -99,16 +93,29 @@ class TrackableObjectController extends ApiController {
 
 		set_transient( $transient_name, $items, HOUR_IN_SECONDS );
 
-		$diff = ArrayHelper::array_diff_recursive( $previous_response, $items );
+		$diff   = ArrayHelper::array_diff_recursive( $previous_response, $items );
+		$counts = ( new TrackableObject() )->count_records();
 
-		return $this->respondOK( [
+		$data = [
 			'utc_timestamp' => $timestamp,
 			'idle_time'     => ( 10 * 60 ), // Ten minutes in seconds
 			'items'         => $items,
 			'is_changed'    => count( $diff ) > 0,
-			'counts'        => [],
-			'pagination'    => []
-		] );
+			'counts'        => $counts,
+			'pagination'    => self::get_pagination_data( $counts[ $status ], $per_page, $page )
+		];
+
+		$data['statuses'] = [
+			[ 'key' => 'all', 'label' => 'All' ],
+			[ 'key' => 'trash', 'label' => 'Trash' ],
+		];
+
+		foreach ( $data['statuses'] as $index => $_status ) {
+			$data['statuses'][ $index ]['count']  = isset( $counts[ $_status['key'] ] ) ? $counts[ $_status['key'] ] : 0;
+			$data['statuses'][ $index ]['active'] = ( $_status['key'] == $status );
+		}
+
+		return $this->respondOK( $data );
 	}
 
 	/**
@@ -194,6 +201,42 @@ class TrackableObjectController extends ApiController {
 	}
 
 	/**
+	 * @param WP_REST_Request $request
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function update_batch_items( $request ) {
+		$trash   = $request->get_param( 'trash' );
+		$restore = $request->get_param( 'restore' );
+		$delete  = $request->get_param( 'delete' );
+
+		$TrackableObject = new TrackableObject;
+
+		if ( count( $trash ) ) {
+			$ids = array_map( 'intval', $trash );
+			foreach ( $ids as $id ) {
+				$TrackableObject->trash( $id );
+			}
+		}
+
+		if ( count( $restore ) ) {
+			$ids = array_map( 'intval', $restore );
+			foreach ( $ids as $id ) {
+				$TrackableObject->restore( $id );
+			}
+		}
+
+		if ( count( $delete ) ) {
+			$ids = array_map( 'intval', $delete );
+			foreach ( $ids as $id ) {
+				$TrackableObject->delete( $id );
+			}
+		}
+
+		return $this->respondOK();
+	}
+
+	/**
 	 * @param TrackableObject[] $items
 	 * @param WP_REST_Request $request
 	 *
@@ -222,7 +265,6 @@ class TrackableObjectController extends ApiController {
 		unset( $item['logs'] );
 		unset( $item['last_log'] );
 
-
 		if ( ! empty( $item['place_id'] ) ) {
 			$address                   = GoogleMap::get_address_from_place_id( $item['place_id'] );
 			$item['formatted_address'] = $address['formatted_address'];
@@ -237,188 +279,30 @@ class TrackableObjectController extends ApiController {
 	}
 
 	/**
-	 * Get a collection of log items.
+	 * Get the query params for batch.
 	 *
-	 * @param WP_REST_Request $request Full data about the request.
-	 *
-	 * @return WP_REST_Response
-	 * @throws Exception
+	 * @return array
 	 */
-	public function get_locations( $request ) {
-		$object_id   = $request->get_param( 'object_id' );
-		$log_date    = $request->get_param( 'log_date' );
-		$snapToRoads = $request->get_param( 'snapToRoads' );
-		$snapToRoads = in_array( $snapToRoads, [ 1, true, 'true' ], true );
-
-		if ( empty( $object_id ) ) {
-			return $this->respondUnprocessableEntity();
-		}
-
-		FirebaseDatabase::sync_employees();
-
-		$items = ( new TrackableObject() )->find_by_object_id( $object_id );
-
-		if ( ! $items instanceof TrackableObject ) {
-			return $this->respondNotFound();
-		}
-
-		$timestamp = current_time( 'timestamp' );
-
-		if ( empty( $log_date ) ) {
-			$log_date = date( 'Y-m-d', $timestamp );
-		}
-
-		$object = $this->prepare_item_for_response( $items, $request )->get_data();
-
-		$polyline = [];
-
-		$item = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
-		if ( $item instanceof TrackableObjectLog ) {
-			$polyline = $item->get_log_data_by_time_range();
-		}
-
-		$transient_name    = 'previous_object_' . md5( wp_json_encode( [
-				'object_id'   => $object_id,
-				'log_date'    => $log_date,
-				'snapToRoads' => $snapToRoads,
-				'user_id'     => get_current_user_id(),
-			] ) );
-		$previous_response = get_transient( $transient_name );
-		$previous_response = is_array( $previous_response ) ? $previous_response : [];
-
-		set_transient( $transient_name, $object, HOUR_IN_SECONDS );
-
-		$diff = ArrayHelper::array_diff_recursive( $previous_response, $object );
-
-		$response = [
-			'object'        => $object,
-			'is_changed'    => count( $diff ) > 0,
-			'utc_timestamp' => $timestamp,
-			'polyline'      => $polyline,
-			'snappedPoints' => [],
-			'min_max_date'  => $items->find_min_max_log_date(),
-			'idle_time'     => ( 10 * 60 ), // Ten minutes in seconds
-		];
-
-		if ( $snapToRoads && count( $polyline ) ) {
-			$response['snappedPoints'] = $item->get_snapped_points_by_time_range();
-		}
-
-		return $this->respondOK( $response );
-	}
-
-	/**
-	 * Get a collection of items.
-	 *
-	 * @param WP_REST_Request $request Full data about the request.
-	 *
-	 * @return WP_REST_Response
-	 */
-	public function get_logs( $request ) {
-		$object_id = $request->get_param( 'object_id' );
-		$log_date  = $request->get_param( 'log_date' );
-
-		$args = [];
-
-		if ( ! empty( $object_id ) ) {
-			$args['object_id'] = $object_id;
-		}
-
-		if ( ! empty( $log_date ) ) {
-			$args['log_date'] = $log_date;
-		}
-
-		$logs = ( new TrackableObjectLog() )->find( $args );
-
-		return $this->respondOK( $logs );
-	}
-
-	/**
-	 * Get an item from collection.
-	 *
-	 * @param WP_REST_Request $request Full data about the request.
-	 *
-	 * @return WP_REST_Response
-	 */
-	public function delete_log( $request ) {
-		$id = (int) $request->get_param( 'id' );
-
-		$trackableObject = new TrackableObjectLog();
-		$object          = $trackableObject->find_by_id( $id );
-
-		if ( ! $object instanceof TrackableObjectLog ) {
-			return $this->respondNotFound();
-		}
-
-		if ( $trackableObject->delete( $id ) ) {
-			return $this->respondOK( [ 'id' => $id ] );
-		}
-
-		return $this->respondInternalServerError();
-	}
-
-	/**
-	 * Get object timeline
-	 *
-	 * @param WP_REST_Request $request
-	 *
-	 * @return WP_REST_Response
-	 */
-	public function get_timeline( $request ) {
-		$object_id = $request->get_param( 'object_id' );
-		$log_date  = $request->get_param( 'log_date' );
-
-		if ( empty( $log_date ) ) {
-			$log_date = date( "Y-m-d", current_time( 'timestamp' ) );
-		}
-
-		$object = ( new TrackableObject() )->find_by_object_id( $object_id );
-
-		if ( ! $object instanceof TrackableObject ) {
-			return $this->respondNotFound();
-		}
-
-		$response = [
-			'id'          => intval( $object->get( 'id' ) ),
-			'object_id'   => $object->get( 'object_id' ),
-			'object_name' => $object->get( 'object_name' ),
-			'icon_url'    => $object->get_object_icon(),
-		];
-
-		$log = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
-		if ( $log instanceof TrackableObjectLog ) {
-			$_logs = $log->get_log_data();
-		} else {
-			$_logs = [];
-		}
-
-		$logs             = TrackableObjectTimeline::format_timeline_from_logs( $_logs, $object_id, $log_date );
-		$response['logs'] = TrackableObjectTimeline::format_timeline_for_rest( $logs );
-
-		return $this->respondOK( $response );
-	}
-
-	/**
-	 * Retrieves the query params for the timeline.
-	 *
-	 * @return array Query parameters for the timeline.
-	 */
-	public function get_timeline_params() {
-		return [
-			'context'   => $this->get_context_param(),
-			'object_id' => [
-				'description'       => 'Object id',
-				'type'              => 'string',
-				'required'          => true,
-				'sanitize_callback' => 'sanitize_text_field',
+	public function get_batch_params() {
+		return array(
+			'trash'   => array(
+				'description'       => 'List of items ids to be trashed.',
+				'type'              => 'array',
+				'default'           => [],
 				'validate_callback' => 'rest_validate_request_arg',
-			],
-			'log_date'  => [
-				'description'       => 'Log date',
-				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'restore' => array(
+				'description'       => 'List of items ids to be restored.',
+				'type'              => 'array',
+				'default'           => [],
 				'validate_callback' => 'rest_validate_request_arg',
-			],
-		];
+			),
+			'delete'  => array(
+				'description'       => 'List of items ids to be deleted.',
+				'type'              => 'array',
+				'default'           => [],
+				'validate_callback' => 'rest_validate_request_arg',
+			),
+		);
 	}
 }

@@ -3,7 +3,6 @@
 namespace Stackonet\Models;
 
 use Stackonet\Abstracts\DatabaseModel;
-use Stackonet\Supports\Validate;
 
 class TrackableObject extends DatabaseModel {
 
@@ -142,8 +141,28 @@ class TrackableObject extends DatabaseModel {
 	 * @return array
 	 */
 	public function find( $args = [] ) {
-		$results = parent::find( $args );
-		$items   = [];
+		list( $per_page, $offset, $orderby, $order ) = $this->get_pagination_and_order_data( $args );
+
+		global $wpdb;
+		$table = $wpdb->prefix . $this->table;
+
+		$query = "SELECT * FROM {$table} WHERE 1=1";
+
+		if ( isset( $args['status'] ) && 'trash' == $args['status'] ) {
+			$query .= " AND deleted_at IS NOT NULL";
+		} else {
+			$query .= " AND deleted_at IS NULL";
+		}
+
+		if ( isset( $args[ $this->created_by ] ) && is_numeric( $args[ $this->created_by ] ) ) {
+			$query .= $wpdb->prepare( " AND {$this->created_by} = %d", intval( $args[ $this->created_by ] ) );
+		}
+
+		$query   .= " ORDER BY {$orderby} {$order}";
+		$query   .= $wpdb->prepare( " LIMIT %d OFFSET %d", $per_page, $offset );
+		$results = $wpdb->get_results( $query, ARRAY_A );
+
+		$items = [];
 		foreach ( $results as $result ) {
 			$items[] = new self( $result );
 		}
@@ -164,7 +183,12 @@ class TrackableObject extends DatabaseModel {
 		$query   = "SELECT * FROM {$table} WHERE deleted_at IS NULL";
 		$results = $wpdb->get_results( $query, ARRAY_A );
 
-		return $results;
+		$items = [];
+		foreach ( $results as $result ) {
+			$items[] = new self( $result );
+		}
+
+		return $items;
 	}
 
 	/**
@@ -213,7 +237,19 @@ class TrackableObject extends DatabaseModel {
 	 * @return array
 	 */
 	public function count_records() {
-		return [];
+		global $wpdb;
+		$table  = $wpdb->prefix . $this->table;
+		$counts = [];
+
+		$query         = "SELECT COUNT( * ) AS num_entries FROM {$table} WHERE deleted_at IS NULL";
+		$results       = $wpdb->get_row( $query, ARRAY_A );
+		$counts['all'] = intval( $results['num_entries'] );
+
+		$query           = "SELECT COUNT( * ) AS num_entries FROM {$table} WHERE deleted_at IS NOT NULL";
+		$results         = $wpdb->get_row( $query, ARRAY_A );
+		$counts['trash'] = intval( $results['num_entries'] );
+
+		return $counts;
 	}
 
 	/**

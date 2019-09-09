@@ -2,7 +2,6 @@
 
 namespace Stackonet\REST;
 
-use DateTime;
 use Exception;
 use Stackonet\Models\Map;
 use Stackonet\Modules\SupportTicket\MapToSupportTicket;

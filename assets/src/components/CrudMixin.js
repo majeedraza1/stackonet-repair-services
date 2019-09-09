@@ -65,27 +65,19 @@ const CrudMixin = {
 			});
 		},
 		action_trash(url, id, action) {
-			let validActions = ['trash', 'restore', 'delete'];
-			if (-1 === validActions.indexOf(action)) {
-				console.log('Only trash, restore and delete are supported.');
-				return;
-			}
-			return new Promise((resolve, reject) => {
-				axios.post(url, {id: id, action: action}).then((response) => {
-					resolve(response.data.data)
-				}).catch((error) => {
-					reject(error);
-				});
-			});
+			this.action_batch_trash(url, [id], action);
 		},
 		action_batch_trash(url, ids, action) {
 			let validActions = ['trash', 'restore', 'delete'];
+			console.log(validActions.indexOf(action), action);
 			if (-1 === validActions.indexOf(action)) {
 				console.log('Only trash, restore and delete are supported.');
 				return;
 			}
+			let data = {};
+			data[action] = ids;
 			return new Promise((resolve, reject) => {
-				axios.post(url, {ids: ids, action: action}).then((response) => {
+				axios.post(url, data).then((response) => {
 					resolve(response.data.data);
 				}).catch((error) => {
 					reject(error);

@@ -112,377 +112,372 @@
 </template>
 
 <script>
-	import {mapGetters} from 'vuex';
-	import axios from 'axios';
-	import modal from 'shapla-modal'
-	import vSelect from 'vue-select'
-	import mdlTable from '../../material-design-lite/data-table/mdlTable'
-	import mdlButton from '../../material-design-lite/button/mdlButton'
-	import wpStatusList from '../../wp/wpStatusList'
-	import wpPagination from '../../wp/wpPagination'
-	import wpBulkActions from '../../wp/wpBulkActions'
-	import Icon from "../../shapla/icon/icon";
-	import Search from "../../shapla/search/Search";
-	import TicketThreads from "./TicketThreads";
+    import {mapGetters} from 'vuex';
+    import axios from 'axios';
+    import modal from 'shapla-modal'
+    import vSelect from 'vue-select'
+    import mdlTable from '../../material-design-lite/data-table/mdlTable'
+    import mdlButton from '../../material-design-lite/button/mdlButton'
+    import wpStatusList from '../../wp/wpStatusList'
+    import wpPagination from '../../wp/wpPagination'
+    import wpBulkActions from '../../wp/wpBulkActions'
+    import Icon from "../../shapla/icon/icon";
+    import Search from "../../shapla/search/Search";
+    import TicketThreads from "./TicketThreads";
 
-	export default {
-		name: "SupportTicketList",
-		components: {
-			vSelect,
-			TicketThreads,
-			Icon,
-			mdlTable,
-			mdlButton,
-			wpStatusList,
-			wpPagination,
-			wpBulkActions,
-			modal,
-			Search
-		},
-		data() {
-			return {
-				loading: false,
-				default_statuses: [],
-				default_categories: [],
-				default_priorities: [],
-				search_categories: [],
-				cities: [],
-				columns: [
-					{key: 'id', label: 'ID', numeric: true},
-					{key: 'ticket_subject', label: 'Subject', numeric: false},
-					{key: 'ticket_status', label: 'Status', numeric: false},
-					{key: 'customer_name', label: 'Name', numeric: false},
-					{key: 'customer_email', label: 'Email Address', numeric: false},
-					{key: 'customer_phone', label: 'Phone', numeric: false},
-					{key: 'created_by', label: 'Assigned Agent', numeric: false},
-					{key: 'ticket_category', label: 'Category', numeric: false},
-					{key: 'ticket_priority', label: 'Priority', numeric: false},
-					{key: 'updated_human_time', label: 'Updated', numeric: false},
-				],
-				items: [],
-				counts: [],
-				pagination: {},
-				currentPage: 1,
-				count_trash: 0,
-				status: 'all',
-				category: 'all',
-				priority: 'all',
-				city: 'all',
-				agent: 'all',
-				vStatus: {},
-				vCategory: {},
-				vPriority: {},
-				vCity: {},
-				vAgent: {},
-				query: '',
-				activeItem: {},
-				activeNoteModal: false,
-				activeQuickViewModal: false,
-				activeQuickViewItem: {},
-				note: '',
-			}
-		},
-		mounted() {
-			this.$store.commit('SET_LOADING_STATUS', false);
-			this.$store.commit('SET_TITLE', 'Support Tickets');
-			if (!this.items.length) {
-				this.getItems();
-			}
-			this.default_statuses = SupportTickets.statuses;
-			this.default_categories = SupportTickets.categories;
-			this.default_priorities = SupportTickets.priorities;
-			this.count_trash = SupportTickets.count_trash;
-			this.cities = SupportTickets.cities;
-			this.search_categories = SupportTickets.search_categories;
-		},
-		computed: {
-			...mapGetters(['support_agents']),
-			_support_agents() {
-				let agents = this.support_agents;
-				agents.unshift({display_name: 'All', id: 0});
-				return agents;
-			},
-			dropdownCategories() {
-				let _categories = [{label: 'All', value: 'all'}], self = this;
-				this.default_categories.forEach(element => {
-					if (-1 !== this.search_categories.indexOf(element.key)) {
-						_categories.push({label: element.label, value: element.key,})
-					}
-				});
+    export default {
+        name: "SupportTicketList",
+        components: {
+            vSelect,
+            TicketThreads,
+            Icon,
+            mdlTable,
+            mdlButton,
+            wpStatusList,
+            wpPagination,
+            wpBulkActions,
+            modal,
+            Search
+        },
+        data() {
+            return {
+                loading: false,
+                default_statuses: [],
+                default_categories: [],
+                default_priorities: [],
+                search_categories: [],
+                cities: [],
+                columns: [
+                    {key: 'id', label: 'ID', numeric: true},
+                    {key: 'ticket_subject', label: 'Subject', numeric: false},
+                    {key: 'ticket_status', label: 'Status', numeric: false},
+                    {key: 'customer_name', label: 'Name', numeric: false},
+                    {key: 'customer_email', label: 'Email Address', numeric: false},
+                    {key: 'customer_phone', label: 'Phone', numeric: false},
+                    {key: 'created_by', label: 'Assigned Agent', numeric: false},
+                    {key: 'ticket_category', label: 'Category', numeric: false},
+                    {key: 'ticket_priority', label: 'Priority', numeric: false},
+                    {key: 'updated_human_time', label: 'Updated', numeric: false},
+                ],
+                items: [],
+                counts: [],
+                pagination: {},
+                currentPage: 1,
+                count_trash: 0,
+                status: 'all',
+                category: 'all',
+                priority: 'all',
+                city: 'all',
+                agent: 'all',
+                vStatus: {},
+                vCategory: {},
+                vPriority: {},
+                vCity: {},
+                vAgent: {},
+                query: '',
+                activeItem: {},
+                activeNoteModal: false,
+                activeQuickViewModal: false,
+                activeQuickViewItem: {},
+                note: '',
+            }
+        },
+        mounted() {
+            this.$store.commit('SET_LOADING_STATUS', false);
+            this.$store.commit('SET_TITLE', 'Support Tickets');
+            if (!this.items.length) {
+                this.getItems();
+            }
+            this.default_statuses = SupportTickets.statuses;
+            this.default_categories = SupportTickets.categories;
+            this.default_priorities = SupportTickets.priorities;
+            this.count_trash = SupportTickets.count_trash;
+            this.cities = SupportTickets.cities;
+            this.search_categories = SupportTickets.search_categories;
+        },
+        computed: {
+            ...mapGetters(['support_agents']),
+            _support_agents() {
+                let agents = this.support_agents;
+                agents.unshift({display_name: 'All', id: 0});
+                return agents;
+            },
+            dropdownCategories() {
+                let _categories = [{label: 'All', value: 'all'}], self = this;
+                this.default_categories.forEach(element => {
+                    if (-1 !== this.search_categories.indexOf(element.key)) {
+                        _categories.push({label: element.label, value: element.key,})
+                    }
+                });
 
-				return _categories;
-			},
-			statuses() {
-				let _status = [], self = this;
-				self.default_statuses.forEach(status => {
-					status.count = self.counts[status.key];
-					_status.push(status);
-				});
+                return _categories;
+            },
+            statuses() {
+                let _status = [], self = this;
+                self.default_statuses.forEach(status => {
+                    status.count = self.counts[status.key];
+                    _status.push(status);
+                });
 
-				return _status;
-			},
-			actions() {
-				if ('trash' === this.status) {
-					return [{key: 'restore', label: 'Restore'}, {key: 'delete', label: 'Delete Permanently'}];
-				}
+                return _status;
+            },
+            actions() {
+                if ('trash' === this.status) {
+                    return [{key: 'restore', label: 'Restore'}, {key: 'delete', label: 'Delete Permanently'}];
+                }
 
-				return [
-					{key: 'view', label: 'View'},
-					{key: 'quick_view', label: 'Quick View'},
-					{key: 'note', label: 'Note'},
-					// {key: 'trash', label: 'Trash'}
-				];
-			},
-			bulkActions() {
-				if ('trash' === this.status) {
-					return [{key: 'restore', label: 'Restore'}, {key: 'delete', label: 'Delete Permanently'}];
-				} else {
-					return [{key: 'trash', label: 'Move to Trash'}];
-				}
-			},
-			_cities() {
-				let cities = Object.values(this.cities);
+                return [
+                    {key: 'view', label: 'View'},
+                    {key: 'quick_view', label: 'Quick View'},
+                    {key: 'note', label: 'Note'},
+                    // {key: 'trash', label: 'Trash'}
+                ];
+            },
+            bulkActions() {
+                if ('trash' === this.status) {
+                    return [{key: 'restore', label: 'Restore'}, {key: 'delete', label: 'Delete Permanently'}];
+                } else {
+                    return [{key: 'trash', label: 'Move to Trash'}];
+                }
+            },
+            _cities() {
+                let cities = Object.values(this.cities);
 
-				return cities.map(e => {
-					return {label: e, value: e}
-				});
-			}
-		},
-		methods: {
-			getQuickViewItem(item_id) {
-				this.$store.commit('SET_LOADING_STATUS', true);
-				axios
-					.get(PhoneRepairs.rest_root + '/support-ticket/' + item_id)
-					.then((response) => {
-						this.$store.commit('SET_LOADING_STATUS', false);
-						this.activeQuickViewItem = response.data.data;
-					})
-					.catch((error) => {
-						console.log(error);
-						this.$store.commit('SET_LOADING_STATUS', false);
-					});
-			},
-			getCircleColor(last_note_diff) {
-				return {
-					'is-green': last_note_diff <= 1440,
-					'is-yellow': last_note_diff > 1440 && 4320 >= last_note_diff,
-					'is-red': last_note_diff > 4320,
-				}
-			},
-			openNewTicket() {
-				this.$router.push({name: 'NewSupportTicket'});
-			},
-			markAsCalled(data) {
-				console.log(data);
-				this.$store.commit('SET_LOADING_STATUS', true);
-				axios
-					.put(PhoneRepairs.rest_root + `/support-ticket/${data.id}/call`)
-					.then((response) => {
-						this.$store.commit('SET_LOADING_STATUS', false);
-					})
-					.catch((error) => {
-						this.$store.commit('SET_LOADING_STATUS', false);
-						console.log(error);
-					});
-			},
-			getAssignedAgents(data) {
-				if (data.length < 1) return 'None';
+                return cities.map(e => {
+                    return {label: e, value: e}
+                });
+            }
+        },
+        methods: {
+            getQuickViewItem(item_id) {
+                this.$store.commit('SET_LOADING_STATUS', true);
+                axios
+                    .get(PhoneRepairs.rest_root + '/support-ticket/' + item_id)
+                    .then((response) => {
+                        this.$store.commit('SET_LOADING_STATUS', false);
+                        this.activeQuickViewItem = response.data.data;
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                        this.$store.commit('SET_LOADING_STATUS', false);
+                    });
+            },
+            getCircleColor(last_note_diff) {
+                return {
+                    'is-green': last_note_diff <= 1440,
+                    'is-yellow': last_note_diff > 1440 && 4320 >= last_note_diff,
+                    'is-red': last_note_diff > 4320,
+                }
+            },
+            openNewTicket() {
+                this.$router.push({name: 'NewSupportTicket'});
+            },
+            markAsCalled(data) {
+                this.$store.commit('SET_LOADING_STATUS', true);
+                axios
+                    .put(PhoneRepairs.rest_root + `/support-ticket/${data.id}/call`)
+                    .then((response) => {
+                        this.$store.commit('SET_LOADING_STATUS', false);
+                    })
+                    .catch((error) => {
+                        this.$store.commit('SET_LOADING_STATUS', false);
+                        console.log(error);
+                    });
+            },
+            getAssignedAgents(data) {
+                if (data.length < 1) return 'None';
 
-				let html = '';
-				for (let i = 0; i < data.length; i++) {
-					html += (i !== 0) ? ', ' : '';
-					html += data[i].display_name;
-				}
-				return html;
-			},
-			clearFilter() {
-				this.status = 'all';
-				this.category = 'all';
-				this.priority = 'all';
-				this.city = 'all';
-				this.agent = 'all';
-				this.vStatus = this.vCategory = this.vPriority = this.vCity = this.vAgent = {};
-				this.getItems();
-			},
-			_changeStatus(value) {
-				this.status = value.key;
-				this.changeStatus();
-			},
-			_changeCategory(value) {
-				this.category = value.key;
-				this.changeStatus();
-			},
-			_changePriority(value) {
-				this.priority = value.key;
-				this.changeStatus();
-			},
-			_changeCity(value) {
-				this.city = value.value;
-				this.changeStatus();
-			},
-			_changeAgent(value) {
-				this.agent = value.id;
-				this.changeStatus();
-			},
-			changeStatus() {
-				this.currentPage = 1;
-				this.getItems();
-			},
-			paginate(page) {
-				this.currentPage = page;
-				this.getItems();
-			},
-			categorySearch(data) {
-				let self = this;
-				self.$store.commit('SET_LOADING_STATUS', true);
-				let parms = `ticket_status=${self.status}&ticket_category=${data.cat}&ticket_priority=${self.priority}&paged=${self.currentPage}&city=${self.city}&agent=${self.agent}&search=${data.query}`;
-				axios
-					.get(PhoneRepairs.rest_root + `/support-ticket?${parms}`)
-					.then((response) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-						let data = response.data.data;
-						self.items = data.items;
-						self.counts = data.counts;
-						self.pagination = data.pagination;
-					})
-					.catch((error) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-						console.log(error);
-					});
-			},
-			search() {
-				this.getItems();
-			},
-			exportExcel() {
-				let url = `${PhoneRepairs.ajaxurl}?action=download_support_ticket&ticket_status=${this.status}&ticket_category=${this.category}&ticket_priority=${this.priority}`;
-				window.location.href = url;
-			},
-			getItems() {
-				let self = this;
-				self.$store.commit('SET_LOADING_STATUS', true);
-				let parms = `ticket_status=${self.status}&ticket_category=${self.category}&ticket_priority=${self.priority}&paged=${self.currentPage}&city=${self.city}&agent=${self.agent}&search=${self.query}`;
-				axios
-					.get(PhoneRepairs.rest_root + `/support-ticket?${parms}`)
-					.then((response) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-						let data = response.data.data;
-						self.items = data.items;
-						self.counts = data.counts;
-						self.pagination = data.pagination;
-						// self.$root.$emit('show-notification', {
-						// 	type: 'info',
-						// 	message: 'Data has been updated.',
-						// });
-					})
-					.catch((error) => {
-						console.log(error);
-					});
-			},
+                let html = '';
+                for (let i = 0; i < data.length; i++) {
+                    html += (i !== 0) ? ', ' : '';
+                    html += data[i].display_name;
+                }
+                return html;
+            },
+            clearFilter() {
+                this.status = 'all';
+                this.category = 'all';
+                this.priority = 'all';
+                this.city = 'all';
+                this.agent = 'all';
+                this.vStatus = this.vCategory = this.vPriority = this.vCity = this.vAgent = {};
+                this.getItems();
+            },
+            _changeStatus(value) {
+                this.status = value.key;
+                this.changeStatus();
+            },
+            _changeCategory(value) {
+                this.category = value.key;
+                this.changeStatus();
+            },
+            _changePriority(value) {
+                this.priority = value.key;
+                this.changeStatus();
+            },
+            _changeCity(value) {
+                this.city = value.value;
+                this.changeStatus();
+            },
+            _changeAgent(value) {
+                this.agent = value.id;
+                this.changeStatus();
+            },
+            changeStatus() {
+                this.currentPage = 1;
+                this.getItems();
+            },
+            paginate(page) {
+                this.currentPage = page;
+                this.getItems();
+            },
+            categorySearch(data) {
+                let self = this;
+                self.$store.commit('SET_LOADING_STATUS', true);
+                let parms = `ticket_status=${self.status}&ticket_category=${data.cat}&ticket_priority=${self.priority}&paged=${self.currentPage}&city=${self.city}&agent=${self.agent}&search=${data.query}`;
+                axios
+                    .get(PhoneRepairs.rest_root + `/support-ticket?${parms}`)
+                    .then((response) => {
+                        self.$store.commit('SET_LOADING_STATUS', false);
+                        let data = response.data.data;
+                        self.items = data.items;
+                        self.counts = data.counts;
+                        self.pagination = data.pagination;
+                    })
+                    .catch((error) => {
+                        self.$store.commit('SET_LOADING_STATUS', false);
+                        console.log(error);
+                    });
+            },
+            search() {
+                this.getItems();
+            },
+            exportExcel() {
+                let url = `${PhoneRepairs.ajaxurl}?action=download_support_ticket&ticket_status=${this.status}&ticket_category=${this.category}&ticket_priority=${this.priority}`;
+                window.location.href = url;
+            },
+            getItems() {
+                let self = this;
+                self.$store.commit('SET_LOADING_STATUS', true);
+                let parms = `ticket_status=${self.status}&ticket_category=${self.category}&ticket_priority=${self.priority}&paged=${self.currentPage}&city=${self.city}&agent=${self.agent}&search=${self.query}`;
+                axios
+                    .get(PhoneRepairs.rest_root + `/support-ticket?${parms}`)
+                    .then((response) => {
+                        self.$store.commit('SET_LOADING_STATUS', false);
+                        let data = response.data.data;
+                        self.items = data.items;
+                        self.counts = data.counts;
+                        self.pagination = data.pagination;
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
+            },
 
-			hideActionSeparator(action) {
-				return action === this.actions[this.actions.length - 1].key;
-			},
+            hideActionSeparator(action) {
+                return action === this.actions[this.actions.length - 1].key;
+            },
 
-			closeNoteModal() {
-				this.activeNoteModal = false;
-				this.note = '';
-			},
+            closeNoteModal() {
+                this.activeNoteModal = false;
+                this.note = '';
+            },
 
-			saveNote() {
-				this.$store.commit('SET_LOADING_STATUS', true);
-				axios
-					.post(PhoneRepairs.rest_root + '/support-ticket/' + this.activeItem.id + '/thread/', {
-						thread_type: 'note',
-						thread_content: this.note,
-						ticket_attachments: [],
-					})
-					.then((response) => {
-						this.note = '';
-						this.activeNoteModal = false;
-						this.$store.commit('SET_LOADING_STATUS', false);
-						this.$root.$emit('show-notification', {
-							message: 'Note has been added successfully.',
-							type: 'success',
-						});
-					})
-					.catch((error) => {
-						this.$store.commit('SET_LOADING_STATUS', false);
-					});
-			},
+            saveNote() {
+                this.$store.commit('SET_LOADING_STATUS', true);
+                axios
+                    .post(PhoneRepairs.rest_root + '/support-ticket/' + this.activeItem.id + '/thread/', {
+                        thread_type: 'note',
+                        thread_content: this.note,
+                        ticket_attachments: [],
+                    })
+                    .then((response) => {
+                        this.note = '';
+                        this.activeNoteModal = false;
+                        this.$store.commit('SET_LOADING_STATUS', false);
+                        this.$root.$emit('show-notification', {
+                            message: 'Note has been added successfully.',
+                            type: 'success',
+                        });
+                    })
+                    .catch((error) => {
+                        this.$store.commit('SET_LOADING_STATUS', false);
+                    });
+            },
 
-			onActionClick(action, item) {
-				if ('view' === action) {
-					this.$router.push({name: 'SingleSupportTicket', params: {id: item.id}});
-				}
-				if ('quick_view' === action) {
-					this.activeQuickViewModal = true;
-					this.activeQuickViewItem = item;
-					this.getQuickViewItem(item.id);
-				}
-				if ('note' === action) {
-					this.activeNoteModal = true;
-					this.activeItem = item;
-				}
-				if ('trash' === action && window.confirm('Are you sure move this item to trash?')) {
-					this.trashAction(item, 'trash');
-				}
-				if ('restore' === action && window.confirm('Are you sure restore this item again?')) {
-					this.trashAction(item, 'restore');
-				}
-				if ('delete' === action && window.confirm('Are you sure to delete permanently?')) {
-					this.trashAction(item, 'delete');
-				}
-			},
-			trashAction(item, action) {
-				let self = this;
-				self.$store.commit('SET_LOADING_STATUS', true);
-				axios
-					.post(PhoneRepairs.rest_root + '/support-ticket/delete', {
-						id: item.id,
-						action: action
-					})
-					.then((response) => {
-						self.getItems();
-						self.$store.commit('SET_LOADING_STATUS', false);
-					})
-					.catch((error) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-					});
-			},
-			onBulkAction(action, items) {
-				if ('trash' === action) {
-					if (confirm('Are you sure to trash all selected items?')) {
-						this.batchTrashAction(items, action);
-					}
-				} else if ('delete' === action) {
-					if (confirm('Are you sure to delete all selected items permanently?')) {
-						this.batchTrashAction(items, action);
-					}
-				} else if ('restore' === action) {
-					if (confirm('Are you sure to restore all selected items?')) {
-						this.batchTrashAction(items, action);
-					}
-				}
-			},
-			batchTrashAction(ids, action) {
-				let self = this;
-				self.$store.commit('SET_LOADING_STATUS', true);
-				axios
-					.post(PhoneRepairs.rest_root + '/support-ticket/batch_delete', {
-						ids: ids,
-						action: action
-					})
-					.then((response) => {
-						self.getItems();
-						self.$store.commit('SET_LOADING_STATUS', false);
-					})
-					.catch((error) => {
-						console.log(error);
-						self.$store.commit('SET_LOADING_STATUS', false);
-					});
-			}
-		}
-	}
+            onActionClick(action, item) {
+                if ('view' === action) {
+                    this.$router.push({name: 'SingleSupportTicket', params: {id: item.id}});
+                }
+                if ('quick_view' === action) {
+                    this.activeQuickViewModal = true;
+                    this.activeQuickViewItem = item;
+                    this.getQuickViewItem(item.id);
+                }
+                if ('note' === action) {
+                    this.activeNoteModal = true;
+                    this.activeItem = item;
+                }
+                if ('trash' === action && window.confirm('Are you sure move this item to trash?')) {
+                    this.trashAction(item, 'trash');
+                }
+                if ('restore' === action && window.confirm('Are you sure restore this item again?')) {
+                    this.trashAction(item, 'restore');
+                }
+                if ('delete' === action && window.confirm('Are you sure to delete permanently?')) {
+                    this.trashAction(item, 'delete');
+                }
+            },
+            trashAction(item, action) {
+                let self = this;
+                self.$store.commit('SET_LOADING_STATUS', true);
+                axios
+                    .post(PhoneRepairs.rest_root + '/support-ticket/delete', {
+                        id: item.id,
+                        action: action
+                    })
+                    .then((response) => {
+                        self.getItems();
+                        self.$store.commit('SET_LOADING_STATUS', false);
+                    })
+                    .catch((error) => {
+                        self.$store.commit('SET_LOADING_STATUS', false);
+                    });
+            },
+            onBulkAction(action, items) {
+                if ('trash' === action) {
+                    if (confirm('Are you sure to trash all selected items?')) {
+                        this.batchTrashAction(items, action);
+                    }
+                } else if ('delete' === action) {
+                    if (confirm('Are you sure to delete all selected items permanently?')) {
+                        this.batchTrashAction(items, action);
+                    }
+                } else if ('restore' === action) {
+                    if (confirm('Are you sure to restore all selected items?')) {
+                        this.batchTrashAction(items, action);
+                    }
+                }
+            },
+            batchTrashAction(ids, action) {
+                let self = this;
+                self.$store.commit('SET_LOADING_STATUS', true);
+                axios
+                    .post(PhoneRepairs.rest_root + '/support-ticket/batch_delete', {
+                        ids: ids,
+                        action: action
+                    })
+                    .then((response) => {
+                        self.getItems();
+                        self.$store.commit('SET_LOADING_STATUS', false);
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                        self.$store.commit('SET_LOADING_STATUS', false);
+                    });
+            }
+        }
+    }
 </script>
 
 <style lang="scss">

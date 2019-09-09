@@ -17,8 +17,8 @@ const TrackerMixin = {
 		getObject(object_id, date = null, snapToRoads = false) {
 			return new Promise((resolve, reject) => {
 				axios
-					.get(PhoneRepairs.rest_root + '/trackable-objects/log', {
-						params: {object_id: object_id, log_date: date, snapToRoads: snapToRoads}
+					.get(PhoneRepairs.rest_root + '/trackable-objects/logs', {
+						params: {object_id: object_id, log_date: date, snap_to_roads: snapToRoads}
 					}).then(response => resolve(response.data.data))
 					.catch(error => reject(error))
 			})

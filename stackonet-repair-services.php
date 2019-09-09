@@ -201,6 +201,7 @@ final class Stackonet_Repair_Services {
 			$this->container['rest-order']             = Stackonet\REST\OrderController::init();
 			$this->container['rest-map']               = Stackonet\REST\MapController::init();
 			$this->container['trackable-object']       = Stackonet\REST\TrackableObjectController::init();
+			$this->container['trackable-object-log']   = Stackonet\REST\TrackableObjectLogController::init();
 
 			$this->container['page-payment']   = Stackonet\Frontend\PaymentPage::init();
 			$this->container['page-dashboard'] = Stackonet\Frontend\DashboardPage::init();

@@ -10,7 +10,6 @@ use Stackonet\Models\SmsTemplate;
 use Stackonet\Models\Survey;
 use Stackonet\Modules\SupportTicket\SupportAgent;
 use Stackonet\Supports\ArrayHelper;
-use Stackonet\Supports\Logger;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;

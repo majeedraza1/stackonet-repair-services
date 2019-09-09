@@ -99,6 +99,7 @@
         watch: {
             log_date(newValue) {
                 this.getObject(this.$route.params.object_id, newValue, this.useSnapToRoads).then(data => {
+                    data.is_changed = true;
                     this.refreshData(data);
                     let location = new google.maps.LatLng(data.object.latitude, data.object.longitude);
                     this.googleMap.setCenter(location);
@@ -138,7 +139,7 @@
                 this.getObject(this.$route.params.object_id, this.log_date, this.useSnapToRoads).then(data => {
                     this.refreshData(data);
                 }).catch(error => console.error(error));
-            }, 5000);
+            }, 60000);
 
             this.timelines = setInterval(() => {
                 this.getTimeline();
@@ -173,13 +174,16 @@
         methods: {
             getTimeline() {
                 this.timelineLoading = true;
-                axios.get(PhoneRepairs.rest_root + '/trackable-objects/timeline', {
+                axios.get(PhoneRepairs.rest_root + '/trackable-objects/logs', {
                     params: {
                         object_id: this.$route.params.object_id,
-                        log_date: this.log_date
+                        log_date: this.log_date,
+                        timeline: true,
+                        polyline: false,
+                        snap_to_roads: false,
                     }
                 }).then(response => {
-                    this.timelineItems = response.data.data.logs;
+                    this.timelineItems = response.data.data.timeline;
                     this.timelineLoading = false;
                 }).catch(error => {
                     this.timelineLoading = false;
