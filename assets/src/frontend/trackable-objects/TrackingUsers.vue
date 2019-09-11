@@ -1,5 +1,8 @@
 <template>
 	<div>
+		<div style="margin-top:20px;">
+			<mdl-button type="raised" color="primary" @click="openAddModal = true">Add New</mdl-button>
+		</div>
 		<wp-status-list :statuses="statuses" @change="handleStatusChange"></wp-status-list>
 		<mdl-table
 			:rows="items"
@@ -17,6 +20,21 @@
 				<span class="status--offline" v-else>Offline</span>
 			</template>
 		</mdl-table>
+		<modal :active="openAddModal" @close="closeAddModal" type="box">
+			<div class="shapla-box">
+				<animated-input label="Object Id" v-model="newItem.object_id"></animated-input>
+				<animated-input label="Display Name" v-model="newItem.object_name"></animated-input>
+				<div>
+					<div style="text-align: left">Avatar</div>
+					<featured-image
+						:image="newItem.avatar"
+						@input="updateNewItemImage"
+						:images="images"
+					></featured-image>
+				</div>
+				<big-button :fullwidth="true" text="Update" :disabled="!canAddNew" @click="createObject"></big-button>
+			</div>
+		</modal>
 		<modal :active="openEditModal" @close="closeEditModal" type="box">
 			<template v-if="Object.keys(activeItem).length">
 				<div class="shapla-box">
@@ -46,10 +64,20 @@
     import BigButton from "../../components/BigButton";
     import DropzoneUploader from "../components/DropzoneUploader";
     import FeaturedImage from "../../components/FeaturedImage";
+    import MdlButton from "../../material-design-lite/button/mdlButton";
 
     export default {
         name: "TrackingUsers",
-        components: {FeaturedImage, DropzoneUploader, BigButton, AnimatedInput, WpStatusList, mdlTable, modal},
+        components: {
+            MdlButton,
+            FeaturedImage,
+            DropzoneUploader,
+            BigButton,
+            AnimatedInput,
+            WpStatusList,
+            mdlTable,
+            modal
+        },
         mixins: [CrudMixin],
         data() {
             return {
@@ -64,7 +92,14 @@
                 ],
                 images: [],
                 openEditModal: false,
-                activeItem: {}
+                activeItem: {},
+                newItem: {
+                    object_id: '',
+                    object_name: '',
+                    object_icon: 0,
+                    avatar: {},
+                },
+                openAddModal: false,
             }
         },
         computed: {
@@ -79,6 +114,11 @@
                     {key: 'edit', label: 'Edit'},
                     {key: 'trash', label: 'Trash'},
                 ];
+            },
+            canAddNew() {
+                if (this.newItem.object_id.length < 3) return false;
+                if (this.newItem.object_name.length < 3) return false;
+                return !!this.newItem.avatar.image_id;
             }
         },
         mounted() {
@@ -86,9 +126,35 @@
             this.getLogos();
         },
         methods: {
+            closeAddModal() {
+                this.openAddModal = false;
+                this.newItem = {
+                    object_id: '',
+                    object_name: '',
+                    object_icon: 0,
+                }
+            },
             closeEditModal() {
                 this.openEditModal = false;
                 this.activeItem = {};
+            },
+            createObject() {
+                this.$store.commit('SET_LOADING_STATUS', true);
+                let data = {
+                    object_id: this.newItem.object_id,
+                    object_name: this.newItem.object_name,
+                };
+                if (this.newItem.avatar.image_id) {
+                    data['object_icon'] = this.newItem.avatar.image_id;
+                }
+                this.create_item(PhoneRepairs.rest_root + '/trackable-objects', data).then(() => {
+                    this.$store.commit('SET_LOADING_STATUS', false);
+                    this.closeAddModal();
+                    this.getTrackableObjects();
+                }).catch(error => {
+                    this.$store.commit('SET_LOADING_STATUS', false);
+                    console.log(error);
+                })
             },
             updateObject() {
                 this.$store.commit('SET_LOADING_STATUS', true);
@@ -105,6 +171,9 @@
                     this.$store.commit('SET_LOADING_STATUS', false);
                     console.log(error);
                 })
+            },
+            updateNewItemImage(image) {
+                this.newItem.avatar = image;
             },
             updateFeaturedImage(image) {
                 this.activeItem.avatar = image;
