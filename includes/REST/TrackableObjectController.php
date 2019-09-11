@@ -58,6 +58,7 @@ class TrackableObjectController extends ApiController {
 		] );
 
 		register_rest_route( $this->namespace, '/trackable-objects/(?P<id>\d+)', [
+			[ 'methods' => WP_REST_Server::READABLE, 'callback' => [ $this, 'get_item' ] ],
 			[ 'methods' => WP_REST_Server::EDITABLE, 'callback' => [ $this, 'update_item' ] ],
 			[ 'methods' => WP_REST_Server::DELETABLE, 'callback' => [ $this, 'delete_item' ] ],
 		] );
@@ -116,6 +117,21 @@ class TrackableObjectController extends ApiController {
 		}
 
 		return $this->respondOK( $data );
+	}
+
+	/**
+	 * Retrieves one item from the collection.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
+	 */
+	public function get_item( $request ) {
+		$object_id = $request->get_param( 'id' );
+
+		$object = ( new TrackableObject() )->find_by_id( $object_id );
+
+		return $this->respondOK($object);
 	}
 
 	/**

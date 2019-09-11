@@ -17,18 +17,39 @@
 				<span class="status--offline" v-else>Offline</span>
 			</template>
 		</mdl-table>
+		<modal :active="openEditModal" @close="closeEditModal" type="box">
+			<template v-if="Object.keys(activeItem).length">
+				<div class="shapla-box">
+					<animated-input label="Object Id" v-model="activeItem.object_id"></animated-input>
+					<animated-input label="Display Name" v-model="activeItem.object_name"></animated-input>
+					<div>
+						<div style="text-align: left">Avatar</div>
+						<featured-image
+							:image="activeItem.avatar"
+							@input="updateFeaturedImage"
+							:images="images"
+						></featured-image>
+					</div>
+					<big-button :fullwidth="true" text="Update" @click="updateObject"></big-button>
+				</div>
+			</template>
+		</modal>
 	</div>
 </template>
 
 <script>
-    import axios from 'axios'
+    import modal from 'shapla-modal'
     import {CrudMixin} from "../../components/CrudMixin";
     import mdlTable from "../../material-design-lite/data-table/mdlTable";
     import WpStatusList from "../../wp/wpStatusList";
+    import AnimatedInput from "../../components/AnimatedInput";
+    import BigButton from "../../components/BigButton";
+    import DropzoneUploader from "../components/DropzoneUploader";
+    import FeaturedImage from "../../components/FeaturedImage";
 
     export default {
         name: "TrackingUsers",
-        components: {WpStatusList, mdlTable},
+        components: {FeaturedImage, DropzoneUploader, BigButton, AnimatedInput, WpStatusList, mdlTable, modal},
         mixins: [CrudMixin],
         data() {
             return {
@@ -40,7 +61,10 @@
                     {key: 'icon', label: 'Icon'},
                     {key: 'online', label: 'Status'},
                     {key: 'formatted_address', label: 'Last location'},
-                ]
+                ],
+                images: [],
+                openEditModal: false,
+                activeItem: {}
             }
         },
         computed: {
@@ -59,8 +83,48 @@
         },
         mounted() {
             this.getTrackableObjects();
+            this.getLogos();
         },
         methods: {
+            closeEditModal() {
+                this.openEditModal = false;
+                this.activeItem = {};
+            },
+            updateObject() {
+                this.$store.commit('SET_LOADING_STATUS', true);
+                this.update_item(PhoneRepairs.rest_root + '/trackable-objects/' + this.activeItem.id, {
+                    id: this.activeItem.id,
+                    object_id: this.activeItem.object_id,
+                    object_name: this.activeItem.object_name,
+                    object_icon: this.activeItem.avatar.image_id,
+                }).then(() => {
+                    this.$store.commit('SET_LOADING_STATUS', false);
+                    this.closeEditModal();
+                    this.getTrackableObjects();
+                }).catch(error => {
+                    this.$store.commit('SET_LOADING_STATUS', false);
+                    console.log(error);
+                })
+            },
+            updateFeaturedImage(image) {
+                this.activeItem.avatar = image;
+            },
+            getTrackableObject(object_id) {
+                this.$store.commit('SET_LOADING_STATUS', true);
+                this.get_item(PhoneRepairs.rest_root + '/trackable-objects/' + object_id).then(data => {
+                    this.$store.commit('SET_LOADING_STATUS', false);
+                    this.openEditModal = true;
+                    this.activeItem = data.data.data;
+                }).catch(error => {
+                    this.$store.commit('SET_LOADING_STATUS', false);
+                    console.log(error);
+                })
+            },
+            getLogos() {
+                this.get_item(PhoneRepairs.rest_root + '/logo').then(response => {
+                    this.images = response.data.data;
+                })
+            },
             getTrackableObjects() {
                 this.$store.commit('SET_LOADING_STATUS', true);
                 this.get_items(PhoneRepairs.rest_root + '/trackable-objects', {
@@ -83,7 +147,7 @@
             },
             onActionClick(action, item) {
                 if ('edit' === action) {
-                    alert('We are working on it.');
+                    this.getTrackableObject(item.id);
                 }
                 if ('trash' === action && window.confirm('Are you sure to trash this item?')) {
                     this.bulkTrashAction([item.id], 'trash');

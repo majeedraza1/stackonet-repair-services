@@ -53,13 +53,24 @@ class TrackableObject extends DatabaseModel {
 	protected $log_data = [];
 
 	/**
+	 * Icon information
+	 *
+	 * @var array
+	 */
+	protected $icon = [];
+
+	/**
 	 * Array representation of the class
 	 *
 	 * @return array
 	 */
 	public function to_array() {
-		$data         = parent::to_array();
-		$data['icon'] = $this->get_object_icon();
+		$data                = parent::to_array();
+		$data['id']          = intval( $data['id'] );
+		$data['object_icon'] = intval( $data['object_icon'] );
+		$data['created_by']  = intval( $data['created_by'] );
+		$data['avatar']      = $this->get_object_icon();
+		$data['icon']        = $this->get_object_icon_url();
 
 		return $data;
 	}
@@ -75,7 +86,7 @@ class TrackableObject extends DatabaseModel {
 			'object_id'         => $this->get( 'object_id' ),
 			'object_name'       => $this->get( 'object_name' ),
 			'object_type'       => $this->get( 'object_type' ),
-			'icon'              => $this->get_object_icon(),
+			'icon'              => $this->get_object_icon_url(),
 			'last_log'          => [],
 			'logs'              => [],
 			'formatted_address' => '',
@@ -104,11 +115,39 @@ class TrackableObject extends DatabaseModel {
 	}
 
 	/**
+	 * Icon data
+	 *
+	 * @return array
+	 */
+	public function get_object_icon() {
+		if ( ! empty( $this->icon ) ) {
+			return $this->icon;
+		}
+		$icon_id = intval( $this->get( 'object_icon' ) );
+		if ( $icon_id ) {
+			$src = wp_get_attachment_image_src( $icon_id, 'thumbnail' );
+
+			if ( isset( $src[0] ) && filter_var( $src[0], FILTER_VALIDATE_URL ) ) {
+				$this->icon = [
+					'id'             => $icon_id,
+					'src'            => $src[0],
+					'image_id'       => $icon_id,
+					'attachment_url' => $src[0],
+					'width'          => $src[1],
+					'height'         => $src[2],
+				];
+			}
+		}
+
+		return $this->icon;
+	}
+
+	/**
 	 * Get object icon
 	 *
 	 * @return string|null
 	 */
-	public function get_object_icon() {
+	public function get_object_icon_url() {
 		$icon_id = intval( $this->get( 'object_icon' ) );
 		$default = STACKONET_REPAIR_SERVICES_ASSETS . '/img/avatar.png';
 		if ( $icon_id ) {
