@@ -1,7 +1,7 @@
 <template>
 	<div class="stackonet-dashboard-report">
 		<mdl-tabs @change="changeTab">
-			<mdl-tab name="Graph">
+			<mdl-tab name="Graph" selected>
 				<div class="stackonet-dashboard-graph">
 					<month-navigation @change="changeDate"></month-navigation>
 					<line-chart :chart-data="chartdata" :options="options"/>
@@ -13,7 +13,7 @@
 									  @changeMonth="changeMonth"></vue-fullcalendar>
 				</div>
 			</mdl-tab>
-			<mdl-tab name="Tracking Users" selected>
+			<mdl-tab name="Tracking Users">
 				<div class="stackonet-dashboard-tracking-users">
 					<tracking-users></tracking-users>
 				</div>

@@ -1,3 +1,9 @@
+#### 1.1.18 - September 11, 2019
+* Add - Add tracking users dashboard tab page.
+* Add - Add tracking users edit option.
+* Add - Add tracking users add new option.
+* Add - Add tracking users create option for not recorded users.
+
 #### 1.1.17 - September 07, 2019
 * Add - Add van location field for choosing base address on map.
 * Add - Add actual and snap to road api view on single object tracker.

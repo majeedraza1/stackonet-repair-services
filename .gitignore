@@ -1,11 +1,9 @@
 # Folders
 .idea/
 node_modules/
-assets/.sass-cache/
 assets/css/
 assets/js/
 /vendor/
 
 # Files
-package-lock.json
 **.map
