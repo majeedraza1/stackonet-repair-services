@@ -75,7 +75,7 @@ class TrackableObjectController extends ApiController {
 		$per_page = $request->get_param( 'per_page' );
 		$page     = $request->get_param( 'page' );
 		$status   = $request->get_param( 'status' );
-		$status   = ( 'trash' == $status ) ? $status : 'all';
+		$status   = in_array( $status, [ 'all', 'trash', 'unregistered' ] ) ? $status : 'all';
 
 		FirebaseDatabase::sync_employees();
 
@@ -97,19 +97,50 @@ class TrackableObjectController extends ApiController {
 		$diff   = ArrayHelper::array_diff_recursive( $previous_response, $items );
 		$counts = ( new TrackableObject() )->count_records();
 
+		$_employees = ( new FirebaseDatabase )->getEmployees();
+		$ids        = wp_list_pluck( $items, 'object_id' );
+		$employees  = [];
+		foreach ( $_employees as $object_id => $employee ) {
+			if ( in_array( $object_id, $ids ) ) {
+				continue;
+			}
+			$employees[] = $object_id;
+		}
+
 		$data = [
 			'utc_timestamp' => $timestamp,
 			'idle_time'     => ( 10 * 60 ), // Ten minutes in seconds
 			'items'         => $items,
+			'employees'     => $employees,
 			'is_changed'    => count( $diff ) > 0,
 			'counts'        => $counts,
 			'pagination'    => self::get_pagination_data( $counts[ $status ], $per_page, $page )
 		];
 
-		$data['statuses'] = [
-			[ 'key' => 'all', 'label' => 'All' ],
-			[ 'key' => 'trash', 'label' => 'Trash' ],
-		];
+		$data['statuses'] = [ [ 'key' => 'all', 'label' => 'All' ], ];
+
+		if ( count( $employees ) ) {
+			$data['statuses'][]     = [ 'key' => 'unregistered', 'label' => 'Not Recorded' ];
+			$counts['unregistered'] = count( $employees );
+		}
+
+		if ( 'unregistered' == $status ) {
+			$data['items'] = [];
+			foreach ( $employees as $index => $employee ) {
+				$data['items'][] = [
+					'formatted_address' => '',
+					'icon'              => TrackableObject::get_default_icon_url(),
+					'id'                => $index,
+					'avatar'            => [ 'image_id' => 0 ],
+					'moving'            => false,
+					'object_id'         => $employee,
+					'object_name'       => $employee,
+					'object_type'       => '',
+				];
+			}
+		}
+
+		$data['statuses'][] = [ 'key' => 'trash', 'label' => 'Trash' ];
 
 		foreach ( $data['statuses'] as $index => $_status ) {
 			$data['statuses'][ $index ]['count']  = isset( $counts[ $_status['key'] ] ) ? $counts[ $_status['key'] ] : 0;
@@ -131,7 +162,7 @@ class TrackableObjectController extends ApiController {
 
 		$object = ( new TrackableObject() )->find_by_id( $object_id );
 
-		return $this->respondOK($object);
+		return $this->respondOK( $object );
 	}
 
 	/**

@@ -143,13 +143,21 @@ class TrackableObject extends DatabaseModel {
 	}
 
 	/**
+	 * Default icon url
+	 *
+	 * @return string
+	 */
+	public static function get_default_icon_url() {
+		return STACKONET_REPAIR_SERVICES_ASSETS . '/img/avatar.png';
+	}
+
+	/**
 	 * Get object icon
 	 *
 	 * @return string|null
 	 */
 	public function get_object_icon_url() {
 		$icon_id = intval( $this->get( 'object_icon' ) );
-		$default = STACKONET_REPAIR_SERVICES_ASSETS . '/img/avatar.png';
 		if ( $icon_id ) {
 			$src = wp_get_attachment_image_src( $icon_id );
 
@@ -158,7 +166,7 @@ class TrackableObject extends DatabaseModel {
 			}
 		}
 
-		return $default;
+		return self::get_default_icon_url();
 	}
 
 	public function get_log_data( $date = null ) {

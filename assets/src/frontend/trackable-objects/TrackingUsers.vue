@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<div style="margin-top:20px;">
+		<div style="margin-top:20px;display: none">
 			<mdl-button type="raised" color="primary" @click="openAddModal = true">Add New</mdl-button>
 		</div>
 		<wp-status-list :statuses="statuses" @change="handleStatusChange"></wp-status-list>
@@ -22,7 +22,8 @@
 		</mdl-table>
 		<modal :active="openAddModal" @close="closeAddModal" type="box">
 			<div class="shapla-box">
-				<animated-input label="Object Id" v-model="newItem.object_id"></animated-input>
+				<animated-input label="Username" v-model="newItem.object_id"
+								:disabled="status==='unregistered'"></animated-input>
 				<animated-input label="Display Name" v-model="newItem.object_name"></animated-input>
 				<div>
 					<div style="text-align: left">Avatar</div>
@@ -32,13 +33,13 @@
 						:images="images"
 					></featured-image>
 				</div>
-				<big-button :fullwidth="true" text="Update" :disabled="!canAddNew" @click="createObject"></big-button>
+				<big-button :fullwidth="true" text="Create" :disabled="!canAddNew" @click="createObject"></big-button>
 			</div>
 		</modal>
 		<modal :active="openEditModal" @close="closeEditModal" type="box">
 			<template v-if="Object.keys(activeItem).length">
 				<div class="shapla-box">
-					<animated-input label="Object Id" v-model="activeItem.object_id"></animated-input>
+					<animated-input label="Username" v-model="activeItem.object_id"></animated-input>
 					<animated-input label="Display Name" v-model="activeItem.object_name"></animated-input>
 					<div>
 						<div style="text-align: left">Avatar</div>
@@ -97,7 +98,9 @@
                     object_id: '',
                     object_name: '',
                     object_icon: 0,
-                    avatar: {},
+                    avatar: {
+                        image_id: 0
+                    },
                 },
                 openAddModal: false,
             }
@@ -109,6 +112,9 @@
                         {key: 'restore', label: 'Restore'},
                         {key: 'delete', label: 'Delete permanently'},
                     ];
+                }
+                if ('unregistered' === this.status) {
+                    return [{key: 'create', label: 'Create'}];
                 }
                 return [
                     {key: 'edit', label: 'Edit'},
@@ -215,6 +221,15 @@
                 this.getTrackableObjects();
             },
             onActionClick(action, item) {
+                if ('create' === action) {
+                    this.newItem = {
+                        object_id: item.object_id,
+                        object_name: item.object_name,
+                        object_icon: item.object_icon,
+                        avatar: item.avatar,
+                    };
+                    this.openAddModal = true;
+                }
                 if ('edit' === action) {
                     this.getTrackableObject(item.id);
                 }
