@@ -230,12 +230,7 @@ class TrackableObject extends DatabaseModel {
 		$query   = "SELECT * FROM {$table} WHERE deleted_at IS NULL";
 		$results = $wpdb->get_results( $query, ARRAY_A );
 
-		$items = [];
-		foreach ( $results as $result ) {
-			$items[] = new self( $result );
-		}
-
-		return $items;
+		return $results;
 	}
 
 	/**
