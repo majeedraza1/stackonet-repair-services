@@ -28,6 +28,7 @@ class Settings {
 		'payment_page_id'               => '',
 		'terms_and_conditions_page_id'  => '',
 		'order_reminder_minutes'        => '',
+		'number_of_alternate_places'    => '',
 		'ipdata_api_key'                => '',
 		'google_map_key'                => '',
 		'dropbox_client_id'             => '',

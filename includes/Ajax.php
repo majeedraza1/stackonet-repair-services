@@ -8,6 +8,7 @@ use DateTime;
 use Exception;
 use Stackonet\Integrations\FirebaseDatabase;
 use Stackonet\Integrations\GoogleMap;
+use Stackonet\Models\GoogleNearbyPlace;
 use Stackonet\Models\TrackableObject;
 use Stackonet\Models\TrackableObjectLog;
 use Stackonet\Models\TrackableObjectTimeline;
@@ -97,20 +98,14 @@ class Ajax {
 	}
 
 	public function stackonet_test() {
-		$string = "3655 Military Trail 321";
-		$string = preg_replace( "/[0-9 ]/", '', $string );
-//		var_dump( $string );
-//		die();
-		$object_id = 'brian';
-		$log_date  = '2019-09-02';
+		// Bhoomika Tower - 12.9372456,77.6191232
+		$latitude  = 12.9372456;
+		$longitude = 77.6191232;
 
-		$log   = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
-		$_logs = $log->get_log_data();
+		$logs = GoogleNearbyPlace::get_places_from_lat_lng( $latitude, $longitude );
 
-		$logs = TrackableObjectTimeline::format_timeline_from_logs( $_logs, $object_id, $log_date );
-		$logs = TrackableObjectTimeline::format_timeline_for_rest( $logs );
-
-		var_dump( $logs );
+		// header( 'Content-Type: text/json' );
+		var_dump( $logs->get_places() );
 		die();
 	}
 

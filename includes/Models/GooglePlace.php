@@ -72,6 +72,20 @@ class GooglePlace extends DatabaseModel {
 	];
 
 	/**
+	 * Get place data for timeline
+	 *
+	 * @return array
+	 */
+	public function to_timeline() {
+		return [
+			'place_id'          => $this->get( 'place_id' ),
+			'name'              => $this->get( 'name' ),
+			'icon'              => $this->get( 'icon' ),
+			'formatted_address' => $this->get( 'formatted_address' ),
+		];
+	}
+
+	/**
 	 * Get place id
 	 *
 	 * @return int
@@ -161,9 +175,6 @@ class GooglePlace extends DatabaseModel {
 
 		$place_id = ( new static )->create( $data );
 
-		global $wpdb;
-		// $wpdb->replace();
-
 		return $place_id;
 	}
 
@@ -194,7 +205,7 @@ class GooglePlace extends DatabaseModel {
 	 *
 	 * @return array
 	 */
-	private static function format_place_data( array $data ) {
+	public static function format_place_data( array $data ) {
 		if ( empty( $data['latitude'] ) ) {
 			if ( isset( $data['geometry']['location']['lat'] ) && is_numeric( $data['geometry']['location']['lat'] ) ) {
 				$data['latitude'] = floatval( $data['geometry']['location']['lat'] );
@@ -208,6 +219,11 @@ class GooglePlace extends DatabaseModel {
 			} else {
 				$data['longitude'] = 0;
 			}
+		}
+
+		if ( empty( $data['formatted_address'] ) && ! empty( $data['vicinity'] ) ) {
+			$data['formatted_address'] = $data['vicinity'];
+			$data['vicinity']          = '';
 		}
 
 		return $data;

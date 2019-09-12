@@ -88,6 +88,17 @@
 									24 hours.</p>
 							</td>
 						</tr>
+						<tr>
+							<th scope="row">
+								<label for="number_of_alternate_places">Timeline alternative places</label>
+							</th>
+							<td>
+								<input type="number" id="number_of_alternate_places" class="regular-text"
+									   v-model="settings.number_of_alternate_places"/>
+								<p class="description">Set number of alternative places should show on timeline
+									dropdown.</p>
+							</td>
+						</tr>
 					</table>
 				</mdl-tab>
 				<mdl-tab name="Service Times">
@@ -252,97 +263,99 @@
 </template>
 
 <script>
-	import mdlTabs from '../../material-design-lite/tabs/mdlTabs.vue';
-	import mdlTab from '../../material-design-lite/tabs/mdlTab.vue';
-	import Delete from '../../components/Delete.vue';
+    import mdlTabs from '../../material-design-lite/tabs/mdlTabs.vue';
+    import mdlTab from '../../material-design-lite/tabs/mdlTab.vue';
+    import Delete from '../../components/Delete.vue';
 
-	export default {
-		name: "Settings",
-		components: {mdlTabs, mdlTab, Delete},
-		data() {
-			return {
-				settings: {
-					support_phone: '',
-					support_email: '',
-					business_address: '',
-					reschedule_page_id: '',
-					payment_page_id: '',
-					terms_and_conditions_page_id: '',
-					order_reminder_minutes: '',
-					ipdata_api_key: '',
-					google_map_key: '',
-					dropbox_client_id: '',
-					dropbox_client_secret: '',
-					dropbox_access_token: '',
-					minimum_time_difference: '',
-					payment_thank_you_page_id: '',
-					square_payment_application_id: '',
-					square_payment_access_token: '',
-					square_payment_location_id: '',
-					service_times: {
-						Monday: {start_time: '', end_time: '',},
-						Tuesday: {start_time: '', end_time: '',},
-						Wednesday: {start_time: '', end_time: '',},
-						Thursday: {start_time: '', end_time: '',},
-						Friday: {start_time: '', end_time: '',},
-						Saturday: {start_time: '', end_time: '',},
-						Sunday: {start_time: '', end_time: '',},
-					},
-					holidays_list: [
-						{date: '', note: ''}
-					],
-				},
-				days_in_week: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-			}
-		},
-		computed: {
-			loading() {
-				return this.$store.state.loading;
-			}
-		},
-		mounted() {
-			this.$store.commit('SET_LOADING_STATUS', false);
-			this.settings = this.$store.state.settings;
-			this.fetchSettings();
-		},
-		methods: {
-			fetchSettings() {
-				this.settings = window.stackonetSettings.settings;
-			},
-			addNewHoliday() {
-				this.settings.holidays_list.push({date: ''});
-			},
-			deleteHoliday(holiday) {
-				if (window.confirm('Are you sure?')) {
-					this.settings.holidays_list.splice(this.settings.holidays_list.indexOf(holiday), 1);
-				}
-			},
-			saveSettings() {
-				let $ = window.jQuery, self = this;
-				self.$store.commit('SET_LOADING_STATUS', false);
-				$.ajax({
-					method: 'POST',
-					url: ajaxurl,
-					data: {
-						action: 'update_repair_services_settings',
-						settings: self.settings,
-					},
-					success: function (response) {
-						if (response.data) {
-							self.$store.commit('SET_SETTINGS', response.data);
-						}
-						self.$store.commit('SET_LOADING_STATUS', false);
-						self.$root.$emit('show-snackbar', {
-							message: 'Settings has been saved successfully.',
-						});
-					},
-					error: function () {
-						self.$store.commit('SET_LOADING_STATUS', false);
-					}
-				});
-			}
-		}
-	}
+    export default {
+        name: "Settings",
+        components: {mdlTabs, mdlTab, Delete},
+        data() {
+            return {
+                settings: {
+                    support_phone: '',
+                    support_email: '',
+                    business_address: '',
+                    reschedule_page_id: '',
+                    payment_page_id: '',
+                    terms_and_conditions_page_id: '',
+                    order_reminder_minutes: '',
+                    ipdata_api_key: '',
+                    google_map_key: '',
+                    dropbox_client_id: '',
+                    dropbox_client_secret: '',
+                    dropbox_access_token: '',
+                    minimum_time_difference: '',
+                    payment_thank_you_page_id: '',
+                    square_payment_application_id: '',
+                    square_payment_access_token: '',
+                    square_payment_location_id: '',
+                    number_of_alternate_places: '',
+                    service_times: {
+                        Monday: {start_time: '', end_time: '',},
+                        Tuesday: {start_time: '', end_time: '',},
+                        Wednesday: {start_time: '', end_time: '',},
+                        Thursday: {start_time: '', end_time: '',},
+                        Friday: {start_time: '', end_time: '',},
+                        Saturday: {start_time: '', end_time: '',},
+                        Sunday: {start_time: '', end_time: '',},
+                    },
+                    holidays_list: [
+                        {date: '', note: ''}
+                    ],
+                },
+                days_in_week: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+            }
+        },
+        computed: {
+            loading() {
+                return this.$store.state.loading;
+            }
+        },
+        mounted() {
+            this.$store.commit('SET_LOADING_STATUS', false);
+            this.settings = this.$store.state.settings;
+            this.fetchSettings();
+        },
+        methods: {
+            fetchSettings() {
+                this.settings = window.stackonetSettings.settings;
+            },
+            addNewHoliday() {
+                this.settings.holidays_list.push({date: ''});
+            },
+            deleteHoliday(holiday) {
+                if (window.confirm('Are you sure?')) {
+                    this.settings.holidays_list.splice(this.settings.holidays_list.indexOf(holiday), 1);
+                }
+            },
+            saveSettings() {
+                let $ = window.jQuery, self = this;
+                self.$store.commit('SET_LOADING_STATUS', false);
+                $.ajax({
+                    method: 'POST',
+                    url: ajaxurl,
+                    data: {
+                        action: 'update_repair_services_settings',
+                        settings: this.settings,
+                    },
+                    success: (response) => {
+                        if (response.data) {
+                            this.$store.commit('SET_SETTINGS', response.data);
+                        }
+                        this.$store.commit('SET_LOADING_STATUS', false);
+                        this.$store.commit('SET_NOTIFICATION', {
+                            message: 'Settings has been saved successfully.',
+                            type: 'success',
+                        });
+                    },
+                    error: () => {
+                        this.$store.commit('SET_LOADING_STATUS', false);
+                    }
+                });
+            }
+        }
+    }
 </script>
 
 <style lang="scss">

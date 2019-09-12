@@ -7,6 +7,7 @@ export default new Vuex.Store({
 	// Same as Vue data
 	state: {
 		loading: true,
+		notification: {},
 		services_areas: [],
 		requested_areas: [],
 		requested_areas_counts: {},
@@ -22,6 +23,9 @@ export default new Vuex.Store({
 	mutations: {
 		SET_LOADING_STATUS(state, loading) {
 			state.loading = loading;
+		},
+		SET_NOTIFICATION(state, notification) {
+			state.notification = notification;
 		},
 		SET_SERVICES_AREAS(state, services_areas) {
 			state.services_areas = services_areas;

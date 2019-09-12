@@ -5,6 +5,7 @@ namespace Stackonet\Models;
 use Stackonet\Abstracts\DatabaseModel;
 use Stackonet\Integrations\GoogleMap;
 use Stackonet\Supports\DistanceCalculator;
+use Stackonet\Supports\Logger;
 
 class TrackableObjectTimeline extends DatabaseModel {
 
@@ -95,11 +96,12 @@ class TrackableObjectTimeline extends DatabaseModel {
 					$log['address']['name'] = count( $name ) > 0 ? trim( $name[0] ) : '';
 				}
 
+				$places     = GoogleMap::nearby_search( $log['latitude'], $log['longitude'] );
 				$new_logs[] = array_merge( $log, [
 					'type'                 => 'place',
 					'dateTime'             => date( \DateTime::ISO8601, $log['utc_timestamp'] ),
 					'activityDurationText' => date( 'h:i A', $log['utc_timestamp'] ),
-					'addresses'            => [ $log['address'] ],
+					'addresses'            => array_merge( [ $log['address'] ], $places ),
 				] );
 			}
 		}

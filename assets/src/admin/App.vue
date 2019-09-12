@@ -2,25 +2,25 @@
 	<div class="repair-services-container">
 		<router-view></router-view>
 		<spinner :active="loading"></spinner>
-		<notification ref="notify"></notification>
+		<notification ref="notify" v-model="notification"></notification>
 	</div>
 </template>
 
 <script>
-	import {mapState} from 'vuex';
-	import notification from 'shapla-notifications';
-	import spinner from "shapla-spinner";
+    import {mapState} from 'vuex';
+    import notification from 'shapla-notifications';
+    import spinner from "shapla-spinner";
 
-	export default {
-		name: 'App',
-		components: {notification, spinner},
-		data() {
-			return {}
-		},
-		computed: {
-			...mapState(['loading']),
-		}
-	}
+    export default {
+        name: 'App',
+        components: {notification, spinner},
+        data() {
+            return {}
+        },
+        computed: {
+            ...mapState(['loading', 'notification']),
+        }
+    }
 </script>
 
 <style lang="scss">

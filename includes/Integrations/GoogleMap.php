@@ -3,6 +3,7 @@
 namespace Stackonet\Integrations;
 
 use Stackonet\Models\Appointment;
+use Stackonet\Models\GoogleNearbyPlace;
 use Stackonet\Models\GooglePlace;
 use Stackonet\Models\Settings;
 use WC_Order;
@@ -83,6 +84,34 @@ class GoogleMap {
 		$address  = isset( $data['results'][0] ) ? $data['results'][0] : [];
 
 		GooglePlace::add_place_data_if_not_exist( $address );
+
+		return $address;
+	}
+
+	/**
+	 * @param $latitude
+	 * @param $longitude
+	 *
+	 * @return array|mixed|object
+	 */
+	public static function nearby_search( $latitude, $longitude ) {
+		$places = GoogleNearbyPlace::get_places_from_lat_lng( $latitude, $longitude );
+		if ( $places instanceof GoogleNearbyPlace ) {
+			return $places->to_array();
+		}
+
+		$rest_url = add_query_arg( [
+			'key'      => Settings::get_map_api_key(),
+			'location' => $latitude . "," . $longitude,
+			'rankby'   => 'distance',
+			// 'radius'   => 20, // Radius won't work with rankby
+		], "https://maps.googleapis.com/maps/api/place/nearbysearch/json" );
+
+		$response = wp_remote_get( $rest_url );
+		$body     = wp_remote_retrieve_body( $response );
+		$data     = json_decode( $body, true );
+		$address  = isset( $data['results'] ) ? $data['results'] : [];
+		GoogleNearbyPlace::add_place_data_if_not_exist( $latitude, $longitude, $address );
 
 		return $address;
 	}

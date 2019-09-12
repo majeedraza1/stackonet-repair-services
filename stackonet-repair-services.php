@@ -269,6 +269,7 @@ final class Stackonet_Repair_Services {
 		( new Stackonet\Models\TrackableObjectLog )->create_table();
 		( new Stackonet\Models\TrackableObjectTimeline )->create_table();
 		( new Stackonet\Models\GooglePlace() )->create_table();
+		( new Stackonet\Models\GoogleNearbyPlace() )->create_table();
 
 		do_action( 'phone_repairs_asap_activation' );
 	}
