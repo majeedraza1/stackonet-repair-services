@@ -39,11 +39,10 @@
 					<div class="timeline" v-if="timelineItems.length > 0" v-for="(item, index) in timelineItems">
 						<google-timeline-item
 							v-if="item.type === 'place'"
+							:item="item"
 							:first-item="index === 0"
 							:last-item="index === (timelineItems.length - 1)"
-							:item-text="item.address.formatted_address"
-							:duration-text="item.activityDurationText"
-							:addresses="item.addresses"
+							@change="updateTimelineItem"
 						></google-timeline-item>
 						<google-timeline-movement
 							v-if="item.type === 'movement'"
@@ -210,6 +209,22 @@
                 } else {
                     this.update_polyline(this.polylines);
                 }
+            },
+            updateTimelineItem(item, newPlace, oldPlace) {
+                let data = {
+                    object_id: this.$route.params.object_id,
+                    log_date: this.log_date,
+                    latitude: item.latitude,
+                    longitude: item.longitude,
+                    utc_timestamp: item.utc_timestamp,
+                    new_place: newPlace,
+                    old_place: oldPlace
+                };
+                axios.post(PhoneRepairs.rest_root + '/trackable-objects/logs', data).then(() => {
+                    this.getTimeline();
+                }).catch(error => {
+                    console.log(error);
+                });
             },
             addMarker(data) {
                 this.marker = new google.maps.Marker({

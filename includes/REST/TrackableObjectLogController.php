@@ -5,6 +5,8 @@ namespace Stackonet\REST;
 use Exception;
 use Stackonet\Integrations\FirebaseDatabase;
 use Stackonet\Integrations\GoogleMap;
+use Stackonet\Models\GoogleNearbyPlace;
+use Stackonet\Models\GooglePlace;
 use Stackonet\Models\TrackableObject;
 use Stackonet\Models\TrackableObjectLog;
 use Stackonet\Models\TrackableObjectTimeline;
@@ -46,6 +48,11 @@ class TrackableObjectLogController extends ApiController {
 				'methods'  => WP_REST_Server::READABLE,
 				'callback' => [ $this, 'get_items' ],
 				'args'     => $this->get_collection_params(),
+			],
+			[
+				'methods'  => WP_REST_Server::CREATABLE,
+				'callback' => [ $this, 'create_item' ],
+				'args'     => $this->get_create_item_params(),
 			],
 		] );
 
@@ -138,6 +145,119 @@ class TrackableObjectLogController extends ApiController {
 	}
 
 	/**
+	 * Create one item from the collection.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function create_item( $request ) {
+		$object_id = $request->get_param( 'object_id' );
+		$log_date  = $request->get_param( 'log_date' );
+		$latitude  = $request->get_param( 'latitude' );
+		$longitude = $request->get_param( 'longitude' );
+		$timestamp = $request->get_param( 'utc_timestamp' );
+		$new_place = $request->get_param( 'new_place' );
+		$old_place = $request->get_param( 'old_place' );
+
+		$old_place_id = ! empty( $old_place['place_id'] ) ? $old_place['place_id'] : null;
+		$new_place_id = ! empty( $new_place['place_id'] ) ? $new_place['place_id'] : null;
+
+		if ( empty( $log_date ) ) {
+			$log_date = date( 'Y-m-d', current_time( 'timestamp' ) );
+		}
+
+		$log = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
+		if ( ! $log instanceof TrackableObjectLog ) {
+			return $this->respondNotFound( 'log_not_found', 'Log data not found for provided object_id and log_date.' );
+		}
+		$log_id = $log->get_id();
+
+		$timeline = TrackableObjectTimeline::get_timeline( $object_id, $log_date );
+		if ( ! $timeline instanceof TrackableObjectTimeline ) {
+			return $this->respondNotFound( 'timeline_not_found', 'Timeline data not found for provided object_id and log_date.' );
+		}
+		$timeline_id = $timeline->get_id();
+
+		$nearest_place    = GoogleNearbyPlace::get_places_from_lat_lng( $latitude, $longitude );
+		$places           = $nearest_place->get_places();
+		$new_place_object = [];
+		foreach ( $places as $_place ) {
+			if ( $_place->get_place_id() == $new_place_id ) {
+				$new_place_object = $_place;
+			}
+		}
+
+		if ( ! $new_place_object instanceof GooglePlace ) {
+			return $this->respondUnprocessableEntity( 'place_id_not_found', 'New place Id not found.' );
+		}
+
+		$logs  = $log->get_log_data();
+		$log   = [];
+		$index = - 1;
+		foreach ( $logs as $_index => $_log ) {
+			if ( $_log['place_id'] == $old_place_id
+			     && $_log['latitude'] == $latitude
+			     && $_log['longitude'] == $longitude
+			     && $_log['utc_timestamp'] == $timestamp
+			) {
+				$log   = $_log;
+				$index = $_index;
+			}
+		}
+
+		if ( ! ( $index >= 0 ) ) {
+			return $this->respondUnprocessableEntity( 'current_log_not_found', 'Current log not found.' );
+		}
+
+		$timeline_logs  = $timeline->get_timeline_data();
+		$timeline_log   = [];
+		$timeline_index = - 1;
+		foreach ( $timeline_logs as $_index => $_log ) {
+			if ( ! isset( $_log['address'], $_log['latitude'], $_log['longitude'] ) ) {
+				continue;
+			}
+			if ( $_log['address']['place_id'] == $old_place_id && $_log['latitude'] == $latitude && $_log['longitude'] == $longitude ) {
+				$timeline_log   = $_log;
+				$timeline_index = $_index;
+			}
+		}
+
+		if ( ! ( $timeline_index >= 0 ) ) {
+			return $this->respondUnprocessableEntity( 'timeline_log_not_found', 'Current timeline log not found.' );
+		}
+
+		// Replace log data with new address value
+		$logs[ $index ] = [
+			'address_types' => $new_place_object->get( 'types' ),
+			'latitude'      => $new_place_object->get( 'latitude' ),
+			'longitude'     => $new_place_object->get( 'longitude' ),
+			'place_id'      => $new_place_object->get( 'place_id' ),
+			'utc_timestamp' => $log['utc_timestamp'],
+		];
+
+		( new TrackableObjectLog() )->update( [
+			'id'       => $log_id,
+			'log_data' => $logs,
+		] );
+
+		// Update timeline data
+		$timeline_logs[ $timeline_index ] = wp_parse_args( [
+			'address'       => $new_place,
+			'address_types' => $new_place_object->get( 'types' ),
+			'latitude'      => $new_place_object->get( 'latitude' ),
+			'longitude'     => $new_place_object->get( 'longitude' ),
+		], $timeline_log );
+
+		( new TrackableObjectTimeline )->update( [
+			'id'            => $timeline_id,
+			'timeline_data' => $timeline_logs,
+		] );
+
+		return $this->respondOK();
+	}
+
+	/**
 	 * Get an item from collection.
 	 *
 	 * @param WP_REST_Request $request Full data about the request.
@@ -224,6 +344,30 @@ class TrackableObjectLogController extends ApiController {
 				'description'       => 'Include timeline data',
 				'type'              => 'boolean',
 				'default'           => false,
+				'validate_callback' => 'rest_validate_request_arg',
+			],
+		];
+	}
+
+	/**
+	 * Create items params
+	 *
+	 * @return array
+	 */
+	public function get_create_item_params() {
+		return [
+			'object_id' => [
+				'description'       => 'Object id',
+				'type'              => 'string',
+				'required'          => true,
+				'sanitize_callback' => 'sanitize_text_field',
+				'validate_callback' => 'rest_validate_request_arg',
+			],
+			'log_date'  => [
+				'description'       => 'Log date',
+				'type'              => 'string',
+				'required'          => true,
+				'sanitize_callback' => 'sanitize_text_field',
 				'validate_callback' => 'rest_validate_request_arg',
 			],
 		];

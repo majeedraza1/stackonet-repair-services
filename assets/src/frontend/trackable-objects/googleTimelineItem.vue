@@ -17,12 +17,14 @@
 			<div class="place-history-moment-content timeline-item-content primary multi-line">
 				<div class="timeline-item-title">
 					<div class="custom-select" style="width:200px;">
-						<select>
-							<option :value="_address.place_id" v-for="_address in addresses">{{_address.name}}</option>
+						<select :value="address.place_id" @input="handleInput($event.target.value)">
+							<option :value="_address.place_id" v-for="_address in item.addresses">
+								{{_address.name}}
+							</option>
 						</select>
 					</div>
 					<div class="duration-text">
-						<span class="segment-duration-part">{{durationText}}</span>
+						<span class="segment-duration-part">{{item.activityDurationText}}</span>
 					</div>
 					<div class="">
 						<button class="mdl-button mdl-js-button mdl-button--icon">
@@ -30,7 +32,7 @@
 						</button>
 					</div>
 				</div>
-				<div class="timeline-item-text">{{itemText}}</div>
+				<div class="timeline-item-text">{{address.formatted_address}}</div>
 			</div>
 		</div><!-- .timeline-item -->
 
@@ -41,27 +43,43 @@
     export default {
         name: "googleTimelineItem",
         props: {
+            item: {
+                type: Object, default: () => {
+                    return {
+                        addresses: [],
+                        activityDurationText: '',
+                    }
+                }
+            },
             firstItem: {type: Boolean, default: false},
             lastItem: {type: Boolean, default: false},
             lineColor: {type: String, default: '#03A9F4'},
-            placeIcon: {
-                type: String,
-                default: 'https://maps.gstatic.com/mapsactivities/icons/poi_icons/30_regular/generic_2x.png'
-            },
-            itemText: {type: String, default: ''},
-            durationText: {type: String, default: ''},
-            addresses: {
-                type: Array, default: () => []
-            },
         },
         data() {
             return {
                 address: {},
             }
         },
+        computed: {
+            placeIcon() {
+                if (this.address.icon && this.address.icon.length) {
+                    return this.address.icon;
+                }
+
+                return 'https://maps.gstatic.com/mapsactivities/icons/poi_icons/30_regular/generic_2x.png';
+            }
+        },
         mounted() {
-            if (this.addresses.length) {
-                this.address = this.addresses[0];
+            if (this.item.addresses.length) {
+                this.address = this.item.addresses[0];
+            }
+        },
+        methods: {
+            handleInput(value) {
+                let oldValue = this.address,
+                    newValue = this.item.addresses.find(address => value === address.place_id);
+                this.$emit('change', this.item, newValue, oldValue);
+                this.address = newValue;
             }
         }
     }

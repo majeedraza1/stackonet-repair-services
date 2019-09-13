@@ -45,6 +45,15 @@ class TrackableObjectLog extends DatabaseModel {
 	protected $data_format = [ '%d', '%s', '%s', '%s', '%d' ];
 
 	/**
+	 * Get id
+	 *
+	 * @return int
+	 */
+	public function get_id() {
+		return intval( $this->get( 'id' ) );
+	}
+
+	/**
 	 * @param string $date
 	 *
 	 * @return DateTime[]

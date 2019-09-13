@@ -95,6 +95,15 @@ class GooglePlace extends DatabaseModel {
 	}
 
 	/**
+	 * Get place id
+	 *
+	 * @return string
+	 */
+	public function get_place_id() {
+		return $this->get( 'place_id' );
+	}
+
+	/**
 	 * Get place by place ID
 	 *
 	 * @param string $place_id
