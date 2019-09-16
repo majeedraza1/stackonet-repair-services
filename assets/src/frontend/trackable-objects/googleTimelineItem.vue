@@ -17,9 +17,12 @@
 			<div class="place-history-moment-content timeline-item-content primary multi-line">
 				<div class="timeline-item-title">
 					<div class="custom-select" style="width:200px;">
-						<select :value="address.place_id" @input="handleInput($event.target.value)">
-							<option :value="_address.place_id" v-for="_address in item.addresses">
-								{{_address.name}}
+						<select @input="handleInput($event.target.value)">
+							<option
+								v-for="_address in item.addresses"
+								:value="_address.place_id"
+								:selected="address.place_id === _address.place_id"
+							> {{_address.name}}
 							</option>
 						</select>
 					</div>
@@ -72,6 +75,13 @@
         mounted() {
             if (this.item.addresses.length) {
                 this.address = this.item.addresses[0];
+            }
+        },
+        watch: {
+            item(newValue) {
+                if (newValue.addresses.length) {
+                    this.address = newValue.addresses[0];
+                }
             }
         },
         methods: {

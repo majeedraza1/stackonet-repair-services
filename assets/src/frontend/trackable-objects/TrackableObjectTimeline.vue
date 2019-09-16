@@ -214,14 +214,19 @@
                 let data = {
                     object_id: this.$route.params.object_id,
                     log_date: this.log_date,
+                    timeline: true,
+                    polyline: false,
+                    snap_to_roads: false,
                     latitude: item.latitude,
                     longitude: item.longitude,
                     utc_timestamp: item.utc_timestamp,
                     new_place: newPlace,
                     old_place: oldPlace
                 };
-                axios.post(PhoneRepairs.rest_root + '/trackable-objects/logs', data).then(() => {
-                    this.getTimeline();
+                axios.post(PhoneRepairs.rest_root + '/trackable-objects/logs', data).then(response => {
+                    console.log(response.data.data);
+                    this.timelineItems = response.data.data;
+                    // this.getTimeline();
                 }).catch(error => {
                     console.log(error);
                 });

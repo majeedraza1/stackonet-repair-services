@@ -150,6 +150,7 @@ class TrackableObjectLogController extends ApiController {
 	 * @param WP_REST_Request $request Full data about the request.
 	 *
 	 * @return WP_REST_Response
+	 * @throws Exception
 	 */
 	public function create_item( $request ) {
 		$object_id = $request->get_param( 'object_id' );
@@ -254,7 +255,16 @@ class TrackableObjectLogController extends ApiController {
 			'timeline_data' => $timeline_logs,
 		] );
 
-		return $this->respondOK();
+
+		global $wpdb;
+		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE `option_name` LIKE '_transient_previous_object_%' OR `option_name` LIKE '_transient_timeout_previous_object_%';" );
+
+		$item          = ( new TrackableObjectLog() )->find_object_log( $object_id, $log_date );
+		$logs          = $item->get_log_data();
+		$timeline_logs = TrackableObjectTimeline::format_timeline_from_logs( $logs, $object_id, $log_date );
+		$timeline      = TrackableObjectTimeline::format_timeline_for_rest( $timeline_logs );
+
+		return $this->respondOK( $timeline );
 	}
 
 	/**

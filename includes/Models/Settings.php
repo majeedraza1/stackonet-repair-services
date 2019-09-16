@@ -220,6 +220,19 @@ class Settings {
 	}
 
 	/**
+	 * Get order reminder minutes
+	 *
+	 * @return int
+	 */
+	public static function get_number_of_alternate_places() {
+		$options = self::get_option();
+		$key     = 'number_of_alternate_places';
+		$default = 10;
+
+		return ! empty( $options[ $key ] ) ? intval( $options[ $key ] ) : $default;
+	}
+
+	/**
 	 * @return array|mixed
 	 * @throws Exception
 	 */

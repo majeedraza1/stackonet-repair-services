@@ -5,7 +5,6 @@ namespace Stackonet\Models;
 use Stackonet\Abstracts\DatabaseModel;
 use Stackonet\Integrations\GoogleMap;
 use Stackonet\Supports\DistanceCalculator;
-use Stackonet\Supports\Logger;
 
 class TrackableObjectTimeline extends DatabaseModel {
 
@@ -97,11 +96,13 @@ class TrackableObjectTimeline extends DatabaseModel {
 				}
 
 				$places     = GoogleMap::nearby_search( $log['latitude'], $log['longitude'] );
+				$addresses  = array_merge( [ $log['address'] ], $places );
+				$addresses  = self::get_unique_addresses( $addresses );
 				$new_logs[] = array_merge( $log, [
 					'type'                 => 'place',
 					'dateTime'             => date( \DateTime::ISO8601, $log['utc_timestamp'] ),
 					'activityDurationText' => date( 'h:i A', $log['utc_timestamp'] ),
-					'addresses'            => array_merge( [ $log['address'] ], $places ),
+					'addresses'            => $addresses,
 				] );
 			}
 		}
@@ -514,6 +515,31 @@ class TrackableObjectTimeline extends DatabaseModel {
 		}
 
 		return $logs;
+	}
+
+	/**
+	 * Get unique addresses
+	 *
+	 * @param array $addresses
+	 *
+	 * @return array
+	 */
+	private static function get_unique_addresses( array $addresses ) {
+		$_addresses = [];
+		$ids        = [];
+		foreach ( $addresses as $address ) {
+			if ( count( $ids ) && in_array( $address['place_id'], $ids ) ) {
+				continue;
+			}
+			$ids[]        = $address['place_id'];
+			$_addresses[] = $address;
+		}
+
+		$settings   = (int) Settings::get_number_of_alternate_places();
+		$length     = $settings > 0 && $settings <= 20 ? $settings : 10;
+		$_addresses = array_slice( $_addresses, 0, $length );
+
+		return $_addresses;
 	}
 
 	/**
