@@ -224,10 +224,6 @@ class TrackableObjectLogController extends ApiController {
 			}
 		}
 
-		if ( ! ( $timeline_index >= 0 ) ) {
-			return $this->respondUnprocessableEntity( 'timeline_log_not_found', 'Current timeline log not found.' );
-		}
-
 		// Replace log data with new address value
 		$logs[ $index ] = [
 			'address_types' => $new_place_object->get( 'types' ),
@@ -242,19 +238,27 @@ class TrackableObjectLogController extends ApiController {
 			'log_data' => $logs,
 		] );
 
+		// return $this->respondOK( $logs );
+
 		// Update timeline data
-		$timeline_logs[ $timeline_index ] = wp_parse_args( [
-			'address'       => $new_place,
-			'address_types' => $new_place_object->get( 'types' ),
-			'latitude'      => $new_place_object->get( 'latitude' ),
-			'longitude'     => $new_place_object->get( 'longitude' ),
-		], $timeline_log );
+		if ( $timeline_index >= 0 ) {
+			$timeline_logs[ $timeline_index ] = wp_parse_args( [
+				'address'       => $new_place,
+				'address_types' => $new_place_object->get( 'types' ),
+				'latitude'      => $new_place_object->get( 'latitude' ),
+				'longitude'     => $new_place_object->get( 'longitude' ),
+			], $timeline_log );
 
-		( new TrackableObjectTimeline )->update( [
-			'id'            => $timeline_id,
-			'timeline_data' => $timeline_logs,
-		] );
-
+			( new TrackableObjectTimeline )->update( [
+				'id'            => $timeline_id,
+				'timeline_data' => $timeline_logs,
+			] );
+		} else {
+			( new TrackableObjectTimeline() )->update( [
+				'id'                 => $timeline->get_id(),
+				'complete_log_count' => ( count( $timeline_logs ) - 1 )
+			] );
+		}
 
 		global $wpdb;
 		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE `option_name` LIKE '_transient_previous_object_%' OR `option_name` LIKE '_transient_timeout_previous_object_%';" );
