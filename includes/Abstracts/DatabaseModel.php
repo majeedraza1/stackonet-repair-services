@@ -9,9 +9,8 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Class Model
  * A thin layer using wpdb database class form rapid development
- * @package App\Database
  */
-abstract class DatabaseModel extends AbstractModel implements DataStoreInterface {
+abstract class DatabaseModel extends Data implements DataStoreInterface {
 
 	/**
 	 * The table associated with the model.
@@ -19,6 +18,13 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 	 * @var string
 	 */
 	protected $table;
+
+	/**
+	 * The primary key for the model.
+	 *
+	 * @var string
+	 */
+	protected $primaryKey = 'id';
 
 	/**
 	 * The type of the primary key
@@ -55,6 +61,14 @@ abstract class DatabaseModel extends AbstractModel implements DataStoreInterface
 	 * @var string
 	 */
 	protected $deleted_at = 'deleted_at';
+
+	/**
+	 * Default data
+	 * Must contain all table columns name in (key => value) format
+	 *
+	 * @var array
+	 */
+	protected $default_data = [];
 
 	/**
 	 * Data format

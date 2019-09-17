@@ -5,6 +5,7 @@ namespace Stackonet\Models;
 use Stackonet\Abstracts\DatabaseModel;
 use Stackonet\Integrations\GoogleMap;
 use Stackonet\Supports\DistanceCalculator;
+use Stackonet\Supports\Logger;
 
 class TrackableObjectTimeline extends DatabaseModel {
 
@@ -258,9 +259,6 @@ class TrackableObjectTimeline extends DatabaseModel {
 	 * @param array $logs
 	 *
 	 * @return array
-	 *
-	 * @todo Getting address from Google Map API is slow and server can stop working for long data.
-	 * @todo Update functionality to get address in background
 	 */
 	public static function add_address_data( array $logs ) {
 		$total_logs = count( $logs );
@@ -278,13 +276,29 @@ class TrackableObjectTimeline extends DatabaseModel {
 				unset( $new_logs[ $index ]['place_id'] );
 
 				$name = $address['name'];
+
+				if ( empty( $name ) || preg_match( '/\\d/', $name ) ) {
+					$_addresses = GoogleMap::nearby_search( $address['latitude'], $address['longitude'] );
+					$addresses  = [];
+					foreach ( $_addresses as $_addr ) {
+						if ( empty( $_addr['name'] ) || preg_match( '/\\d/', $_addr['name'] ) ) {
+							continue;
+						}
+						$addresses[] = $_addr;
+					}
+					if ( count( $addresses ) ) {
+						$address = $addresses[0];
+						$name    = $address['name'];
+					}
+				}
+
 				if ( empty( $name ) ) {
 					$name = explode( ',', $address['formatted_address'] );
 					$name = count( $name ) > 0 ? trim( $name[0] ) : '';
 				}
 
 				$new_logs[ $index ]['address'] = [
-					'place_id'          => $log['place_id'],
+					'place_id'          => $address['place_id'],
 					'name'              => $name,
 					'icon'              => $address['icon'],
 					'formatted_address' => $address['formatted_address'],

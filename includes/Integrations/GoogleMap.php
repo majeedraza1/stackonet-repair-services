@@ -59,6 +59,7 @@ class GoogleMap {
 		$data     = json_decode( $body, true );
 		$address  = isset( $data['result'] ) ? $data['result'] : [];
 
+		$address = GooglePlace::format_place_data( $address );
 		GooglePlace::add_place_data_if_not_exist( $address );
 
 		return $address;
@@ -111,9 +112,10 @@ class GoogleMap {
 		$body     = wp_remote_retrieve_body( $response );
 		$data     = json_decode( $body, true );
 		$address  = isset( $data['results'] ) ? $data['results'] : [];
-		GoogleNearbyPlace::add_place_data_if_not_exist( $latitude, $longitude, $address );
+		$place_id = GoogleNearbyPlace::add_place_data_if_not_exist( $latitude, $longitude, $address );
+		$places   = ( new GoogleNearbyPlace() )->find_by_id( $place_id );
 
-		return $address;
+		return $places->to_array();
 	}
 
 	/**

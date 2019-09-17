@@ -256,8 +256,8 @@ class TrackableObjectLog extends DatabaseModel {
 			return;
 		}
 
-		$last_address    = self::get_last_log_address( $last_item );
-		$current_address = self::get_current_log_address( $log );
+		$last_address    = self::get_log_address( $last_item );
+		$current_address = self::get_log_address( $log );
 		$data_changed    = ( $last_address['place_id'] !== $current_address['place_id'] );
 
 		if ( 0 === strcmp( strtolower( $last_address['formatted_address'] ), strtolower( $current_address['formatted_address'] ) ) ) {
@@ -280,18 +280,14 @@ class TrackableObjectLog extends DatabaseModel {
 		}
 	}
 
-	public static function get_last_log_address( $log ) {
-		$addressObject = GoogleMap::get_address_from_lat_lng( $log['latitude'], $log['longitude'] );
-		$address       = [
-			'place_id'          => $addressObject['place_id'],
-			'formatted_address' => $addressObject['formatted_address'],
-			'types'             => $addressObject['types'],
-		];
-
-		return $address;
-	}
-
-	public static function get_current_log_address( $log ) {
+	/**
+	 * Get current log address
+	 *
+	 * @param array $log
+	 *
+	 * @return array
+	 */
+	public static function get_log_address( array $log ) {
 		$addressObject = GoogleMap::get_address_from_lat_lng( $log['latitude'], $log['longitude'] );
 		$address       = [
 			'place_id'          => $addressObject['place_id'],
@@ -326,7 +322,7 @@ class TrackableObjectLog extends DatabaseModel {
 				$_self = $current_records[ $object_id ];
 				$_self->add_log_data( $log );
 			} else {
-				$current_address = self::get_current_log_address( $log );
+				$current_address = self::get_log_address( $log );
 				$object          = [
 					'id'        => 0,
 					'object_id' => $object_id,
