@@ -104,6 +104,9 @@ export default new Vuex.Store({
 		support_agents() {
 			return SupportTickets.support_agents;
 		},
+		tracking_users() {
+			return SupportTickets.tracking_users;
+		},
 		display_name() {
 			return SupportTickets.user.display_name;
 		},

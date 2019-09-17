@@ -3,6 +3,7 @@
 namespace Stackonet\Frontend;
 
 use Stackonet\Models\Settings;
+use Stackonet\Models\TrackableObject;
 use Stackonet\Modules\SupportTicket\SupportAgent;
 use Stackonet\Modules\SupportTicket\SupportTicket;
 use Stackonet\Modules\SupportTicket\TicketCategory;
@@ -98,6 +99,7 @@ class DashboardPage {
 		$data['ticket_statuses']   = TicketStatus::get_all();
 		$data['ticket_priorities'] = TicketPriority::get_all();
 		$data['support_agents']    = SupportAgent::get_all();
+		$data['tracking_users']    = ( new TrackableObject )->find();
 
 		$user           = wp_get_current_user();
 		$data['user']   = [
