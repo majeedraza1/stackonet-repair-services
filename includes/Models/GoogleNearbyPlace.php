@@ -3,7 +3,6 @@
 namespace Stackonet\Models;
 
 use Stackonet\Abstracts\DatabaseModel;
-use Stackonet\Supports\Logger;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -69,7 +68,7 @@ class GoogleNearbyPlace extends DatabaseModel {
 	public function get_places() {
 		$_places = $this->get( 'places' );
 		$_places = is_array( $_places ) ? $_places : [];
-		$places = [];
+		$places  = [];
 		foreach ( $_places as $place ) {
 			$places[] = new GooglePlace( GooglePlace::format_place_data( $place ) );
 		}
@@ -104,16 +103,38 @@ class GoogleNearbyPlace extends DatabaseModel {
 	 * @param float $latitude
 	 * @param float $longitude
 	 * @param array $places
+	 *
+	 * @return int
 	 */
 	public static function add_place_data_if_not_exist( $latitude, $longitude, $places ) {
-		$place = static::get_places_from_lat_lng( $latitude, $longitude );
+		$place    = static::get_places_from_lat_lng( $latitude, $longitude );
+		$place_id = 0;
 		if ( ! $place instanceof static ) {
-			( new static() )->create( [
+			$place_id = ( new static() )->create( [
 				'latitude'  => $latitude,
 				'longitude' => $longitude,
 				'places'    => $places,
 			] );
 		}
+
+		return $place_id;
+	}
+
+	/**
+	 * Find record by id
+	 *
+	 * @param int $id
+	 *
+	 * @return bool|self
+	 */
+	public function find_by_id( $id ) {
+		$item = parent::find_by_id( $id );
+
+		if ( $item ) {
+			return new self( $item );
+		}
+
+		return false;
 	}
 
 	/**

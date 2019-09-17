@@ -2,14 +2,9 @@
 
 namespace Stackonet;
 
-use DateInterval;
-use DatePeriod;
-use DateTime;
 use Exception;
-use Stackonet\Integrations\FirebaseDatabase;
 use Stackonet\Integrations\GoogleMap;
 use Stackonet\Models\GoogleNearbyPlace;
-use Stackonet\Models\TrackableObject;
 use Stackonet\Models\TrackableObjectLog;
 use Stackonet\Models\TrackableObjectTimeline;
 use Stackonet\Modules\SupportTicket\OrderToSupportTicket;
@@ -20,7 +15,6 @@ use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
 use Stackonet\Models\Testimonial;
 use Stackonet\Models\UnsupportedArea;
-use Stackonet\Supports\DistanceCalculator;
 use Stackonet\Supports\Utils;
 use WC_Data_Exception;
 use WC_Order;
@@ -102,10 +96,23 @@ class Ajax {
 		$latitude  = 12.9372456;
 		$longitude = 77.6191232;
 
-		$logs = GoogleNearbyPlace::get_places_from_lat_lng( $latitude, $longitude );
+		$log  = ( new TrackableObjectLog() )->find_object_log( 'majeed', '2019-09-17' );
+		$logs = $log->get_log_data();
+
+		$logs      = TrackableObjectTimeline::format_timeline_from_logs( $logs, 'majeed', '2019-09-17' );
+		$timeline  = TrackableObjectTimeline::format_timeline_for_rest( $logs );
+		$addresses = $timeline[0]['addresses'];
+		$address   = [];
+		foreach ( $addresses as $_addr ) {
+			if ( preg_match( '/\\d/', $_addr['name'] ) ) {
+				continue;
+			}
+			$address[] = $_addr;
+		}
+
 
 		// header( 'Content-Type: text/json' );
-		var_dump( $logs->get_places() );
+		var_dump( $address );
 		die();
 	}
 
