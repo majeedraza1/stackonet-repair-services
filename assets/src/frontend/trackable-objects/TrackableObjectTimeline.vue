@@ -44,6 +44,8 @@
 							:last-item="index === (timelineItems.length - 1)"
 							@change="updateTimelineItem"
 							@mouseenter="handleTimelineItemMouseEnter"
+							@addAddress="addAddress"
+							@deleteAddress="deleteAddress"
 						></google-timeline-item>
 						<google-timeline-movement
 							v-if="item.type === 'movement'"
@@ -65,6 +67,7 @@
     import axios from 'axios';
     import spinner from 'shapla-spinner';
     import {TrackerMixin} from "./TrackerMixin";
+    import {MapMixin} from "../dashboard/pages/MapMixin";
     import sideNav from "../../shapla/shapla-side-navigation/sideNavigation";
     import MdlButton from "../../material-design-lite/button/mdlButton";
     import FlatPickr from "vue-flatpickr-component/src/component";
@@ -73,7 +76,7 @@
 
     export default {
         name: "TrackableObjectTimeline",
-        mixins: [TrackerMixin],
+        mixins: [TrackerMixin, MapMixin],
         components: {spinner, GoogleTimelineMovement, GoogleTimelineItem, MdlButton, sideNav, FlatPickr},
         data() {
             return {
@@ -94,6 +97,7 @@
                 polylines: [],
                 mapPolyline: [],
                 timelineItems: [],
+                activeTimelineItem: {},
             }
         },
         watch: {
@@ -122,6 +126,31 @@
                 center: new google.maps.LatLng(0, 0),
                 zoom: 17,
             });
+            // Create the places service.
+            this.placesService = new google.maps.places.PlacesService(this.googleMap);
+
+            this.getClickedLocationDetails(this.googleMap, this.placesService).then(place => {
+                this.$modal.confirm({
+                    message: `Do you want to add this address to list?<br><br><strong>${place.name}</strong><br>${place.formatted_address}`,
+                    confirmButton: 'Yes',
+                    cancelButton: 'No'
+                }).then(confirmed => {
+                    if (confirmed) {
+                        let _place = {
+                            formatted_address: place.formatted_address,
+                            icon: place.icon,
+                            name: place.name,
+                            place_id: place.place_id,
+                        };
+                        this.activeTimelineItem.address = _place;
+                        this.activeTimelineItem.addresses.unshift(_place);
+                    }
+                })
+            });
+
+            this.getTrackableObjects().then(response => {
+                this.trackable_objects = response.items;
+            }).catch(error => console.error(error));
 
             this.getObject(this.$route.params.object_id, this.log_date, this.useSnapToRoads).then(data => {
                 this.refreshData(data);
@@ -235,6 +264,13 @@
             handleTimelineItemMouseEnter(item) {
                 let location = new google.maps.LatLng(item.latitude, item.longitude);
                 this.googleMap.setCenter(location);
+            },
+            addAddress(item) {
+                this.activeTimelineItem = item;
+                this.googleMap.setZoom(20);
+            },
+            deleteAddress(item) {
+                alert('We are working on it.');
             },
             addMarker(data) {
                 this.marker = new google.maps.Marker({

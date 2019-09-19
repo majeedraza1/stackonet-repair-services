@@ -244,6 +244,7 @@ const MapMixin = {
 							let _place = {
 								place_id: place.place_id,
 								name: place.name,
+								icon: place.icon,
 								formatted_address: place.formatted_address,
 								location: place.geometry.location,
 								distance: 0,

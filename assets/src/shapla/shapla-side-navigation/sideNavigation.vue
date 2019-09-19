@@ -100,6 +100,7 @@
 		}
 
 		&__content {
+			height: 100%;
 			overflow-x: hidden;
 			overflow-y: auto;
 			padding: 0 1rem;

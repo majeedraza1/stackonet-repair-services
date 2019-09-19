@@ -16,7 +16,7 @@
 
 			<div class="place-history-moment-content timeline-item-content primary multi-line">
 				<div class="timeline-item-title">
-					<div class="custom-select" style="width:200px;">
+					<div class="custom-select">
 						<select @input="handleInput($event.target.value)">
 							<option
 								v-for="_address in item.addresses"
@@ -30,19 +30,28 @@
 						<span class="segment-duration-part">{{item.activityDurationText}}</span>
 					</div>
 					<div class="">
-						<button class="mdl-button mdl-js-button mdl-button--icon">
+						<button :id="`menu-item-actions-${this.id}`" class="mdl-button mdl-js-button mdl-button--icon">
 							<i aria-hidden="true" class="fa fa-ellipsis-v"></i>
 						</button>
 					</div>
 				</div>
 				<div class="timeline-item-text">{{address.formatted_address}}</div>
 			</div>
+			<ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right" :for="`menu-item-actions-${this.id}`">
+				<li class="mdl-menu__item" @click="addAddressFromMap">
+					Choose Address from Map
+				</li>
+				<li class="mdl-menu__item" @click="deleteTimelineItem">
+					Delete this address
+				</li>
+			</ul>
 		</div><!-- .timeline-item -->
-
 	</div>
 </template>
 
 <script>
+    import {MaterialMenu} from "../../material-design-lite/menu/MaterialMenu";
+
     export default {
         name: "googleTimelineItem",
         props: {
@@ -60,6 +69,7 @@
         },
         data() {
             return {
+                id: null,
                 address: {},
                 active: false,
             }
@@ -77,6 +87,11 @@
             if (this.item.addresses.length) {
                 this.address = this.item.addresses[0];
             }
+            this.id = this._uid;
+            setTimeout(() => {
+                let menu = this.$el.querySelector('[for="menu-item-actions-' + this.id + '"]');
+                new MaterialMenu(menu);
+            }, 100);
         },
         watch: {
             item(newValue) {
@@ -102,6 +117,12 @@
             },
             handleMouseOut() {
                 this.active = Date.now();
+            },
+            addAddressFromMap() {
+                this.$emit('addAddress', this.item);
+            },
+            deleteTimelineItem() {
+                this.$emit('deleteAddress', this.item);
             }
         }
     }
@@ -157,7 +178,8 @@
 		left: 16px;
 	}
 
-	.timeline-item-icon.place-icon, .timeline-item-icon.default-timeline-item-icon {
+	.timeline-item-icon.place-icon,
+	.timeline-item-icon.default-timeline-item-icon {
 		background-position: 50%;
 		background-size: 30px;
 		height: 30px;
@@ -216,6 +238,10 @@
 		position: absolute;
 		top: 0;
 		width: 100%;
+	}
+
+	.custom-select {
+		max-width: 175px;
 	}
 
 	.add-a-place {
