@@ -43,6 +43,7 @@
 							:first-item="index === 0"
 							:last-item="index === (timelineItems.length - 1)"
 							@change="updateTimelineItem"
+							@mouseenter="handleTimelineItemMouseEnter"
 						></google-timeline-item>
 						<google-timeline-movement
 							v-if="item.type === 'movement'"
@@ -230,6 +231,10 @@
                 }).catch(error => {
                     console.log(error);
                 });
+            },
+            handleTimelineItemMouseEnter(item) {
+                let location = new google.maps.LatLng(item.latitude, item.longitude);
+                this.googleMap.setCenter(location);
             },
             addMarker(data) {
                 this.marker = new google.maps.Marker({

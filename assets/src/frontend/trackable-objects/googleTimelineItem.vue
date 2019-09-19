@@ -1,7 +1,7 @@
 <template>
 	<div class="timeline">
 
-		<div class="timeline-item">
+		<div class="timeline-item" @mouseenter="handleMouseEnter" @mouseleave="handleMouseOut">
 
 			<svg class="timeline-item-svg">
 				<line stroke-linecap="round" x1="7" x2="7" y1="0" y2="41" class="timeline-item-svg-line"
@@ -61,6 +61,7 @@
         data() {
             return {
                 address: {},
+                active: false,
             }
         },
         computed: {
@@ -90,6 +91,17 @@
                     newValue = this.item.addresses.find(address => value === address.place_id);
                 this.$emit('change', this.item, newValue, oldValue);
                 this.address = newValue;
+            },
+            handleMouseEnter() {
+                this.active = Date.now();
+                setTimeout(() => {
+                    if (Date.now() >= (this.active + 1000)) {
+                        this.$emit('mouseenter', this.item);
+                    }
+                }, 1000);
+            },
+            handleMouseOut() {
+                this.active = Date.now();
             }
         }
     }
