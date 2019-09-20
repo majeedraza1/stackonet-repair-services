@@ -129,23 +129,36 @@
             // Create the places service.
             this.placesService = new google.maps.places.PlacesService(this.googleMap);
 
-            this.getClickedLocationDetails(this.googleMap, this.placesService).then(place => {
-                this.$modal.confirm({
-                    message: `Do you want to add this address to list?<br><br><strong>${place.name}</strong><br>${place.formatted_address}`,
-                    confirmButton: 'Yes',
-                    cancelButton: 'No'
-                }).then(confirmed => {
-                    if (confirmed) {
-                        let _place = {
-                            formatted_address: place.formatted_address,
-                            icon: place.icon,
-                            name: place.name,
-                            place_id: place.place_id,
-                        };
-                        this.activeTimelineItem.address = _place;
-                        this.activeTimelineItem.addresses.unshift(_place);
+            google.maps.event.addListener(this.googleMap, 'click', (event) => {
+                this.placesService.getDetails({placeId: event.placeId}, (place, status) => {
+                    if (status === google.maps.places.PlacesServiceStatus.OK) {
+                        if (Object.keys(this.activeTimelineItem).length) {
+                            this.$modal.confirm({
+                                message: `Do you want to add this address to list?<br><br><strong>${place.name}</strong><br>${place.formatted_address}`,
+                                confirmButton: 'Yes',
+                                cancelButton: 'No'
+                            }).then(confirmed => {
+                                if (confirmed) {
+                                    let _place = {
+                                        formatted_address: place.formatted_address,
+                                        icon: place.icon,
+                                        name: place.name,
+                                        place_id: place.place_id,
+                                    };
+                                    this.updateTimelineItem(
+                                        this.activeTimelineItem,
+                                        _place,
+                                        this.activeTimelineItem.address,
+                                        true
+                                    );
+                                    this.activeTimelineItem = {};
+                                }
+                            });
+                        } else {
+                            alert('Choose timeline item first.');
+                        }
                     }
-                })
+                });
             });
 
             this.getTrackableObjects().then(response => {
@@ -240,7 +253,7 @@
                     this.update_polyline(this.polylines);
                 }
             },
-            updateTimelineItem(item, newPlace, oldPlace) {
+            updateTimelineItem(item, newPlace, oldPlace, mapPlace = false) {
                 let data = {
                     object_id: this.$route.params.object_id,
                     log_date: this.log_date,
@@ -251,12 +264,12 @@
                     longitude: item.longitude,
                     utc_timestamp: item.utc_timestamp,
                     new_place: newPlace,
-                    old_place: oldPlace
+                    old_place: oldPlace,
+                    picked_from_map: mapPlace,
                 };
                 axios.post(PhoneRepairs.rest_root + '/trackable-objects/logs', data).then(response => {
                     console.log(response.data.data);
                     this.timelineItems = response.data.data;
-                    // this.getTimeline();
                 }).catch(error => {
                     console.log(error);
                 });

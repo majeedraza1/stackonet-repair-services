@@ -341,7 +341,7 @@ class MaterialMenu {
 	 * @private
 	 */
 	removeAnimationEndListener_(evt) {
-		evt.target.classList.remove(MaterialMenu.prototype.CssClasses_.IS_ANIMATING);
+		// evt.target.classList.remove(MaterialMenu.prototype.CssClasses_.IS_ANIMATING);
 	}
 
 	/**

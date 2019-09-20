@@ -11,6 +11,7 @@ use Stackonet\Models\TrackableObject;
 use Stackonet\Models\TrackableObjectLog;
 use Stackonet\Models\TrackableObjectTimeline;
 use Stackonet\Supports\ArrayHelper;
+use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -153,13 +154,14 @@ class TrackableObjectLogController extends ApiController {
 	 * @throws Exception
 	 */
 	public function create_item( $request ) {
-		$object_id = $request->get_param( 'object_id' );
-		$log_date  = $request->get_param( 'log_date' );
-		$latitude  = $request->get_param( 'latitude' );
-		$longitude = $request->get_param( 'longitude' );
-		$timestamp = $request->get_param( 'utc_timestamp' );
-		$new_place = $request->get_param( 'new_place' );
-		$old_place = $request->get_param( 'old_place' );
+		$object_id       = $request->get_param( 'object_id' );
+		$log_date        = $request->get_param( 'log_date' );
+		$latitude        = $request->get_param( 'latitude' );
+		$longitude       = $request->get_param( 'longitude' );
+		$timestamp       = $request->get_param( 'utc_timestamp' );
+		$new_place       = $request->get_param( 'new_place' );
+		$old_place       = $request->get_param( 'old_place' );
+		$picked_from_map = $request->get_param( 'picked_from_map' );
 
 		$old_place_id = ! empty( $old_place['place_id'] ) ? $old_place['place_id'] : null;
 		$new_place_id = ! empty( $new_place['place_id'] ) ? $new_place['place_id'] : null;
@@ -189,8 +191,14 @@ class TrackableObjectLogController extends ApiController {
 			}
 		}
 
-		if ( ! $new_place_object instanceof GooglePlace ) {
+		if ( ! $new_place_object instanceof GooglePlace && ! $picked_from_map ) {
 			return $this->respondUnprocessableEntity( 'place_id_not_found', 'New place Id not found.' );
+		}
+
+		// If address picked from map, find address detail
+		if ( $picked_from_map ) {
+			$new_place_data   = GoogleMap::get_address_from_place_id( $new_place_id );
+			$new_place_object = new GooglePlace( $new_place_data );
 		}
 
 		$logs  = $log->get_log_data();
@@ -370,20 +378,76 @@ class TrackableObjectLogController extends ApiController {
 	 */
 	public function get_create_item_params() {
 		return [
-			'object_id' => [
+			'object_id'       => [
 				'description'       => 'Object id',
 				'type'              => 'string',
 				'required'          => true,
 				'sanitize_callback' => 'sanitize_text_field',
 				'validate_callback' => 'rest_validate_request_arg',
 			],
-			'log_date'  => [
+			'log_date'        => [
 				'description'       => 'Log date',
 				'type'              => 'string',
 				'required'          => true,
 				'sanitize_callback' => 'sanitize_text_field',
 				'validate_callback' => 'rest_validate_request_arg',
 			],
+			'latitude'        => [
+				'description'       => 'Current place latitude.',
+				'type'              => 'float',
+				'required'          => true,
+				'validate_callback' => 'rest_validate_request_arg',
+			],
+			'longitude'       => [
+				'description'       => 'Current place longitude.',
+				'type'              => 'float',
+				'required'          => true,
+				'validate_callback' => 'rest_validate_request_arg',
+			],
+			'utc_timestamp'   => [
+				'description'       => 'Current place record timestamp.',
+				'type'              => 'integer',
+				'required'          => true,
+				'validate_callback' => 'rest_validate_request_arg',
+			],
+			'old_place'       => [
+				'description'       => 'Old place data.',
+				'required'          => true,
+				'validate_callback' => [ $this, 'validate_timeline_place_item' ],
+			],
+			'new_place'       => [
+				'description'       => 'Current place record timestamp.',
+				'required'          => true,
+				'validate_callback' => [ $this, 'validate_timeline_place_item' ],
+			],
+			'picked_from_map' => [
+				'description'       => 'Set it true if the place has been chosen from map rather than dropdown.',
+				'type'              => 'boolean',
+				'required'          => false,
+				'default'           => false,
+				'validate_callback' => 'rest_validate_request_arg',
+			],
 		];
+	}
+
+	/**
+	 * Validate a value based on a schema.
+	 *
+	 * @param mixed $value The value to validate.
+	 * @param array $args Schema array to use for validation.
+	 * @param string $param The parameter name, used in error messages.
+	 *
+	 * @return true|WP_Error
+	 */
+	public function validate_timeline_place_item( $value, $args, $param = '' ) {
+		if ( ! is_array( $value ) ) {
+			return new WP_Error( 'rest_invalid_param', sprintf( __( '%1$s is not of type %2$s.' ), $param, 'array' ) );
+		}
+
+		if ( ! isset( $value['place_id'], $value['name'], $value['icon'], $value['formatted_address'] ) ) {
+			return new WP_Error( 'rest_invalid_param', 'place_id, name, icon, formatted_address are required fields.' );
+		}
+
+		return true;
 	}
 }

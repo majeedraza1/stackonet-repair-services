@@ -30,9 +30,9 @@
 						<span class="segment-duration-part">{{item.activityDurationText}}</span>
 					</div>
 					<div class="">
-						<button :id="`menu-item-actions-${this.id}`" class="mdl-button mdl-js-button mdl-button--icon">
+						<mdl-button type="icon" :id="`menu-item-actions-${this.id}`">
 							<i aria-hidden="true" class="fa fa-ellipsis-v"></i>
-						</button>
+						</mdl-button>
 					</div>
 				</div>
 				<div class="timeline-item-text">{{address.formatted_address}}</div>
@@ -51,9 +51,11 @@
 
 <script>
     import {MaterialMenu} from "../../material-design-lite/menu/MaterialMenu";
+    import MdlButton from "../../material-design-lite/button/mdlButton";
 
     export default {
         name: "googleTimelineItem",
+        components: {MdlButton},
         props: {
             item: {
                 type: Object, default: () => {
