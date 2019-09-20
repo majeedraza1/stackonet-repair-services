@@ -1,3 +1,15 @@
+#### 1.1.19 - September 20, 2019
+* Fix - Fix new log is not saving and tracker is showing blank.
+* Add - Add Google Nearby Place functionality for timeline dropdown options.
+* Add - Add functionality to change dropdown place on timeline page.
+* Fix - Fix place change is not working instantly on timeline page.
+* Fix - Fix timeline last dropdown is not working.
+* Add - Changed "Assign Agents" from support ticket agents to tracking users.
+* Tweak - Update TrackableObjectTimeline class to find nearby best match for address.
+* Add - Add functionality to center map when hover on timeline item.
+* Add - Add frontend functionality to add address from map when click on map address.
+* Add - Add backend functionality to add address from map when click on map address.
+
 #### 1.1.18 - September 11, 2019
 * Add - Add tracking users dashboard tab page.
 * Add - Add tracking users edit option.
