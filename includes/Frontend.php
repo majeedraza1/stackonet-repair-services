@@ -109,7 +109,6 @@ class Frontend {
 			'stackonet_survey_form',
 			'stackonet_spot_appointment',
 			'stackonet_become_technician',
-			'stackonet_rent_a_center',
 			'stackonet_support_ticket_form',
 		];
 
@@ -195,15 +194,6 @@ class Frontend {
 		add_action( 'wp_footer', [ $this, 'tinymce_script' ], 9 );
 
 		return '<div id="stackonet_repair_services_dashboard"></div>';
-	}
-
-	/**
-	 * Rent a center shortcode content
-	 *
-	 * @return string
-	 */
-	public function rent_a_center() {
-		return '<div id="stackonet_rent_a_center"></div>';
 	}
 
 	/**

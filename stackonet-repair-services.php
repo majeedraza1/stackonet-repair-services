@@ -203,8 +203,9 @@ final class Stackonet_Repair_Services {
 			$this->container['trackable-object']       = Stackonet\REST\TrackableObjectController::init();
 			$this->container['trackable-object-log']   = Stackonet\REST\TrackableObjectLogController::init();
 
-			$this->container['page-payment']   = Stackonet\Frontend\PaymentPage::init();
-			$this->container['page-dashboard'] = Stackonet\Frontend\DashboardPage::init();
+			$this->container['page-payment']    = Stackonet\Frontend\PaymentPage::init();
+			$this->container['page-dashboard']  = Stackonet\Frontend\DashboardPage::init();
+			$this->container['page-rentcenter'] = Stackonet\Frontend\RentCenter::init();
 		}
 
 		if ( $this->is_request( 'ajax' ) ) {
