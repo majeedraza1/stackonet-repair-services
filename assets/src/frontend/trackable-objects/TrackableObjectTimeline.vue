@@ -181,7 +181,7 @@
                 this.getObject(this.$route.params.object_id, this.log_date, this.useSnapToRoads).then(data => {
                     this.refreshData(data);
                 }).catch(error => console.error(error));
-            }, 60000);
+            }, 5000);
 
             this.timelines = setInterval(() => {
                 this.getTimeline();
