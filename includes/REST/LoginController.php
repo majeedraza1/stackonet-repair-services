@@ -57,13 +57,13 @@ class LoginController extends ApiController {
 		$remember   = (bool) $request->get_param( 'remember' );
 
 		if ( ! ( username_exists( $user_login ) || email_exists( $user_login ) ) ) {
-			return $this->respondUnprocessableEntity( null, null, [
+			return $this->respondUnprocessableEntity( 'invalid_username', 'No user found with this email', [
 				'user_login' => [ 'No user found with this email' ]
 			] );
 		}
 
 		if ( empty( $password ) ) {
-			return $this->respondUnprocessableEntity( null, null, [
+			return $this->respondUnprocessableEntity( 'invalid_password', 'Please provide password.', [
 				'password' => [ 'Please provide password.' ]
 			] );
 		}
@@ -77,7 +77,7 @@ class LoginController extends ApiController {
 		$user = wp_signon( $credentials, false );
 
 		if ( is_wp_error( $user ) ) {
-			return $this->respondUnprocessableEntity( null, null,
+			return $this->respondUnprocessableEntity( 'incorrect_password', 'Password is not correct.',
 				[ 'password' => [ 'Password is not correct.' ] ] );
 		}
 
@@ -138,7 +138,7 @@ class LoginController extends ApiController {
 				'required'    => true,
 			),
 			'remember'   => array(
-				'description' => __( 'Limit results to those matching a string.' ),
+				'description' => __( 'Set true to remember user for long time.' ),
 				'type'        => 'boolean',
 				'default'     => false,
 			),
