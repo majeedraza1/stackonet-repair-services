@@ -93,6 +93,7 @@ class LoginController extends ApiController {
 			'first_name'      => $user->first_name,
 			'last_name'       => $user->last_name,
 			'registered_date' => mysql_to_rfc3339( $user->user_registered ),
+			'avatar_urls'     => rest_get_avatar_urls( $user->user_email ),
 		];
 
 		if ( in_array( 'roles', $fields, true ) ) {
@@ -106,10 +107,6 @@ class LoginController extends ApiController {
 
 		if ( in_array( 'extra_capabilities', $fields, true ) ) {
 			$data['extra_capabilities'] = (object) $user->caps;
-		}
-
-		if ( in_array( 'avatar_urls', $fields, true ) ) {
-			$data['avatar_urls'] = rest_get_avatar_urls( $user->user_email );
 		}
 
 		$data['auth_token'] = [
