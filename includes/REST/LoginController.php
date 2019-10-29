@@ -34,7 +34,11 @@ class LoginController extends ApiController {
 	 */
 	public function register_routes() {
 		register_rest_route( $this->namespace, '/login', [
-			[ 'methods' => WP_REST_Server::CREATABLE, 'callback' => [ $this, 'login' ], ],
+			[
+				'methods'  => WP_REST_Server::CREATABLE,
+				'callback' => [ $this, 'login' ],
+				'args'     => $this->get_collection_params(),
+			],
 		] );
 	}
 
@@ -78,8 +82,61 @@ class LoginController extends ApiController {
 		}
 
 		wp_set_current_user( $user->ID, $user->user_login );
-		wp_set_auth_cookie( $user->ID, false );
 
-		return $this->respondOK( [ 'action' => 'reload' ] );
+		$fields = $this->get_fields_for_response( $request );
+
+		$data = [
+			'id'              => $user->ID,
+			'username'        => $user->user_login,
+			'email'           => $user->user_email,
+			'name'            => $user->display_name,
+			'first_name'      => $user->first_name,
+			'last_name'       => $user->last_name,
+			'registered_date' => mysql_to_rfc3339( $user->user_registered ),
+		];
+
+		if ( in_array( 'roles', $fields, true ) ) {
+			// Defensively call array_values() to ensure an array is returned.
+			$data['roles'] = array_values( $user->roles );
+		}
+
+		if ( in_array( 'capabilities', $fields, true ) ) {
+			$data['capabilities'] = (object) $user->allcaps;
+		}
+
+		if ( in_array( 'extra_capabilities', $fields, true ) ) {
+			$data['extra_capabilities'] = (object) $user->caps;
+		}
+
+		if ( in_array( 'avatar_urls', $fields, true ) ) {
+			$data['avatar_urls'] = rest_get_avatar_urls( $user->user_email );
+		}
+
+		return $this->respondOK( $data );
+	}
+
+	/**
+	 * Get the query params for collections.
+	 *
+	 * @return array
+	 */
+	public function get_collection_params() {
+		return array(
+			'user_login' => array(
+				'description' => __( 'User email address or username.' ),
+				'type'        => 'string',
+				'required'    => true,
+			),
+			'password'   => array(
+				'description' => __( 'User password.' ),
+				'type'        => 'string',
+				'required'    => true,
+			),
+			'remember'   => array(
+				'description' => __( 'Limit results to those matching a string.' ),
+				'type'        => 'boolean',
+				'default'     => false,
+			),
+		);
 	}
 }
