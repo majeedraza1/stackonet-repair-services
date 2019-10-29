@@ -112,6 +112,11 @@ class LoginController extends ApiController {
 			$data['avatar_urls'] = rest_get_avatar_urls( $user->user_email );
 		}
 
+		$data['auth_token'] = [
+			'key'   => 'X-WP-Nonce',
+			'value' => wp_create_nonce( 'wp_rest' ),
+		];
+
 		return $this->respondOK( $data );
 	}
 
