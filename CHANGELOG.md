@@ -1,3 +1,12 @@
+#### 1.1.20 - October 30, 2019
+* Tweak - Change tracker refresh time to 5 seconds.
+* Dev - Add RentCenter class for for rent-a-center class.
+* Dev - Update LoginController class.
+* Dev - Add auth token on login controller.
+* Dev - Update login message.
+* Dev - Add avatar url always accessible.
+* Tweak - Change checkout page phone number.
+
 #### 1.1.19 - September 20, 2019
 * Fix - Fix new log is not saving and tracker is showing blank.
 * Add - Add Google Nearby Place functionality for timeline dropdown options.

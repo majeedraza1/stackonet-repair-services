@@ -1,7 +1,7 @@
 <template>
 	<div class="shapla-help-line">
 		<div class="shapla-help-line__content">
-			<slot>Need help? Call us at <a href="tel:561-377-6340">561-377-6340</a></slot>
+			<slot>Need help? Call us at <a href="tel:561-349-4835">561-349-4835</a></slot>
 		</div>
 	</div>
 </template>
