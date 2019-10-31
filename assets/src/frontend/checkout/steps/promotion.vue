@@ -16,7 +16,7 @@
 				<div>to get 10% off</div>
 			</div>
 
-			<animated-input v-model="phone" label="Phone" helptext="This field is required."></animated-input>
+			<animated-input v-model="phone" label="Phone Number" helptext="This field is required."></animated-input>
 
 			<big-button fullwidth @click="confirmAppointment" :disabled="!hasPhone">Continue</big-button>
 		</div>
@@ -24,6 +24,7 @@
 </template>
 
 <script>
+    import {mapState} from 'vuex';
     import SectionTitle from '../../components/SectionTitle'
     import AnimatedInput from '../../../components/AnimatedInput.vue';
     import BigButton from '../../../components/BigButton.vue';
@@ -42,15 +43,16 @@
             }
         },
         computed: {
+            ...mapState(['issues']),
             hasPhone() {
                 return !!this.phone.length;
             },
             checkout_banner_time() {
                 return parseInt(PhoneRepairs.checkout_banner_time) * 1000;
             },
-            should_show_banner() {
-
-            }
+            hasIssues() {
+                return !!(this.issues && this.issues.length);
+            },
         },
         methods: {
             confirmAppointment() {
@@ -62,7 +64,15 @@
             }
         },
         mounted() {
-            this.$store.commit('SET_LOADING_STATUS', false);
+            if (!this.hasIssues) {
+                this.$router.push({name: 'select-issue'});
+            }
+
+            this.$store.dispatch('updateCheckoutAnalysis', {
+                step: 'phone_number',
+                step_data: {device_issue: this.issues}
+            });
+
             let timeDif = parseInt(PhoneRepairs.checkout_banner_time) * 1000;
             let countDownDate = Date.now() + timeDif;
             let now = new Date().getTime();

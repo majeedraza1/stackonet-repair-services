@@ -71,92 +71,92 @@
 </template>
 
 <script>
-	import BigButton from '../../../components/BigButton.vue';
-	import SectionTitle from '../../components/SectionTitle'
-	import SectionInfo from '../../components/SectionInfo'
-	import SectionHelp from '../../components/SectionHelp'
-	import {mapState} from 'vuex';
+    import BigButton from '../../../components/BigButton.vue';
+    import SectionTitle from '../../components/SectionTitle'
+    import SectionInfo from '../../components/SectionInfo'
+    import SectionHelp from '../../components/SectionHelp'
+    import {mapState} from 'vuex';
 
-	export default {
-		name: "timing",
-		components: {BigButton, SectionTitle, SectionInfo, SectionHelp},
-		data() {
-			return {
-				isToday: true,
-				dateRanges: [],
-				timeRanges: [],
-				todayTimeRanges: [],
-				tempDate: {
-					date: '',
-					day: '',
-					holiday: false,
-				},
-				tempTime: '',
-			}
-		},
-		mounted() {
-			this.$store.commit('SET_LOADING_STATUS', false);
-			this.$store.commit('SET_SHOW_CART', true);
-			this.dateRanges = window.Stackonet.dateRanges;
-			this.timeRanges = window.Stackonet.timeRanges;
-			this.todayTimeRanges = window.Stackonet.todayTimeRanges;
-			this.tempDate = this.dateRanges[0];
-			this.tempTime = this.todayTimeRanges[0] ? this.todayTimeRanges[0] : '';
+    export default {
+        name: "timing",
+        components: {BigButton, SectionTitle, SectionInfo, SectionHelp},
+        data() {
+            return {
+                isToday: true,
+                dateRanges: [],
+                timeRanges: [],
+                todayTimeRanges: [],
+                tempDate: {
+                    date: '',
+                    day: '',
+                    holiday: false,
+                },
+                tempTime: '',
+            }
+        },
+        mounted() {
+            this.$store.commit('SET_LOADING_STATUS', false);
+            this.$store.commit('SET_SHOW_CART', true);
+            this.dateRanges = window.Stackonet.dateRanges;
+            this.timeRanges = window.Stackonet.timeRanges;
+            this.todayTimeRanges = window.Stackonet.todayTimeRanges;
+            this.tempDate = this.dateRanges[0];
+            this.tempTime = this.todayTimeRanges[0] ? this.todayTimeRanges[0] : '';
 
-			// If no models, redirect one step back
-			if (!this.hasIssues) {
-				this.$router.push('/screen-cracked');
-			}
+            // If no models, redirect one step back
+            if (!this.phone.length) {
+                this.$router.push({name: 'promotion'});
+            }
 
-			this.$store.dispatch('updateCheckoutAnalysis', {
-				step: 'requested_date_time',
-				step_data: {device_issue: this.issues}
-			});
-		},
-		computed: {
-			...mapState(['issues', 'date', 'timeRange', 'checkoutAnalysisId']),
-			hasIssues() {
-				return !!(this.issues && this.issues.length);
-			},
-			isHoliday() {
-				return !!(this.tempDate.holiday);
-			},
-			isButtonActive() {
-				return !!(this.tempDate && this.tempDate.date && this.tempTime.length && !this.isHoliday);
-			}
-		},
-		methods: {
-			setTimeRange(time) {
-				this.tempTime = time;
-			},
-			updateTodayDate(date) {
-				this.tempDate = date;
-				this.tempTime = this.todayTimeRanges[0] ? this.todayTimeRanges[0] : '';
-				this.isToday = true;
-			},
-			updateDate(date) {
-				this.tempDate = date;
-				this.tempTime = this.timeRanges[this.tempDate.day][0];
-				this.isToday = false;
-			},
-			getDayFromDate(time) {
-				let days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-				let date = new Date(time.date);
-				return days[date.getDay()];
-			},
-			getDateNumber(time) {
-				let date2 = new Date(time.date);
-				let dateNumber = date2.getDate();
+            this.$store.dispatch('updateCheckoutAnalysis', {
+                step: 'requested_date_time',
+                step_data: {phone_number: this.phone, promotion_discount: this.promotion_discount ? 'yes' : 'no'}
+            });
+        },
+        computed: {
+            ...mapState(['phone', 'date', 'timeRange', 'checkoutAnalysisId', 'promotion_discount']),
+            hasIssues() {
+                return !!(this.issues && this.issues.length);
+            },
+            isHoliday() {
+                return !!(this.tempDate.holiday);
+            },
+            isButtonActive() {
+                return !!(this.tempDate && this.tempDate.date && this.tempTime.length && !this.isHoliday);
+            }
+        },
+        methods: {
+            setTimeRange(time) {
+                this.tempTime = time;
+            },
+            updateTodayDate(date) {
+                this.tempDate = date;
+                this.tempTime = this.todayTimeRanges[0] ? this.todayTimeRanges[0] : '';
+                this.isToday = true;
+            },
+            updateDate(date) {
+                this.tempDate = date;
+                this.tempTime = this.timeRanges[this.tempDate.day][0];
+                this.isToday = false;
+            },
+            getDayFromDate(time) {
+                let days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                let date = new Date(time.date);
+                return days[date.getDay()];
+            },
+            getDateNumber(time) {
+                let date2 = new Date(time.date);
+                let dateNumber = date2.getDate();
 
-				return dateNumber.length === 1 ? '0' + dateNumber : dateNumber;
-			},
-			handleContinue() {
-				this.$store.commit('SET_DATE', this.tempDate.date);
-				this.$store.commit('SET_TIME_RANGE', this.tempTime);
-				this.$router.push('/user-address');
-			}
-		}
-	}
+                return dateNumber.length === 1 ? '0' + dateNumber : dateNumber;
+            },
+            handleContinue() {
+                this.$store.commit('SET_DATE', this.tempDate.date);
+                this.$store.commit('SET_TIME_RANGE', this.tempTime);
+                this.$router.push('/user-address');
+            }
+        }
+    }
 </script>
 
 <style lang="scss">

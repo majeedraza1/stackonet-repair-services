@@ -35,7 +35,6 @@ class CheckoutAnalysis extends DatabaseModel {
 		'ip_address'                => null,
 		'postal_code'               => null,
 		'city'                      => null,
-		'user_info'                 => null,
 		'device'                    => null,
 		'device_model'              => null,
 		'device_color'              => null,
@@ -44,6 +43,7 @@ class CheckoutAnalysis extends DatabaseModel {
 		'unsupported_zip_thank_you' => null,
 		'screen_cracked'            => null,
 		'device_issue'              => null,
+		'phone_number'              => null,
 		'requested_date_time'       => null,
 		'user_address'              => null,
 		'user_details'              => null,
@@ -166,13 +166,13 @@ class CheckoutAnalysis extends DatabaseModel {
 		];
 
 		$default_data = [
-			'user_info',
 			'device',
 			'device_model',
 			'device_color',
 			'zip_code',
 			'screen_cracked',
 			'device_issue',
+			'phone_number',
 			'requested_date_time',
 			'user_address',
 			'user_details',
@@ -188,9 +188,9 @@ class CheckoutAnalysis extends DatabaseModel {
 			}
 
 			switch ( $key ) {
-				case 'user_info';
-					$label = 'User Info';
-					break;
+//				case 'user_info';
+//					$label = 'User Info';
+//					break;
 				case 'device_model';
 					$label = 'Model';
 					break;
@@ -205,6 +205,9 @@ class CheckoutAnalysis extends DatabaseModel {
 					break;
 				case 'device_issue';
 					$label = 'Issues';
+					break;
+				case 'phone_number';
+					$label = 'Phone Number';
 					break;
 				case 'requested_date_time';
 					$label = 'Time';
@@ -337,7 +340,6 @@ class CheckoutAnalysis extends DatabaseModel {
                 `ip_address` varchar(100) DEFAULT NULL,
                 `postal_code` varchar(20) DEFAULT NULL,
                 `city` varchar(100) DEFAULT NULL,
-                `user_info` datetime DEFAULT NULL,
                 `device` datetime DEFAULT NULL,
                 `device_model` datetime DEFAULT NULL,
                 `device_color` datetime DEFAULT NULL,
@@ -346,6 +348,7 @@ class CheckoutAnalysis extends DatabaseModel {
                 `unsupported_zip_thank_you` datetime DEFAULT NULL,
                 `screen_cracked` datetime DEFAULT NULL,
                 `device_issue` datetime DEFAULT NULL,
+                `phone_number` datetime DEFAULT NULL,
                 `requested_date_time` datetime DEFAULT NULL,
                 `user_address` datetime DEFAULT NULL,
                 `user_details` datetime DEFAULT NULL,

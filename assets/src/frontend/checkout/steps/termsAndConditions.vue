@@ -67,7 +67,7 @@
 
             // If no models, redirect one step back
             if (!this.emailAddress.length) {
-                this.$router.push('/user-details');
+                this.$router.push({name: 'user-details'});
             }
 
             this.getTermsAndConditions();

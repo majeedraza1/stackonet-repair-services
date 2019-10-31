@@ -60,7 +60,7 @@
 
             // If no models, redirect one step back
             if (!this.isScreenCracked) {
-                // this.$router.push('/screen-cracked');
+                this.$router.push({name: 'screen-cracked'});
             }
 
             this.$store.dispatch('updateCheckoutAnalysis', {

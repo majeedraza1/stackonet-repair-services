@@ -57,16 +57,13 @@
             this.$store.commit('SET_SHOW_CART', false);
             this.$store.commit('IS_THANK_YOU_PAGE', false);
 
-            // If no models, redirect one step back
-            if (!this.hasPhone) {
-                this.$router.push('/');
-            }
-
             this.$store.dispatch('refreshCheckoutAnalysisIdFromLocalStorage');
-            this.$store.dispatch('updateCheckoutAnalysis', {
-                step: 'device',
-                step_data: {}
-            });
+            if (!this.checkoutAnalysisId) {
+                this.$store.dispatch('checkoutAnalysis', {
+                    step: 'device',
+                    step_data: {}
+                });
+            }
         },
         methods: {
             chooseDeviceModel(device) {

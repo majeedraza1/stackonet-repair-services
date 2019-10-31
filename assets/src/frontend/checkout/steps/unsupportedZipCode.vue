@@ -23,112 +23,111 @@
 </template>
 
 <script>
-	import BigButton from '../../../components/BigButton.vue';
-	import AnimatedInput from '../../../components/AnimatedInput.vue';
-	import SectionHelp from '../../components/SectionHelp'
-	import {mapState} from 'vuex';
+    import BigButton from '../../../components/BigButton.vue';
+    import AnimatedInput from '../../../components/AnimatedInput.vue';
+    import SectionHelp from '../../components/SectionHelp'
+    import {mapState} from 'vuex';
 
-	export default {
-		name: "unsupportedZipCode",
-		components: {AnimatedInput, BigButton, SectionHelp},
-		data() {
-			return {
-				email: '',
-				phone: '',
-			}
-		},
-		mounted() {
-			this.$store.commit('SET_LOADING_STATUS', false);
-			this.$store.commit('SET_SHOW_CART', false);
-			this.$store.commit('IS_THANK_YOU_PAGE', true);
+    export default {
+        name: "unsupportedZipCode",
+        components: {AnimatedInput, BigButton, SectionHelp},
+        data() {
+            return {
+                email: '',
+                phone: '',
+            }
+        },
+        mounted() {
+            this.$store.commit('SET_LOADING_STATUS', false);
+            this.$store.commit('SET_SHOW_CART', false);
+            this.$store.commit('IS_THANK_YOU_PAGE', true);
 
-			// If no models, redirect one step back
-			if (!this.hasZipCode) {
-				this.$router.push('/zip-code');
-			} else {
-				this.saveInitialData();
-			}
+            // If no models, redirect one step back
+            if (!this.hasZipCode) {
+                this.$router.push({name: 'zip-code'});
+            } else {
+                this.saveInitialData();
+            }
 
-			this.$store.dispatch('checkoutAnalysis', {
-				id: this.checkoutAnalysisId,
-				step: 'unsupported_zip_code',
-				step_data: {zip_code: this.zipCode}
-			});
-		},
-		computed: {
-			...mapState(['zipCode', 'areaRequestId', 'device', 'deviceModel', 'deviceColor', 'checkoutAnalysisId']),
-			icons() {
-				return window.Stackonet.icons;
-			},
-			hasZipCode() {
-				return !!(this.zipCode && this.zipCode.length);
-			},
-			hasPhone() {
-				return !!this.phone.length;
-			},
-			isValidEmail() {
-				return !!(this.email.length && this.validateEmail(this.email));
-			}
-		},
-		methods: {
-			validateEmail(email) {
-				let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-				return re.test(String(email).toLowerCase());
-			},
-			saveInitialData() {
-				let self = this, $ = window.jQuery;
-				$.ajax({
-					method: 'POST',
-					url: window.Stackonet.ajaxurl,
-					data: {
-						action: 'create_request_areas',
-						zip_code: self.zipCode,
-						device_title: self.device.device_title,
-						device_model: self.deviceModel.title,
-						device_color: self.deviceColor.title,
-					},
-					success: function (response) {
-						if (response.data.id) {
-							self.$store.commit('SET_AREA_REQUEST_ID', response.data.id);
-						}
-					}
-				});
-			},
-			handleNotifyMe() {
-				let self = this, $ = window.jQuery;
-				self.$store.commit('SET_LOADING_STATUS', true);
+            this.$store.dispatch('updateCheckoutAnalysis', {
+                step: 'unsupported_zip_code',
+                step_data: {zip_code: this.zipCode}
+            });
+        },
+        computed: {
+            ...mapState(['zipCode', 'areaRequestId', 'device', 'deviceModel', 'deviceColor', 'checkoutAnalysisId']),
+            icons() {
+                return window.Stackonet.icons;
+            },
+            hasZipCode() {
+                return !!(this.zipCode && this.zipCode.length);
+            },
+            hasPhone() {
+                return !!this.phone.length;
+            },
+            isValidEmail() {
+                return !!(this.email.length && this.validateEmail(this.email));
+            }
+        },
+        methods: {
+            validateEmail(email) {
+                let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                return re.test(String(email).toLowerCase());
+            },
+            saveInitialData() {
+                let self = this, $ = window.jQuery;
+                $.ajax({
+                    method: 'POST',
+                    url: window.Stackonet.ajaxurl,
+                    data: {
+                        action: 'create_request_areas',
+                        zip_code: self.zipCode,
+                        device_title: self.device.device_title,
+                        device_model: self.deviceModel.title,
+                        device_color: self.deviceColor.title,
+                    },
+                    success: function (response) {
+                        if (response.data.id) {
+                            self.$store.commit('SET_AREA_REQUEST_ID', response.data.id);
+                        }
+                    }
+                });
+            },
+            handleNotifyMe() {
+                let self = this, $ = window.jQuery;
+                self.$store.commit('SET_LOADING_STATUS', true);
 
-				$.ajax({
-					method: 'POST',
-					url: window.Stackonet.ajaxurl,
-					data: {
-						action: 'create_request_areas',
-						id: self.areaRequestId,
-						email: self.email,
-						phone: self.phone,
-						zip_code: self.zipCode,
-						device_title: self.device.device_title,
-						device_model: self.deviceModel.title,
-						device_color: self.deviceColor.title,
-					},
-					success: function (response) {
-						self.$store.commit('SET_LOADING_STATUS', false);
+                $.ajax({
+                    method: 'POST',
+                    url: window.Stackonet.ajaxurl,
+                    data: {
+                        action: 'create_request_areas',
+                        id: self.areaRequestId,
+                        email: self.email,
+                        phone: self.phone,
+                        zip_code: self.zipCode,
+                        device_title: self.device.device_title,
+                        device_model: self.deviceModel.title,
+                        device_color: self.deviceColor.title,
+                    },
+                    success: function (response) {
+                        self.$store.commit('SET_LOADING_STATUS', false);
 
 
-						self.$store.dispatch('updateCheckoutAnalysis', {
-							step: 'unsupported_zip_thank_you',
-							step_data: {unsupported_zip_code: {email: self.email}}
-						});
+                        self.$store.dispatch('updateCheckoutAnalysis', {
+                            step: 'unsupported_zip_thank_you',
+                            step_data: {unsupported_zip_code: {email: self.email}}
+                        });
 
-						self.$router.push('/thankyou');
-					},
-					error: function () {
-						self.$store.commit('SET_LOADING_STATUS', false);
-					}
-				});
-			}
-		}
-	}
+                        self.$router.push('/thankyou');
+                    },
+                    error: function () {
+                        self.$store.commit('SET_LOADING_STATUS', false);
+                    }
+                });
+            }
+        }
+    }
 </script>
 
 <style lang="scss">

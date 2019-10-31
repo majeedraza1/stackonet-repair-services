@@ -29,8 +29,8 @@
         },
         computed: {
             ...mapState(['deviceModels', 'device', 'checkoutAnalysisId']),
-            hasModels() {
-                return !!(this.deviceModels && this.deviceModels.length);
+            hasDevice() {
+                return Object.keys(this.device).length > 0;
             }
         },
         mounted() {
@@ -38,8 +38,8 @@
             this.$store.commit('SET_SHOW_CART', true);
             this.$store.commit('IS_THANK_YOU_PAGE', false);
 
-            // If no models, redirect one step back
-            if (!this.hasModels) {
+            // If no device, redirect one step back
+            if (!this.hasDevice) {
                 this.$router.push({name: 'device'});
             }
 

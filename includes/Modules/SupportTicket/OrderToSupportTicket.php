@@ -60,6 +60,8 @@ class OrderToSupportTicket {
 		$service_time  = $order->get_meta( '_preferred_service_time_range' );
 		$order_url     = add_query_arg( [ 'post' => $order->get_id(), 'action' => 'edit' ], admin_url( 'post.php' ) );
 
+		$_promotion_discount = $order->get_meta( '_promotion_discount' );
+
 		$phone = $order->get_billing_phone();
 		$phone = '<a href="tel:' . esc_attr( $phone ) . '">' . esc_html( $phone ) . '</a>';
 
@@ -122,6 +124,10 @@ class OrderToSupportTicket {
 				<td> Order URL:</td>
 				<td><a target="_blank" href="<?php echo $order_url; ?>"><strong><?php echo $order_url; ?></strong></a>
 				</td>
+			</tr>
+			<tr>
+				<td>Took promotional discount?:</td>
+				<td><?php echo $_promotion_discount; ?></td>
 			</tr>
 			<?php if ( ! empty( $issues_description ) ) { ?>
 				<tr>

@@ -28,67 +28,67 @@
 </template>
 
 <script>
-	export default {
-		name: "Search",
-		props: {
-			dropdownItems: {type: Array, default: () => []},
-		},
-		data() {
-			return {
-				dropdownLabel: 'All',
-				dropdownValue: '',
-				search: '',
-			}
-		},
-		methods: {
-			changeCat(event) {
-				let val = event.target.value;
-				let el = this.dropdownItems.find(element => {
-					return element.value == val;
-				});
-				if (typeof el === "undefined") {
-					this.dropdownLabel = '';
-					this.dropdownValue = '';
-				} else {
-					this.dropdownLabel = el.label;
-					this.dropdownValue = el.value;
-				}
-			},
-			submitSearch() {
-				this.$emit('search', {cat: this.dropdownValue, query: this.search});
-			}
-		},
-		mounted() {
-			let productSearch = this.$el;
+    export default {
+        name: "Search",
+        props: {
+            dropdownItems: {type: Array, default: () => []},
+        },
+        data() {
+            return {
+                dropdownLabel: 'All',
+                dropdownValue: '',
+                search: '',
+            }
+        },
+        methods: {
+            changeCat(event) {
+                let val = event.target.value;
+                let el = this.dropdownItems.find(element => {
+                    return element.value == val;
+                });
+                if (typeof el === "undefined") {
+                    this.dropdownLabel = '';
+                    this.dropdownValue = '';
+                } else {
+                    this.dropdownLabel = el.label;
+                    this.dropdownValue = el.value;
+                }
+            },
+            submitSearch() {
+                this.$emit('search', {cat: this.dropdownValue, query: this.search});
+            }
+        },
+        mounted() {
+            let productSearch = this.$el;
 
-			let catList = productSearch.querySelector('.shapla-cat-list');
-			if (!catList) return;
+            let catList = productSearch.querySelector('.shapla-cat-list');
+            if (!catList) return;
 
-			let searchLabel = productSearch.querySelector('.nav-search-label'),
-				defaultLabel = searchLabel.getAttribute('data-default'),
-				defaultVal = catList.value;
+            let searchLabel = productSearch.querySelector('.nav-search-label'),
+                defaultLabel = searchLabel.getAttribute('data-default'),
+                defaultVal = catList.value;
 
 
-			// console.log(searchLabel, defaultLabel, defaultVal);
+            // console.log(searchLabel, defaultLabel, defaultVal);
 
-			if (defaultVal === '') {
-				// searchLabel.textContent = defaultLabel;
-			} else {
-				// searchLabel.textContent = defaultVal;
-			}
+            if (defaultVal === '') {
+                // searchLabel.textContent = defaultLabel;
+            } else {
+                // searchLabel.textContent = defaultVal;
+            }
 
-			catList.addEventListener('change', function () {
-				let selectText = this.value;
-				if (selectText === '') {
-					// searchLabel.textContent = defaultLabel;
-				} else {
-					// searchLabel.textContent = selectText;
-				}
+            catList.addEventListener('change', function () {
+                let selectText = this.value;
+                if (selectText === '') {
+                    // searchLabel.textContent = defaultLabel;
+                } else {
+                    // searchLabel.textContent = selectText;
+                }
 
-				productSearch.querySelector('input[type="search"]').focus();
-			});
-		}
-	}
+                productSearch.querySelector('input[type="search"]').focus();
+            });
+        }
+    }
 </script>
 
 <style lang="scss">
@@ -135,6 +135,7 @@
 			position: relative;
 			float: left;
 			width: auto;
+			max-width: 40%;
 
 			.shapla-custom-menu-item-contents & {
 				display: none;
@@ -159,6 +160,9 @@
 			text-transform: capitalize;
 			background-color: white;
 			color: #363636;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
 
 			i {
 				margin-left: 5px;

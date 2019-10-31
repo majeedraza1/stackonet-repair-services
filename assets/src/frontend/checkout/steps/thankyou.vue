@@ -37,35 +37,35 @@
 </template>
 
 <script>
-	import {mapState} from 'vuex';
-	import SectionHelp from '../../components/SectionHelp'
+    import {mapState} from 'vuex';
+    import SectionHelp from '../../components/SectionHelp'
 
-	export default {
-		name: "thankyou",
-		components: {SectionHelp},
-		computed: {
-			...mapState(['checkoutAnalysisId', 'emailAddress']),
-			icons() {
-				return window.Stackonet.icons;
-			},
-		},
-		mounted() {
-			this.$store.commit('SET_LOADING_STATUS', false);
-			this.$store.commit('SET_SHOW_CART', false);
-			this.$store.commit('IS_THANK_YOU_PAGE', true);
+    export default {
+        name: "thankyou",
+        components: {SectionHelp},
+        computed: {
+            ...mapState(['checkoutAnalysisId', 'emailAddress']),
+            icons() {
+                return window.Stackonet.icons;
+            },
+        },
+        mounted() {
+            this.$store.commit('SET_LOADING_STATUS', false);
+            this.$store.commit('SET_SHOW_CART', false);
+            this.$store.commit('IS_THANK_YOU_PAGE', true);
 
-			// If no models, redirect one step back
-			if (!this.emailAddress.length) {
-				this.$router.push('/terms-and-conditions');
-			}
+            // If no models, redirect one step back
+            if (!this.emailAddress.length) {
+                this.$router.push({name: 'terms-and-conditions'});
+            }
 
-			this.$store.dispatch('updateCheckoutAnalysis', {
-				step: 'thank_you',
-				step_data: {}
-			});
-			this.$store.dispatch('removeCheckoutAnalysisIdFromLocalStorage');
-		},
-	}
+            this.$store.dispatch('updateCheckoutAnalysis', {
+                step: 'thank_you',
+                step_data: {}
+            });
+            this.$store.dispatch('removeCheckoutAnalysisIdFromLocalStorage');
+        },
+    }
 </script>
 
 <style lang="scss">

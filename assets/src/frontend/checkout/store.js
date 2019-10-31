@@ -205,13 +205,10 @@ export default new Vuex.Store({
 		},
 		updateCheckoutAnalysis(context, data = {}) {
 			context.dispatch('refreshCheckoutAnalysisIdFromLocalStorage');
-			axios
-				.put(window.Stackonet.rest_root + '/checkout-analysis/' + context.state.checkoutAnalysisId, data)
-				.then(response => {
-				})
-				.catch(error => {
-					console.log(error);
-				});
+			axios.put(window.Stackonet.rest_root + '/checkout-analysis/' + context.state.checkoutAnalysisId, data).then(() => {
+			}).catch(error => {
+				console.log(error);
+			});
 		}
 	},
 

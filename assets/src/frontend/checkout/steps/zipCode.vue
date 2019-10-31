@@ -59,9 +59,9 @@
             this.$store.commit('SET_SHOW_CART', true);
             this.$store.commit('IS_THANK_YOU_PAGE', false);
 
-            // If no models, redirect one step back
+            // If no device color, redirect one step back
             if (!this.hasDeviceColor) {
-                this.$router.push('/device-color');
+                this.$router.push({name: 'device-color'});
             }
 
             this.$store.dispatch('updateCheckoutAnalysis', {

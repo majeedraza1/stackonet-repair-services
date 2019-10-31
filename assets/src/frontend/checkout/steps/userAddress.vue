@@ -94,7 +94,7 @@
 
             // If no models, redirect one step back
             if (!this.hasDate) {
-                this.$router.push('/select-time');
+                this.$router.push({name: 'select-time'});
             }
 
             this.$store.dispatch('updateCheckoutAnalysis', {

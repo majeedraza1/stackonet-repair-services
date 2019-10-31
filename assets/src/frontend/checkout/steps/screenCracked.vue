@@ -47,72 +47,72 @@
 </template>
 
 <script>
-	import {mapState} from 'vuex';
-	import SectionInfo from '../../components/SectionInfo'
-	import SectionTitle from '../../components/SectionTitle'
-	import SectionHelp from '../../components/SectionHelp'
+    import {mapState} from 'vuex';
+    import SectionInfo from '../../components/SectionInfo'
+    import SectionTitle from '../../components/SectionTitle'
+    import SectionHelp from '../../components/SectionHelp'
 
-	export default {
-		name: "screenCracked",
-		components: {SectionInfo, SectionTitle, SectionHelp},
-		mounted() {
-			this.$store.commit('SET_LOADING_STATUS', false);
-			this.$store.commit('SET_SHOW_CART', true);
+    export default {
+        name: "screenCracked",
+        components: {SectionInfo, SectionTitle, SectionHelp},
+        mounted() {
+            this.$store.commit('SET_LOADING_STATUS', false);
+            this.$store.commit('SET_SHOW_CART', true);
 
-			// If no models, redirect one step back
-			if (!this.hasZipCode) {
-				this.$router.push('/zip-code');
-			}
+            // If no models, redirect one step back
+            if (!this.hasZipCode) {
+                this.$router.push({name: 'zip-code'});
+            }
 
-			this.$store.dispatch('updateCheckoutAnalysis', {
-				step: 'screen_cracked',
-				step_data: {zip_code: this.zipCode}
-			});
-		},
-		computed: {
-			...mapState(['zipCode', 'device', 'screenCracked', 'deviceModel', 'checkoutAnalysisId']),
-			icons() {
-				return window.Stackonet.icons;
-			},
-			hasZipCode() {
-				return !!(this.zipCode && this.zipCode.length);
-			},
-			broken_screen_label() {
-				if (this.device && this.device.broken_screen_label) {
-					return this.device.broken_screen_label;
-				}
+            this.$store.dispatch('updateCheckoutAnalysis', {
+                step: 'screen_cracked',
+                step_data: {zip_code: this.zipCode}
+            });
+        },
+        computed: {
+            ...mapState(['zipCode', 'device', 'screenCracked', 'deviceModel', 'checkoutAnalysisId']),
+            icons() {
+                return window.Stackonet.icons;
+            },
+            hasZipCode() {
+                return !!(this.zipCode && this.zipCode.length);
+            },
+            broken_screen_label() {
+                if (this.device && this.device.broken_screen_label) {
+                    return this.device.broken_screen_label;
+                }
 
-				return '';
-			},
-			broken_screen_price() {
-				if (this.deviceModel && this.deviceModel.broken_screen_price) {
-					return this.deviceModel.broken_screen_price;
-				}
-				if (this.device && this.device.broken_screen_price) {
-					return this.device.broken_screen_price;
-				}
+                return '';
+            },
+            broken_screen_price() {
+                if (this.deviceModel && this.deviceModel.broken_screen_price) {
+                    return this.deviceModel.broken_screen_price;
+                }
+                if (this.device && this.device.broken_screen_price) {
+                    return this.device.broken_screen_price;
+                }
 
-				return '';
-			}
-		},
-		methods: {
-			setScreenCracked(value) {
-				this.$store.commit('SET_SCREEN_CRACKED', value);
-				if ('yes' === value) {
-					this.$store.commit('SET_ISSUE', [
-						{
-							id: 'BrokenScreen',
-							title: this.broken_screen_label,
-							price: this.broken_screen_price
-						}
-					]);
-					this.$router.push('/select-time');
-				} else {
-					this.$router.push('/select-issue');
-				}
-			}
-		}
-	}
+                return '';
+            }
+        },
+        methods: {
+            setScreenCracked(value) {
+                this.$store.commit('SET_SCREEN_CRACKED', value);
+                if ('yes' === value) {
+                    this.$store.commit('SET_ISSUE', [
+                        {
+                            id: 'BrokenScreen',
+                            title: this.broken_screen_label,
+                            price: this.broken_screen_price
+                        }
+                    ]);
+                    this.$router.push({name: 'promotion'});
+                } else {
+                    this.$router.push({name: 'select-issue'});
+                }
+            }
+        }
+    }
 </script>
 
 <style lang="scss">

@@ -18,45 +18,45 @@
 </template>
 
 <script>
-	import {mapState} from 'vuex';
-	import SectionInfo from '../../components/SectionInfo'
-	import SectionTitle from '../../components/SectionTitle'
-	import SectionHelp from '../../components/SectionHelp'
+    import {mapState} from 'vuex';
+    import SectionInfo from '../../components/SectionInfo'
+    import SectionTitle from '../../components/SectionTitle'
+    import SectionHelp from '../../components/SectionHelp'
 
-	export default {
-		name: "deviceColor",
-		components: {SectionInfo, SectionTitle, SectionHelp},
-		data() {
-			return {}
-		},
-		computed: {
-			...mapState(['deviceColors', 'deviceModel', 'checkoutAnalysisId']),
-			hasColors() {
-				return !!(this.deviceColors && this.deviceColors.length);
-			}
-		},
-		mounted() {
-			this.$store.commit('SET_LOADING_STATUS', false);
-			this.$store.commit('SET_SHOW_CART', true);
-			this.$store.commit('IS_THANK_YOU_PAGE', false);
+    export default {
+        name: "deviceColor",
+        components: {SectionInfo, SectionTitle, SectionHelp},
+        data() {
+            return {}
+        },
+        computed: {
+            ...mapState(['deviceColors', 'deviceModel', 'checkoutAnalysisId']),
+            hasDeviceModel() {
+                return Object.keys(this.deviceModel).length;
+            }
+        },
+        mounted() {
+            this.$store.commit('SET_LOADING_STATUS', false);
+            this.$store.commit('SET_SHOW_CART', true);
+            this.$store.commit('IS_THANK_YOU_PAGE', false);
 
-			// If no models, redirect one step back
-			if (!this.hasColors) {
-				this.$router.push('/device-model');
-			}
+            // If no models, redirect one step back
+            if (!this.hasDeviceModel) {
+                this.$router.push({name: 'device-model'});
+            }
 
-			this.$store.dispatch('updateCheckoutAnalysis', {
-				step: 'device_color',
-				step_data: {device_model: this.deviceModel.title}
-			});
-		},
-		methods: {
-			chooseDeviceColor(color) {
-				this.$store.commit('SET_DEVICE_COLOR', color);
-				this.$router.push('/zip-code');
-			}
-		}
-	}
+            this.$store.dispatch('updateCheckoutAnalysis', {
+                step: 'device_color',
+                step_data: {device_model: this.deviceModel.title}
+            });
+        },
+        methods: {
+            chooseDeviceColor(color) {
+                this.$store.commit('SET_DEVICE_COLOR', color);
+                this.$router.push('/zip-code');
+            }
+        }
+    }
 </script>
 
 <style lang="scss">
