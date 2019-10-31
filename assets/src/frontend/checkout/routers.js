@@ -1,25 +1,25 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import device from './views/device.vue';
-import deviceModel from './views/deviceModel.vue';
-import deviceColor from './views/deviceColor.vue';
-import zipCode from './views/zipCode.vue';
-import screenCracked from './views/screenCracked.vue';
-import deviceIssue from './views/deviceIssue.vue';
-import timing from './views/timing.vue';
-import thankyou from './views/thankyou.vue';
-import userAddress from './views/userAddress.vue';
-import userDetails from './views/userDetails.vue';
-import unsupportedZipCode from './views/unsupportedZipCode.vue';
-import unsupportedZipCodeThankyou from './views/unsupportedZipCodeThankyou.vue';
-import termsAndConditions from './views/termsAndConditions.vue';
-import userInfo from './views/userInfo';
+import device from './steps/device';
+import deviceModel from './steps/deviceModel';
+import deviceColor from './steps/deviceColor';
+import zipCode from './steps/zipCode';
+import screenCracked from './steps/screenCracked';
+import deviceIssue from './steps/deviceIssue';
+import timing from './steps/timing';
+import thankyou from './steps/thankyou';
+import userAddress from './steps/userAddress';
+import userDetails from './steps/userDetails';
+import unsupportedZipCode from './steps/unsupportedZipCode';
+import unsupportedZipCodeThankyou from './steps/unsupportedZipCodeThankyou';
+import termsAndConditions from './steps/termsAndConditions';
+import promotion from "./steps/promotion";
 
 Vue.use(VueRouter);
 
 const routes = [
-	{path: '/', name: 'userInfo', component: userInfo},
-	{path: '/device', name: 'device', component: device},
+	// {path: '/', name: 'userInfo', component: userInfo},
+	{path: '/', name: 'device', component: device},
 	{path: '/device-model', name: 'device-model', component: deviceModel},
 	{path: '/device-color', name: 'device-color', component: deviceColor},
 	{path: '/zip-code', name: 'zip-code', component: zipCode},
@@ -27,6 +27,7 @@ const routes = [
 	{path: '/thankyou', name: 'thankyou', component: unsupportedZipCodeThankyou},
 	{path: '/screen-cracked', name: 'screen-cracked', component: screenCracked},
 	{path: '/select-issue', name: 'select-issue', component: deviceIssue},
+	{path: '/phone', name: 'promotion', component: promotion},
 	{path: '/select-time', name: 'select-time', component: timing},
 	{path: '/user-address', name: 'user-address', component: userAddress},
 	{path: '/user-details', name: 'user-details', component: userDetails},

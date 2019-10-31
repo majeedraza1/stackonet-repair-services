@@ -23,9 +23,9 @@
 </template>
 
 <script>
-	import BigButton from '../../components/BigButton.vue';
-	import AnimatedInput from '../../components/AnimatedInput.vue';
-	import SectionHelp from '../components/SectionHelp'
+	import BigButton from '../../../components/BigButton.vue';
+	import AnimatedInput from '../../../components/AnimatedInput.vue';
+	import SectionHelp from '../../components/SectionHelp'
 	import {mapState} from 'vuex';
 
 	export default {

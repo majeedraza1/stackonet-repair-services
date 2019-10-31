@@ -19,8 +19,8 @@
 </template>
 
 <script>
-	import BigButton from '../../components/BigButton.vue';
-	import SectionHelp from '../components/SectionHelp'
+	import BigButton from '../../../components/BigButton.vue';
+	import SectionHelp from '../../components/SectionHelp'
 
 	export default {
 		name: "unsupportedZipCodeThankyou",

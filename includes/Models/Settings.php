@@ -21,25 +21,26 @@ class Settings {
 	 * @var array
 	 */
 	private static $default = [
-		'support_phone'                 => '',
-		'support_email'                 => '',
-		'business_address'              => '',
-		'reschedule_page_id'            => '',
-		'payment_page_id'               => '',
-		'terms_and_conditions_page_id'  => '',
-		'order_reminder_minutes'        => '',
-		'number_of_alternate_places'    => '',
-		'ipdata_api_key'                => '',
-		'google_map_key'                => '',
-		'dropbox_client_id'             => '',
-		'dropbox_client_secret'         => '',
-		'dropbox_access_token'          => '',
-		'minimum_time_difference'       => '',
-		'square_payment_application_id' => '',
-		'square_payment_access_token'   => '',
-		'square_payment_location_id'    => '',
-		'payment_thank_you_page_id'     => '',
-		'service_times'                 => [
+		'support_phone'                   => '',
+		'support_email'                   => '',
+		'business_address'                => '',
+		'reschedule_page_id'              => '',
+		'payment_page_id'                 => '',
+		'terms_and_conditions_page_id'    => '',
+		'order_reminder_minutes'          => '',
+		'number_of_alternate_places'      => '',
+		'ipdata_api_key'                  => '',
+		'google_map_key'                  => '',
+		'dropbox_client_id'               => '',
+		'dropbox_client_secret'           => '',
+		'dropbox_access_token'            => '',
+		'minimum_time_difference'         => '',
+		'square_payment_application_id'   => '',
+		'square_payment_access_token'     => '',
+		'square_payment_location_id'      => '',
+		'payment_thank_you_page_id'       => '',
+		'checkout_promotions_banner_time' => '',
+		'service_times'                   => [
 			'Monday'    => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 			'Tuesday'   => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 			'Wednesday' => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
@@ -48,7 +49,7 @@ class Settings {
 			'Saturday'  => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 			'Sunday'    => [ 'start_time' => '09:00', 'end_time' => '22:00' ],
 		],
-		'holidays_list'                 => [ [ 'date' => '', 'note' => '' ] ],
+		'holidays_list'                   => [ [ 'date' => '', 'note' => '' ] ],
 	];
 
 	/**
@@ -84,6 +85,18 @@ class Settings {
 		$map_key = 'ipdata_api_key';
 
 		return ! empty( $options[ $map_key ] ) ? wp_strip_all_tags( $options[ $map_key ] ) : '';
+	}
+
+	/**
+	 * Get checkout promotions banner time
+	 *
+	 * @return string
+	 */
+	public static function get_checkout_promotions_banner_time() {
+		$options = self::get_option();
+		$map_key = 'checkout_promotions_banner_time';
+
+		return ! empty( $options[ $map_key ] ) ? intval( $options[ $map_key ] ) : 0;
 	}
 
 	/**

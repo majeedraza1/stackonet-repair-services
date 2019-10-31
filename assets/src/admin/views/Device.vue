@@ -154,7 +154,7 @@
 							<tbody>
 							<tr v-for="(device_issue, index) in multi_issues" :key="device_issue.id">
 								<td>
-									<delete @click="removeIssue(multi_issues, device_issue, index)"></delete>
+									<delete-icon @click="removeIssue(multi_issues, device_issue, index)"></delete-icon>
 								</td>
 								<td>{{device_issue.title}}</td>
 								<td>
@@ -194,220 +194,220 @@
 </template>
 
 <script>
-	import draggable from 'vuedraggable';
-	import modal from 'shapla-modal';
-	import Accordion from '../../components/Accordion.vue';
-	import MediaUploader from '../../components/MediaUploader.vue';
-	import BackgroundImage from '../../components/BackgroundImage.vue';
-	import Delete from '../../components/Delete.vue';
-	import ColorPicker from '../../components/ColorPicker.vue';
-	import mdlCheckbox from '../../material-design-lite/checkbox/mdlCheckbox';
-	import mdlFab from '../../material-design-lite/button/mdlFab';
+    import draggable from 'vuedraggable';
+    import modal from 'shapla-modal';
+    import Accordion from '../../components/Accordion.vue';
+    import MediaUploader from '../../components/MediaUploader.vue';
+    import BackgroundImage from '../../components/BackgroundImage.vue';
+    import deleteIcon from 'shapla-delete';
+    import ColorPicker from '../../components/ColorPicker.vue';
+    import mdlCheckbox from '../../material-design-lite/checkbox/mdlCheckbox';
+    import mdlFab from '../../material-design-lite/button/mdlFab';
 
-	export default {
-		name: "Device",
-		components: {
-			Accordion,
-			MediaUploader,
-			BackgroundImage,
-			ColorPicker,
-			modal,
-			mdlCheckbox,
-			mdlFab,
-			Delete,
-			draggable
-		},
-		data() {
-			return {
-				id: 0,
-				isEditPage: false,
-				showCrackedModel: false,
-				showNotCrackedModel: false,
-				showModel: false,
-				device_image: {},
-				device_title: '',
-				device_models: [],
-				yes_issues: [],
-				no_issues: [],
-				multi_issues: [],
-				product_id: '-1',
-				broken_screen_label: 'Broken Screen',
-				device_group: 'default',
-				broken_screen_price: '',
-			}
-		},
-		computed: {
-			loading() {
-				return this.$store.state.loading;
-			},
-			issues() {
-				return this.$store.state.issues;
-			},
-			products() {
-				return this.$store.state.products;
-			},
-			devices() {
-				return this.$store.state.devices;
-			}
-		},
-		mounted() {
-			this.$store.commit('SET_LOADING_STATUS', false);
-			if (!this.issues.length) {
-				this.fetchIssues();
-			}
-			if (!this.products.length) {
-				this.fetchProducts();
-			}
-			if (this.$route.params.id) {
-				this.id = this.$route.params.id;
-				this.isEditPage = true;
-				this.fetchDevice(this.id);
-			}
-		},
-		methods: {
-			closeModel() {
-				this.showModel = false;
-				this.showNotCrackedModel = false;
-			},
-			removeIssue(issues, issue, index) {
-				issues.splice(index, 2);
-			},
-			addNewDeviceModel() {
-				let data = {
-					title: 'Undefined',
-					broken_screen_price: '',
-					colors: [],
-				};
+    export default {
+        name: "Device",
+        components: {
+            Accordion,
+            MediaUploader,
+            BackgroundImage,
+            ColorPicker,
+            modal,
+            mdlCheckbox,
+            mdlFab,
+            deleteIcon,
+            draggable
+        },
+        data() {
+            return {
+                id: 0,
+                isEditPage: false,
+                showCrackedModel: false,
+                showNotCrackedModel: false,
+                showModel: false,
+                device_image: {},
+                device_title: '',
+                device_models: [],
+                yes_issues: [],
+                no_issues: [],
+                multi_issues: [],
+                product_id: '-1',
+                broken_screen_label: 'Broken Screen',
+                device_group: 'default',
+                broken_screen_price: '',
+            }
+        },
+        computed: {
+            loading() {
+                return this.$store.state.loading;
+            },
+            issues() {
+                return this.$store.state.issues;
+            },
+            products() {
+                return this.$store.state.products;
+            },
+            devices() {
+                return this.$store.state.devices;
+            }
+        },
+        mounted() {
+            this.$store.commit('SET_LOADING_STATUS', false);
+            if (!this.issues.length) {
+                this.fetchIssues();
+            }
+            if (!this.products.length) {
+                this.fetchProducts();
+            }
+            if (this.$route.params.id) {
+                this.id = this.$route.params.id;
+                this.isEditPage = true;
+                this.fetchDevice(this.id);
+            }
+        },
+        methods: {
+            closeModel() {
+                this.showModel = false;
+                this.showNotCrackedModel = false;
+            },
+            removeIssue(issues, issue, index) {
+                issues.splice(index, 2);
+            },
+            addNewDeviceModel() {
+                let data = {
+                    title: 'Undefined',
+                    broken_screen_price: '',
+                    colors: [],
+                };
 
-				this.device_models.push(data);
-			},
-			addColor(model, index) {
-				let data = {
-					color: '',
-					title: '',
-					subtitle: '',
-				};
-				model.colors.push(data);
-			},
-			updateBrandName() {
+                this.device_models.push(data);
+            },
+            addColor(model, index) {
+                let data = {
+                    color: '',
+                    title: '',
+                    subtitle: '',
+                };
+                model.colors.push(data);
+            },
+            updateBrandName() {
 
-			},
-			saveDeviceData() {
-				let self = this, $ = window.jQuery;
-				self.$store.commit('SET_LOADING_STATUS', true);
+            },
+            saveDeviceData() {
+                let self = this, $ = window.jQuery;
+                self.$store.commit('SET_LOADING_STATUS', true);
 
-				$.ajax({
-					method: 'POST',
-					url: ajaxurl,
-					data: {
-						action: 'create_device',
-						id: self.id,
-						product_id: self.product_id,
-						device_group: self.device_group,
-						device_title: self.device_title,
-						device_image: self.device_image.id,
-						device_models: self.device_models,
-						broken_screen_label: self.broken_screen_label,
-						broken_screen_price: self.broken_screen_price,
-						multi_issues: self.multi_issues,
-						no_issues: self.no_issues,
-					},
-					success: function (response) {
-						self.$store.commit('SET_LOADING_STATUS', false);
-						if (response.data) {
-							if (!self.isEditPage) {
-								let devices = self.devices;
-								devices.push(response.data);
-								self.$store.commit('SET_DEVICES', devices);
-								self.$router.push('/');
-							}
+                $.ajax({
+                    method: 'POST',
+                    url: ajaxurl,
+                    data: {
+                        action: 'create_device',
+                        id: self.id,
+                        product_id: self.product_id,
+                        device_group: self.device_group,
+                        device_title: self.device_title,
+                        device_image: self.device_image.id,
+                        device_models: self.device_models,
+                        broken_screen_label: self.broken_screen_label,
+                        broken_screen_price: self.broken_screen_price,
+                        multi_issues: self.multi_issues,
+                        no_issues: self.no_issues,
+                    },
+                    success: function (response) {
+                        self.$store.commit('SET_LOADING_STATUS', false);
+                        if (response.data) {
+                            if (!self.isEditPage) {
+                                let devices = self.devices;
+                                devices.push(response.data);
+                                self.$store.commit('SET_DEVICES', devices);
+                                self.$router.push('/');
+                            }
 
-							self.$root.$emit('show-snackbar', {
-								message: 'Date has been saved.',
-							});
-						}
-					},
-					error: function () {
-						self.$store.commit('SET_LOADING_STATUS', false);
-					}
-				});
-			},
-			fetchIssues() {
-				let $ = window.jQuery, self = this;
-				self.$store.commit('SET_LOADING_STATUS', true);
-				$.ajax({
-					method: 'GET',
-					url: ajaxurl,
-					data: {
-						action: 'get_device_issues',
-					},
-					success: function (response) {
-						if (response.data) {
-							self.$store.commit('SET_ISSUES', response.data);
-						}
-						self.$store.commit('SET_LOADING_STATUS', false);
-					},
-					error: function () {
-						self.$store.commit('SET_LOADING_STATUS', false);
-					}
-				});
-			},
-			fetchProducts() {
-				let $ = window.jQuery, self = this;
-				self.$store.commit('SET_LOADING_STATUS', true);
-				$.ajax({
-					method: 'GET',
-					url: ajaxurl,
-					data: {
-						action: 'get_woocommerce_products',
-					},
-					success: function (response) {
-						if (response.data) {
-							self.$store.commit('SET_PRODUCTS', response.data);
-						}
-						self.$store.commit('SET_LOADING_STATUS', false);
-					},
-					error: function () {
-						self.$store.commit('SET_LOADING_STATUS', false);
-					}
-				});
-			},
-			fetchDevice(device_id) {
-				let $ = window.jQuery, self = this;
-				self.$store.commit('SET_LOADING_STATUS', true);
-				$.ajax({
-					method: 'GET',
-					url: ajaxurl,
-					data: {
-						action: 'get_device',
-						id: device_id,
-					},
-					success: function (response) {
-						if (response.data) {
-							console.log(response.data);
-							// self.$store.commit('SET_PRODUCTS', response.data);
-							let data = response.data;
+                            self.$root.$emit('show-snackbar', {
+                                message: 'Date has been saved.',
+                            });
+                        }
+                    },
+                    error: function () {
+                        self.$store.commit('SET_LOADING_STATUS', false);
+                    }
+                });
+            },
+            fetchIssues() {
+                let $ = window.jQuery, self = this;
+                self.$store.commit('SET_LOADING_STATUS', true);
+                $.ajax({
+                    method: 'GET',
+                    url: ajaxurl,
+                    data: {
+                        action: 'get_device_issues',
+                    },
+                    success: function (response) {
+                        if (response.data) {
+                            self.$store.commit('SET_ISSUES', response.data);
+                        }
+                        self.$store.commit('SET_LOADING_STATUS', false);
+                    },
+                    error: function () {
+                        self.$store.commit('SET_LOADING_STATUS', false);
+                    }
+                });
+            },
+            fetchProducts() {
+                let $ = window.jQuery, self = this;
+                self.$store.commit('SET_LOADING_STATUS', true);
+                $.ajax({
+                    method: 'GET',
+                    url: ajaxurl,
+                    data: {
+                        action: 'get_woocommerce_products',
+                    },
+                    success: function (response) {
+                        if (response.data) {
+                            self.$store.commit('SET_PRODUCTS', response.data);
+                        }
+                        self.$store.commit('SET_LOADING_STATUS', false);
+                    },
+                    error: function () {
+                        self.$store.commit('SET_LOADING_STATUS', false);
+                    }
+                });
+            },
+            fetchDevice(device_id) {
+                let $ = window.jQuery, self = this;
+                self.$store.commit('SET_LOADING_STATUS', true);
+                $.ajax({
+                    method: 'GET',
+                    url: ajaxurl,
+                    data: {
+                        action: 'get_device',
+                        id: device_id,
+                    },
+                    success: function (response) {
+                        if (response.data) {
+                            console.log(response.data);
+                            // self.$store.commit('SET_PRODUCTS', response.data);
+                            let data = response.data;
 
-							self.id = data.id;
-							self.product_id = data.product_id;
-							self.device_title = data.device_title;
-							self.device_models = data.device_models;
-							self.broken_screen_label = data.broken_screen_label;
-							self.broken_screen_price = data.broken_screen_price;
-							self.multi_issues = data.multi_issues;
-							self.no_issues = data.no_issues;
-							self.device_image = data.image;
-							self.device_group = data.device_group;
-						}
-						self.$store.commit('SET_LOADING_STATUS', false);
-					},
-					error: function () {
-						self.$store.commit('SET_LOADING_STATUS', false);
-					}
-				});
-			}
-		}
-	}
+                            self.id = data.id;
+                            self.product_id = data.product_id;
+                            self.device_title = data.device_title;
+                            self.device_models = data.device_models;
+                            self.broken_screen_label = data.broken_screen_label;
+                            self.broken_screen_price = data.broken_screen_price;
+                            self.multi_issues = data.multi_issues;
+                            self.no_issues = data.no_issues;
+                            self.device_image = data.image;
+                            self.device_group = data.device_group;
+                        }
+                        self.$store.commit('SET_LOADING_STATUS', false);
+                    },
+                    error: function () {
+                        self.$store.commit('SET_LOADING_STATUS', false);
+                    }
+                });
+            }
+        }
+    }
 </script>
 
 <style lang="scss">

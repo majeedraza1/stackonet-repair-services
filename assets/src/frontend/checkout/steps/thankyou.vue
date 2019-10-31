@@ -38,7 +38,7 @@
 
 <script>
 	import {mapState} from 'vuex';
-	import SectionHelp from '../components/SectionHelp'
+	import SectionHelp from '../../components/SectionHelp'
 
 	export default {
 		name: "thankyou",

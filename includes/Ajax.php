@@ -4,18 +4,18 @@ namespace Stackonet;
 
 use Exception;
 use Stackonet\Integrations\GoogleMap;
-use Stackonet\Models\GoogleNearbyPlace;
-use Stackonet\Models\TrackableObjectLog;
-use Stackonet\Models\TrackableObjectTimeline;
-use Stackonet\Modules\SupportTicket\OrderToSupportTicket;
 use Stackonet\Models\Device;
 use Stackonet\Models\DeviceIssue;
 use Stackonet\Models\Phone;
 use Stackonet\Models\ServiceArea;
 use Stackonet\Models\Settings;
 use Stackonet\Models\Testimonial;
+use Stackonet\Models\TrackableObjectLog;
+use Stackonet\Models\TrackableObjectTimeline;
 use Stackonet\Models\UnsupportedArea;
+use Stackonet\Modules\SupportTicket\OrderToSupportTicket;
 use Stackonet\Supports\Utils;
+use Stackonet\Supports\Validate;
 use WC_Data_Exception;
 use WC_Order;
 use WC_Order_Item_Fee;
@@ -545,7 +545,8 @@ class Ajax {
 		$additionalAddress = isset( $_POST['additional_address'] ) ? sanitize_text_field( $_POST['additional_address'] ) : '';
 		$signature         = isset( $_POST['signature'] ) ? wp_strip_all_tags( $_POST['signature'] ) : '';
 
-		$formatted_address = isset( $_POST['formatted_address'] ) ? sanitize_textarea_field( $_POST['formatted_address'] ) : '';
+		$formatted_address  = isset( $_POST['formatted_address'] ) ? sanitize_textarea_field( $_POST['formatted_address'] ) : '';
+		$promotion_discount = isset( $_POST['promotion_discount'] ) && Validate::checked( $_POST['promotion_discount'] );
 
 		// Now we create the order
 		$order = new WC_Order();
@@ -620,6 +621,8 @@ class Ajax {
 		$order->add_meta_data( '_preferred_service_time_range', $time_range );
 		$order->add_meta_data( '_additional_address', $additionalAddress );
 		$order->add_meta_data( '_signature_image', $signature );
+
+		$order->add_meta_data( '_promotion_discount', $promotion_discount ? 'yes' : 'no' );
 
 		// Add device data for SMS
 		$order->add_meta_data( '_device_id', $device_id );

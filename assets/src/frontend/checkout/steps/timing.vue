@@ -71,10 +71,10 @@
 </template>
 
 <script>
-	import BigButton from '../../components/BigButton.vue';
-	import SectionTitle from '../components/SectionTitle'
-	import SectionInfo from '../components/SectionInfo'
-	import SectionHelp from '../components/SectionHelp'
+	import BigButton from '../../../components/BigButton.vue';
+	import SectionTitle from '../../components/SectionTitle'
+	import SectionInfo from '../../components/SectionInfo'
+	import SectionHelp from '../../components/SectionHelp'
 	import {mapState} from 'vuex';
 
 	export default {

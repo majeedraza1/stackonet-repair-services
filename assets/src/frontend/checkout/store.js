@@ -40,10 +40,14 @@ export default new Vuex.Store({
 		windowWidth: 0,
 		isThankYouPage: false,
 		checkoutAnalysisId: 0,
+		promotion_discount: false,
 	},
 
 	// Commit + track state changes
 	mutations: {
+		SET_PROMOTION_DISCOUNT(state, promotion_discount) {
+			state.promotion_discount = promotion_discount;
+		},
 		SET_LOADING_STATUS(state, loading) {
 			state.loading = loading;
 		},

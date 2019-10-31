@@ -19,9 +19,34 @@ class Assets {
 			self::$instance = new self();
 
 			add_action( 'wp_loaded', [ self::$instance, 'register' ] );
+
+			add_action( 'admin_head', [ self::$instance, 'style_variables' ], 5 );
+			add_action( 'wp_head', [ self::$instance, 'style_variables' ], 5 );
 		}
 
 		return self::$instance;
+	}
+
+	public function style_variables() {
+		?>
+		<style type="text/css" id="shapla-colors-system">
+			:root {
+				--shapla-primary: #f58730;
+				--shapla-primary-variant: #dc6e17;
+				--shapla-on-primary: #ffffff;
+				--shapla-secondary: #f58730;
+				--shapla-secondary-variant: #dc6e17;
+				--shapla-on-secondary: #ffffff;
+				--shapla-surface: #ffffff;
+				--shapla-on-surface: #000000;
+				--shapla-error: #b00020;
+				--shapla-on-error: #ffffff;
+				--shapla-text-primary: rgba(0, 0, 0, 0.87);
+				--shapla-text-secondary: rgba(0, 0, 0, 0.54);
+				--shapla-text-icon: rgba(0, 0, 0, 0.38);
+			}
+		</style>
+		<?php
 	}
 
 	/**

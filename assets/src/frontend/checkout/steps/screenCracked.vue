@@ -48,9 +48,9 @@
 
 <script>
 	import {mapState} from 'vuex';
-	import SectionInfo from '../components/SectionInfo'
-	import SectionTitle from '../components/SectionTitle'
-	import SectionHelp from '../components/SectionHelp'
+	import SectionInfo from '../../components/SectionInfo'
+	import SectionTitle from '../../components/SectionTitle'
+	import SectionHelp from '../../components/SectionHelp'
 
 	export default {
 		name: "screenCracked",

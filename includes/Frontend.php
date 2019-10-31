@@ -399,17 +399,18 @@ class Frontend {
 		global $is_iphone;
 
 		$data = [
-			'ajaxurl'     => admin_url( 'admin-ajax.php' ),
-			'site_url'    => site_url(),
-			'home_url'    => home_url(),
-			'login_url'   => wp_login_url(),
-			'logout_url'  => wp_logout_url( home_url() ),
-			'myaccount'   => wc_get_page_permalink( 'myaccount' ),
-			'token'       => wp_create_nonce( 'confirm_appointment' ),
-			'rest_root'   => esc_url_raw( rest_url( 'stackonet/v1' ) ),
-			'rest_nonce'  => wp_create_nonce( 'wp_rest' ),
-			'is_iphone'   => $is_iphone,
-			'map_api_key' => Settings::get_map_api_key(),
+			'ajaxurl'              => admin_url( 'admin-ajax.php' ),
+			'site_url'             => site_url(),
+			'home_url'             => home_url(),
+			'login_url'            => wp_login_url(),
+			'logout_url'           => wp_logout_url( home_url() ),
+			'myaccount'            => wc_get_page_permalink( 'myaccount' ),
+			'token'                => wp_create_nonce( 'confirm_appointment' ),
+			'rest_root'            => esc_url_raw( rest_url( 'stackonet/v1' ) ),
+			'rest_nonce'           => wp_create_nonce( 'wp_rest' ),
+			'is_iphone'            => $is_iphone,
+			'map_api_key'          => Settings::get_map_api_key(),
+			'checkout_banner_time' => Settings::get_checkout_promotions_banner_time(),
 		];
 
 		return $data;

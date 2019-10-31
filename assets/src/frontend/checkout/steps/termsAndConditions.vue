@@ -30,12 +30,12 @@
 
 <script>
     import {mapState} from 'vuex';
-    import {columns, column} from 'shapla-columns'
-    import SectionInfo from '../components/SectionInfo'
-    import SectionTitle from '../components/SectionTitle'
-    import SectionHelp from '../components/SectionHelp'
-    import SignatureCanvas from '../components/SignatureCanvas'
-    import mdlButton from '../../material-design-lite/button/mdlButton'
+    import {column, columns} from 'shapla-columns'
+    import SectionInfo from '../../components/SectionInfo'
+    import SectionTitle from '../../components/SectionTitle'
+    import SectionHelp from '../../components/SectionHelp'
+    import SignatureCanvas from '../../components/SignatureCanvas'
+    import mdlButton from '../../../material-design-lite/button/mdlButton'
 
     export default {
         name: "termsAndConditions",
@@ -50,7 +50,7 @@
             ...mapState([
                 'device', 'deviceModel', 'deviceColor', 'issues', 'issueDescription', 'date', 'timeRange',
                 'firstName', 'lastName', 'phone', 'emailAddress', 'addressObject', 'instructions', 'additionalAddress',
-                'checkoutAnalysisId', 'address'
+                'checkoutAnalysisId', 'address', 'promotion_discount'
             ]),
             terms() {
                 let content = this.terms_and_conditions;
@@ -126,12 +126,13 @@
                         instructions: self.instructions,
                         additional_address: self.additionalAddress,
                         signature: self.imageData,
+                        promotion_discount: self.promotion_discount,
                     },
-                    success: function (response) {
+                    success: () => {
                         self.$store.commit('SET_LOADING_STATUS', false);
                         self.$router.push('/thank-you');
                     },
-                    error: function () {
+                    error: () => {
                         self.$store.commit('SET_LOADING_STATUS', false);
                     }
                 });

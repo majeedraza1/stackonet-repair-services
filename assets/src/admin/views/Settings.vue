@@ -99,6 +99,16 @@
 									dropdown.</p>
 							</td>
 						</tr>
+						<tr>
+							<th scope="row">
+								<label for="checkout_promotions_banner_time">Checkout promotion banner time</label>
+							</th>
+							<td>
+								<input type="number" id="checkout_promotions_banner_time" class="regular-text"
+									   v-model="settings.checkout_promotions_banner_time"/>
+								<p class="description">Set checkout promotion banner time in seconds.</p>
+							</td>
+						</tr>
 					</table>
 				</mdl-tab>
 				<mdl-tab name="Service Times">
@@ -138,7 +148,7 @@
 							</th>
 							<td>
 								<template v-for="holiday in settings.holidays_list">
-									<delete @click="deleteHoliday(holiday)"></delete>
+									<delete-icon @click="deleteHoliday(holiday)"></delete-icon>
 									<input type="date" v-model="holiday.date" placeholder="yyyy-mm-dd">
 									<label>Optional Note</label>
 									<input type="text" class="regular-text" v-model="holiday.note">
@@ -265,11 +275,11 @@
 <script>
     import mdlTabs from '../../material-design-lite/tabs/mdlTabs.vue';
     import mdlTab from '../../material-design-lite/tabs/mdlTab.vue';
-    import Delete from '../../components/Delete.vue';
+    import deleteIcon from 'shapla-delete';
 
     export default {
         name: "Settings",
-        components: {mdlTabs, mdlTab, Delete},
+        components: {mdlTabs, mdlTab, deleteIcon},
         data() {
             return {
                 settings: {
@@ -291,6 +301,7 @@
                     square_payment_access_token: '',
                     square_payment_location_id: '',
                     number_of_alternate_places: '',
+                    checkout_promotions_banner_time: '',
                     service_times: {
                         Monday: {start_time: '', end_time: '',},
                         Tuesday: {start_time: '', end_time: '',},

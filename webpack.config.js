@@ -20,8 +20,8 @@ let entryPoints = {
 		'./assets/src/scss/admin.scss'
 	],
 	frontend: [
-		'./assets/src/frontend/main.js',
-		'./assets/src/frontend/testimonial.js',
+		'./assets/src/frontend/checkout/main.js',
+		'./assets/src/frontend/testimonial/testimonial.js',
 		'./assets/src/frontend/pricing/main.js',
 		'./assets/src/frontend/reschedule/main.js',
 		'./assets/src/frontend/manager-registration/main.js',
