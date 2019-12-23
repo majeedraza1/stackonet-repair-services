@@ -2,54 +2,42 @@
 	<div class="stackonet-pricing-section">
 		<div class="phone-services-container">
 			<div class="device-issue-container">
-				<pricing-accordion
-					label="Choose device"
-					:selected-issue="device.device_title"
-					:active="activeDeviceAccordion"
-					@toggle="activeDeviceAccordion = !activeDeviceAccordion"
-				>
-					<div class="device-item-container">
-						<div class="device-item"
-							 v-for="_device in devices"
-							 @click="chooseDevice(_device)"
-							 v-html="_device.device_title"
-						></div>
-					</div>
-				</pricing-accordion>
-				<pricing-accordion
-					label="Select your model"
-					:selected-issue="device_model.title"
-					:active="activeModelAccordion"
-					@toggle="activeModelAccordion = !activeModelAccordion"
-				>
-					<div class="device-item-container">
-						<div class="device-item"
-							 v-for="_model in devices_models"
-							 @click="chooseModel(_model)"
-							 v-html="_model.title"
-						></div>
-					</div>
-				</pricing-accordion>
-				<pricing-accordion
-					label="Choose issue (pick up to 3)"
-					multiple
-					:selected-issues="selectedIssueNames"
-					:active="activeIssuesAccordion"
-					@toggle="activeIssuesAccordion = !activeIssuesAccordion"
-				>
-					<div class="device-item" v-for="_issue in _issues"
-						 @click="chooseIssue(_issue)">
-						<div class="device-item__inner" :class="issueClass(_issue)">
-							<div class="device-item__icon">+</div>
-							<div class="device-item__content">
-								<div class="device-item__title">{{_issue.title}}</div>
-								<div class="device-item__description"
-									 v-if="_issue.description">{{_issue.description}}
+				<toggles icon-position="right" :boxed-mode="false">
+					<toggle name="Choose device" :subtext="device.device_title">
+						<div class="device-item-container">
+							<div class="device-item"
+								 v-for="_device in devices"
+								 @click="chooseDevice(_device)"
+								 v-html="_device.device_title"
+							></div>
+						</div>
+					</toggle>
+					<toggle name="Select your model" :subtext="device_model.title">
+						<div class="device-item-container">
+							<div class="device-item"
+								 v-for="_model in devices_models"
+								 @click="chooseModel(_model)"
+								 v-html="_model.title"
+							></div>
+						</div>
+					</toggle>
+					<toggle name="Choose issue (pick up to 3)" :subtext="selectedIssueNames">
+						<div class="device-item-container">
+							<div class="device-item" v-for="_issue in _issues"
+								 @click="chooseIssue(_issue)">
+								<div class="device-item__inner" :class="issueClass(_issue)">
+									<div class="device-item__icon">+</div>
+									<div class="device-item__content">
+										<div class="device-item__title">{{_issue.title}}</div>
+										<div class="device-item__description"
+											 v-if="_issue.description">{{_issue.description}}
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
-					</div>
-				</pricing-accordion>
+					</toggle>
+				</toggles>
 			</div>
 
 			<div class="price-calculator">
@@ -79,15 +67,15 @@
 
 			<div class="service-includes-items">
 				<div class="service-includes-item">
-					<img :src="icons.checkCircle">
+					<img :src="icons.checkCircle"/>
 					<span>Well travel to you anywhere!</span>
 				</div>
 				<div class="service-includes-item">
-					<img :src="icons.checkCircle">
+					<img :src="icons.checkCircle"/>
 					<span>High Quality parts</span>
 				</div>
 				<div class="service-includes-item">
-					<img :src="icons.checkCircle">
+					<img :src="icons.checkCircle"/>
 					<span>Life Time Warranty</span>
 				</div>
 			</div>
@@ -97,11 +85,11 @@
 
 <script>
 	import BigButton from '../../components/BigButton';
-	import PricingAccordion from '../../components/PricingAccordion';
+	import {toggle, toggles} from 'shapla-toggles';
 
 	export default {
 		name: "Pricing",
-		components: {BigButton, PricingAccordion},
+		components: {BigButton, toggles, toggle},
 		data() {
 			return {
 				selectedIssues: [],
@@ -200,14 +188,14 @@
 			defaultDevice() {
 				let device = this.devices[0];
 				this.device = device;
-				this.devices_models =device.device_models;
+				this.devices_models = device.device_models;
 				this.device_model = device.device_models[0];
 				this.device_issues = device.multi_issues;
 				this.selectedIssues = [];
 			},
 			chooseDevice(device) {
 				this.device = device;
-				this.devices_models =device.device_models;
+				this.devices_models = device.device_models;
 				this.device_model = device.device_models[0];
 				this.device_issues = device.multi_issues;
 				this.activeDeviceAccordion = false;
@@ -232,8 +220,8 @@
 			},
 			issueClass(issue) {
 				let issues = this.selectedIssues,
-					index = issues.indexOf(issue),
-					isSelected = -1 !== index;
+						index = issues.indexOf(issue),
+						isSelected = -1 !== index;
 				return {
 					'selected-issue': isSelected,
 					'disabled-issue': !isSelected && !this.can_add_issue,
@@ -249,6 +237,17 @@
 </script>
 
 <style lang="scss">
+	.stackonet-pricing-section {
+
+		.shapla-toggle-panel__heading {
+			font-size: 20px;
+		}
+
+		.shapla-toggle-panel__title-subtext {
+			font-weight: bold;
+		}
+	}
+
 	.pricing-accordion__panel.is-panel-opened {
 		padding: 0;
 	}
@@ -351,7 +350,7 @@
 
 			.device-issue-item {
 				display: block;
-				max-width: 430px;
+				// max-width: 430px;
 				border-bottom: 1px solid #d5d5d5;
 				font-size: 16px;
 				font-weight: 400;
@@ -394,6 +393,7 @@
 
 			.device-item {
 				padding: 1rem;
+				font-size: 14px;
 
 				&__inner {
 					display: flex;
@@ -439,8 +439,9 @@
 			display: flex;
 			flex-direction: column;
 			margin-top: 3rem;
-			max-width: 430px;
 			width: 100%;
+			padding-left: 3rem;
+			padding-right: 3rem;
 
 			&__item {
 				display: flex;

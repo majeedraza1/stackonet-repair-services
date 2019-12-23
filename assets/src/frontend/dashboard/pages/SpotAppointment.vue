@@ -112,10 +112,10 @@
 			<modal :active="open_address_modal" @close="open_address_modal = false" title="Address">
 				<div class="formatted-address-list">
 					<div
-						v-for="_address in addresses"
-						class="formatted-address-list_item"
-						:class="{'is-active':_address.formatted_address === formatted_address}"
-						@click="changeAddress(_address)"
+							v-for="_address in addresses"
+							class="formatted-address-list_item"
+							:class="{'is-active':_address.formatted_address === formatted_address}"
+							@click="changeAddress(_address)"
 					>
 						<div>{{_address.formatted_address}}</div>
 					</div>
@@ -142,14 +142,14 @@
 			</columns>
 
 			<media-modal
-				title="Upload image"
-				:active="openLogoModal"
-				:images="attachments"
-				:image="images"
-				:options="dropzoneOptions"
-				@upload="dropzoneSuccess"
-				@selected="chooseImage"
-				@close="openLogoModal = false"
+					title="Upload image"
+					:active="openLogoModal"
+					:images="attachments"
+					:image="images"
+					:options="dropzoneOptions"
+					@upload="dropzoneSuccess"
+					@selected="chooseImage"
+					@close="openLogoModal = false"
 			></media-modal>
 		</div>
 
@@ -172,10 +172,9 @@
 <script>
 	import axios from 'axios'
 	import modal from 'shapla-modal';
-	import {columns, column} from 'shapla-columns';
+	import {column, columns} from 'shapla-columns';
 	import AnimatedInput from '../../../components/AnimatedInput';
 	import BigButton from '../../../components/BigButton';
-	import PricingAccordion from '../../../components/PricingAccordion';
 	import imageContainer from '../../../shapla/image/image';
 	import mdlButton from '../../../material-design-lite/button/mdlButton';
 	import gMapAutocomplete from '../../components/gMapAutocomplete'
@@ -192,8 +191,7 @@
 			MediaModal,
 			imageContainer,
 			columns,
-			column,
-			PricingAccordion
+			column
 		},
 		data() {
 			return {
@@ -427,16 +425,16 @@
 				let self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.get(PhoneRepairs.rest_root + '/logo', {},
-						{headers: {'X-WP-Nonce': window.PhoneRepairs.rest_nonce},})
-					.then((response) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-						self.attachments = response.data.data;
-					})
-					.catch((error) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-						console.log(error);
-					});
+						.get(PhoneRepairs.rest_root + '/logo', {},
+								{headers: {'X-WP-Nonce': window.PhoneRepairs.rest_nonce},})
+						.then((response) => {
+							self.$store.commit('SET_LOADING_STATUS', false);
+							self.attachments = response.data.data;
+						})
+						.catch((error) => {
+							self.$store.commit('SET_LOADING_STATUS', false);
+							console.log(error);
+						});
 			},
 			changeGeoLocation(data) {
 				this.address_object = data.address;
@@ -473,35 +471,35 @@
 				});
 
 				axios
-					.post(PhoneRepairs.rest_root + '/spot-appointment', {
-						gadget: self.gadget,
-						brand: self.brand,
-						product_id: self.device.product_id,
-						device_id: self.device.id,
-						device_color: self.device_color.title,
-						device: self.device.device_title,
-						device_model: self.model,
-						device_issues: self.selectedIssues,
-						appointment_date: self.appointment_date,
-						appointment_time: self.appointment_time,
-						email: self.email,
-						phone: self.phone,
-						store_name: self.store_name,
-						full_address: self.formatted_address,
-						address: self.c_address_object,
-						images_ids: images_ids,
-						note: self.note,
-						latitude: self.latitude,
-						longitude: self.longitude,
-					})
-					.then((response) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-						self.open_thank_you_model = true;
-					})
-					.catch((error) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-						alert('Some thing went wrong. Please try again.');
-					});
+						.post(PhoneRepairs.rest_root + '/spot-appointment', {
+							gadget: self.gadget,
+							brand: self.brand,
+							product_id: self.device.product_id,
+							device_id: self.device.id,
+							device_color: self.device_color.title,
+							device: self.device.device_title,
+							device_model: self.model,
+							device_issues: self.selectedIssues,
+							appointment_date: self.appointment_date,
+							appointment_time: self.appointment_time,
+							email: self.email,
+							phone: self.phone,
+							store_name: self.store_name,
+							full_address: self.formatted_address,
+							address: self.c_address_object,
+							images_ids: images_ids,
+							note: self.note,
+							latitude: self.latitude,
+							longitude: self.longitude,
+						})
+						.then((response) => {
+							self.$store.commit('SET_LOADING_STATUS', false);
+							self.open_thank_you_model = true;
+						})
+						.catch((error) => {
+							self.$store.commit('SET_LOADING_STATUS', false);
+							alert('Some thing went wrong. Please try again.');
+						});
 			}
 		}
 	}

@@ -9,7 +9,7 @@
 				:has-error="!!(errors.full_name && errors.full_name.length)"
 				helptext="Name is required."
 				required
-			></animated-input>
+			/>
 			<animated-input
 				type="textarea"
 				id="description"
@@ -19,13 +19,13 @@
 				:has-error="!!(errors.description && errors.description.length)"
 				helptext="Description is required."
 				required
-			></animated-input>
+			/>
 			<animated-input
 				id="phone"
 				v-model="phone"
 				label="Phone number"
 				:has-success="!!phone.length"
-			></animated-input>
+			/>
 			<animated-input
 				id="email"
 				v-model="email"
@@ -35,10 +35,10 @@
 				:has-error="!!(errors.email && errors.email.length)"
 				helptext="Email is required."
 				required
-			></animated-input>
+			/>
 			<div class="star-rating-container">
 				<span class="star-rating-label">Your Rating</span>
-				<star-rating v-model="rating"></star-rating>
+				<star-rating v-model="rating"/>
 				<span class="rating-error" v-if="!!(errors.rating && errors.rating.length)">Choose a rating</span>
 			</div>
 			<big-button>Submit</big-button>
@@ -54,7 +54,7 @@
 
 <script>
     import modal from 'shapla-modal';
-    import StarRating from '../../components/StarRating';
+    import StarRating from 'shapla-star-rating';
     import AnimatedInput from '../../components/AnimatedInput';
     import BigButton from '../../components/BigButton';
     import mdlButton from '../../material-design-lite/button/mdlButton';
