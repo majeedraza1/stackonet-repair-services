@@ -1,7 +1,7 @@
 <template>
 	<div class="stackonet-dashboard-sms">
-		<mdl-tabs>
-			<mdl-tab name="SMS" selected>
+		<tabs alignment="center" size="large">
+			<tab name="SMS" selected>
 				<div class="stackonet-dashboard-sms__sms">
 
 					<div class="filter-nav-top">
@@ -95,26 +95,26 @@
 						</column>
 					</columns>
 				</div>
-			</mdl-tab>
-			<mdl-tab name="SMS Template">
+			</tab>
+			<tab name="SMS Template">
 				<div class="stackonet-dashboard-sms__sms-template">
 					<mdl-table
-						:show-cb="false"
-						:rows="sms_templates"
-						:columns="templateColumns"
-						:actions="templateActions"
-						:total-items="sms_templates.length"
-						:per-page="sms_templates.length"
-						action-column="content"
-						@action:click="onTemplateActionClick"
+							:show-cb="false"
+							:rows="sms_templates"
+							:columns="templateColumns"
+							:actions="templateActions"
+							:total-items="sms_templates.length"
+							:per-page="sms_templates.length"
+							action-column="content"
+							@action:click="onTemplateActionClick"
 					></mdl-table>
 
 					<div class="stackonet-dashboard-sms__fab-button">
 						<mdl-fab @click="addNewTemplateModalOpen = true">+</mdl-fab>
 					</div>
 				</div>
-			</mdl-tab>
-		</mdl-tabs>
+			</tab>
+		</tabs>
 
 		<modal :active="addNewTemplateModalOpen" title="Add new template" @close="addNewTemplateModalOpen = false">
 			<textarea v-model="sms_template_content" cols="30" rows="10"></textarea>
@@ -155,17 +155,16 @@
 <script>
 	import axios from 'axios';
 	import modal from "shapla-modal";
-	import {columns, column} from "shapla-columns";
+	import {column, columns} from "shapla-columns";
+	import {tab, tabs} from 'shapla-tabs'
 	import flatPickr from 'vue-flatpickr-component';
 	import MdlFab from "../../../material-design-lite/button/mdlFab";
-	import MdlTab from "../../../material-design-lite/tabs/mdlTab";
-	import MdlTabs from "../../../material-design-lite/tabs/mdlTabs";
 	import MdlTable from "../../../material-design-lite/data-table/mdlTable";
 	import MdlButton from "../../../material-design-lite/button/mdlButton";
 
 	export default {
 		name: "ShortMessageService",
-		components: {flatPickr, modal, MdlFab, MdlTab, MdlTabs, column, columns, MdlButton, MdlTable},
+		components: {flatPickr, modal, MdlFab, column, columns, MdlButton, MdlTable, tab, tabs},
 		props: {},
 		data() {
 			return {
@@ -257,64 +256,64 @@
 				let self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.delete(PhoneRepairs.rest_root + '/sms/template', {params: {id: item.id},})
-					.then((response) => {
-						self.getTemplates();
-						self.$store.commit('SET_LOADING_STATUS', false);
-					})
-					.catch((error) => {
-						console.log(error);
-						self.$store.commit('SET_LOADING_STATUS', false);
-					});
+						.delete(PhoneRepairs.rest_root + '/sms/template', {params: {id: item.id},})
+						.then((response) => {
+							self.getTemplates();
+							self.$store.commit('SET_LOADING_STATUS', false);
+						})
+						.catch((error) => {
+							console.log(error);
+							self.$store.commit('SET_LOADING_STATUS', false);
+						});
 			},
 			getTemplates() {
 				this.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.get(window.PhoneRepairs.rest_root + '/sms/template',)
-					.then(response => {
-						this.$store.commit('SET_LOADING_STATUS', false);
-						this.sms_templates = response.data.data.items;
-					})
-					.catch(error => {
-						console.log(error);
-						this.$store.commit('SET_LOADING_STATUS', false);
-					})
+						.get(window.PhoneRepairs.rest_root + '/sms/template',)
+						.then(response => {
+							this.$store.commit('SET_LOADING_STATUS', false);
+							this.sms_templates = response.data.data.items;
+						})
+						.catch(error => {
+							console.log(error);
+							this.$store.commit('SET_LOADING_STATUS', false);
+						})
 			},
 			saveTemplate() {
 				this.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.post(window.PhoneRepairs.rest_root + '/sms/template', {
-						content: this.sms_template_content
-					})
-					.then(response => {
-						this.sms_template_content = '';
-						this.$store.commit('SET_LOADING_STATUS', false);
-						this.addNewTemplateModalOpen = false;
-						this.getTemplates();
-						alert('SMS template has been save.');
-					})
-					.catch(error => {
-						console.log(error);
-						this.$store.commit('SET_LOADING_STATUS', false);
-					})
+						.post(window.PhoneRepairs.rest_root + '/sms/template', {
+							content: this.sms_template_content
+						})
+						.then(response => {
+							this.sms_template_content = '';
+							this.$store.commit('SET_LOADING_STATUS', false);
+							this.addNewTemplateModalOpen = false;
+							this.getTemplates();
+							alert('SMS template has been save.');
+						})
+						.catch(error => {
+							console.log(error);
+							this.$store.commit('SET_LOADING_STATUS', false);
+						})
 			},
 			updateTemplate() {
 				this.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.put(window.PhoneRepairs.rest_root + '/sms/template/' + this.active_sms_template.id, {
-						content: this.active_sms_template_content
-					})
-					.then(response => {
-						this.active_sms_template_content = '';
-						this.$store.commit('SET_LOADING_STATUS', false);
-						this.editTemplateModalOpen = false;
-						this.getTemplates();
-						alert('SMS template has been save.');
-					})
-					.catch(error => {
-						console.log(error);
-						this.$store.commit('SET_LOADING_STATUS', false);
-					})
+						.put(window.PhoneRepairs.rest_root + '/sms/template/' + this.active_sms_template.id, {
+							content: this.active_sms_template_content
+						})
+						.then(response => {
+							this.active_sms_template_content = '';
+							this.$store.commit('SET_LOADING_STATUS', false);
+							this.editTemplateModalOpen = false;
+							this.getTemplates();
+							alert('SMS template has been save.');
+						})
+						.catch(error => {
+							console.log(error);
+							this.$store.commit('SET_LOADING_STATUS', false);
+						})
 			},
 			checkedItems(selected_items) {
 				this.selected_items = selected_items;
@@ -323,35 +322,35 @@
 				this.$store.commit('SET_LOADING_STATUS', true);
 				let parms = `?source=${this.data_source}&type=${this.filter_datetime}&from=${this.date_from}&to=${this.date_to}`;
 				axios
-					.get(window.PhoneRepairs.rest_root + '/sms' + parms)
-					.then(response => {
-						if (response.data.data) {
-							this.items = response.data.data.items;
-						}
-						this.$store.commit('SET_LOADING_STATUS', false);
-					})
-					.catch(error => {
-						console.log(error);
-						this.$store.commit('SET_LOADING_STATUS', false);
-					})
+						.get(window.PhoneRepairs.rest_root + '/sms' + parms)
+						.then(response => {
+							if (response.data.data) {
+								this.items = response.data.data.items;
+							}
+							this.$store.commit('SET_LOADING_STATUS', false);
+						})
+						.catch(error => {
+							console.log(error);
+							this.$store.commit('SET_LOADING_STATUS', false);
+						})
 			},
 			sendSms() {
 				this.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.post(window.PhoneRepairs.rest_root + '/sms', {
-						numbers: this.selected_items,
-						content: this.sms_content
-					})
-					.then(response => {
-						this.selected_items = [];
-						this.sms_content = '';
-						this.$store.commit('SET_LOADING_STATUS', false);
-						alert('SMS has been set.');
-					})
-					.catch(error => {
-						console.log(error);
-						this.$store.commit('SET_LOADING_STATUS', false);
-					})
+						.post(window.PhoneRepairs.rest_root + '/sms', {
+							numbers: this.selected_items,
+							content: this.sms_content
+						})
+						.then(response => {
+							this.selected_items = [];
+							this.sms_content = '';
+							this.$store.commit('SET_LOADING_STATUS', false);
+							alert('SMS has been set.');
+						})
+						.catch(error => {
+							console.log(error);
+							this.$store.commit('SET_LOADING_STATUS', false);
+						})
 			},
 			addNewTemplate() {
 				this.addNewTemplateModalOpen = true;

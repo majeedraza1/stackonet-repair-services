@@ -1,7 +1,7 @@
 <template>
 	<div class="stackonet-dashboard-map">
-		<mdl-tabs>
-			<mdl-tab name="Map " selected>
+		<tabs alignment="center" size="large">
+			<tab name="Map " selected>
 				<columns>
 					<column :tablet="4">
 						<search-box v-model="place_text" @submit="updatePlaceData" @clear="clearPlaceData"></search-box>
@@ -11,9 +11,9 @@
 
 						<div class="places-box">
 							<address-box
-								v-for="(_place, index) in places" :key="index + 100" :place="_place"
-								:active="(-1 !== selectedPlaces.findIndex(el => el.place_id === _place.place_id))"
-								@click="selectPlace"
+									v-for="(_place, index) in places" :key="index + 100" :place="_place"
+									:active="(-1 !== selectedPlaces.findIndex(el => el.place_id === _place.place_id))"
+									@click="selectPlace"
 							/>
 							<div class="places-box__more" v-if="hasNextPage">
 								<mdl-button type="raised" color="primary" style="width: 100%;" @click="loadMore">Load
@@ -76,14 +76,14 @@
 														 viewBox="0 0 32 32">
 														<title>clock</title>
 														<path
-															d="M16 32c8.822 0 16-7.178 16-16s-7.178-16-16-16-16 7.178-16 16 7.178 16 16 16zM16 1c8.271 0 15 6.729 15 15s-6.729 15-15 15-15-6.729-15-15 6.729-15 15-15zM20.061 21.768c0.098 0.098 0.226 0.146 0.354 0.146s0.256-0.049 0.354-0.146c0.195-0.195 0.195-0.512 0-0.707l-4.769-4.768v-6.974c0-0.276-0.224-0.5-0.5-0.5s-0.5 0.224-0.5 0.5v7.181c0 0.133 0.053 0.26 0.146 0.354l4.915 4.914zM3 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM27 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 4c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 28c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM23 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM24 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1z"></path>
+																d="M16 32c8.822 0 16-7.178 16-16s-7.178-16-16-16-16 7.178-16 16 7.178 16 16 16zM16 1c8.271 0 15 6.729 15 15s-6.729 15-15 15-15-6.729-15-15 6.729-15 15-15zM20.061 21.768c0.098 0.098 0.226 0.146 0.354 0.146s0.256-0.049 0.354-0.146c0.195-0.195 0.195-0.512 0-0.707l-4.769-4.768v-6.974c0-0.276-0.224-0.5-0.5-0.5s-0.5 0.224-0.5 0.5v7.181c0 0.133 0.053 0.26 0.146 0.354l4.915 4.914zM3 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM27 16c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 4c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM15 28c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM23 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM24 8c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1zM7 24c0 0.552 0.448 1 1 1s1-0.448 1-1c0-0.552-0.448-1-1-1s-1 0.448-1 1z"></path>
 													</svg>
 												</a>
 												<flat-pickr
-													style="visibility: hidden;width: 1px;height: 1px;position: absolute;top: 0;left: 0;"
-													:config="flatpickrConfig"
-													v-model="baseTime"
-													placeholder="Select date"/>
+														style="visibility: hidden;width: 1px;height: 1px;position: absolute;top: 0;left: 0;"
+														:config="flatpickrConfig"
+														v-model="baseTime"
+														placeholder="Select date"/>
 											</div>
 											<div v-html="formatDate(baseTime)"></div>
 											<div v-html="formatTime(baseTime)"></div>
@@ -138,11 +138,11 @@
 						</div>
 					</column>
 				</columns>
-			</mdl-tab>
-			<mdl-tab name="Saved Maps List">
-				<map-list-table></map-list-table>
-			</mdl-tab>
-		</mdl-tabs>
+			</tab>
+			<tab name="Saved Maps List">
+				<map-list-table/>
+			</tab>
+		</tabs>
 
 
 		<modal :active="showFilterModal" class="selected-places" content-size="full" title="Address"
@@ -182,448 +182,447 @@
 </template>
 
 <script>
-    import axios from 'axios'
-    import {column, columns} from 'shapla-columns';
-    import draggable from 'vuedraggable'
-    import deleteIcon from "shapla-delete";
-    import modal from "shapla-modal";
-    import vSelect from 'vue-select';
-    import FlatPickr from "vue-flatpickr-component/src/component";
-    import {MapMixin} from "./MapMixin";
-    import {TrackerMixin} from "../../trackable-objects/TrackerMixin";
-    import MapListTable from "./MapListTable";
-    import Icon from "../../../shapla/icon/icon";
-    import SearchBox from "../../../components/SearchBox";
-    import MdlButton from "../../../material-design-lite/button/mdlButton";
-    import MdlSlider from "../../../material-design-lite/slider/mdlSlider";
-    import GMapAutocomplete from "../../components/gMapAutocomplete";
-    import AddressBox from "../../../components/AddressBox";
-    import MdlTabs from "../../../material-design-lite/tabs/mdlTabs";
-    import MdlTab from "../../../material-design-lite/tabs/mdlTab";
-    import AnimatedInput from "../../../components/AnimatedInput";
-    import AddressBox2 from "../../../components/AddressBox2";
+	import axios from 'axios'
+	import {column, columns} from 'shapla-columns';
+	import draggable from 'vuedraggable'
+	import deleteIcon from "shapla-delete";
+	import modal from "shapla-modal";
+	import {tab, tabs} from 'shapla-tabs'
+	import vSelect from 'vue-select';
+	import FlatPickr from "vue-flatpickr-component/src/component";
+	import {MapMixin} from "./MapMixin";
+	import {TrackerMixin} from "../../trackable-objects/TrackerMixin";
+	import MapListTable from "./MapListTable";
+	import Icon from "../../../shapla/icon/icon";
+	import SearchBox from "../../../components/SearchBox";
+	import MdlButton from "../../../material-design-lite/button/mdlButton";
+	import MdlSlider from "../../../material-design-lite/slider/mdlSlider";
+	import GMapAutocomplete from "../../components/gMapAutocomplete";
+	import AddressBox from "../../../components/AddressBox";
+	import AnimatedInput from "../../../components/AnimatedInput";
+	import AddressBox2 from "../../../components/AddressBox2";
 
-    let mapStyles = require('./map-style.json');
+	let mapStyles = require('./map-style.json');
 
-    export default {
-        name: "Map",
-        mixins: [MapMixin, TrackerMixin],
-        components: {
-            AddressBox2, vSelect, AnimatedInput, MapListTable, MdlTab, MdlTabs,
-            AddressBox, FlatPickr, GMapAutocomplete, MdlSlider, MdlButton,
-            SearchBox, deleteIcon, Icon, columns, column, modal, draggable
-        },
-        data() {
-            return {
-                showFilterModal: false,
-                openBoxActionModal: false,
-                showRecordTitleModal: false,
-                googleMap: '',
-                placesService: '',
-                directionsService: '',
-                directionsRenderer: '',
-                selectedPlaces: [],
-                selectedAddress: [],
-                places: [],
-                markers: [],
-                place_text: '',
-                location: '',
-                pagination: null,
-                hasNextPage: false,
-                showDateTime: false,
-                radius: 100,
-                latitude: 0,
-                longitude: 0,
-                user_formatted_address: '',
-                address: '',
-                travelMode: 'DRIVING',
-                flatpickrConfig: {
-                    dateFormat: 'Y-m-d h:i K',
-                    enableTime: true,
-                    minDate: new Date(),
-                    wrap: true,
-                },
-                alphabets: [],
-                legs: [],
-                baseTime: '',
-                activePlace: {},
-                intervalHours: '',
-                intervalMinutes: '',
-                recordTitle: '',
-                destination_type: 'base-address',
-                custom_destination: {},
-                destination: {},
-                trackable_objects: [],
-                trackable_object: null,
-            }
-        },
-        watch: {
-            user_formatted_address(newValue) {
-                let latLng = new google.maps.LatLng(this.latitude, this.longitude);
-                this.googleMap.setCenter(latLng);
-                new google.maps.Marker({
-                    map: this.googleMap,
-                    title: newValue,
-                    position: latLng
-                });
-            },
-            travelMode() {
-                this.updateMapRoute();
-            },
-            trackable_object(newValue) {
-                if (newValue !== null) {
-                    if (newValue.latitude) {
-                        this.latitude = newValue.latitude;
-                        this.longitude = newValue.longitude;
-                        this.location = new google.maps.LatLng(newValue.latitude, newValue.longitude);
-                        this.user_formatted_address = newValue.formatted_address;
-                        // this.address = newValue.last_log.address;
-                        this.address = []; // @todo update above option
-                        this.geoCodeToAddress(this.latitude, this.longitude);
-                    }
-                } else {
-                    this.latitude = 0;
-                    this.longitude = 0;
-                    this.location = new google.maps.LatLng(0, 0);
-                    this.user_formatted_address = '';
-                    this.address = [];
-                }
-            }
-        },
-        computed: {
-            radius_meters() {
-                return this.radius * 100;
-            },
-            get_destination() {
-                let address = {};
-                if (this.user_formatted_address.length) {
-                    address = {
-                        formatted_address: this.user_formatted_address,
-                        location: new google.maps.LatLng(this.latitude, this.longitude)
-                    };
-                }
+	export default {
+		name: "Map",
+		mixins: [MapMixin, TrackerMixin],
+		components: {
+			AddressBox2, vSelect, AnimatedInput, MapListTable, tab, tabs,
+			AddressBox, FlatPickr, GMapAutocomplete, MdlSlider, MdlButton,
+			SearchBox, deleteIcon, Icon, columns, column, modal, draggable
+		},
+		data() {
+			return {
+				showFilterModal: false,
+				openBoxActionModal: false,
+				showRecordTitleModal: false,
+				googleMap: '',
+				placesService: '',
+				directionsService: '',
+				directionsRenderer: '',
+				selectedPlaces: [],
+				selectedAddress: [],
+				places: [],
+				markers: [],
+				place_text: '',
+				location: '',
+				pagination: null,
+				hasNextPage: false,
+				showDateTime: false,
+				radius: 100,
+				latitude: 0,
+				longitude: 0,
+				user_formatted_address: '',
+				address: '',
+				travelMode: 'DRIVING',
+				flatpickrConfig: {
+					dateFormat: 'Y-m-d h:i K',
+					enableTime: true,
+					minDate: new Date(),
+					wrap: true,
+				},
+				alphabets: [],
+				legs: [],
+				baseTime: '',
+				activePlace: {},
+				intervalHours: '',
+				intervalMinutes: '',
+				recordTitle: '',
+				destination_type: 'base-address',
+				custom_destination: {},
+				destination: {},
+				trackable_objects: [],
+				trackable_object: null,
+			}
+		},
+		watch: {
+			user_formatted_address(newValue) {
+				let latLng = new google.maps.LatLng(this.latitude, this.longitude);
+				this.googleMap.setCenter(latLng);
+				new google.maps.Marker({
+					map: this.googleMap,
+					title: newValue,
+					position: latLng
+				});
+			},
+			travelMode() {
+				this.updateMapRoute();
+			},
+			trackable_object(newValue) {
+				if (newValue !== null) {
+					if (newValue.latitude) {
+						this.latitude = newValue.latitude;
+						this.longitude = newValue.longitude;
+						this.location = new google.maps.LatLng(newValue.latitude, newValue.longitude);
+						this.user_formatted_address = newValue.formatted_address;
+						// this.address = newValue.last_log.address;
+						this.address = []; // @todo update above option
+						this.geoCodeToAddress(this.latitude, this.longitude);
+					}
+				} else {
+					this.latitude = 0;
+					this.longitude = 0;
+					this.location = new google.maps.LatLng(0, 0);
+					this.user_formatted_address = '';
+					this.address = [];
+				}
+			}
+		},
+		computed: {
+			radius_meters() {
+				return this.radius * 100;
+			},
+			get_destination() {
+				let address = {};
+				if (this.user_formatted_address.length) {
+					address = {
+						formatted_address: this.user_formatted_address,
+						location: new google.maps.LatLng(this.latitude, this.longitude)
+					};
+				}
 
-                if (this.destination_type === 'custom-address' && Object.keys(this.destination).length) {
-                    address = this.destination;
-                }
+				if (this.destination_type === 'custom-address' && Object.keys(this.destination).length) {
+					address = this.destination;
+				}
 
-                if (this.destination_type === "selected-address" && this.custom_destination && Object.keys(this.custom_destination).length) {
-                    address = {
-                        formatted_address: this.custom_destination.formatted_address,
-                        location: this.custom_destination.location
-                    };
-                }
+				if (this.destination_type === "selected-address" && this.custom_destination && Object.keys(this.custom_destination).length) {
+					address = {
+						formatted_address: this.custom_destination.formatted_address,
+						location: this.custom_destination.location
+					};
+				}
 
-                return address;
-            }
-        },
-        mounted() {
-            this.$store.commit('SET_LOADING_STATUS', false);
+				return address;
+			}
+		},
+		mounted() {
+			this.$store.commit('SET_LOADING_STATUS', false);
 
-            // Set base time
-            this.baseTime = new Date();
+			// Set base time
+			this.baseTime = new Date();
 
-            // Get user location from geo-location
-            if (navigator.geolocation && this.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    this.latitude = position.coords.latitude;
-                    this.longitude = position.coords.longitude;
-                    this.geoCodeToAddress(position.coords.latitude, position.coords.longitude);
-                });
-            }
+			// Get user location from geo-location
+			if (navigator.geolocation && this.geolocation) {
+				navigator.geolocation.getCurrentPosition(position => {
+					this.latitude = position.coords.latitude;
+					this.longitude = position.coords.longitude;
+					this.geoCodeToAddress(position.coords.latitude, position.coords.longitude);
+				});
+			}
 
-            this.alphabets = String.fromCharCode(..." ".repeat(26).split("").map((e, i) => i + 'A'.charCodeAt())).split('');
+			this.alphabets = String.fromCharCode(..." ".repeat(26).split("").map((e, i) => i + 'A'.charCodeAt())).split('');
 
-            // Create the map.
-            this.location = new google.maps.LatLng(this.latitude, this.longitude);
-            this.googleMap = new google.maps.Map(this.$el.querySelector('#map'), {
-                center: this.location,
-                zoom: 17,
-                styles: mapStyles
-            });
-            // Create the places service.
-            this.placesService = new google.maps.places.PlacesService(this.googleMap);
-            // Create the direction service
-            this.directionsService = new google.maps.DirectionsService;
-            this.directionsRenderer = new google.maps.DirectionsRenderer({
-                map: this.googleMap,
-            });
+			// Create the map.
+			this.location = new google.maps.LatLng(this.latitude, this.longitude);
+			this.googleMap = new google.maps.Map(this.$el.querySelector('#map'), {
+				center: this.location,
+				zoom: 17,
+				styles: mapStyles
+			});
+			// Create the places service.
+			this.placesService = new google.maps.places.PlacesService(this.googleMap);
+			// Create the direction service
+			this.directionsService = new google.maps.DirectionsService;
+			this.directionsRenderer = new google.maps.DirectionsRenderer({
+				map: this.googleMap,
+			});
 
-            this.getClickedLocationDetails(this.googleMap, this.placesService)
-                .then(place => {
-                    this.$modal.confirm({
-                        message: `Do you want to add this address to list?<br><br><strong>${place.name}</strong><br>${place.formatted_address}`,
-                        confirmButton: 'Yes',
-                        cancelButton: 'No'
-                    }).then(confirmed => {
-                        if (confirmed) {
-                            this.places.unshift(place);
-                            this.selectedPlaces.push(place);
-                            setTimeout(() => {
-                                this.updateMapRoute();
-                            })
-                        }
-                    })
-                });
+			this.getClickedLocationDetails(this.googleMap, this.placesService)
+					.then(place => {
+						this.$modal.confirm({
+							message: `Do you want to add this address to list?<br><br><strong>${place.name}</strong><br>${place.formatted_address}`,
+							confirmButton: 'Yes',
+							cancelButton: 'No'
+						}).then(confirmed => {
+							if (confirmed) {
+								this.places.unshift(place);
+								this.selectedPlaces.push(place);
+								setTimeout(() => {
+									this.updateMapRoute();
+								})
+							}
+						})
+					});
 
-            this.getTrackableObjects().then(response => {
-                this.trackable_objects = response.items;
-            }).catch(error => console.error(error));
-        },
-        methods: {
-            saveAsRoute() {
-                let _data = {
-                    title: this.recordTitle,
-                    formatted_base_address: this.user_formatted_address,
-                    base_address_latitude: this.latitude,
-                    base_address_longitude: this.longitude,
-                    base_datetime: this.baseTime,
-                    place_text: this.place_text,
-                    travel_mode: this.travelMode,
-                    places: this.selectedPlaces,
-                };
-                this.$store.commit('SET_LOADING_STATUS', true);
-                axios
-                    .post(PhoneRepairs.rest_root + '/map', _data)
-                    .then(() => {
-                        this.$store.commit('SET_LOADING_STATUS', false);
-                        this.showRecordTitleModal = false;
-                        this.$root.$emit('show-notification', {
-                            title: 'Success!',
-                            message: 'Map data has been saved successfully.',
-                            type: 'success',
-                        });
-                        this.$store.dispatch('refreshMapList');
-                    })
-                    .catch(error => {
-                        this.$store.commit('SET_LOADING_STATUS', false);
-                        console.log(error);
-                    })
-            },
-            onActionClick(action, place) {
-                if (action === 'add') {
-                    this.openBoxActionModal = true;
-                    this.activePlace = place;
-                }
-            },
-            openIntervalModal(place) {
-                this.openBoxActionModal = true;
-                this.activePlace = place;
-            },
-            closeIntervalModal() {
-                this.intervalHours = '';
-                this.intervalMinutes = '';
-                this.openBoxActionModal = false;
-                this.activePlace = {};
-            },
-            confirmInterval() {
-                let place = this.activePlace, addresses = this.selectedPlaces;
-                let index = addresses.findIndex(el => el.place_id === place.place_id);
-                place['interval_hour'] = this.intervalHours.length ? parseInt(this.intervalHours) : 0;
-                place['interval_minute'] = this.intervalMinutes.length ? parseInt(this.intervalMinutes) : 0;
+			this.getTrackableObjects().then(response => {
+				this.trackable_objects = response.items;
+			}).catch(error => console.error(error));
+		},
+		methods: {
+			saveAsRoute() {
+				let _data = {
+					title: this.recordTitle,
+					formatted_base_address: this.user_formatted_address,
+					base_address_latitude: this.latitude,
+					base_address_longitude: this.longitude,
+					base_datetime: this.baseTime,
+					place_text: this.place_text,
+					travel_mode: this.travelMode,
+					places: this.selectedPlaces,
+				};
+				this.$store.commit('SET_LOADING_STATUS', true);
+				axios
+						.post(PhoneRepairs.rest_root + '/map', _data)
+						.then(() => {
+							this.$store.commit('SET_LOADING_STATUS', false);
+							this.showRecordTitleModal = false;
+							this.$root.$emit('show-notification', {
+								title: 'Success!',
+								message: 'Map data has been saved successfully.',
+								type: 'success',
+							});
+							this.$store.dispatch('refreshMapList');
+						})
+						.catch(error => {
+							this.$store.commit('SET_LOADING_STATUS', false);
+							console.log(error);
+						})
+			},
+			onActionClick(action, place) {
+				if (action === 'add') {
+					this.openBoxActionModal = true;
+					this.activePlace = place;
+				}
+			},
+			openIntervalModal(place) {
+				this.openBoxActionModal = true;
+				this.activePlace = place;
+			},
+			closeIntervalModal() {
+				this.intervalHours = '';
+				this.intervalMinutes = '';
+				this.openBoxActionModal = false;
+				this.activePlace = {};
+			},
+			confirmInterval() {
+				let place = this.activePlace, addresses = this.selectedPlaces;
+				let index = addresses.findIndex(el => el.place_id === place.place_id);
+				place['interval_hour'] = this.intervalHours.length ? parseInt(this.intervalHours) : 0;
+				place['interval_minute'] = this.intervalMinutes.length ? parseInt(this.intervalMinutes) : 0;
 
-                let interval_seconds = (place['interval_hour'] * 60 * 60 * 1000) + (place['interval_minute'] * 60 * 1000);
-                if (place.reach_time) {
-                    place['leave_time'] = (place.reach_time + interval_seconds);
-                }
+				let interval_seconds = (place['interval_hour'] * 60 * 60 * 1000) + (place['interval_minute'] * 60 * 1000);
+				if (place.reach_time) {
+					place['leave_time'] = (place.reach_time + interval_seconds);
+				}
 
-                addresses[index] = place;
-                this.reCalculateArrivalAndDepartureTime(addresses);
-                this.closeIntervalModal();
-            },
-            geoCodeToAddress(latitude, longitude) {
-                let geocoder = new google.maps.Geocoder;
-                geocoder.geocode({'location': {lat: latitude, lng: longitude}}, (results, status) => {
-                    if (status === 'OK') {
-                        if (results[0]) {
-                            this.address = results[0];
-                            this.user_formatted_address = results[0].formatted_address;
-                        }
-                    }
-                });
-            },
-            setBaseAddress(placeData) {
-                this.latitude = placeData.latitude;
-                this.longitude = placeData.longitude;
-                this.location = new google.maps.LatLng(placeData.latitude, placeData.longitude);
-                this.user_formatted_address = placeData.formatted_address;
-                this.address = placeData.address;
-            },
-            setDestinationAddress(placeData) {
-                this.destination = {
-                    formatted_address: placeData.formatted_address,
-                    location: new google.maps.LatLng(placeData.latitude, placeData.longitude)
-                };
-            },
-            itemClass(place) {
-                if (-1 === this.selectedPlaces.indexOf(place)) return {};
-                return ['is-active'];
-            },
-            selectPlace(place) {
-                this.$store.commit('SET_LOADING_STATUS', true);
-                let _place = place, addresses = this.selectedPlaces;
-                let index = addresses.findIndex(el => el.place_id === _place.place_id);
-                _place['interval_hour'] = 0;
-                _place['interval_minute'] = 0;
-                _place['reach_time'] = 0;
-                _place['leave_time'] = 0;
+				addresses[index] = place;
+				this.reCalculateArrivalAndDepartureTime(addresses);
+				this.closeIntervalModal();
+			},
+			geoCodeToAddress(latitude, longitude) {
+				let geocoder = new google.maps.Geocoder;
+				geocoder.geocode({'location': {lat: latitude, lng: longitude}}, (results, status) => {
+					if (status === 'OK') {
+						if (results[0]) {
+							this.address = results[0];
+							this.user_formatted_address = results[0].formatted_address;
+						}
+					}
+				});
+			},
+			setBaseAddress(placeData) {
+				this.latitude = placeData.latitude;
+				this.longitude = placeData.longitude;
+				this.location = new google.maps.LatLng(placeData.latitude, placeData.longitude);
+				this.user_formatted_address = placeData.formatted_address;
+				this.address = placeData.address;
+			},
+			setDestinationAddress(placeData) {
+				this.destination = {
+					formatted_address: placeData.formatted_address,
+					location: new google.maps.LatLng(placeData.latitude, placeData.longitude)
+				};
+			},
+			itemClass(place) {
+				if (-1 === this.selectedPlaces.indexOf(place)) return {};
+				return ['is-active'];
+			},
+			selectPlace(place) {
+				this.$store.commit('SET_LOADING_STATUS', true);
+				let _place = place, addresses = this.selectedPlaces;
+				let index = addresses.findIndex(el => el.place_id === _place.place_id);
+				_place['interval_hour'] = 0;
+				_place['interval_minute'] = 0;
+				_place['reach_time'] = 0;
+				_place['leave_time'] = 0;
 
-                if (-1 !== index) {
-                    addresses.splice(index, 1);
-                } else {
-                    addresses.push(_place);
-                }
-                this.selectedPlaces = addresses;
-                this.updateMapRoute();
-            },
-            clearPlaceData() {
-                this.places = [];
-                this.hasNextPage = false;
-                this.clearMarkers(this.markers);
-            },
-            updatePlaceData() {
-                if (this.place_text.length < 3) {
-                    return this.$root.$emit('show-notification', {
-                        title: 'Error!',
-                        message: 'Please enter at least three characters.',
-                        type: 'error',
-                    });
-                }
-                if (!this.latitude || !this.longitude) {
-                    return this.$root.$emit('show-notification', {
-                        title: 'Error!',
-                        message: 'Please set base address first.',
-                        type: 'error',
-                    });
-                }
+				if (-1 !== index) {
+					addresses.splice(index, 1);
+				} else {
+					addresses.push(_place);
+				}
+				this.selectedPlaces = addresses;
+				this.updateMapRoute();
+			},
+			clearPlaceData() {
+				this.places = [];
+				this.hasNextPage = false;
+				this.clearMarkers(this.markers);
+			},
+			updatePlaceData() {
+				if (this.place_text.length < 3) {
+					return this.$root.$emit('show-notification', {
+						title: 'Error!',
+						message: 'Please enter at least three characters.',
+						type: 'error',
+					});
+				}
+				if (!this.latitude || !this.longitude) {
+					return this.$root.$emit('show-notification', {
+						title: 'Error!',
+						message: 'Please set base address first.',
+						type: 'error',
+					});
+				}
 
-                this.$store.commit('SET_LOADING_STATUS', true);
+				this.$store.commit('SET_LOADING_STATUS', true);
 
-                // Perform a text search.
-                this.places = [];
-                this.textSearch(this.placesService, {
-                    query: this.place_text,
-                    location: this.location,
-                    radius: this.radius_meters,
-                }).then(response => {
-                    this.$store.commit('SET_LOADING_STATUS', false);
-                    this.pagination = response.pagination;
-                    this.hasNextPage = response.pagination.hasNextPage;
-                    this.createMarkers(response.results);
-                }).catch(error => {
-                    this.$store.commit('SET_LOADING_STATUS', false);
-                });
-            },
-            loadMore() {
-                if (this.hasNextPage) {
-                    this.pagination.nextPage();
-                }
-            },
-            createMarkers(places) {
-                let self = this,
-                    bounds = new google.maps.LatLngBounds();
+				// Perform a text search.
+				this.places = [];
+				this.textSearch(this.placesService, {
+					query: this.place_text,
+					location: this.location,
+					radius: this.radius_meters,
+				}).then(response => {
+					this.$store.commit('SET_LOADING_STATUS', false);
+					this.pagination = response.pagination;
+					this.hasNextPage = response.pagination.hasNextPage;
+					this.createMarkers(response.results);
+				}).catch(error => {
+					this.$store.commit('SET_LOADING_STATUS', false);
+				});
+			},
+			loadMore() {
+				if (this.hasNextPage) {
+					this.pagination.nextPage();
+				}
+			},
+			createMarkers(places) {
+				let self = this,
+						bounds = new google.maps.LatLngBounds();
 
-                for (let i = 0; i < places.length; i++) {
-                    let place = places[i];
-                    place.distance = self.distance(self.location, place.geometry.location);
+				for (let i = 0; i < places.length; i++) {
+					let place = places[i];
+					place.distance = self.distance(self.location, place.geometry.location);
 
-                    self.places.push({
-                        place_id: place.place_id,
-                        name: place.name,
-                        formatted_address: place.formatted_address,
-                        location: place.geometry.location,
-                        distance: place.distance,
-                    });
+					self.places.push({
+						place_id: place.place_id,
+						name: place.name,
+						formatted_address: place.formatted_address,
+						location: place.geometry.location,
+						distance: place.distance,
+					});
 
-                    bounds.extend(place.geometry.location);
-                }
-                self.googleMap.fitBounds(bounds);
-            },
-            /**
-             * Update map routes
-             */
-            updateMapRoute() {
-                // Clear current route
-                this.directionsRenderer.setDirections({routes: []});
+					bounds.extend(place.geometry.location);
+				}
+				self.googleMap.fitBounds(bounds);
+			},
+			/**
+			 * Update map routes
+			 */
+			updateMapRoute() {
+				// Clear current route
+				this.directionsRenderer.setDirections({routes: []});
 
-                let addresses = this.selectedPlaces;
+				let addresses = this.selectedPlaces;
 
-                // Get total selected item length
-                let totalItem = addresses.length;
+				// Get total selected item length
+				let totalItem = addresses.length;
 
-                // Exit if length is less than 1
-                if (totalItem < 1) return;
+				// Exit if length is less than 1
+				if (totalItem < 1) return;
 
-                let lastIndex = totalItem - 1,
-                    lastItem = addresses[lastIndex];
+				let lastIndex = totalItem - 1,
+						lastItem = addresses[lastIndex];
 
 
-                let waypoints = [];
-                for (let i = 0; i < this.selectedPlaces.length; i++) {
-                    if (i !== lastIndex) {
-                        waypoints.push({
-                            location: this.selectedPlaces[i].formatted_address,
-                            stopover: true
-                        });
-                    }
-                }
-                // Display Route
-                this.getGoogleMapRoute(this.directionsService, this.address.geometry.location, lastItem.location,
-                    waypoints, google.maps.TravelMode[this.travelMode]).then(response => {
-                    if (response.routes && response.routes[0].legs) {
-                        this.addLegOnSelectedPlaces(response.routes[0].legs);
-                    }
-                    this.reArrangeSelectedAddress(response);
-                    this.directionsRenderer.setDirections(response);
-                    this.$store.commit('SET_LOADING_STATUS', false);
-                }).catch(error => {
-                    console.log(error);
-                    this.$store.commit('SET_LOADING_STATUS', false);
-                });
-            },
-            reArrangeSelectedAddress(response) {
-                let currentAddresses = this.selectedPlaces,
-                    newAddresses = [],
-                    lastIndex = currentAddresses.length - 1,
-                    lastItem = currentAddresses[lastIndex],
-                    newAddressOrder = response.routes[0].waypoint_order;
+				let waypoints = [];
+				for (let i = 0; i < this.selectedPlaces.length; i++) {
+					if (i !== lastIndex) {
+						waypoints.push({
+							location: this.selectedPlaces[i].formatted_address,
+							stopover: true
+						});
+					}
+				}
+				// Display Route
+				this.getGoogleMapRoute(this.directionsService, this.address.geometry.location, lastItem.location,
+						waypoints, google.maps.TravelMode[this.travelMode]).then(response => {
+					if (response.routes && response.routes[0].legs) {
+						this.addLegOnSelectedPlaces(response.routes[0].legs);
+					}
+					this.reArrangeSelectedAddress(response);
+					this.directionsRenderer.setDirections(response);
+					this.$store.commit('SET_LOADING_STATUS', false);
+				}).catch(error => {
+					console.log(error);
+					this.$store.commit('SET_LOADING_STATUS', false);
+				});
+			},
+			reArrangeSelectedAddress(response) {
+				let currentAddresses = this.selectedPlaces,
+						newAddresses = [],
+						lastIndex = currentAddresses.length - 1,
+						lastItem = currentAddresses[lastIndex],
+						newAddressOrder = response.routes[0].waypoint_order;
 
-                for (let i = 0; i < newAddressOrder.length; i++) {
-                    newAddresses.push(currentAddresses[newAddressOrder[i]]);
-                }
+				for (let i = 0; i < newAddressOrder.length; i++) {
+					newAddresses.push(currentAddresses[newAddressOrder[i]]);
+				}
 
-                newAddresses.push(lastItem);
-                this.selectedPlaces = newAddresses;
-            },
-            addLegOnSelectedPlaces(routesLegs) {
-                let legs = [], _selectedPlaces = [];
+				newAddresses.push(lastItem);
+				this.selectedPlaces = newAddresses;
+			},
+			addLegOnSelectedPlaces(routesLegs) {
+				let legs = [], _selectedPlaces = [];
 
-                for (let i = 0; i < routesLegs.length; i++) {
-                    legs.push({distance: routesLegs[i].distance, duration: routesLegs[i].duration});
-                }
-                if (legs.length) {
-                    if (typeof this.baseTime === "string") {
-                        this.baseTime = new Date(this.baseTime);
-                    }
-                    for (let i = 0; i < legs.length; i++) {
-                        if (typeof this.selectedPlaces[i] === "undefined") continue;
-                        let _data = this.selectedPlaces[i];
-                        _data['leg'] = legs[i];
-                        _data['interval_hour'] = _data.interval_hour ? _data.interval_hour : 0;
-                        _data['interval_minute'] = _data.interval_minute ? _data.interval_minute : 0;
-                        _data['reach_time'] = _data.reach_time ? _data.reach_time : 0;
-                        _data['leave_time'] = _data.leave_time ? _data.leave_time : 0;
-                        if (i === 0) {
-                            _data['reach_time'] = this.baseTime.getTime() + (_data.leg.duration.value * 1000);
-                        }
-                        _selectedPlaces.push(_data);
-                    }
+				for (let i = 0; i < routesLegs.length; i++) {
+					legs.push({distance: routesLegs[i].distance, duration: routesLegs[i].duration});
+				}
+				if (legs.length) {
+					if (typeof this.baseTime === "string") {
+						this.baseTime = new Date(this.baseTime);
+					}
+					for (let i = 0; i < legs.length; i++) {
+						if (typeof this.selectedPlaces[i] === "undefined") continue;
+						let _data = this.selectedPlaces[i];
+						_data['leg'] = legs[i];
+						_data['interval_hour'] = _data.interval_hour ? _data.interval_hour : 0;
+						_data['interval_minute'] = _data.interval_minute ? _data.interval_minute : 0;
+						_data['reach_time'] = _data.reach_time ? _data.reach_time : 0;
+						_data['leave_time'] = _data.leave_time ? _data.leave_time : 0;
+						if (i === 0) {
+							_data['reach_time'] = this.baseTime.getTime() + (_data.leg.duration.value * 1000);
+						}
+						_selectedPlaces.push(_data);
+					}
 
-                    this.selectedPlaces = _selectedPlaces;
-                }
-            }
-        }
-    }
+					this.selectedPlaces = _selectedPlaces;
+				}
+			}
+		}
+	}
 </script>
 
 <style lang="scss">

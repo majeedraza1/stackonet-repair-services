@@ -147,7 +147,6 @@
 	import AnimatedInput from '../../../components/AnimatedInput';
 	import BigButton from '../../../components/BigButton';
 	import imageContainer from '../../../shapla/image/image';
-	import mdlRadio from '../../../material-design-lite/radio/mdlRadio';
 	import mdlButton from '../../../material-design-lite/button/mdlButton';
 	import gMapAutocomplete from '../../components/gMapAutocomplete'
 	import MediaModal from '../../components/MediaModal'
@@ -157,7 +156,6 @@
 		components: {
 			AnimatedInput,
 			BigButton,
-			mdlRadio,
 			modal,
 			gMapAutocomplete,
 			mdlButton,

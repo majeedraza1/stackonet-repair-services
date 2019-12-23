@@ -35,7 +35,7 @@
 								<div class="stackont-support-ticket-nav__left">
 									<div v-if="navigation.pre && navigation.pre.id" @click="refreshRoute">
 										<router-link
-											:to="{name: 'SingleSupportTicket', params: {id: navigation.pre.id}}">
+												:to="{name: 'SingleSupportTicket', params: {id: navigation.pre.id}}">
 											<i class="fa fa-chevron-left" aria-hidden="true"></i>
 										</router-link>
 									</div>
@@ -46,7 +46,7 @@
 								<div class="stackont-support-ticket-nav__right">
 									<div v-if="navigation.next && navigation.next.id" @click="refreshRoute">
 										<router-link
-											:to="{name: 'SingleSupportTicket', params: {id: navigation.next.id}}">
+												:to="{name: 'SingleSupportTicket', params: {id: navigation.next.id}}">
 											<i class="fa fa-chevron-right" aria-hidden="true"></i>
 										</router-link>
 									</div>
@@ -89,14 +89,14 @@
 									</column>
 								</columns>
 								<media-modal
-									title="Upload image"
-									:active="openLogoModal"
-									:images="attachments"
-									:image="images"
-									:options="dropzoneOptions"
-									@upload="dropzoneSuccess"
-									@selected="chooseImage"
-									@close="openLogoModal = false"
+										title="Upload image"
+										:active="openLogoModal"
+										:images="attachments"
+										:image="images"
+										:options="dropzoneOptions"
+										@upload="dropzoneSuccess"
+										@selected="chooseImage"
+										@close="openLogoModal = false"
 								/>
 							</div>
 						</div>
@@ -107,9 +107,9 @@
 					</div>
 
 					<ticket-threads
-						:threads="threads"
-						@thread:edit="openThreadEditor"
-						@delete:edit="deleteThread"
+							:threads="threads"
+							@thread:edit="openThreadEditor"
+							@delete:edit="deleteThread"
 					></ticket-threads>
 					<div class="shapla-thread shapla-thread--report" v-if="Object.keys(checkout_analysis).length">
 						<step-progress-bar :steps="checkout_analysis.steps"
@@ -457,14 +457,13 @@
 	import axios from 'axios';
 	import {mapGetters} from 'vuex';
 	import Editor from '@tinymce/tinymce-vue'
-	import {columns, column} from 'shapla-columns'
+	import {column, columns} from 'shapla-columns'
 	import modal from 'shapla-modal'
 	import mdlButton from '../../material-design-lite/button/mdlButton'
 	import ListItem from '../../components/ListItem'
 	import ImageContainer from "../../shapla/image/image";
 	import Icon from "../../shapla/icon/icon";
 	import MediaModal from "../components/MediaModal";
-	import MdlRadio from "../../material-design-lite/radio/mdlRadio";
 	import Accordion from "../../components/Accordion";
 	import TicketThreads from "./TicketThreads";
 	import MapModal from "../dashboard/pages/MapModal";
@@ -473,9 +472,8 @@
 	export default {
 		name: "SingleSupportTicket",
 		components: {
-			StepProgressBar,
-			MapModal,
-			TicketThreads, Accordion, MdlRadio, MediaModal, Icon, ImageContainer,
+			StepProgressBar, MapModal,
+			TicketThreads, Accordion, MediaModal, Icon, ImageContainer,
 			mdlButton, columns, column, ListItem, Editor, modal
 		},
 		data() {
@@ -591,46 +589,46 @@
 			addCustomPayment() {
 				this.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.post(PhoneRepairs.rest_root + '/order/' + this.order.id + '/custom-payment-amount', {
-						ticket_id: this.id,
-						amount: this.paymentAmount,
-					})
-					.then((response) => {
-						this.$store.commit('SET_LOADING_STATUS', false);
-						this.getItem();
-						this.showPaymentAmount = false;
-						this.$root.$emit('show-notification', {
-							message: 'New payment amount has been added.',
-							type: 'success'
+						.post(PhoneRepairs.rest_root + '/order/' + this.order.id + '/custom-payment-amount', {
+							ticket_id: this.id,
+							amount: this.paymentAmount,
+						})
+						.then((response) => {
+							this.$store.commit('SET_LOADING_STATUS', false);
+							this.getItem();
+							this.showPaymentAmount = false;
+							this.$root.$emit('show-notification', {
+								message: 'New payment amount has been added.',
+								type: 'success'
+							});
+						})
+						.catch((error) => {
+							console.log(error);
+							this.$store.commit('SET_LOADING_STATUS', false);
 						});
-					})
-					.catch((error) => {
-						console.log(error);
-						this.$store.commit('SET_LOADING_STATUS', false);
-					});
 			},
 			sendCustomPaymentLink(item) {
 				this.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.post(PhoneRepairs.rest_root + '/order/' + this.order.id + '/custom-payment-sms', {
-						ticket_id: item.support_id,
-						order_id: item.order_id,
-						amount: item.amount,
-						hash: item.hash,
-						media: this.customPaymentLinkMedia,
-					})
-					.then((response) => {
-						this.$store.commit('SET_LOADING_STATUS', false);
-						this.$root.$emit('show-notification', {
-							message: 'Email/SMS has been sent with custom payment link.',
-							type: 'success'
+						.post(PhoneRepairs.rest_root + '/order/' + this.order.id + '/custom-payment-sms', {
+							ticket_id: item.support_id,
+							order_id: item.order_id,
+							amount: item.amount,
+							hash: item.hash,
+							media: this.customPaymentLinkMedia,
+						})
+						.then((response) => {
+							this.$store.commit('SET_LOADING_STATUS', false);
+							this.$root.$emit('show-notification', {
+								message: 'Email/SMS has been sent with custom payment link.',
+								type: 'success'
+							});
+							this.getItem();
+						})
+						.catch((error) => {
+							console.log(error);
+							this.$store.commit('SET_LOADING_STATUS', false);
 						});
-						this.getItem();
-					})
-					.catch((error) => {
-						console.log(error);
-						this.$store.commit('SET_LOADING_STATUS', false);
-					});
 			},
 			refreshMap(position, title) {
 				let googleMap = new google.maps.Map(this.$el.querySelector('#google-map'), {
@@ -642,52 +640,11 @@
 			applyDiscount() {
 				this.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.put(PhoneRepairs.rest_root + '/order/' + this.order.id + '/discount', {
-						ticket_id: this.id,
-						amount: this.discountAmount,
-						discount_type: this.discountType,
-					})
-					.then((response) => {
-						this.$store.commit('SET_LOADING_STATUS', false);
-						this.$root.$emit('show-notification', {
-							message: 'Order status has been changed.',
-							type: 'success'
-						});
-						this.getItem();
-					})
-					.catch((error) => {
-						console.log(error);
-						this.$store.commit('SET_LOADING_STATUS', false);
-					});
-			},
-			SendPaymentLink() {
-				this.$store.commit('SET_LOADING_STATUS', true);
-				axios
-					.post(PhoneRepairs.rest_root + '/order/' + this.order.id + '/sms', {
-						ticket_id: this.id,
-						media: this.paymentLinkMedia,
-					})
-					.then((response) => {
-						this.$store.commit('SET_LOADING_STATUS', false);
-						this.$root.$emit('show-notification', {
-							message: 'Email/SMS has been sent.',
-							type: 'success'
-						});
-						this.getItem();
-					})
-					.catch((error) => {
-						console.log(error);
-						this.$store.commit('SET_LOADING_STATUS', false);
-					});
-			},
-			enableStatusUpdate() {
-				this.activeOrderStatus = true;
-			},
-			changeOrderStatus() {
-				if (confirm('Are you sure to change order status?')) {
-					this.$store.commit('SET_LOADING_STATUS', true);
-					axios
-						.put(PhoneRepairs.rest_root + '/support-ticket/' + this.id + '/order/' + this.order.id, {status: this.order.status})
+						.put(PhoneRepairs.rest_root + '/order/' + this.order.id + '/discount', {
+							ticket_id: this.id,
+							amount: this.discountAmount,
+							discount_type: this.discountType,
+						})
 						.then((response) => {
 							this.$store.commit('SET_LOADING_STATUS', false);
 							this.$root.$emit('show-notification', {
@@ -700,6 +657,47 @@
 							console.log(error);
 							this.$store.commit('SET_LOADING_STATUS', false);
 						});
+			},
+			SendPaymentLink() {
+				this.$store.commit('SET_LOADING_STATUS', true);
+				axios
+						.post(PhoneRepairs.rest_root + '/order/' + this.order.id + '/sms', {
+							ticket_id: this.id,
+							media: this.paymentLinkMedia,
+						})
+						.then((response) => {
+							this.$store.commit('SET_LOADING_STATUS', false);
+							this.$root.$emit('show-notification', {
+								message: 'Email/SMS has been sent.',
+								type: 'success'
+							});
+							this.getItem();
+						})
+						.catch((error) => {
+							console.log(error);
+							this.$store.commit('SET_LOADING_STATUS', false);
+						});
+			},
+			enableStatusUpdate() {
+				this.activeOrderStatus = true;
+			},
+			changeOrderStatus() {
+				if (confirm('Are you sure to change order status?')) {
+					this.$store.commit('SET_LOADING_STATUS', true);
+					axios
+							.put(PhoneRepairs.rest_root + '/support-ticket/' + this.id + '/order/' + this.order.id, {status: this.order.status})
+							.then((response) => {
+								this.$store.commit('SET_LOADING_STATUS', false);
+								this.$root.$emit('show-notification', {
+									message: 'Order status has been changed.',
+									type: 'success'
+								});
+								this.getItem();
+							})
+							.catch((error) => {
+								console.log(error);
+								this.$store.commit('SET_LOADING_STATUS', false);
+							});
 				}
 			},
 			dropzoneSuccess(file, response) {
@@ -718,15 +716,15 @@
 			getImages() {
 				this.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.get(PhoneRepairs.rest_root + '/logo')
-					.then((response) => {
-						this.$store.commit('SET_LOADING_STATUS', false);
-						this.attachments = response.data.data;
-					})
-					.catch((error) => {
-						this.$store.commit('SET_LOADING_STATUS', false);
-						console.log(error);
-					});
+						.get(PhoneRepairs.rest_root + '/logo')
+						.then((response) => {
+							this.$store.commit('SET_LOADING_STATUS', false);
+							this.attachments = response.data.data;
+						})
+						.catch((error) => {
+							this.$store.commit('SET_LOADING_STATUS', false);
+							console.log(error);
+						});
 			},
 			refreshRoute() {
 				let id = this.$route.params.id;
@@ -741,34 +739,34 @@
 				let self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.post(PhoneRepairs.rest_root + '/support-ticket/' + self.id + '/sms', {
-						content: self.ticket_twilio_sms_content,
-						send_to_customer: self.ticket_twilio_sms_customer_phone,
-						send_to_custom_number: self.ticket_twilio_sms_enable_custom_phone,
-						custom_phone: self.ticket_twilio_sms_custom_phone,
-						agents_ids: self.twilio_support_agents_ids,
-						sms_for: self.ticket_twilio_sms_enable_phone,
-					})
-					.then((response) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-						self.ticket_twilio_sms_content = '';
-						self.ticket_twilio_sms_customer_phone = true;
-						self.ticket_twilio_sms_enable_custom_phone = false;
-						self.ticket_twilio_sms_custom_phone = '';
-						self.ticket_twilio_sms_enable_phone = '';
-						self.twilio_support_agents_ids = [];
-						self.getItem();
-						alert('SMS has been sent successfully.');
-					})
-					.catch((error) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-						if (error.response.status === 422 && error.response.data) {
-							alert(error.response.data.message);
-						}
-						if (error.response.status === 401 && error.response.data) {
-							alert(error.response.data.message);
-						}
-					});
+						.post(PhoneRepairs.rest_root + '/support-ticket/' + self.id + '/sms', {
+							content: self.ticket_twilio_sms_content,
+							send_to_customer: self.ticket_twilio_sms_customer_phone,
+							send_to_custom_number: self.ticket_twilio_sms_enable_custom_phone,
+							custom_phone: self.ticket_twilio_sms_custom_phone,
+							agents_ids: self.twilio_support_agents_ids,
+							sms_for: self.ticket_twilio_sms_enable_phone,
+						})
+						.then((response) => {
+							self.$store.commit('SET_LOADING_STATUS', false);
+							self.ticket_twilio_sms_content = '';
+							self.ticket_twilio_sms_customer_phone = true;
+							self.ticket_twilio_sms_enable_custom_phone = false;
+							self.ticket_twilio_sms_custom_phone = '';
+							self.ticket_twilio_sms_enable_phone = '';
+							self.twilio_support_agents_ids = [];
+							self.getItem();
+							alert('SMS has been sent successfully.');
+						})
+						.catch((error) => {
+							self.$store.commit('SET_LOADING_STATUS', false);
+							if (error.response.status === 422 && error.response.data) {
+								alert(error.response.data.message);
+							}
+							if (error.response.status === 401 && error.response.data) {
+								alert(error.response.data.message);
+							}
+						});
 			},
 			agentSmsChanged() {
 				if (this.ticket_twilio_sms_enable_phone === 'agents') {
@@ -835,18 +833,18 @@
 				let self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.post(PhoneRepairs.rest_root + '/support-ticket/' + self.id + '/agent', {
-						agents_ids: self.support_agents_ids,
-					})
-					.then((response) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-						self.activeAgentModal = false;
-						self.support_agents_ids = [];
-						self.getItem();
-					})
-					.catch((error) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-					});
+						.post(PhoneRepairs.rest_root + '/support-ticket/' + self.id + '/agent', {
+							agents_ids: self.support_agents_ids,
+						})
+						.then((response) => {
+							self.$store.commit('SET_LOADING_STATUS', false);
+							self.activeAgentModal = false;
+							self.support_agents_ids = [];
+							self.getItem();
+						})
+						.catch((error) => {
+							self.$store.commit('SET_LOADING_STATUS', false);
+						});
 			},
 			openThreadEditor(thread) {
 				this.activeThreadModal = true;
@@ -862,90 +860,90 @@
 				let self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.put(PhoneRepairs.rest_root + '/support-ticket/' + self.id, {
-						ticket_category: self.ticket_category,
-						ticket_priority: self.ticket_priority,
-						ticket_status: self.ticket_status,
-					})
-					.then((response) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-						self.activeStatusModal = false;
-						self.ticket_subject = '';
-						self.ticket_status = '';
-						self.ticket_priority = '';
-						self.getItem();
-					})
-					.catch((error) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-					});
+						.put(PhoneRepairs.rest_root + '/support-ticket/' + self.id, {
+							ticket_category: self.ticket_category,
+							ticket_priority: self.ticket_priority,
+							ticket_status: self.ticket_status,
+						})
+						.then((response) => {
+							self.$store.commit('SET_LOADING_STATUS', false);
+							self.activeStatusModal = false;
+							self.ticket_subject = '';
+							self.ticket_status = '';
+							self.ticket_priority = '';
+							self.getItem();
+						})
+						.catch((error) => {
+							self.$store.commit('SET_LOADING_STATUS', false);
+						});
 			},
 			updateSubject() {
 				let self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.put(PhoneRepairs.rest_root + '/support-ticket/' + self.id, {
-						ticket_subject: self.ticket_subject,
-					})
-					.then((response) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-						self.activeTitleModal = false;
-						self.ticket_subject = '';
-						self.getItem();
-					})
-					.catch((error) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-					});
+						.put(PhoneRepairs.rest_root + '/support-ticket/' + self.id, {
+							ticket_subject: self.ticket_subject,
+						})
+						.then((response) => {
+							self.$store.commit('SET_LOADING_STATUS', false);
+							self.activeTitleModal = false;
+							self.ticket_subject = '';
+							self.getItem();
+						})
+						.catch((error) => {
+							self.$store.commit('SET_LOADING_STATUS', false);
+						});
 			},
 			addThread(thread_type, thread_content) {
 				let self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.post(PhoneRepairs.rest_root + '/support-ticket/' + self.id + '/thread/', {
-						thread_type: thread_type,
-						thread_content: thread_content,
-						ticket_attachments: self.ticket_attachments,
-					})
-					.then((response) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-						self.content = '';
-						self.images = [];
-						self.getItem();
-					})
-					.catch((error) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-					});
+						.post(PhoneRepairs.rest_root + '/support-ticket/' + self.id + '/thread/', {
+							thread_type: thread_type,
+							thread_content: thread_content,
+							ticket_attachments: self.ticket_attachments,
+						})
+						.then((response) => {
+							self.$store.commit('SET_LOADING_STATUS', false);
+							self.content = '';
+							self.images = [];
+							self.getItem();
+						})
+						.catch((error) => {
+							self.$store.commit('SET_LOADING_STATUS', false);
+						});
 			},
 			updateThread() {
 				let self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.put(PhoneRepairs.rest_root + '/support-ticket/' + self.id + '/thread/' + self.activeThread.thread_id, {
-						post_content: self.activeThreadContent,
-					})
-					.then((response) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-						self.activeThreadModal = false;
-						self.activeThread = {};
-						self.activeThreadContent = '';
-						self.getItem();
-					})
-					.catch((error) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-					});
+						.put(PhoneRepairs.rest_root + '/support-ticket/' + self.id + '/thread/' + self.activeThread.thread_id, {
+							post_content: self.activeThreadContent,
+						})
+						.then((response) => {
+							self.$store.commit('SET_LOADING_STATUS', false);
+							self.activeThreadModal = false;
+							self.activeThread = {};
+							self.activeThreadContent = '';
+							self.getItem();
+						})
+						.catch((error) => {
+							self.$store.commit('SET_LOADING_STATUS', false);
+						});
 			},
 			deleteThread(thread) {
 				let self = this;
 				if (confirm('Are you sure to delete this thread?')) {
 					self.$store.commit('SET_LOADING_STATUS', true);
 					axios
-						.delete(PhoneRepairs.rest_root + '/support-ticket/' + self.id + '/thread/' + thread.thread_id)
-						.then((response) => {
-							self.$store.commit('SET_LOADING_STATUS', false);
-							self.getItem();
-						})
-						.catch((error) => {
-							self.$store.commit('SET_LOADING_STATUS', false);
-						});
+							.delete(PhoneRepairs.rest_root + '/support-ticket/' + self.id + '/thread/' + thread.thread_id)
+							.then((response) => {
+								self.$store.commit('SET_LOADING_STATUS', false);
+								self.getItem();
+							})
+							.catch((error) => {
+								self.$store.commit('SET_LOADING_STATUS', false);
+							});
 				}
 			},
 			threadClass(thread_type) {
@@ -960,43 +958,43 @@
 			createOrderFromAppointment() {
 				this.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.post(PhoneRepairs.rest_root + '/support-ticket/' + this.id + '/order')
-					.then((response) => {
-						this.$store.commit('SET_LOADING_STATUS', false);
-						this.$root.$emit('show-notification', {
-							message: 'New order has been created.',
-							type: 'success'
+						.post(PhoneRepairs.rest_root + '/support-ticket/' + this.id + '/order')
+						.then((response) => {
+							this.$store.commit('SET_LOADING_STATUS', false);
+							this.$root.$emit('show-notification', {
+								message: 'New order has been created.',
+								type: 'success'
+							});
+							this.getItem();
+						})
+						.catch((error) => {
+							console.log(error);
+							this.$store.commit('SET_LOADING_STATUS', false);
 						});
-						this.getItem();
-					})
-					.catch((error) => {
-						console.log(error);
-						this.$store.commit('SET_LOADING_STATUS', false);
-					});
 			},
 			getItem() {
 				let self = this;
 				self.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.get(PhoneRepairs.rest_root + '/support-ticket/' + self.id)
-					.then((response) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-						self.item = response.data.data.ticket;
-						self.threads = response.data.data.threads;
-						self.navigation = response.data.data.navigation;
-						if (response.data.data.order) {
-							self.order = response.data.data.order;
-						}
-						if (response.data.data.map) {
-							self.map = response.data.data.map;
-						}
-						if (response.data.data.checkout_analysis) {
-							self.checkout_analysis = response.data.data.checkout_analysis;
-						}
-					})
-					.catch((error) => {
-						self.$store.commit('SET_LOADING_STATUS', false);
-					});
+						.get(PhoneRepairs.rest_root + '/support-ticket/' + self.id)
+						.then((response) => {
+							self.$store.commit('SET_LOADING_STATUS', false);
+							self.item = response.data.data.ticket;
+							self.threads = response.data.data.threads;
+							self.navigation = response.data.data.navigation;
+							if (response.data.data.order) {
+								self.order = response.data.data.order;
+							}
+							if (response.data.data.map) {
+								self.map = response.data.data.map;
+							}
+							if (response.data.data.checkout_analysis) {
+								self.checkout_analysis = response.data.data.checkout_analysis;
+							}
+						})
+						.catch((error) => {
+							self.$store.commit('SET_LOADING_STATUS', false);
+						});
 			}
 		}
 	}

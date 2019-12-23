@@ -177,8 +177,6 @@
 	import BigButton from '../../../components/BigButton';
 	import PricingAccordion from '../../../components/PricingAccordion';
 	import imageContainer from '../../../shapla/image/image';
-	import mdlRadio from '../../../material-design-lite/radio/mdlRadio';
-	import mdlSpinner from '../../../material-design-lite/spinner/mdlSpinner';
 	import mdlButton from '../../../material-design-lite/button/mdlButton';
 	import gMapAutocomplete from '../../components/gMapAutocomplete'
 	import MediaModal from '../../components/MediaModal'
@@ -188,8 +186,6 @@
 		components: {
 			AnimatedInput,
 			BigButton,
-			mdlRadio,
-			mdlSpinner,
 			modal,
 			gMapAutocomplete,
 			mdlButton,

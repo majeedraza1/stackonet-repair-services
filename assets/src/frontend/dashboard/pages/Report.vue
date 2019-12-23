@@ -1,24 +1,23 @@
 <template>
 	<div class="stackonet-dashboard-report">
-		<mdl-tabs @change="changeTab">
-			<mdl-tab name="Graph" selected>
+		<tabs @change="changeTab" alignment="center" size="large">
+			<tab name="Graph" selected>
 				<div class="stackonet-dashboard-graph">
-					<month-navigation @change="changeDate"></month-navigation>
+					<month-navigation @change="changeDate"/>
 					<line-chart :chart-data="chartdata" :options="options"/>
 				</div>
-			</mdl-tab>
-			<mdl-tab name="Calendar">
+			</tab>
+			<tab name="Calendar">
 				<div class="stackonet-dashboard-calendar">
-					<vue-fullcalendar :events="calendar_events" @eventClick="eventClick"
-									  @changeMonth="changeMonth"></vue-fullcalendar>
+					<vue-fullcalendar :events="calendar_events" @eventClick="eventClick" @changeMonth="changeMonth"/>
 				</div>
-			</mdl-tab>
-			<mdl-tab name="Tracking Users">
+			</tab>
+			<tab name="Tracking Users">
 				<div class="stackonet-dashboard-tracking-users">
-					<tracking-users></tracking-users>
+					<tracking-users/>
 				</div>
-			</mdl-tab>
-		</mdl-tabs>
+			</tab>
+		</tabs>
 		<modal :active="isModalOpen" contentSize="full" :title="modalTitle" @close="closeModal" content-size="large"
 			   class="shapla-modal--map">
 			<columns>
@@ -82,146 +81,144 @@
 </template>
 
 <script>
-    import axios from "axios";
-    import VueFullcalendar from "vue-fullcalendar";
-    import {columns, column} from 'shapla-columns'
-    import modal from "shapla-modal";
-    import LineChart from './LineChart'
-    import MdlButton from "../../../material-design-lite/button/mdlButton";
-    import ListItem from "../../../components/ListItem";
-    import MdlTabs from "../../../material-design-lite/tabs/mdlTabs";
-    import MdlTab from "../../../material-design-lite/tabs/mdlTab";
-    import MonthNavigation from "../../components/MonthNavigation";
-    import TrackingUsers from "../../trackable-objects/TrackingUsers";
+	import axios from "axios";
+	import VueFullcalendar from "vue-fullcalendar";
+	import {column, columns} from 'shapla-columns'
+	import modal from "shapla-modal";
+	import LineChart from './LineChart'
+	import MdlButton from "../../../material-design-lite/button/mdlButton";
+	import ListItem from "../../../components/ListItem";
+	import MonthNavigation from "../../components/MonthNavigation";
+	import TrackingUsers from "../../trackable-objects/TrackingUsers";
+	import {tab, tabs} from 'shapla-tabs'
 
-    export default {
-        name: "Report",
-        components: {
-            TrackingUsers,
-            MonthNavigation,
-            MdlTab, MdlTabs, column, columns, ListItem, MdlButton, modal, VueFullcalendar, LineChart
-        },
-        data() {
-            return {
-                isModalOpen: false,
-                activeData: {},
-                activeDataOnMap: {},
-                events: [],
-                dataType: '',
-                chartdata: {},
-                googleMap: null,
-                markers: [],
-                year: '',
-                month: '',
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            }
-        },
-        computed: {
-            modalTitle() {
-                if (this.dataType === 'order') return 'Order';
-                if (this.dataType === 'lead') return 'Lead';
-                return 'Untitled';
-            },
-            calendar_events() {
-                if (this.events.length < 1) return [];
+	export default {
+		name: "Report",
+		components: {
+			TrackingUsers, tabs, tab, MonthNavigation,
+			column, columns, ListItem, MdlButton, modal, VueFullcalendar, LineChart
+		},
+		data() {
+			return {
+				isModalOpen: false,
+				activeData: {},
+				activeDataOnMap: {},
+				events: [],
+				dataType: '',
+				chartdata: {},
+				googleMap: null,
+				markers: [],
+				year: '',
+				month: '',
+				options: {
+					responsive: true,
+					maintainAspectRatio: false
+				}
+			}
+		},
+		computed: {
+			modalTitle() {
+				if (this.dataType === 'order') return 'Order';
+				if (this.dataType === 'lead') return 'Lead';
+				return 'Untitled';
+			},
+			calendar_events() {
+				if (this.events.length < 1) return [];
 
-                return this.events.map(element => {
-                    return {
-                        title: element.type + " " + element.counts,
-                        start: element.date,
-                        type: element.type,
-                        cssClass: element.type,
-                    }
-                })
-            }
-        },
-        mounted() {
-            this.$store.commit('SET_TITLE', 'Dashboard');
-            this.$store.commit('SET_LOADING_STATUS', false);
-            this.getEvents();
+				return this.events.map(element => {
+					return {
+						title: element.type + " " + element.counts,
+						start: element.date,
+						type: element.type,
+						cssClass: element.type,
+					}
+				})
+			}
+		},
+		mounted() {
+			this.$store.commit('SET_TITLE', 'Dashboard');
+			this.$store.commit('SET_LOADING_STATUS', false);
+			this.getEvents();
 
-            this.googleMap = new google.maps.Map(this.$el.querySelector('#map'), {
-                zoom: 1,
-                center: {lat: 32.8205865, lng: -96.871626},
-            });
-        },
-        watch: {
-            markers(_markers) {
-                _markers.forEach(element => {
-                    new google.maps.Marker(element).setMap(this.googleMap);
-                });
-            }
-        },
-        methods: {
-            changeDate(data) {
-                this.month = data.month;
-                this.year = data.year;
-                this.getEvents();
-            },
-            changeTab() {
-                this.month = '';
-                this.year = '';
-                this.getEvents();
-            },
-            changeMonth(start, end, current) {
-                let _date = new Date(current);
-                this.month = _date.getMonth() + 1;
-                this.year = _date.getFullYear();
-                this.getEvents();
-            },
-            updateMapCenter(data) {
-                this.activeDataOnMap = data;
-                this.googleMap.setZoom(18);
-                this.googleMap.setCenter(new google.maps.LatLng(
-                    data.latitude_longitude.lat,
-                    data.latitude_longitude.lng
-                ));
-            },
-            eventClick(data) {
-                this.$store.commit('SET_LOADING_STATUS', true);
-                this.dataType = data.type;
-                axios
-                    .get(window.PhoneRepairs.rest_root + `/calendar?date=${data.start}&type=${data.type}`,)
-                    .then(response => {
-                        this.$store.commit('SET_LOADING_STATUS', false);
-                        this.activeData = response.data.data;
-                        this.markers = this.activeData.map(element => {
-                            return {
-                                position: element.latitude_longitude,
-                                title: element.address
-                            }
-                        });
-                        this.isModalOpen = true;
-                    })
-                    .catch(error => {
-                        console.log(error);
-                        this.$store.commit('SET_LOADING_STATUS', false);
-                    })
-            },
-            closeModal() {
-                this.isModalOpen = false;
-                this.activeData = {};
-                this.dataType = '';
-            },
-            getEvents() {
-                this.$store.commit('SET_LOADING_STATUS', true);
-                axios
-                    .get(window.PhoneRepairs.rest_root + '/calendar?month=' + this.month + '&year=' + this.year)
-                    .then(response => {
-                        this.$store.commit('SET_LOADING_STATUS', false);
-                        this.events = response.data.data.events;
-                        this.chartdata = response.data.data.chartData;
-                    })
-                    .catch(error => {
-                        console.log(error);
-                        this.$store.commit('SET_LOADING_STATUS', false);
-                    })
-            }
-        }
-    }
+			this.googleMap = new google.maps.Map(this.$el.querySelector('#map'), {
+				zoom: 1,
+				center: {lat: 32.8205865, lng: -96.871626},
+			});
+		},
+		watch: {
+			markers(_markers) {
+				_markers.forEach(element => {
+					new google.maps.Marker(element).setMap(this.googleMap);
+				});
+			}
+		},
+		methods: {
+			changeDate(data) {
+				this.month = data.month;
+				this.year = data.year;
+				this.getEvents();
+			},
+			changeTab() {
+				this.month = '';
+				this.year = '';
+				this.getEvents();
+			},
+			changeMonth(start, end, current) {
+				let _date = new Date(current);
+				this.month = _date.getMonth() + 1;
+				this.year = _date.getFullYear();
+				this.getEvents();
+			},
+			updateMapCenter(data) {
+				this.activeDataOnMap = data;
+				this.googleMap.setZoom(18);
+				this.googleMap.setCenter(new google.maps.LatLng(
+						data.latitude_longitude.lat,
+						data.latitude_longitude.lng
+				));
+			},
+			eventClick(data) {
+				this.$store.commit('SET_LOADING_STATUS', true);
+				this.dataType = data.type;
+				axios
+						.get(window.PhoneRepairs.rest_root + `/calendar?date=${data.start}&type=${data.type}`,)
+						.then(response => {
+							this.$store.commit('SET_LOADING_STATUS', false);
+							this.activeData = response.data.data;
+							this.markers = this.activeData.map(element => {
+								return {
+									position: element.latitude_longitude,
+									title: element.address
+								}
+							});
+							this.isModalOpen = true;
+						})
+						.catch(error => {
+							console.log(error);
+							this.$store.commit('SET_LOADING_STATUS', false);
+						})
+			},
+			closeModal() {
+				this.isModalOpen = false;
+				this.activeData = {};
+				this.dataType = '';
+			},
+			getEvents() {
+				this.$store.commit('SET_LOADING_STATUS', true);
+				axios
+						.get(window.PhoneRepairs.rest_root + '/calendar?month=' + this.month + '&year=' + this.year)
+						.then(response => {
+							this.$store.commit('SET_LOADING_STATUS', false);
+							this.events = response.data.data.events;
+							this.chartdata = response.data.data.chartData;
+						})
+						.catch(error => {
+							console.log(error);
+							this.$store.commit('SET_LOADING_STATUS', false);
+						})
+			}
+		}
+	}
 </script>
 
 <style lang="scss">

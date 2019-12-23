@@ -33,7 +33,7 @@
 					<th scope="row"><label>Brand Image</label></th>
 					<td>
 						<div style="max-width: 25em;">
-							<background-image v-model="device_image"></background-image>
+							<background-image v-model="device_image"/>
 						</div>
 					</td>
 				</tr>
@@ -126,7 +126,7 @@
 							<tbody>
 							<tr v-for="(device_issue, index) in no_issues" :key="device_issue.id">
 								<td>
-									<delete @click="removeIssue(no_issues,device_issue, index)"></delete>
+									<delete-icon @click="removeIssue(no_issues,device_issue, index)"/>
 								</td>
 								<td>{{device_issue.title}}</td>
 								<td>
@@ -154,7 +154,7 @@
 							<tbody>
 							<tr v-for="(device_issue, index) in multi_issues" :key="device_issue.id">
 								<td>
-									<delete-icon @click="removeIssue(multi_issues, device_issue, index)"></delete-icon>
+									<delete-icon @click="removeIssue(multi_issues, device_issue, index)"/>
 								</td>
 								<td>{{device_issue.title}}</td>
 								<td>
@@ -169,7 +169,7 @@
 		</accordion>
 		<modal :active="showModel" @close="closeModel" title="Issues">
 			<template v-for="issue in issues">
-				<mdl-checkbox v-model="multi_issues" :value="issue">{{issue.title}}</mdl-checkbox>
+				<shapla-checkbox v-model="multi_issues" :value="issue">{{issue.title}}</shapla-checkbox>
 			</template>
 			<template slot="foot">
 				<button class="button" @click="closeModel">Ok</button>
@@ -177,7 +177,7 @@
 		</modal>
 		<modal :active="showNotCrackedModel" @close="closeModel" title="Issues">
 			<template v-for="issue in issues">
-				<mdl-checkbox v-model="no_issues" :value="issue">{{issue.title}}</mdl-checkbox>
+				<shapla-checkbox v-model="no_issues" :value="issue">{{issue.title}}</shapla-checkbox>
 			</template>
 			<template slot="foot">
 				<button class="button" @click="closeModel">Ok</button>
@@ -185,9 +185,9 @@
 		</modal>
 		<mdl-fab @click="saveDeviceData">
 			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-				<path fill="none" d="M0 0h24v24H0V0z"></path>
+				<path fill="none" d="M0 0h24v24H0V0z"/>
 				<path fill="white"
-					  d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm2 16H5V5h11.17L19 7.83V19zm-7-7c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zM6 6h9v4H6z"></path>
+					  d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm2 16H5V5h11.17L19 7.83V19zm-7-7c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zM6 6h9v4H6z"/>
 			</svg>
 		</mdl-fab>
 	</div>
@@ -200,6 +200,7 @@
     import MediaUploader from '../../components/MediaUploader.vue';
     import BackgroundImage from '../../components/BackgroundImage.vue';
     import deleteIcon from 'shapla-delete';
+	import shaplaCheckbox from 'shapla-checkbox';
     import ColorPicker from '../../components/ColorPicker.vue';
     import mdlCheckbox from '../../material-design-lite/checkbox/mdlCheckbox';
     import mdlFab from '../../material-design-lite/button/mdlFab';
@@ -211,6 +212,7 @@
             MediaUploader,
             BackgroundImage,
             ColorPicker,
+			shaplaCheckbox,
             modal,
             mdlCheckbox,
             mdlFab,
@@ -384,8 +386,6 @@
                     },
                     success: function (response) {
                         if (response.data) {
-                            console.log(response.data);
-                            // self.$store.commit('SET_PRODUCTS', response.data);
                             let data = response.data;
 
                             self.id = data.id;

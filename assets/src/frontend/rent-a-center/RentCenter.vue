@@ -1,7 +1,7 @@
 <template>
 
 	<div
-		class="demo-layout stackonet-dashboard mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
+			class="demo-layout stackonet-dashboard mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
 
 		<header class="demo-header mdl-layout__header">
 			<div class="mdl-layout__header-row">
@@ -114,17 +114,15 @@
 
 <script>
 	import {mapState} from 'vuex';
-	import {columns, column} from "shapla-columns";
+	import {column, columns} from "shapla-columns";
 	import {MaterialLayout} from '../../material-design-lite/layout/MaterialLayout';
 	import {MaterialMenu} from '../../material-design-lite/menu/MaterialMenu';
-	import mdlSpinner from '../../material-design-lite/spinner/mdlSpinner.vue';
-	import mdlSnackbar from '../../material-design-lite/snackbar/mdlSnackbar';
 	import ImageContainer from "../../shapla/image/image";
 	import Icon from "../../shapla/icon/icon";
 
 	export default {
 		name: "RentCenter",
-		components: {Icon, ImageContainer, columns, column, mdlSpinner, mdlSnackbar},
+		components: {Icon, ImageContainer, columns, column},
 		computed: {
 			...mapState(['loading', 'snackbar']),
 		},

@@ -19,7 +19,7 @@
 				<span v-for="_agent in data.row.assigned_agents">{{_agent.display_name}}</span>
 			</div>
 		</mdl-table>
-		<map-modal :active="showViewModal" :place="activePlace" @close="closeViewModal" :mode="modalMode"></map-modal>
+		<map-modal :active="showViewModal" :place="activePlace" @close="closeViewModal" :mode="modalMode"/>
 
 		<modal :active="showAgentsModal" @close="closeAgentsModal" title="Tracking Users">
 			<template v-for="_agent in tracking_users">
@@ -37,8 +37,8 @@
     import {mapState, mapGetters} from 'vuex';
     import axios from 'axios';
     import modal from 'shapla-modal';
-    import MdlTable from "../../../material-design-lite/data-table/mdlTable";
     import MapModal from "./MapModal";
+    import MdlTable from "../../../material-design-lite/data-table/mdlTable";
     import MdlCheckbox from "../../../material-design-lite/checkbox/mdlCheckbox";
     import MdlButton from "../../../material-design-lite/button/mdlButton";
 
