@@ -1,3 +1,11 @@
+#### 1.1.21 - January 02, 2020
+* Feature - Add buy-van page designed by @simpi21
+* dev - Add phone number step on checkout page.
+* dev - Update checkout analysis backend table structure.
+* dev - Update package.json and composer.json dependency list.
+* dev - Update plugin replacing snackbar, spinner, switch, tabs, dialog vue components.
+* dev - Update StarRating and Accordion components.
+
 #### 1.1.20 - October 30, 2019
 * Tweak - Change tracker refresh time to 5 seconds.
 * Dev - Add RentCenter class for for rent-a-center class.
