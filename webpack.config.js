@@ -27,6 +27,7 @@ let entryPoints = {
 		'./assets/src/frontend/manager-registration/main.js',
 		'./assets/src/frontend/become-a-tech/main.js',
 		'./assets/src/frontend/support-ticket/main.js',
+		'./assets/src/frontend/buy-van/main.js',
 		'./assets/src/scss/frontend.scss',
 	],
 	'payment-form': [

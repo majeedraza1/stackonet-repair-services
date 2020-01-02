@@ -49,6 +49,8 @@ class Frontend {
 			add_shortcode( 'stackonet_rent_a_center', [ self::$instance, 'rent_a_center' ] );
 			add_shortcode( 'stackonet_survey_form', [ self::$instance, 'survey_form' ] );
 
+			add_shortcode( 'stackonet_buy_van', [ self::$instance, 'buy_van' ] );
+
 			// For Admin
 			// add_action( 'wp_enqueue_scripts', [ self::$instance, 'load_dashboard_scripts' ] );
 			// add_shortcode( 'stackonet_frontend_dashboard', [ self::$instance, 'frontend_dashboard' ] );
@@ -110,6 +112,7 @@ class Frontend {
 			'stackonet_spot_appointment',
 			'stackonet_become_technician',
 			'stackonet_support_ticket_form',
+			'stackonet_buy_van',
 		];
 
 		global $post;
@@ -218,6 +221,15 @@ class Frontend {
 	 */
 	public function become_technician() {
 		return '<div id="stackonet_become_technician"></div>';
+	}
+
+	/**
+	 * buy van page
+	 *
+	 * @return string
+	 */
+	public function buy_van() {
+		return '<div id="stackonet_buy_van"></div>';
 	}
 
 	/**
@@ -402,6 +414,7 @@ class Frontend {
 			'ajaxurl'              => admin_url( 'admin-ajax.php' ),
 			'site_url'             => site_url(),
 			'home_url'             => home_url(),
+			'plugin_url'           => STACKONET_REPAIR_SERVICES_URL,
 			'login_url'            => wp_login_url(),
 			'logout_url'           => wp_logout_url( home_url() ),
 			'myaccount'            => wc_get_page_permalink( 'myaccount' ),
