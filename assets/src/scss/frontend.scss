@@ -18,6 +18,16 @@ body.page-template-blank-template {
 	overflow-x: hidden;
 }
 
+body.stackonet-fullscreen {
+	#content.site-content,
+	#content.container {
+		max-width: 100% !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		width: 100% !important;
+	}
+}
+
 table.mdl-data-table thead tr {
 	background: rgba(32, 33, 36, 0.059);
 }
