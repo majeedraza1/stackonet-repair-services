@@ -81,22 +81,27 @@
 				</div>
 				<div style="min-width: 120px;">
 					<v-select :options="default_priorities" v-model="vPriority" @input="_changePriority"
-							  :clearable="false" placeholder="All Priorities"></v-select>
+							  :clearable="false" placeholder="All Priorities">
+
+					</v-select>
 				</div>
 				<div style="min-width: 120px;">
 					<v-select :options="_cities" v-model="vCity" @input="_changeCity" :clearable="false"
-							  placeholder="All Cities"></v-select>
+							  placeholder="All Cities">
+
+					</v-select>
 				</div>
 				<div style="min-width: 120px;">
 					<v-select :options="_support_agents" v-model="vAgent" @input="_changeAgent" :clearable="false"
 							  label="display_name" placeholder="All Agents">
 					</v-select>
+
 				</div>
 				<mdl-button type="raised" color="default" @click="clearFilter">Clear Filter</mdl-button>
 			</template>
 		</mdl-table>
 		<wp-pagination :current_page="pagination.currentPage" :per_page="pagination.limit"
-					   :total_items="pagination.totalCount" size="medium" @pagination="paginate"></wp-pagination>
+					   :total_items="pagination.totalCount" size="medium" @pagination="paginate"> </wp-pagination>
 		<modal :active="activeNoteModal" title="Note" @close="closeNoteModal">
 			<textarea cols="30" rows="4" v-model="note" style="width: 100%;"></textarea>
 			<div slot="foot">

@@ -8,7 +8,9 @@
 				:has-success="!!first_name.length"
 				type="text"
 				autocomplete="given-name"
-			></animated-input>
+			>
+
+			</animated-input>
 			<animated-input
 				id="last_name"
 				v-model="last_name"
