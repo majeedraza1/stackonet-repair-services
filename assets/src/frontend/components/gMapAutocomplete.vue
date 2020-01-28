@@ -6,7 +6,8 @@
 			:label="label"
 			:value="formatted_address"
 			@input="handleInputEvent"
-		></animated-input>
+		>
+		</animated-input>
 	</div>
 </template>
 

@@ -6,31 +6,53 @@
 				<div class="container">
 					<columns>
 						<column>
-							<div class="repair-van__title">Become a BOSS today!</div>
-							<div class="repair-van__content">Purchase a Smart Tech Installation Van today! We begin
-								sending
-								you jobs for smart tech repairs and smart home installation jobs ASAP!
-								Low cost and 100% finance options available!
+							<div class="repair-van__title">Expand to Mobile ASAP!</div>
+							<div class="repair-van__content">
+								Mobile is the next driving force in the smart tech repair industry!
+								Imagine doing laser back glass removal on the go or even tapping that solder point because you have the POWER?
 							</div>
+							<div class="repair-van__content">
+								Between Smartphones, Tablets, Computers and now Smart Home Installation our vans do it all!?
+							</div>
+							<columns multiline>
+								<column :mobile="12">
+									<h3>Puls</h3>
+									<p class="repair-van__device-count">6,000 Mobile Tech</p>
+								</column>
+								<column :mobile="12">
+									<h3>UBreakifix</h3>
+									<p class="repair-van__device-count">500 Vans</p>
+								</column>
+							</columns>
 						</column>
 						<column>
-							<div style="position: absolute"><img
+							<div style="position:absolute"><img
 									:src="`${img_url}/van-image.png`" alt="van">
 							</div>
 						</column>
 					</columns>
+					<div class="repair-van__sub-content">Keep your <span style="font-weight:700">Competitive Business</span> Edge and expand your repair tool kit!</div>
+					<a href="tel:+1 (561) 377-6340">
+						<mdl-button class="s">
+						<svg data-v-ec9dc320="" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="phone-volume" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="svg-inline--fa fa-phone-volume fa-w-12">
+							<path data-v-ec9dc320="" d="M97.333 506.966c-129.874-129.874-129.681-340.252 0-469.933 5.698-5.698 14.527-6.632 21.263-2.422l64.817 40.513a17.187 17.187 0 0 1 6.849 20.958l-32.408 81.021a17.188 17.188 0 0 1-17.669 10.719l-55.81-5.58c-21.051 58.261-20.612 122.471 0 179.515l55.811-5.581a17.188 17.188 0 0 1 17.669 10.719l32.408 81.022a17.188 17.188 0 0 1-6.849 20.958l-64.817 40.513a17.19 17.19 0 0 1-21.264-2.422zM247.126 95.473c11.832 20.047 11.832 45.008 0 65.055-3.95 6.693-13.108 7.959-18.718 2.581l-5.975-5.726c-3.911-3.748-4.793-9.622-2.261-14.41a32.063 32.063 0 0 0 0-29.945c-2.533-4.788-1.65-10.662 2.261-14.41l5.975-5.726c5.61-5.378 14.768-4.112 18.718 2.581zm91.787-91.187c60.14 71.604 60.092 175.882 0 247.428-4.474 5.327-12.53 5.746-17.552.933l-5.798-5.557c-4.56-4.371-4.977-11.529-.93-16.379 49.687-59.538 49.646-145.933 0-205.422-4.047-4.85-3.631-12.008.93-16.379l5.798-5.557c5.022-4.813 13.078-4.394 17.552.933zm-45.972 44.941c36.05 46.322 36.108 111.149 0 157.546-4.39 5.641-12.697 6.251-17.856 1.304l-5.818-5.579c-4.4-4.219-4.998-11.095-1.285-15.931 26.536-34.564 26.534-82.572 0-117.134-3.713-4.836-3.115-11.711 1.285-15.931l5.818-5.579c5.159-4.947 13.466-4.337 17.856 1.304z">
+						</path>
+						</svg>
+						Call Us Now
+					</mdl-button>
+					</a>
 				</div>
 			</section>
 			<div class="repairs-van-background">
 				<img :src="`${img_url}/wave.png`" alt="van">
 				<div class="container">
 					<section class="repair-van__working">
-						<div class="repair-van__working-title">WONDERING ON HOW IT ALL WORKs? Keep Reading!</div>
+						<h6> We Are Your One Stop Shop</h6>
+						<h4> Here is how it works.</h4>
+						<div class="repair-van__working-title">We supply the van, equipment, upgraded technology and construct your mobile Business! We Even Ship World Wide!</div>
 						<div class="repair-van__working-content">
-							Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-							Lorem Ipsum has been the industry’s standard dummy text ever since the 1500s,
-							when an unknown printer took a galley of type and scrambled it to make a type specimen
-							book.
+							Mobile has never been done to this magnitude.
+							ASAP owns it’s custom mobile software company and constantly invests with new batteries, solar power, and other smart tech elements to create the highest amount of energy using the least amount of power.
 						</div>
 						<div class="repair-van-box__box-wrapper">
 							<columns multiple class="has-inner-custom-padding">
@@ -39,10 +61,14 @@
 										<img :src="`${img_url}/get-detail.png`"
 											 alt="van">
 										<div class="repair-van-box__box-title">
-											Get Detail
+											Upgrades
 										</div>
 										<div class="repair-van-box__box-content">
-											when an unknown printer took a galley of type and scrambled it to make
+											Back Glass laser removal<br>
+											Solder Station<br>
+											Solar Power<br>
+											Telsa Battery<br>
+											Rims
 										</div>
 									</div>
 								</column>
@@ -50,10 +76,26 @@
 									<div class="repair-van-box__box">
 										<img :src="`${img_url}/buy-van.png`" alt="van">
 										<div class="repair-van-box__box-title">
-											Buy Van
+											Buy a Van
 										</div>
 										<div class="repair-van-box__box-content">
-											when an unknown printer took a galley of type and scrambled it to make
+											144” Mercedes Sprinter<br>
+											Custom Wrap and graphic design<br>
+											Power Pack One<br>
+											Power Pack Two
+										</div>
+									</div>
+								</column>
+								<column :desktop="3" :fullwidth="3">
+									<div class="repair-van-box__box">
+										<img :src="`${img_url}/get-paid.png`" alt="van">
+										<div class="repair-van-box__box-title">
+											Full Financing!
+										</div>
+										<div class="repair-van-box__box-content">
+											550 Fico<br>
+											Low interest rates<br>
+											Low or no Down Payment!
 										</div>
 									</div>
 								</column>
@@ -61,22 +103,26 @@
 									<div class="repair-van-box__box">
 										<img :src="`${img_url}/start-working.png`" alt="van">
 										<div class="repair-van-box__box-title">
-											Start Working
+											Start Working!
 										</div>
 										<div class="repair-van-box__box-content">
-											when an unknown printer took a galley of type and scrambled it to make
-										</div>
-									</div>
-								</column>
-								<column :desktop="3" :fullwidth="3">
-									<div class="repair-van-box__box">
-										<img :src="`${img_url}/get-paid.png`"
-											 alt="van">
-										<div class="repair-van-box__box-title">
-											Get Paid
-										</div>
-										<div class="repair-van-box__box-content">
-											when an unknown printer took a galley of type and scrambled it to make
+											<div>
+												<p>Begin receiving mobile jobs!<br>
+													Make idle employees efficient<br>
+													Idle Employees don’t make money!
+	                                                <span v-if="showHiddenText">
+													</span>
+													<span v-else>..</span>
+													<a @click="showHiddenText =! showHiddenText">
+														<span v-if="showHiddenText">less</span>
+														<span v-else>more</span>
+													</a>
+												</p>
+												<p v-show="showHiddenText">
+													We all know we can make a few thousand dollars in a few hours. But what do you do for the other 8 hours?<br>
+													Don’t Go out of business from new trends!
+												</p>
+											</div>
 										</div>
 									</div>
 								</column>
@@ -87,14 +133,15 @@
 						<div class="van-software__box-wrapper">
 							<div>
 								<div class="van-software__title">
-									A software<br>
-									which has everything
+									Mobile Software
+									<br>Which has everything
 								</div>
 								<div class="van-software__content">
-									Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-									Lorem Ipsum has been the industry’s standard dummy text ever since the 1500s,
-									when an unknown printer took a galley of type and scrambled it to make a type
-									specimen book.
+									Prior to ASAP, there wasn’t any mobile software to keep perfect track of the efficacy of your mobile day.
+									Our App Makes sure there’s never a dull moment. Even if your business is slow, our app will direct you where you should dispatch to in order to find jobs on the spot or create new future customers!
+								</div>
+								<div class="van-software__content">
+									Additionally, ASAP creates an easy interactive environment to manage all of your leads while your own the go
 								</div>
 							</div>
 							<div class="van-software__img">
@@ -110,10 +157,9 @@
 								</template>
 								<p>You will receive confirmation email ans SMS with all the details</p>
 								<p slot="hidden-text" class="hidden-text">
-									Just like uber! We will send you notifications ASAP to inform you of a new
-									client
-									service
-									request. Make up to $250 a cut.
+									Just like Uber!
+									We will send you notifications ASAP to inform you of a new client service request.
+									Make up to $450 a Job.
 								</p>
 							</buy-van-box>
 							<buy-van-box>
@@ -122,10 +168,8 @@
 								</template>
 								<p>Were selling one in every city in South Floirda</p>
 								<p slot="hidden-text" class="hidden-text">
-									Thats Right! We are finding barbers in every city in Florida to purchase a van.
-									We
-									will have one
-									in every city in Palm Beach County by Febuary 2020
+									That’s Right! We are finding Agents in every city in Florida to purchase a van.
+									We will have one in every city in Florida
 								</p>
 							</buy-van-box>
 							<buy-van-box>
@@ -134,13 +178,7 @@
 								</template>
 								<p>Share a van with Co Workers!</p>
 								<p slot="hidden-text" class="hidden-text">
-									Rather make the investment in mobile alone, why not go in with some barber
-									friends?
-									Share the
-									van when you're slow and lacking appointments or walk ins. Our Vans come
-									standard
-									with 2 barber
-									chairs!
+									Rather make the investment in mobile alone, why not go in with some repair friends? Share the van when you're slow and lacking appointments or walk ins. Our Vans comes with enough room for two techs!
 								</p>
 							</buy-van-box>
 							<buy-van-box>
@@ -168,12 +206,8 @@
 								<p>Premium software applications</p>
 								<p slot="hidden-text" class="hidden-text">
 									ASAP Corp is a software engineering company that creates Mobile ASAP AI Tools.
-									These
-									tools are
-									very important they because themselves create routes to follow that allows the
-									user
-									to find jobs
-									on <br>the spot.
+									These tools are very important they because themselves create routes to follow that allows the user to find jobs on
+									the spot.
 								</p>
 							</buy-van-box>
 							<buy-van-box>
@@ -182,13 +216,7 @@
 								</template>
 								<p>Send you to where potential clients are!</p>
 								<p slot="hidden-text" class="hidden-text">
-									Our AI System creates a world where middle enterprise management is operated by
-									a
-									computer. Our
-									system is not only able to handle your day to day tasks but also direct you to
-									where
-									often times
-									you will find a job every hour!
+									We build had crafted mobile phone stores. Clients increase their revenue because they always have their repair store with them.
 								</p>
 							</buy-van-box>
 							<buy-van-box>
@@ -197,10 +225,8 @@
 								</template>
 								<p>Never be empty handed. Always have your store with you</p>
 								<p slot="hidden-text" class="hidden-text">
-									We build had crafted mobile barbershops. Clients increaes their revenue because
-									they
-									always have
-									their barbershop with them.
+									Our AI system, Supel eliminates the need for agent to think of the uncertainties. Supel will directly instruct the agent where to drive, where to stop, what to say, how long to stay,
+									and collect data on the success of the locations in the background to determine prices and location timings.
 								</p>
 							</buy-van-box>
 							<buy-van-box>
@@ -209,16 +235,7 @@
 								</template>
 								<p>Software that tells you where your next move should be</p>
 								<p slot="hidden-text" class="hidden-text">
-									Our AI system, Supel eliminates the need for a barber to think of the
-									uncertainties.
-									Supel will
-									directly instruct the barber where to drive, where to stop, what to say, how
-									long to
-									stay, and
-									collect data on the success of the locations in the backround to determine
-									prices
-									and location
-									timings.
+									Our system is an all in one Artificial Intelligence Central Resource Management Enterprise System. Supel will manage your schedule such as when to make follow up calls to clients to collect sales. Or even prioritize a upset client. Supel will do that and inform you of what to say for each and everything. Meanwhile, Supel is operating in the background reminding leads of your status. For example, if you collect the lead at a location you are near by, Supel will inform them that they are in the area. This message can be pre programmed by user. Please visit AnythingASAP.com for more
 								</p>
 							</buy-van-box>
 							<buy-van-box>
@@ -374,10 +391,12 @@
 	import BuyVanBox from "../../components/BuyVanBox";
 	import AnimatedInput from "../../components/AnimatedInput";
 	import BigButton from "../../components/BigButton";
+	import MdlButton from "../../material-design-lite/button/mdlButton";
 
 	export default {
 		name: "phoneBuyVan",
 		components: {
+			MdlButton,
 			BigButton,
 			AnimatedInput,
 			BuyVanBox,
@@ -386,6 +405,7 @@
 		},
 		data() {
 			return {
+				showHiddenText: false,
 				showSuccessMessage: false,
 				testimonials_Slides: [],
 				customer_name: '',
@@ -451,13 +471,14 @@
 
 			&__header {
 				margin-top: 200px;
-				margin-bottom: 200px;
 				@media screen and (max-width: 768px) {
 					padding: 0 2rem;
 					margin-top: 100px;
 					margin-bottom: 350px;
 					img {
 						position: relative;
+						margin-top: 280px;
+						right: 20px;
 					}
 				}
 				@media screen and (max-width: 500px) {
@@ -470,7 +491,7 @@
 				font-size: 26px;
 				font-weight: 900;
 				color: rgb(254, 135, 0);
-				text-transform: uppercase;
+				//text-transform: uppercase;
 				@media screen and (max-width: 768px) {
 					text-align: center !important;
 				}
@@ -478,18 +499,34 @@
 
 			&__content {
 				font-size: 22px;
-				font-weight: 200;
+				font-weight: 100;
 				color: #646464;
 				text-align: left;
-				max-width: 400px;
+				max-width: 500px;
 				line-height: 1.2em;
 				margin-top: 15px;
 				@media screen and (max-width: 768px) {
 					text-align: center !important;
 					max-width: 100%;
 				}
-			}
 
+			}
+			&__device-count{
+				font-size: 18px;
+				font-weight: 100;
+				color: #646464;
+				text-align: left;
+				line-height: 1.2em;
+				margin-top: 15px;
+			}
+			&__sub-content{
+				font-size: 18px;
+				font-weight: 100;
+				color: #646464;
+				text-align: left;
+				//line-height: 1.2em;
+				margin-bottom: 20px;
+			}
 			$size: 400px;
 
 			.shape {
@@ -509,11 +546,20 @@
 			}
 
 			&__working {
+				margin-top:100px;
 				display: flex;
 				flex-direction: column;
 				justify-content: center;
 				align-items: center;
 				text-align: center;
+				h4{
+					font-size: 24px;
+					color: #646464;
+				}
+				h6{
+					font-size: 24px;
+					color: #646464;
+				}
 				@media screen and (max-width: 768px) {
 					//padding: 0 2rem;
 				}
@@ -533,7 +579,8 @@
 
 			.repair-van-box {
 				&__box {
-					max-height: 380px;
+					min-height: 265px;
+					max-width: 250px;
 					padding: 20px;
 					display: flex;
 					flex-direction: column;
@@ -986,6 +1033,23 @@
 			.have-ques {
 				padding: 0 2rem;
 			}
+		}
+	}
+	.s{
+		color: #ffffff;
+		border: none;
+		background-color: #f9a73b;
+		background-image: -webkit-linear-gradient(left, #f9a73b 0%, #f58730 50%,#f9a73b 100%);
+		background-image: linear-gradient(to right, #f9a73b 0%, #f58730 50%,#f9a73b 100%);
+		transition: all .2s ease-in-out;
+		background-size: 200% 100%;
+		height: 50px;
+		svg{
+			width:15px;
+			fill:#fff;
+			position: relative;
+			top: 3px;
+			right: 3px;
 		}
 	}
 </style>

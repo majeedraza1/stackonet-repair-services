@@ -5,11 +5,11 @@
 			</div>
 			<div class="van-wrapper__text-box">
 				<div v-if="showOriginal">
-					<slot></slot>
+					<slot> </slot>
 					<button class="van-wrapper__text-button" @click="handleViewMore">View More</button>
 				</div>
 				<div v-if="showHidden">
-					<slot name="hidden-text"></slot>
+					<slot name="hidden-text"> </slot>
 					<button class="van-wrapper__text-button" @click="handleOriginal">View Original</button>
 				</div>
 			</div>
