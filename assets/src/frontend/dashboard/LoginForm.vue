@@ -1,27 +1,39 @@
 <template>
 	<div class="stackonet-login-form-container">
 		<form @submit.prevent="submitForm" class="stackonet-login-form">
-			<div class="stackonet-login-form-logo">
-				<img :src="logo_url" alt="">
-			</div>
-			<animated-input
-				type="text"
-				v-model="user_login"
-				label="Email or Username"
-				autocomplete="username"
-				:has-error="hasUserLoginError"
-				:helptext="errors.user_login?errors.user_login[0]:''"
-			></animated-input>
-			<animated-input
-				v-model="password"
-				label="Password"
-				type="password"
-				autocomplete="current-password"
-				:has-error="hasPasswordError"
-				:helptext="errors.password?errors.password[0]:''"
-			></animated-input>
-			<mdl-checkbox label="Remember me" v-model="remember"></mdl-checkbox>
-			<big-button fullwidth :disabled="!canSubmit">Log In</big-button>
+			<columns multiline>
+				<column :tablet="12">
+					<div class="stackonet-login-form-logo">
+						<img :src="logo_url" alt="">
+					</div>
+				</column>
+				<column :tablet="12">
+					<text-field
+							type="text"
+							v-model="user_login"
+							label="Email or Username"
+							autocomplete="username"
+							:has-error="hasUserLoginError"
+							:help-text="errors.user_login?errors.user_login[0]:''"
+					/>
+				</column>
+				<column :tablet="12">
+					<text-field
+							v-model="password"
+							label="Password"
+							type="password"
+							autocomplete="current-password"
+							:has-error="hasPasswordError"
+							:help-text="errors.password?errors.password[0]:''"
+					/>
+				</column>
+				<column :tablet="12">
+					<shapla-checkbox label="Remember me" v-model="remember"/>
+				</column>
+				<column :tablet="12">
+					<shapla-button fullwidth theme="primary" :disabled="!canSubmit">Log In</shapla-button>
+				</column>
+			</columns>
 		</form>
 		<spinner :active="loading"></spinner>
 	</div>
@@ -30,13 +42,14 @@
 <script>
 	import axios from 'axios';
 	import spinner from "shapla-spinner";
-	import AnimatedInput from "../../components/AnimatedInput";
-	import BigButton from "../../components/BigButton";
-	import MdlCheckbox from "../../material-design-lite/checkbox/mdlCheckbox";
+	import shaplaButton from 'shapla-button';
+	import shaplaCheckbox from 'shapla-checkbox';
+	import textField from 'shapla-text-field';
+	import {columns, column} from 'shapla-columns';
 
 	export default {
 		name: "LoginForm",
-		components: {MdlCheckbox, spinner, BigButton, AnimatedInput},
+		components: {spinner, textField, shaplaButton, shaplaCheckbox, columns, column},
 		data() {
 			return {
 				loading: false,
@@ -54,10 +67,10 @@
 				return SupportTickets.logo_url;
 			},
 			hasUserLogin() {
-				return !!(this.user_login.length >= 4);
+				return (this.user_login.length >= 4);
 			},
 			hasPassword() {
-				return !!(this.password.length >= 4);
+				return (this.password.length >= 4);
 			},
 			canSubmit() {
 				return this.hasPassword && this.hasUserLogin;
@@ -72,22 +85,19 @@
 		methods: {
 			submitForm() {
 				this.loading = true;
-				axios
-					.post(PhoneRepairs.rest_root + '/login', {
-						user_login: this.user_login,
-						password: this.password,
-						remember: this.remember,
-					})
-					.then(response => {
-						this.loading = false;
-						window.location.reload();
-					})
-					.catch(error => {
-						this.loading = false;
-						if (error.response) {
-							this.errors = error.response.data.errors;
-						}
-					})
+				axios.post(PhoneRepairs.rest_root + '/login', {
+					user_login: this.user_login,
+					password: this.password,
+					remember: this.remember,
+				}).then(response => {
+					this.loading = false;
+					window.location.reload();
+				}).catch(error => {
+					this.loading = false;
+					if (error.response) {
+						this.errors = error.response.data.errors;
+					}
+				})
 			},
 			validateEmail(email) {
 				let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -126,7 +136,7 @@
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			margin-bottom: 50px;
+			margin-bottom: 30px;
 		}
 	}
 </style>

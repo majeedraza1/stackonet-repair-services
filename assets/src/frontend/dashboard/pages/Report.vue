@@ -1,6 +1,6 @@
 <template>
 	<div class="stackonet-dashboard-report">
-		<tabs @change="changeTab" alignment="center" size="large">
+		<tabs @change="changeTab" alignment="center">
 			<tab name="Graph" selected>
 				<div class="stackonet-dashboard-graph">
 					<month-navigation @change="changeDate"/>

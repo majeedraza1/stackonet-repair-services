@@ -78,5 +78,9 @@
 </script>
 
 <style lang="scss">
-
+	.admin-bar {
+		.shapla-dashboard {
+			top: 32px;
+		}
+	}
 </style>
