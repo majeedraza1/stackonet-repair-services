@@ -179,6 +179,10 @@
 		width: 100%;
 	}
 
+	.no-wrap {
+		white-space: nowrap;
+	}
+
 	.button--action {
 		border-radius: 50%;
 		position: absolute;

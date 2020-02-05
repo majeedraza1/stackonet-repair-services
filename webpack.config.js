@@ -107,7 +107,6 @@ module.exports = (env, argv) => {
 							loader: "sass-loader",
 							options: {
 								sourceMap: isDevelopment,
-								includePaths: ['./node_modules'],
 							},
 						}
 					]

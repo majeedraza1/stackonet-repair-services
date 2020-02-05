@@ -132,30 +132,30 @@ class DashboardPage {
 		$menu = [];
 
 		if ( current_user_can( 'read_reports' ) ) {
-			$menu[] = [ 'router' => '/report', 'label' => 'Dashboard' ];
+			$menu[] = [ 'router' => '/report', 'label' => 'Dashboard', 'routerName' => 'Dashboard' ];
 		}
 
 		if ( current_user_can( 'read_tickets' ) ) {
-			$menu[] = [ 'router' => '/ticket', 'label' => 'Support' ];
-			$menu[] = [ 'router' => '/map', 'label' => 'Map' ];
+			$menu[] = [ 'router' => '/ticket', 'label' => 'Support', 'routerName' => 'SupportTicketList' ];
+			$menu[] = [ 'router' => '/map', 'label' => 'Map', 'routerName' => 'Map' ];
 		}
 
 		if ( current_user_can( 'manage_options' ) ) {
-			$menu[] = [ 'router' => '/tracker', 'label' => 'Tracker' ];
+			$menu[] = [ 'router' => '/tracker', 'label' => 'Tracker', 'routerName' => 'tracker' ];
 		}
 
 		if ( current_user_can( 'read_surveys' ) ) {
-			$menu[] = [ 'router' => '/survey', 'label' => 'Survey' ];
-			$menu[] = [ 'router' => '/carrier-stores', 'label' => 'Carrier Stores' ];
-			$menu[] = [ 'router' => '/lead', 'label' => 'Lead' ];
+			$menu[] = [ 'router' => '/survey', 'label' => 'Survey', 'routerName' => 'survey' ];
+			$menu[] = [ 'router' => '/carrier-stores', 'label' => 'Carrier Stores', 'routerName' => 'CarrierStores' ];
+			$menu[] = [ 'router' => '/lead', 'label' => 'Lead', 'routerName' => 'appointment' ];
 		}
 
 		if ( current_user_can( 'read_twilio_messages' ) ) {
-			$menu[] = [ 'router' => '/sms', 'label' => 'SMS' ];
+			$menu[] = [ 'router' => '/sms', 'label' => 'SMS', 'routerName' => 'ShortMessageService' ];
 		}
 
 		if ( current_user_can( 'read_checkout_analysis_records' ) ) {
-			$menu[] = [ 'router' => '/checkout-analysis', 'label' => 'Checkout Analysis' ];
+			$menu[] = [ 'router' => '/checkout-analysis', 'label' => 'Checkout Analysis', 'routerName' => 'checkout' ];
 		}
 
 		if ( current_user_can( 'manage_options' ) ) {
@@ -183,18 +183,18 @@ class DashboardPage {
 			<script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
 			<script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-database.js"></script>
 			<script>
-                // Your web app's Firebase configuration
-                window.firebaseConfig = {
-                    apiKey: "AIzaSyBrCRpBGINZkM0VdpXcCjESj6ph4pOhBFo",
-                    authDomain: "stackonet-services.firebaseapp.com",
-                    databaseURL: "https://stackonet-services.firebaseio.com",
-                    projectId: "stackonet-services",
-                    storageBucket: "",
-                    messagingSenderId: "461716596258",
-                    appId: "1:461716596258:web:096ed4d22806024a"
-                };
-                // Initialize Firebase
-                firebase.initializeApp(firebaseConfig);
+				// Your web app's Firebase configuration
+				window.firebaseConfig = {
+					apiKey: "AIzaSyBrCRpBGINZkM0VdpXcCjESj6ph4pOhBFo",
+					authDomain: "stackonet-services.firebaseapp.com",
+					databaseURL: "https://stackonet-services.firebaseio.com",
+					projectId: "stackonet-services",
+					storageBucket: "",
+					messagingSenderId: "461716596258",
+					appId: "1:461716596258:web:096ed4d22806024a"
+				};
+				// Initialize Firebase
+				firebase.initializeApp(firebaseConfig);
 			</script>
 			<?php
 		}

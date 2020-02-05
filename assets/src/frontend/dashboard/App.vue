@@ -1,80 +1,40 @@
 <template>
 	<div class="stackonet-dashboard-container">
-		<div
-			class="demo-layout stackonet-dashboard mdl-layout mdl-js-layout">
 
-			<header class="demo-header mdl-layout__header">
-				<div class="mdl-layout__header-row">
-					<span class="mdl-layout-title">{{title}}</span>
-					<div class="mdl-layout-spacer"></div>
-					<mdl-button type="icon" id="menu-1">
-						<icon small><i class="fa fa-ellipsis-v" aria-hidden="true"></i></icon>
-					</mdl-button>
-					<ul class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right" for="menu-1">
-						<li class="mdl-menu__item"><a :href="home_url">Home</a></li>
-						<li class="mdl-menu__item"><a :href="logout_url">Log out</a></li>
-					</ul>
-				</div>
-			</header>
+		<dashboard-layout :title="title" :activate-side-nav="activateSideNav" :user-display-name="display_name"
+						  :avatar-url="avatar_url" @open:sidenav="activateSideNav = true"
+						  @close:sidenav="activateSideNav = false">
 
-			<div class="demo-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
+			<router-view></router-view>
 
-				<header class="demo-drawer-header">
-					<div class="user-information-box">
-						<div class="user-information-box__avatar">
-							<image-container square>
-								<img :src="avatar_url" class="is-rounded" :alt="display_name">
-							</image-container>
+			<template v-slot:navbar-end>
+				<dropdown :hoverable="false" :right="true">
+					<template v-slot:trigger>
+						<div class="shapla-icon shapla-icon-button">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+								<path d="M0 0h24v24H0z" fill="none"/>
+								<path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+									  fill="currentColor"/>
+							</svg>
 						</div>
-						<div class="demo-avatar-dropdown">
-							<span>{{display_name}}</span>
-							<div class="mdl-layout-spacer"></div>
-							<button id="menu-2" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-								<icon>
-									<i class="fa fa-caret-down" aria-hidden="true"></i>
-								</icon>
-								<span class="visuallyhidden">Accounts</span>
-							</button>
-							<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="menu-2">
-								<li class="mdl-menu__item">Log out</li>
-							</ul>
-						</div>
-					</div>
-				</header>
-
-				<nav class="demo-navigation mdl-navigation">
-					<template v-for="_menuItem in menu_items">
-						<template v-if="_menuItem.type && _menuItem.type === 'link'">
-							<a
-								:href="_menuItem.url"
-								:target="_menuItem.target"
-								class="mdl-navigation__link">{{_menuItem.label}}</a>
-						</template>
-						<template v-else>
-							<router-link
-								class="mdl-navigation__link"
-								tag="div"
-								:to="_menuItem.router"
-								active-class="is-active">
-								{{_menuItem.label}}
-							</router-link>
-						</template>
 					</template>
-				</nav>
-			</div>
+					<a class="dropdown-item" :href="home_url">Home</a>
+					<a class="dropdown-item" :href="logout_url">Log out</a>
+				</dropdown>
+			</template>
 
-			<main class="mdl-layout__content">
-				<div class="demo-content">
-					<router-view></router-view>
-				</div>
-			</main>
-		</div>
+			<template v-slot:sidenav-menu>
+				<ul class="sidenav-list">
+					<li class="sidenav-list__item" v-for="_menuItem in menu_items">
+						<a class="sidenav-list__link" :class="{'is-active':$route.name === _menuItem.routerName}"
+						   href="#" @click.prevent="handleMenuItemClick(_menuItem)">{{_menuItem.label}}</a>
+					</li>
+				</ul>
+			</template>
+		</dashboard-layout>
 		<spinner :active="loading"></spinner>
 		<notification ref="notify"></notification>
-		<confirm-dialog
-			confirm-button-class="mdl-button mdl-button--raised mdl-button--primary"
-			cancel-button-class="mdl-button mdl-button--raised"
-		></confirm-dialog>
+		<confirm-dialog/>
 		<svg-icon></svg-icon>
 	</div>
 </template>
@@ -83,22 +43,19 @@
 	import {mapState, mapGetters} from 'vuex';
 	import notification from 'shapla-notifications';
 	import spinner from "shapla-spinner";
-	import {MaterialLayout} from '../../material-design-lite/layout/MaterialLayout'
-	import {MaterialMenu} from '../../material-design-lite/menu/MaterialMenu'
-	import MdlButton from "../../material-design-lite/button/mdlButton";
+	import {ConfirmDialog} from "shapla-confirm-dialog";
+	import dashboardLayout from 'shapla-dashboard-layout';
+	import dropdown from 'shapla-dropdown';
 	import Icon from "../../shapla/icon/icon";
-	import ImageContainer from "../../shapla/image/image";
-	import ConfirmDialog from "../../shapla/shapla-confirm-modal/ConfirmDialog";
 	import SvgIcon from "../../svg-icon";
 
 	export default {
 		name: "App",
-		components: {SvgIcon, ConfirmDialog, spinner, ImageContainer, MdlButton, Icon, notification},
-		mounted() {
-			let el = this.$el;
-			new MaterialLayout(el.querySelector('.stackonet-dashboard'));
-			new MaterialMenu(el.querySelector('[for="menu-1"]'));
-			new MaterialMenu(el.querySelector('[for="menu-2"]'));
+		components: {dashboardLayout, dropdown, SvgIcon, ConfirmDialog, spinner, Icon, notification},
+		data() {
+			return {
+				activateSideNav: false,
+			}
 		},
 		computed: {
 			...mapState(['loading', 'title']),
@@ -106,95 +63,20 @@
 			menu_items() {
 				return StackonetDashboard.menuItems;
 			},
+		},
+		methods: {
+			handleMenuItemClick(menuItem) {
+				this.activateSideNav = false;
+				if (menuItem.type && menuItem.type === 'link') {
+					window.open(menuItem.url, menuItem.target);
+				} else if (this.$route.name !== menuItem.routerName) {
+					this.$router.push({name: menuItem.routerName});
+				}
+			}
 		}
 	}
 </script>
 
 <style lang="scss">
-	@import "../../material-design-lite/layout/layout";
-	@import "../../material-design-lite/menu/menu";
-	@import "~shapla-notifications/src/notification";
-	@import "dashboard";
 
-	.no-wrap {
-		white-space: nowrap;
-	}
-
-	.has-gap-50 {
-		&.shapla-columns {
-			margin: -25px;
-
-			> .shapla-column {
-				padding: 25px;
-			}
-		}
-	}
-
-	body.has-shapla-modal {
-		.mdl-layout__drawer,
-		.mdl-layout__header {
-			z-index: -1;
-		}
-
-		#wpadminbar {
-			display: none;
-		}
-	}
-
-	body.admin-bar {
-		.shapla-notification {
-			top: 40px;
-		}
-	}
-
-	.stackonet-dashboard-container {
-		position: fixed;
-		display: flex;
-		height: 100%;
-		width: 100%;
-
-		.stackonet-dashboard-loader.is-active {
-			display: flex;
-			z-index: 100000;
-			width: 100%;
-			height: 100%;
-			position: fixed;
-			background: rgba(#fff, 0.6);
-			top: 0;
-			left: 0;
-			justify-content: center;
-			align-items: center;
-		}
-
-		.shapla-modal-card {
-			// max-height: calc(100vh - 220px);
-		}
-	}
-
-	.mdl-icon-burger {
-		color: #ffffff;
-
-		display: inline-block;
-		font: normal normal normal 14px/1 FontAwesome;
-		font-size: inherit;
-		text-rendering: auto;
-		-webkit-font-smoothing: antialiased;
-		-moz-osx-font-smoothing: grayscale;
-
-		&:before {
-			content: "\f0c9";
-		}
-	}
-
-	.user-information-box {
-		&__avatar {
-			width: 48px;
-			height: 48px;
-			margin: auto;
-		}
-	}
-
-	.mdl-navigation__link {
-		cursor: pointer;
-	}
 </style>
