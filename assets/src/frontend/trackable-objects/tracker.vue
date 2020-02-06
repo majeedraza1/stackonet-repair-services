@@ -164,6 +164,11 @@
 
 		.shapla-sidenav__content {
 			padding-left: .5rem;
+			direction: rtl;
+
+			> * {
+				direction: ltr;
+			}
 		}
 	}
 

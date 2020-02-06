@@ -10,13 +10,13 @@
 			<template v-slot:navbar-end>
 				<dropdown :hoverable="false" :right="true">
 					<template v-slot:trigger>
-						<div class="shapla-icon shapla-icon-button">
+						<icon-container :hoverable="true">
 							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
 								<path d="M0 0h24v24H0z" fill="none"/>
 								<path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
 									  fill="currentColor"/>
 							</svg>
-						</div>
+						</icon-container>
 					</template>
 					<a class="dropdown-item" :href="home_url">Home</a>
 					<a class="dropdown-item" :href="logout_url">Log out</a>
@@ -46,12 +46,12 @@
 	import {ConfirmDialog} from "shapla-confirm-dialog";
 	import dashboardLayout from 'shapla-dashboard-layout';
 	import dropdown from 'shapla-dropdown';
-	import Icon from "../../shapla/icon/icon";
+	import iconContainer from 'shapla-icon-container'
 	import SvgIcon from "../../svg-icon";
 
 	export default {
 		name: "App",
-		components: {dashboardLayout, dropdown, SvgIcon, ConfirmDialog, spinner, Icon, notification},
+		components: {dashboardLayout, dropdown, SvgIcon, ConfirmDialog, spinner, iconContainer, notification},
 		data() {
 			return {
 				activateSideNav: false,
