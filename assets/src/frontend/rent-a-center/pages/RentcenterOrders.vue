@@ -49,7 +49,7 @@
 							<div class="field is-grouped">
 								<div class="control has-icons-left">
 									<span class="icon is-small is-left"><i
-										class="fa fa-search fa-xs searchIcon"></i></span>
+											class="fa fa-search fa-xs searchIcon"></i></span>
 									<input class="input" type="text" placeholder="Quick Search"/>
 								</div>
 							</div>
@@ -285,7 +285,6 @@
 
 <script>
 	import {columns, column} from 'shapla-columns'
-	import icon from '../../../shapla/icon/icon'
 	import imageContainer from '../../../shapla/image/image'
 	import box from '../../../shapla/box/box'
 	import StatusBox from '../../components/StatusBox'
@@ -293,7 +292,7 @@
 
 	export default {
 		name: "Dashboard",
-		components: {Search, columns, column, icon, imageContainer, StatusBox, box},
+		components: {Search, columns, column, imageContainer, StatusBox, box},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 			this.$store.commit('SET_SNACKBAR', {

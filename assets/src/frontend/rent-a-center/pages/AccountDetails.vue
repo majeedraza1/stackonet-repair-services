@@ -32,13 +32,12 @@
 
 <script>
 	import {columns, column} from "shapla-columns";
-	import Icon from "../../../shapla/icon/icon";
 	import Box from '../../../shapla/box/box';
 
 
 	export default {
 		name: "AccountDetails",
-		components: {column, columns, Icon, Box},
+		components: {column, columns, Box},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 		}

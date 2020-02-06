@@ -1,6 +1,6 @@
 <template>
 	<div class="stackonet-dashboard-map">
-		<tabs alignment="center" size="large">
+		<tabs alignment="center">
 			<tab name="Map " selected>
 				<columns>
 					<column :tablet="4">
@@ -193,7 +193,6 @@
 	import {MapMixin} from "./MapMixin";
 	import {TrackerMixin} from "../../trackable-objects/TrackerMixin";
 	import MapListTable from "./MapListTable";
-	import Icon from "../../../shapla/icon/icon";
 	import SearchBox from "../../../components/SearchBox";
 	import MdlButton from "../../../material-design-lite/button/mdlButton";
 	import MdlSlider from "../../../material-design-lite/slider/mdlSlider";
@@ -210,7 +209,7 @@
 		components: {
 			AddressBox2, vSelect, AnimatedInput, MapListTable, tab, tabs,
 			AddressBox, FlatPickr, GMapAutocomplete, MdlSlider, MdlButton,
-			SearchBox, deleteIcon, Icon, columns, column, modal, draggable
+			SearchBox, deleteIcon, columns, column, modal, draggable
 		},
 		data() {
 			return {

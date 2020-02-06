@@ -12,12 +12,12 @@
 				<column :mobile="4" :tablet="4" v-if="hasPlace">
 					<box class="small-box__distance">
 						<div>
-							<icon medium>
+							<icon-container size="medium">
 								<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32"
 									 viewBox="0 0 32 32">
 									<use xlink:href="#icon-svg-location"></use>
 								</svg>
-							</icon>
+							</icon-container>
 						</div>
 						<div class="no-wrap">Distance</div>
 						<div class="no-wrap" v-if="place.leg.distance" v-text="place.leg.distance.text"></div>
@@ -26,11 +26,11 @@
 				<column :mobile="4" :tablet="4" v-if="hasPlace">
 					<box class="small-box__time">
 						<div>
-							<icon medium>
+							<icon-container size="medium">
 								<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
 									<use xlink:href="#icon-svg-clock"></use>
 								</svg>
-							</icon>
+							</icon-container>
 						</div>
 						<span>Time</span>
 						<span class="no-wrap" v-if="place.leg.duration" v-text="place.leg.duration.text"></span>
@@ -40,11 +40,11 @@
 					<box class="small-box__interval">
 						<div>
 							<div>
-								<icon medium>
+								<icon-container size="medium">
 									<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
 										<use xlink:href="#icon-svg-hour-glass"></use>
 									</svg>
-								</icon>
+								</icon-container>
 							</div>
 						</div>
 						<div>Interval</div>
@@ -61,11 +61,11 @@
 				<column :mobile="6" :tablet="6" v-if="hasPlace">
 					<box class="small-box-second__ETA">
 						<div>
-							<icon medium>
+							<icon-container size="medium">
 								<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
 									<use xlink:href="#icon-svg-calendar"></use>
 								</svg>
-							</icon>
+							</icon-container>
 						</div>
 						<div>ETA</div>
 						<div class="new-design__date">
@@ -77,11 +77,11 @@
 				<column :mobile="6" :tablet="6" v-if="hasPlace">
 					<box class="small-box-second__ETD">
 						<div>
-							<icon medium>
+							<icon-container size="medium">
 								<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
 									<use xlink:href="#icon-svg-calendar"></use>
 								</svg>
-							</icon>
+							</icon-container>
 						</div>
 						<span>ETD</span>
 						<span class="new-design__date">
@@ -112,13 +112,13 @@
 <script>
 	import {columns, column} from 'shapla-columns';
 	import Box from "../shapla/box/box";
-	import Icon from "../shapla/icon/icon";
+	import iconContainer from 'shapla-icon-container'
 	import MdlButton from "../material-design-lite/button/mdlButton";
 	import {MapMixin} from "../frontend/dashboard/pages/MapMixin";
 
 	export default {
 		name: "AddressBox2",
-		components: {MdlButton, Icon, Box, columns, column},
+		components: {MdlButton, iconContainer, Box, columns, column},
 		mixins: [MapMixin],
 		props: {
 			place: {

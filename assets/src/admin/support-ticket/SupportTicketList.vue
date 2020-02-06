@@ -70,7 +70,7 @@
 	import axios from 'axios';
 	import WpListTable from "../../wp/wpListTable";
 	import MdlButton from "../../material-design-lite/button/mdlButton";
-	import Icon from "../../shapla/icon/icon";
+	import iconContainer from 'shapla-icon-container'
 	import Search from "../../shapla/search/Search";
 
 	export default {

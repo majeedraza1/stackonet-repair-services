@@ -17,9 +17,9 @@
 
 					<div class="stackont-single-ticket__heading">
 						<h4 class="stackont-single-ticket__title">[Ticket #{{item.id}}] {{item.ticket_subject}}</h4>
-						<icon>
+						<icon-container>
 							<span @click="openTitleModal" class="dashicons dashicons-edit"></span>
-						</icon>
+						</icon-container>
 					</div>
 
 					<div>
@@ -72,14 +72,14 @@
 											</div>
 
 											<div class="shapla-thread__content-align-right shapla-thread__actions">
-												<icon medium>
+												<icon-container size="medium">
 													<span @click="openThreadEditor(thread)"
 														  class="dashicons dashicons-edit"></span>
-												</icon>
-												<icon medium>
+												</icon-container>
+												<icon-container size="medium">
 													<span @click="deleteThread(thread)"
 														  class="dashicons dashicons-trash"></span>
-												</icon>
+												</icon-container>
 											</div>
 										</div>
 										<div v-html="thread.thread_content"></div>
@@ -108,9 +108,9 @@
 				<div class="shapla-box shapla-widget-box">
 					<div class="shapla-widget-box__heading">
 						<h5 class="shapla-widget-box__title">Status</h5>
-						<icon>
+						<icon-container>
 							<span @click="openStatusModal" class="dashicons dashicons-edit"></span>
-						</icon>
+						</icon-container>
 					</div>
 					<div class="shapla-widget-box__content" v-if="Object.keys(item).length">
 						<list-item label="Status">{{item.status.name}}</list-item>
@@ -122,9 +122,9 @@
 				<div class="shapla-box shapla-widget-box">
 					<div class="shapla-widget-box__heading">
 						<h5 class="shapla-widget-box__title">Assign Agent(s)</h5>
-						<icon>
+						<icon-container>
 							<span @click="openAssignAgentModal" class="dashicons dashicons-edit"></span>
-						</icon>
+						</icon-container>
 					</div>
 					<div class="shapla-widget-box__content">
 						<span class="shapla-chip shapla-chip--contact" v-for="_agent in item.assigned_agents">
@@ -177,9 +177,9 @@
 							</label>
 						</fieldset>
 						<p>
-							<icon>
+							<icon-container>
 								<span @click="openTwilioAssignAgentModal" class="dashicons dashicons-edit"></span>
-							</icon>
+							</icon-container>
 							<strong>Assign Agent(s)</strong><br>
 							<template v-for="_agent in support_agents">
 
@@ -291,11 +291,11 @@
 	import mdlButton from '../../material-design-lite/button/mdlButton'
 	import ListItem from '../../components/ListItem'
 	import ImageContainer from "../../shapla/image/image";
-	import Icon from "../../shapla/icon/icon";
+	import iconContainer from 'shapla-icon-container'
 
 	export default {
 		name: "SingleSupportTicket",
-		components: {Icon, ImageContainer, mdlButton, columns, column, ListItem, Editor, modal},
+		components: {iconContainer, ImageContainer, mdlButton, columns, column, ListItem, Editor, modal},
 		data() {
 			return {
 				loading: false,

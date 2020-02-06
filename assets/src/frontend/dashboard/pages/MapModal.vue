@@ -150,7 +150,7 @@
 	import MdlButton from "../../../material-design-lite/button/mdlButton";
 	import SearchBox from "../../../components/SearchBox";
 	import MdlSlider from "../../../material-design-lite/slider/mdlSlider";
-	import Icon from "../../../shapla/icon/icon";
+	import iconContainer from 'shapla-icon-container'
 	import AddressBox2 from "../../../components/AddressBox2";
 
 	let mapStyles = require('./map-style.json');
@@ -160,7 +160,7 @@
 		mixins: [MapMixin],
 		components: {
 			AddressBox2,
-			Icon,
+			iconContainer,
 			MdlSlider,
 			SearchBox,
 			MdlButton,

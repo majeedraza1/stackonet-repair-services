@@ -7,16 +7,16 @@
 					<div class="stackont-single-support-ticket-actions">
 						<div class="left">
 							<mdl-button type="raised" color="primary" @click="openNewTicket">
-								<icon><i class="fa fa-plus" aria-hidden="true"></i></icon>
+								<icon-container><i class="fa fa-plus" aria-hidden="true"></i></icon-container>
 								New Ticket
 							</mdl-button>
 							<mdl-button type="raised" color="default" @click="ticketList">
-								<icon><i class="fa fa-list" aria-hidden="true"></i></icon>
+								<icon-container><i class="fa fa-list" aria-hidden="true"></i></icon-container>
 								Ticket List
 							</mdl-button>
 							<template v-if="!!Object.keys(map).length">
 								<mdl-button type="raised" color="default" @click="showViewMapModal = true">
-									<icon><i class="fa fa-map" aria-hidden="true"></i></icon>
+									<icon-container><i class="fa fa-map" aria-hidden="true"></i></icon-container>
 									View Map
 								</mdl-button>
 							</template>
@@ -68,7 +68,7 @@
 
 					<div class="stackont-single-ticket__heading">
 						<h4 class="stackont-single-ticket__title">[Ticket #{{item.id}}] {{item.ticket_subject}}</h4>
-						<icon><i @click="openTitleModal" class="fa fa-pencil-square-o" aria-hidden="true"></i></icon>
+						<icon-container><i @click="openTitleModal" class="fa fa-pencil-square-o" aria-hidden="true"></i></icon-container>
 					</div>
 
 					<div>
@@ -124,9 +124,9 @@
 				<div class="shapla-box shapla-widget-box">
 					<div class="shapla-widget-box__heading">
 						<h5 class="shapla-widget-box__title">Status</h5>
-						<icon>
+						<icon-container>
 							<i @click="openStatusModal" class="fa fa-pencil-square-o" aria-hidden="true"></i>
-						</icon>
+						</icon-container>
 					</div>
 					<div class="shapla-widget-box__content" v-if="Object.keys(item).length">
 						<list-item label="Status">{{item.status.name}}</list-item>
@@ -282,9 +282,9 @@
 				<div class="shapla-box shapla-widget-box">
 					<div class="shapla-widget-box__heading">
 						<h5 class="shapla-widget-box__title">Assign Agent(s)</h5>
-						<icon>
+						<icon-container>
 							<i @click="openAssignAgentModal" class="fa fa-pencil-square-o" aria-hidden="true"></i>
-						</icon>
+						</icon-container>
 					</div>
 					<div class="shapla-widget-box__content">
 						<span class="shapla-chip shapla-chip--contact" v-for="_agent in item.assigned_agents">
@@ -341,10 +341,10 @@
 								<strong>Assign Agent(s)</strong>
 							</label>
 
-							<icon v-if="ticket_twilio_sms_enable_phone === 'agents'">
+							<icon-container v-if="ticket_twilio_sms_enable_phone === 'agents'">
 								<i @click="openTwilioAssignAgentModal" aria-hidden="true"
 								   class="fa fa-pencil-square-o"></i>
-							</icon>
+							</icon-container>
 							<br>
 							<template v-for="_agent in support_agents">
 
@@ -462,7 +462,7 @@
 	import mdlButton from '../../material-design-lite/button/mdlButton'
 	import ListItem from '../../components/ListItem'
 	import ImageContainer from "../../shapla/image/image";
-	import Icon from "../../shapla/icon/icon";
+	import iconContainer from 'shapla-icon-container'
 	import MediaModal from "../components/MediaModal";
 	import Accordion from "../../components/Accordion";
 	import TicketThreads from "./TicketThreads";
@@ -473,7 +473,7 @@
 		name: "SingleSupportTicket",
 		components: {
 			StepProgressBar, MapModal,
-			TicketThreads, Accordion, MediaModal, Icon, ImageContainer,
+			TicketThreads, Accordion, MediaModal, iconContainer, ImageContainer,
 			mdlButton, columns, column, ListItem, Editor, modal
 		},
 		data() {

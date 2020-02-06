@@ -6,7 +6,7 @@
 				<span class="mdl-layout-title"> Andrew andy</span>
 				<div class="mdl-layout-spacer"></div>
 				<mdl-button type="icon" id="hdrbtn">
-					<icon small><i class="fa fa-comment-o" aria-hidden="true"></i></icon>
+					<icon-container size="small"><i class="fa fa-comment-o" aria-hidden="true"></i></icon-container>
 				</mdl-button>
 				<ul class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right" for="hdrbtn">
 					<li class="mdl-menu__item"><a :href="home_url">Home</a></li>
@@ -174,13 +174,13 @@
 									<div class="input_msg_write">
 										<div id="fa-plus"><i class="fa">&#xf067;</i></div>
 										<input id="input" type="text" class="write_msg" placeholder="Type a message"/>
-										<icon id="button" class="msg_send_btn">
+										<icon-container id="button" class="msg_send_btn">
 											<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32"
 												 viewBox="0 0 30 35">
 												<path
 													d="M17 32c-0.072 0-0.144-0.008-0.217-0.024-0.458-0.102-0.783-0.507-0.783-0.976v-15h-15c-0.469 0-0.875-0.326-0.976-0.783s0.129-0.925 0.553-1.123l30-14c0.381-0.178 0.833-0.098 1.13 0.199s0.377 0.749 0.199 1.13l-14 30c-0.167 0.358-0.524 0.577-0.906 0.577zM5.508 14h11.492c0.552 0 1 0.448 1 1v11.492l10.931-23.423-23.423 10.931z"></path>
 											</svg>
-										</icon>
+										</icon-container>
 									</div>
 								</div>
 							</div>
@@ -196,13 +196,13 @@
 	import {columns, column} from "shapla-columns";
 	import {MaterialLayout} from '../../../material-design-lite/layout/MaterialLayout';
 	import {MaterialMenu} from '../../../material-design-lite/menu/MaterialMenu';
-	import Icon from "../../../shapla/icon/icon";
+	import iconContainer from 'shapla-icon-container'
 	import MdlButton from "../../../material-design-lite/button/mdlButton";
 
 
 	export default {
 		name: "ChatApp",
-		components: {MdlButton, column, columns, Icon},
+		components: {MdlButton, column, columns, iconContainer},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 			let dashboard = this.$el;

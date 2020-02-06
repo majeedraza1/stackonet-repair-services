@@ -14,25 +14,25 @@
 						<column :mobile="12" :tablet="6">
 							<status-box label="Processing" number="72" icon-background="red" icon-color="white"
 										border-color="red">
-								<icon large><i class="fa fa-2x fa-sign-out"></i></icon>
+								<icon-container large><i class="fa fa-2x fa-sign-out"></i></icon-container>
 							</status-box>
 						</column>
 						<column :mobile="12" :tablet="6">
 							<status-box label="Repairing" number="72" icon-background="green" icon-color="white"
 										border-color="green">
-								<icon large><i class="fa fa-2x fa-address-book-o"></i></icon>
+								<icon-container large><i class="fa fa-2x fa-address-book-o"></i></icon-container>
 							</status-box>
 						</column>
 						<column :mobile="12" :tablet="6">
 							<status-box label="Not Repaired" number="72" icon-background="#ff8240" icon-color="white"
 										border-color="#ff8240">
-								<icon large><i class="fa fa-2x fa-bar-chart"></i></icon>
+								<icon-container large><i class="fa fa-2x fa-bar-chart"></i></icon-container>
 							</status-box>
 						</column>
 						<column :mobile="12" :tablet="6">
 							<status-box label="Processing" number="72" icon-background="red" icon-color="white"
 										border-color="red">
-								<icon large><i class="fa fa-2x fa-sign-out"></i></icon>
+								<icon-container large><i class="fa fa-2x fa-sign-out"></i></icon-container>
 							</status-box>
 						</column>
 					</columns>
@@ -78,7 +78,7 @@
 							</div>
 							<div class="store-managers-list__item" style="z-index: 10">
 								<div class="store-managers-list__icon">
-									<icon large><i class="fa fa-plus"></i></icon>
+									<icon-container large><i class="fa fa-plus"></i></icon-container>
 								</div>
 							</div>
 						</div>
@@ -112,14 +112,14 @@
 
 <script>
 	import {columns, column} from 'shapla-columns'
-	import icon from '../../../shapla/icon/icon'
 	import imageContainer from '../../../shapla/image/image'
 	import box from '../../../shapla/box/box'
 	import StatusBox from '../../components/StatusBox'
+	import iconContainer from 'shapla-icon-container'
 
 	export default {
 		name: "Dashboard",
-		components: {columns, column, icon, imageContainer, StatusBox, box},
+		components: {columns, column, imageContainer, StatusBox, box, iconContainer},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 			this.$store.commit('SET_SNACKBAR', {

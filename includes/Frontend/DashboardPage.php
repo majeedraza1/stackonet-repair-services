@@ -41,6 +41,8 @@ class DashboardPage {
 	public function load_dashboard_scripts() {
 		global $post;
 		if ( $post instanceof WP_Post && has_shortcode( $post->post_content, 'stackonet_frontend_dashboard' ) ) {
+			wp_enqueue_style( 'stackonet-repair-services-frontend' );
+			wp_enqueue_script( 'stackonet-repair-services-frontend' );
 			wp_enqueue_style( 'stackonet-frontend-dashboard' );
 			wp_enqueue_script( 'stackonet-frontend-dashboard' );
 			wp_localize_script( 'stackonet-frontend-dashboard', '_stackontDashboard', [

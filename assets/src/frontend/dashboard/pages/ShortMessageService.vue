@@ -1,6 +1,6 @@
 <template>
 	<div class="stackonet-dashboard-sms">
-		<tabs alignment="center" size="large">
+		<tabs alignment="center">
 			<tab name="SMS" selected>
 				<div class="stackonet-dashboard-sms__sms">
 

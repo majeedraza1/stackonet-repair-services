@@ -8,7 +8,7 @@
 				<span class="mdl-layout-title">Dashboard</span>
 				<div class="mdl-layout-spacer"></div>
 				<mdl-button type="icon" id="hdrbtn">
-					<icon small><i class="fa fa-ellipsis-v" aria-hidden="true"></i></icon>
+					<icon-container small><i class="fa fa-ellipsis-v" aria-hidden="true"></i></icon-container>
 				</mdl-button>
 				<ul class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right" for="hdrbtn">
 					<li class="mdl-menu__item"><a :href="home_url">Home</a></li>
@@ -34,67 +34,67 @@
 				<columns mobile multiline centered>
 					<column :mobile="6" :tablet="6">
 						<router-link tag="div" to="/" class="action-menu__item">
-							<icon large><i class="fa fa-2x fa-bar-chart"></i></icon>
+							<icon-container large><i class="fa fa-2x fa-bar-chart"></i></icon-container>
 							<span>Dashboard</span>
 						</router-link>
 					</column>
 					<column :mobile="6" :tablet="6">
 						<router-link tag="div" to="/RentcenterOrders" class="action-menu__item">
-							<icon large><i class="fa fa-2x fa-cart-plus"></i></icon>
+							<icon-container large><i class="fa fa-2x fa-cart-plus"></i></icon-container>
 							<span>Orders</span>
 						</router-link>
 
 					</column>
 					<column :mobile="6" :tablet="6">
 						<router-link tag="div" to="/store-addresses" class="action-menu__item">
-							<icon large><i class="fa fa-2x fa-address-book-o"></i></icon>
+							<icon-container large><i class="fa fa-2x fa-address-book-o"></i></icon-container>
 							<span>Store Addresses</span>
 						</router-link>
 					</column>
 					<column :mobile="6" :tablet="6">
 						<router-link tag="div" to="/AccountDetails" class="action-menu__item">
-							<icon large><i class="fa fa-2x fa-user-circle-o"></i></icon>
+							<icon-container large><i class="fa fa-2x fa-user-circle-o"></i></icon-container>
 							<span>Account Details</span>
 						</router-link>
 
 					</column>
 					<column :mobile="6" :tablet="6">
 						<router-link tag="div" to="/Phones" class="action-menu__item">
-							<icon large><i class="fa fa-2x fa-mobile"></i></icon>
+							<icon-container large><i class="fa fa-2x fa-mobile"></i></icon-container>
 							<span>Phones</span>
 						</router-link>
 
 					</column>
 					<column :mobile="6" :tablet="6">
 						<router-link tag="div" to="/TrackStatus" class="action-menu__item">
-							<icon large><i class="fa fa-2x fa-truck"></i></icon>
+							<icon-container large><i class="fa fa-2x fa-truck"></i></icon-container>
 							<span>Track Status</span>
 						</router-link>
 
 					</column>
 					<column :mobile="6" :tablet="6">
 						<router-link tag="div" to="/chat-app" class="action-menu__item">
-							<icon large><i class="fa fa-2x fa-envelope-o"></i></icon>
+							<icon-container large><i class="fa fa-2x fa-envelope-o"></i></icon-container>
 							<span>Messages</span>
 						</router-link>
 
 					</column>
 					<column :mobile="6" :tablet="6">
 						<router-link tag="div" to="/Notifications" class="action-menu__item">
-							<icon large><i class="fa fa-2x fa-bell-o"></i></icon>
+							<icon-container large><i class="fa fa-2x fa-bell-o"></i></icon-container>
 							<span>Notification</span>
 						</router-link>
 					</column>
 					<column :mobile="6" :tablet="6">
 						<router-link tag="div" to="/Invoices" class="action-menu__item">
-							<icon large><i class="fa fa-2x fa-file-text-o"></i></icon>
+							<icon-container large><i class="fa fa-2x fa-file-text-o"></i></icon-container>
 							<span>Invoices</span>
 						</router-link>
 
 					</column>
 					<column :mobile="6" :tablet="6">
 						<router-link tag="div" to="/Logout" class="action-menu__item">
-							<icon large><i class="fa fa-2x fa-sign-out"></i></icon>
+							<icon-container large><i class="fa fa-2x fa-sign-out"></i></icon-container>
 							<span>Logout</span>
 						</router-link>
 
@@ -118,11 +118,11 @@
 	import {MaterialLayout} from '../../material-design-lite/layout/MaterialLayout';
 	import {MaterialMenu} from '../../material-design-lite/menu/MaterialMenu';
 	import ImageContainer from "../../shapla/image/image";
-	import Icon from "../../shapla/icon/icon";
+	import iconContainer from 'shapla-icon-container'
 
 	export default {
 		name: "RentCenter",
-		components: {Icon, ImageContainer, columns, column},
+		components: {iconContainer, ImageContainer, columns, column},
 		computed: {
 			...mapState(['loading', 'snackbar']),
 		},

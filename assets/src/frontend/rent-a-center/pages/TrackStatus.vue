@@ -173,7 +173,6 @@
 
 <script>
 	import {columns, column} from 'shapla-columns'
-	import icon from '../../../shapla/icon/icon'
 	import imageContainer from '../../../shapla/image/image'
 	import box from '../../../shapla/box/box'
 	import MdlButton from "../../../material-design-lite/button/mdlButton";

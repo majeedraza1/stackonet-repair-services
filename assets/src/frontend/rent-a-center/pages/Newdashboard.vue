@@ -7,7 +7,7 @@
 				<span class="mdl-layout-title">Dashboard</span>
 				<div class="mdl-layout-spacer"></div>
 				<mdl-button type="icon" id="hdrbtn">
-					<icon small><i class="fa fa-ellipsis-v" aria-hidden="true"></i></icon>
+					<icon-container size="small"><i class="fa fa-ellipsis-v" aria-hidden="true"></i></icon-container>
 				</mdl-button>
 				<ul class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right" for="hdrbtn">
 					<li class="mdl-menu__item"><a :href="home_url">Home</a></li>
@@ -29,9 +29,9 @@
 						<span>{{display_name}}</span>
 						<div class="mdl-layout-spacer"></div>
 						<button id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-							<icon>
+							<icon-container>
 								<i class="fa fa-caret-down" aria-hidden="true"></i>
-							</icon>
+							</icon-container>
 							<span class="visuallyhidden">Accounts</span>
 						</button>
 						<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="accbtn">
@@ -72,13 +72,13 @@
 	import {mapGetters} from 'vuex';
 	import {MaterialLayout} from '../../../material-design-lite/layout/MaterialLayout'
 	import {MaterialMenu} from '../../../material-design-lite/menu/MaterialMenu'
-	import Icon from "../../../shapla/icon/icon";
+	import iconContainer from 'shapla-icon-container';
 	import MdlButton from "../../../material-design-lite/button/mdlButton";
 	import ImageContainer from "../../../shapla/image/image";
 
 	export default {
 		name: "App",
-		components: {ImageContainer, MdlButton, Icon},
+		components: {ImageContainer, MdlButton, iconContainer},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 			let dashboard = this.$el;

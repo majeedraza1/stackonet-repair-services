@@ -1,12 +1,7 @@
 <template>
 	<div>
-		<wp-pagination
-			size="medium"
-			:total_items="pagination.totalCount"
-			:per_page="limit"
-			:current_page="pagination.currentPage"
-			@pagination="paginate"
-		></wp-pagination>
+		<wp-pagination :total_items="pagination.totalCount" :per_page="limit" :current_page="pagination.currentPage"
+					   @pagination="paginate"/>
 		<div v-for="item in items" class="checkout-analysis-item" @click="toggleTable($event)">
 			<columns gapless>
 				<column :desktop="2">
@@ -101,16 +96,16 @@
 				let self = this;
 				this.$store.commit('SET_LOADING_STATUS', true);
 				axios
-					.get(PhoneRepairs.rest_root + '/checkout-analysis?paged=' + self.currentPage + '&per_page=' + self.limit)
-					.then((response) => {
-						this.$store.commit('SET_LOADING_STATUS', false);
-						self.items = response.data.data.items;
-						self.pagination = response.data.data.pagination;
-					})
-					.catch((error) => {
-						this.$store.commit('SET_LOADING_STATUS', false);
-						alert('Some thing went wrong. Please try again.');
-					});
+						.get(PhoneRepairs.rest_root + '/checkout-analysis?paged=' + self.currentPage + '&per_page=' + self.limit)
+						.then((response) => {
+							this.$store.commit('SET_LOADING_STATUS', false);
+							self.items = response.data.data.items;
+							self.pagination = response.data.data.pagination;
+						})
+						.catch((error) => {
+							this.$store.commit('SET_LOADING_STATUS', false);
+							alert('Some thing went wrong. Please try again.');
+						});
 			},
 			paginate(page) {
 				this.currentPage = page;
@@ -118,7 +113,7 @@
 			},
 			toggleTable(event) {
 				let items = this.$el.querySelectorAll('.checkout-analysis-item'),
-					item = event.target.closest('.checkout-analysis-item');
+						item = event.target.closest('.checkout-analysis-item');
 
 				item.querySelector('.mdl-data-table').classList.toggle('is-hidden');
 				items.forEach(element => {

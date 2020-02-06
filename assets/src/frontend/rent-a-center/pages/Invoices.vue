@@ -233,15 +233,13 @@
 
 <script>
 	import {columns, column} from 'shapla-columns'
-	import icon from '../../../shapla/icon/icon'
 	import imageContainer from '../../../shapla/image/image'
 	import box from '../../../shapla/box/box'
 	import MdlButton from "../../../material-design-lite/button/mdlButton";
 
-
 	export default {
 		name: "Invoices",
-		components: {MdlButton, columns, column, icon, imageContainer, box},
+		components: {MdlButton, columns, column, imageContainer, box},
 		mounted() {
 			this.$store.commit('SET_LOADING_STATUS', false);
 			this.$store.commit('SET_SNACKBAR', {

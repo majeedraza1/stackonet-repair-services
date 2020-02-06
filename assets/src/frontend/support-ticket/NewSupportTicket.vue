@@ -4,7 +4,7 @@
 		<div class="display-flex justify-space-between">
 			<div class="flex-item">
 				<mdl-button type="raised" color="default" @click="ticketList">
-					<icon><i class="fa fa-list" aria-hidden="true"></i></icon>
+					<icon-container><i class="fa fa-list" aria-hidden="true"></i></icon-container>
 					Ticket List
 				</mdl-button>
 			</div>
@@ -106,13 +106,13 @@
 	import Editor from '@tinymce/tinymce-vue'
 	import {columns, column} from "shapla-columns";
 	import MdlButton from "../../material-design-lite/button/mdlButton";
-	import Icon from "../../shapla/icon/icon";
+	import iconContainer from 'shapla-icon-container'
 	import MediaModal from "../components/MediaModal";
 	import ImageContainer from "../../shapla/image/image";
 
 	export default {
 		name: "NewSupportTicket",
-		components: {ImageContainer, MediaModal, columns, column, Icon, MdlButton, Editor},
+		components: {ImageContainer, MediaModal, columns, column, iconContainer, MdlButton, Editor},
 		data() {
 			return {
 				customer_name: '',
