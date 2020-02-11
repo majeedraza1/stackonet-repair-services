@@ -63,7 +63,7 @@
 				</span>
 			</template>
 			<template slot="filters">
-				<div style="min-width: 150px;">
+				<div style="min-width: 150px;">se
 					<v-select :options="statuses" v-model="vStatus" @input="_changeStatus" :clearable="false"
 							  placeholder="All Status">
 						<template slot="option" slot-scope="option">
