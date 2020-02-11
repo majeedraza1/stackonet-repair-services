@@ -53,6 +53,49 @@
 			<div class="repairs-van-background">
 				<img :src="`${img_url}/wave.png`" alt="van">
 				<div class="container">
+					<div class="buy--van--form">
+						<div>
+							<form method="post" @submit.prevent="submitTicket" class="have-ques__form">
+								<div v-if="showSuccessMessage"
+									 class="message shapla-color--primary-bg shapla-color--on-primary">
+									Thank you for you message
+								</div>
+								<columns>
+									<column>
+										<animated-input
+												type="text"
+												v-model="customer_name"
+												label="Name"
+												autocomplete="given-name"
+										/>
+									</column>
+									<column>
+										<animated-input
+												type="text"
+												v-model="customer_email"
+												label="Email Address"
+												autocomplete="email"
+										/>
+									</column>
+									<column>
+										<animated-input
+												type="text"
+												v-model="phone_number"
+												label="Phone Number"
+												autocomplete="tel"
+										/>
+									</column>
+								</columns>
+								<animated-input
+										type="textarea"
+										v-model="ticket_content"
+										label="Message"
+								/>
+
+								<big-button fullwidth>Send</big-button>
+							</form>
+						</div>
+					</div>
 					<section class="repair-van__working">
 						<h6> We Are Your One Stop Shop</h6>
 						<h4> Here is how it works.</h4>
@@ -454,10 +497,15 @@
 								<span style="font-weight:600;">2.</span> Apply your approved financing to our
 								Lease to Own option and begin mobile
 								today!<br><br>
-								3.) Pay Flat monthly rate with annual
+								<span style="font-weight:600;">3.</span>
+								Pay Flat monthly rate with annual
 								buyout option!
 							</td>
 						</tr>
+						<div style="padding-left:30px;background: #fff;position: absolute;bottom:0;font-weight: 600;">
+							Terms and conditions effective as of 2/10/20.
+							Subject to change.
+						</div>
 					</table>
 				</div>
 			</section>
@@ -466,78 +514,42 @@
 					Have Questions.
 				</div>
 				<div class="container">
-					<columns>
-						<column>
-							<div class="have-ques__contact-detail">
-								<div class="have-ques__address">
-									<div class="cont">
-										<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="home"
-											 role="img"
-											 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"
-											 class="svg-inline--fa fa-home fa-w-18">
-											<path d="M280.37 148.26L96 300.11V464a16 16 0 0 0 16 16l112.06-.29a16 16 0 0 0 15.92-16V368a16 16 0 0 1 16-16h64a16 16 0 0 1 16 16v95.64a16 16 0 0 0 16 16.05L464 480a16 16 0 0 0 16-16V300L295.67 148.26a12.19 12.19 0 0 0-15.3 0zM571.6 251.47L488 182.56V44.05a12 12 0 0 0-12-12h-56a12 12 0 0 0-12 12v72.61L318.47 43a48 48 0 0 0-61 0L4.34 251.47a12 12 0 0 0-1.6 16.9l25.5 31A12 12 0 0 0 45.15 301l235.22-193.74a12.19 12.19 0 0 1 15.3 0L530.9 301a12 12 0 0 0 16.9-1.6l25.5-31a12 12 0 0 0-1.7-16.93z"
-												  class=""/>
-										</svg>
-										<span class="cus-text">
+					<div class="have-ques__contact-detail">
+						<div class="have-ques__address">
+							<div class="cont">
+								<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="home"
+									 role="img"
+									 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"
+									 class="svg-inline--fa fa-home fa-w-18">
+									<path d="M280.37 148.26L96 300.11V464a16 16 0 0 0 16 16l112.06-.29a16 16 0 0 0 15.92-16V368a16 16 0 0 1 16-16h64a16 16 0 0 1 16 16v95.64a16 16 0 0 0 16 16.05L464 480a16 16 0 0 0 16-16V300L295.67 148.26a12.19 12.19 0 0 0-15.3 0zM571.6 251.47L488 182.56V44.05a12 12 0 0 0-12-12h-56a12 12 0 0 0-12 12v72.61L318.47 43a48 48 0 0 0-61 0L4.34 251.47a12 12 0 0 0-1.6 16.9l25.5 31A12 12 0 0 0 45.15 301l235.22-193.74a12.19 12.19 0 0 1 15.3 0L530.9 301a12 12 0 0 0 16.9-1.6l25.5-31a12 12 0 0 0-1.7-16.93z"
+										  class=""/>
+								</svg>
+								<span class="cus-text">
 									2500 Quantum Lakes Dr #203
 										Boynton Beach, FL 33426
 								</span>
-									</div>
-									<div class="cont">
-										<svg aria-hidden="true" focusable="false" data-prefix="fas"
-											 data-icon="phone-volume"
-											 role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"
-											 class="svg-inline--fa fa-phone-volume fa-w-12">
-											<path d="M97.333 506.966c-129.874-129.874-129.681-340.252 0-469.933 5.698-5.698 14.527-6.632 21.263-2.422l64.817 40.513a17.187 17.187 0 0 1 6.849 20.958l-32.408 81.021a17.188 17.188 0 0 1-17.669 10.719l-55.81-5.58c-21.051 58.261-20.612 122.471 0 179.515l55.811-5.581a17.188 17.188 0 0 1 17.669 10.719l32.408 81.022a17.188 17.188 0 0 1-6.849 20.958l-64.817 40.513a17.19 17.19 0 0 1-21.264-2.422zM247.126 95.473c11.832 20.047 11.832 45.008 0 65.055-3.95 6.693-13.108 7.959-18.718 2.581l-5.975-5.726c-3.911-3.748-4.793-9.622-2.261-14.41a32.063 32.063 0 0 0 0-29.945c-2.533-4.788-1.65-10.662 2.261-14.41l5.975-5.726c5.61-5.378 14.768-4.112 18.718 2.581zm91.787-91.187c60.14 71.604 60.092 175.882 0 247.428-4.474 5.327-12.53 5.746-17.552.933l-5.798-5.557c-4.56-4.371-4.977-11.529-.93-16.379 49.687-59.538 49.646-145.933 0-205.422-4.047-4.85-3.631-12.008.93-16.379l5.798-5.557c5.022-4.813 13.078-4.394 17.552.933zm-45.972 44.941c36.05 46.322 36.108 111.149 0 157.546-4.39 5.641-12.697 6.251-17.856 1.304l-5.818-5.579c-4.4-4.219-4.998-11.095-1.285-15.931 26.536-34.564 26.534-82.572 0-117.134-3.713-4.836-3.115-11.711 1.285-15.931l5.818-5.579c5.159-4.947 13.466-4.337 17.856 1.304z"
-												  class=""/>
-										</svg>
-										<span class="cus-text">561-FIX-ITFL (561-349-4835)</span>
-									</div>
-									<div class="cont">
-										<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="envelope"
-											 role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
-											 class="svg-inline--fa fa-envelope fa-w-16">
-											<path d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z"
-												  class=""/>
-										</svg>
-										<span class="cus-text">support@phonerepairsasap.com</span>
-									</div>
-								</div>
 							</div>
-						</column>
-						<column>
-							<form method="post" @submit.prevent="submitTicket" class="have-ques__form">
-								<div v-if="showSuccessMessage"
-									 class="message shapla-color--primary-bg shapla-color--on-primary">
-									Thank you for you message
-								</div>
-								<animated-input
-										type="text"
-										v-model="customer_name"
-										label="Name"
-										autocomplete="given-name"
-								/>
-								<animated-input
-										type="text"
-										v-model="customer_email"
-										label="Email Address"
-										autocomplete="email"
-								/>
-								<animated-input
-										type="text"
-										v-model="phone_number"
-										label="Phone Number"
-										autocomplete="tel"
-								/>
-								<animated-input
-										type="textarea"
-										v-model="ticket_content"
-										label="Message"
-								/>
-								<big-button fullwidth>Send</big-button>
-							</form>
-						</column>
-					</columns>
+							<div class="cont">
+								<svg aria-hidden="true" focusable="false" data-prefix="fas"
+									 data-icon="phone-volume"
+									 role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"
+									 class="svg-inline--fa fa-phone-volume fa-w-12">
+									<path d="M97.333 506.966c-129.874-129.874-129.681-340.252 0-469.933 5.698-5.698 14.527-6.632 21.263-2.422l64.817 40.513a17.187 17.187 0 0 1 6.849 20.958l-32.408 81.021a17.188 17.188 0 0 1-17.669 10.719l-55.81-5.58c-21.051 58.261-20.612 122.471 0 179.515l55.811-5.581a17.188 17.188 0 0 1 17.669 10.719l32.408 81.022a17.188 17.188 0 0 1-6.849 20.958l-64.817 40.513a17.19 17.19 0 0 1-21.264-2.422zM247.126 95.473c11.832 20.047 11.832 45.008 0 65.055-3.95 6.693-13.108 7.959-18.718 2.581l-5.975-5.726c-3.911-3.748-4.793-9.622-2.261-14.41a32.063 32.063 0 0 0 0-29.945c-2.533-4.788-1.65-10.662 2.261-14.41l5.975-5.726c5.61-5.378 14.768-4.112 18.718 2.581zm91.787-91.187c60.14 71.604 60.092 175.882 0 247.428-4.474 5.327-12.53 5.746-17.552.933l-5.798-5.557c-4.56-4.371-4.977-11.529-.93-16.379 49.687-59.538 49.646-145.933 0-205.422-4.047-4.85-3.631-12.008.93-16.379l5.798-5.557c5.022-4.813 13.078-4.394 17.552.933zm-45.972 44.941c36.05 46.322 36.108 111.149 0 157.546-4.39 5.641-12.697 6.251-17.856 1.304l-5.818-5.579c-4.4-4.219-4.998-11.095-1.285-15.931 26.536-34.564 26.534-82.572 0-117.134-3.713-4.836-3.115-11.711 1.285-15.931l5.818-5.579c5.159-4.947 13.466-4.337 17.856 1.304z"
+										  class=""/>
+								</svg>
+								<span class="cus-text">561-FIX-ITFL (561-349-4835)</span>
+							</div>
+							<div class="cont">
+								<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="envelope"
+									 role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
+									 class="svg-inline--fa fa-envelope fa-w-16">
+									<path d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z"
+										  class=""/>
+								</svg>
+								<span class="cus-text">support@phonerepairsasap.com</span>
+							</div>
+						</div>
+					</div>
 				</div>
 			</section>
 		</div>
@@ -1141,6 +1153,9 @@
 			}
 
 			&__contact-detail {
+				display: flex;
+				justify-content: center;
+
 				.cont {
 					width: 100%;
 					margin-bottom: 1.5em;
@@ -1183,6 +1198,8 @@
 			}
 
 			&__form {
+				max-width: 700px;
+
 				.mdl-textfield {
 					border: none;
 					background: rgb(234, 238, 243);
@@ -1220,6 +1237,11 @@
 		}
 	}
 
+	.buy--van--form {
+		display: flex;
+		justify-content: center;
+	}
+
 	.requirements--table {
 		$baseColor: #398B93;
 		$borderRadius: 10px;
@@ -1250,6 +1272,7 @@
 		}
 
 		table {
+			position: relative;
 			width: 100%;
 
 			td, th {
