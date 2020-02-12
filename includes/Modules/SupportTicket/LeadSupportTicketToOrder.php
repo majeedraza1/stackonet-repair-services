@@ -140,13 +140,15 @@ class LeadSupportTicketToOrder {
 	 * @throws Exception
 	 */
 	private static function add_support_ticket_note( WC_Order $order, $support_ticket_id ) {
-		$content = OrderToSupportTicket::get_support_ticket_content( $order );
-		( new SupportTicket() )->add_ticket_info( $support_ticket_id, [
+		$content   = OrderToSupportTicket::get_support_ticket_content( $order );
+		$thread_id = ( new SupportTicket() )->add_ticket_info( $support_ticket_id, [
 			'thread_type'    => 'report',
 			'customer_name'  => $order->get_billing_company(),
 			'customer_email' => $order->get_billing_phone(),
 			'post_content'   => $content,
 			'agent_created'  => 0,
 		] );
+
+		do_action( 'stackonet_support_ticket/v1/thread_created', $support_ticket_id, $thread_id );
 	}
 }

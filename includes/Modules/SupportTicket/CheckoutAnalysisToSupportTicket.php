@@ -93,6 +93,8 @@ class CheckoutAnalysisToSupportTicket {
 				'id'                => $checkout_analysis->get( 'id' ),
 				'support_ticket_id' => $ticket_id
 			] );
+
+			do_action( 'stackonet_support_ticket/v1/ticket_created', $ticket_id );
 		}
 	}
 }

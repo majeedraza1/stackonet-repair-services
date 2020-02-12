@@ -23,12 +23,14 @@ class OrderRescheduleToSupportTicket {
 		echo "Time: <strong>{$data['time']}</strong>";
 		$post_content = ob_get_clean();
 
-		( new SupportTicket() )->add_ticket_info( $support_ticket_id, [
+		$thread_id = ( new SupportTicket() )->add_ticket_info( $support_ticket_id, [
 			'thread_type'    => 'note',
 			'customer_name'  => $order->get_formatted_billing_full_name(),
 			'customer_email' => $order->get_billing_email(),
 			'post_content'   => $post_content,
 			'agent_created'  => 0,
 		] );
+
+		do_action( 'stackonet_support_ticket/v1/thread_created', $support_ticket_id, $thread_id );
 	}
 }

@@ -52,7 +52,9 @@ class ContactFormToSupportTicket extends Action {
 		<?php
 		$_content = ob_get_clean();
 
-		( new SupportTicket )->create_support_ticket( $_data, $_content );
+		$ticket_id = ( new SupportTicket )->create_support_ticket( $_data, $_content );
+
+		do_action( 'stackonet_support_ticket/v1/ticket_created', $ticket_id );
 	}
 
 	/**

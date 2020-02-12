@@ -57,6 +57,8 @@ class MapToSupportTicket {
 			$supportTicket->update_metadata( $ticket_id, 'belongs_to_id', $map->get( 'id' ) );
 
 			$map->update( [ 'id' => $map->get( 'id' ), 'support_ticket_id' => $ticket_id ] );
+
+			do_action( 'stackonet_support_ticket/v1/ticket_created', $ticket_id );
 		}
 	}
 }

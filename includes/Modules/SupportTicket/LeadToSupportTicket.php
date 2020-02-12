@@ -79,6 +79,8 @@ class LeadToSupportTicket {
 		if ( $ticket_id ) {
 			$supportTicket->update_metadata( $ticket_id, 'created_via', 'appointment' );
 			$supportTicket->update_metadata( $ticket_id, 'belongs_to_id', $appointment->get( 'id' ) );
+
+			do_action( 'stackonet_support_ticket/v1/ticket_created', $ticket_id );
 		}
 	}
 

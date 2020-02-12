@@ -168,11 +168,12 @@ final class Stackonet_Repair_Services {
 		$this->container['bulk_sms']         = new Stackonet\Sms\BulkSms();
 		$this->container['order_reminder']   = Stackonet\Models\OrderReminder::init();
 
-		$this->container['my_account']     = Stackonet\Modules\MyAccount\MyAccount::init();
-		$this->container['support_ticket'] = Stackonet\Modules\SupportTicket\SupportTicketManager::init();
-		$this->container['firebase_sync']  = Stackonet\Integrations\FirebaseDatabase::init();
-		$this->container['ca_to_ticket']   = Stackonet\Modules\SupportTicket\CheckoutAnalysisToSupportTicket::init();
-		$this->container['page_template']  = Stackonet\PageTemplater::init();
+		$this->container['my_account']        = Stackonet\Modules\MyAccount\MyAccount::init();
+		$this->container['support_ticket']    = Stackonet\Modules\SupportTicket\SupportTicketManager::init();
+		$this->container['firebase_sync']     = Stackonet\Integrations\FirebaseDatabase::init();
+		$this->container['support_ticket_v3'] = Stackonet\Integrations\StackonetSupportTicket\V3\StackonetSupportTicket::init();
+		$this->container['ca_to_ticket']      = Stackonet\Modules\SupportTicket\CheckoutAnalysisToSupportTicket::init();
+		$this->container['page_template']     = Stackonet\PageTemplater::init();
 
 		if ( $this->is_request( 'admin' ) ) {
 			$this->container['reschedule-date-time'] = Stackonet\Admin\RescheduleDateTime::init();

@@ -481,7 +481,11 @@ class SupportTicket extends DatabaseModel {
 			update_post_meta( $post_id, 'customer_name', $data['customer_name'] );
 			update_post_meta( $post_id, 'customer_email', $data['customer_email'] );
 			update_post_meta( $post_id, 'attachments', $attachments );
+
+			return $post_id;
 		}
+
+		return 0;
 	}
 
 	/**
@@ -839,7 +843,7 @@ class SupportTicket extends DatabaseModel {
 		$id    = intval( $id );
 		$items = [ 'pre' => null, 'next' => null ];
 
-		$sql = "select * from {$table} where ( id = IFNULL((select min(id) from {$table} where id > {$id}),0) 
+		$sql = "select * from {$table} where ( id = IFNULL((select min(id) from {$table} where id > {$id}),0)
 			or  id = IFNULL((select max(id) from {$table} where id < {$id}),0) )";
 
 		$results = $wpdb->get_results( $sql, ARRAY_A );

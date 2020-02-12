@@ -343,6 +343,8 @@ class SupportTicketController extends ApiController {
 				'attachments'    => is_array( $ticket_attachments ) ? $ticket_attachments : [],
 			] );
 
+			do_action( 'stackonet_support_ticket/v1/ticket_created', $ticket_id );
+
 			return $this->respondCreated( [ 'ticket_id' => $ticket_id ] );
 		}
 
@@ -419,6 +421,8 @@ class SupportTicketController extends ApiController {
 				'customer_email' => $customer_email,
 				'thread_type'    => 'report',
 			] );
+
+			do_action( 'stackonet_support_ticket/v1/ticket_created', $ticket_id );
 
 			return $this->respondCreated( [ 'ticket_id' => $ticket_id ] );
 		}
@@ -549,6 +553,9 @@ class SupportTicketController extends ApiController {
 		$data = $request->get_params();
 
 		if ( ( new SupportTicket() )->update( $data ) ) {
+
+			do_action( 'stackonet_support_ticket/v1/ticket_updated', $id, $data );
+
 			return $this->respondOK();
 		}
 
@@ -594,6 +601,8 @@ class SupportTicketController extends ApiController {
 			$class->delete( $id );
 		}
 
+		do_action( 'stackonet_support_ticket/v1/ticket_deleted', $id, $action );
+
 		return $this->respondOK( "#{$id} Support ticket has been deleted" );
 	}
 
@@ -631,6 +640,8 @@ class SupportTicketController extends ApiController {
 			if ( 'delete' == $action ) {
 				$class->delete( $id );
 			}
+
+			do_action( 'stackonet_support_ticket/v1/ticket_deleted', $id, $action );
 		}
 
 		return $this->respondOK( "Support tickets has been deleted" );
@@ -670,13 +681,15 @@ class SupportTicketController extends ApiController {
 
 		$user = wp_get_current_user();
 
-		$support_ticket->add_ticket_info( $id, [
+		$thread_id = $support_ticket->add_ticket_info( $id, [
 			'thread_type'    => $thread_type,
 			'customer_name'  => $user->display_name,
 			'customer_email' => $user->user_email,
 			'post_content'   => $thread_content,
 			'agent_created'  => $user->ID,
 		], $attachments );
+
+		do_action( 'stackonet_support_ticket/v1/thread_created', $id, $thread_id );
 
 		return $this->respondCreated();
 	}
@@ -719,6 +732,8 @@ class SupportTicketController extends ApiController {
 		] );
 
 		if ( ! $response instanceof WP_Error ) {
+			do_action( 'stackonet_support_ticket/v1/thread_updated', $id, $thread_id, $post_content );
+
 			return $this->respondOK( $post_content );
 		}
 
@@ -748,6 +763,8 @@ class SupportTicketController extends ApiController {
 
 		$support_ticket->update_agent( $agent );
 
+		do_action( 'stackonet_support_ticket/v1/update_ticket_agent', $id, $agent );
+
 		return $this->respondOK();
 	}
 
@@ -773,6 +790,8 @@ class SupportTicketController extends ApiController {
 		}
 
 		if ( $support_ticket->delete_thread( $thread_id ) ) {
+			do_action( 'stackonet_support_ticket/v1/delete_thread', $id, $thread_id );
+
 			return $this->respondOK( [ $id, $thread_id ] );
 		}
 
@@ -864,13 +883,15 @@ class SupportTicketController extends ApiController {
 		$order->save();
 
 
-		( new SupportTicket() )->add_ticket_info( $id, [
+		$thread_id = ( new SupportTicket() )->add_ticket_info( $id, [
 			'thread_type'    => 'note',
 			'customer_name'  => $user->display_name,
 			'customer_email' => $user->user_email,
 			'post_content'   => $post_content,
 			'agent_created'  => 0,
 		] );
+
+		do_action( 'stackonet_support_ticket/v1/thread_created', $id, $thread_id );
 
 		return $this->respondOK();
 	}

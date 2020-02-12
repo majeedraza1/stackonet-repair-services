@@ -11,7 +11,7 @@
 			</div>
 			<div class="mdl-table-nav-top__right">
 				<mdl-pagination :current_page="currentPage" :per_page="perPage" :total_items="itemsTotal"
-								@pagination="goToPage" size="medium"></mdl-pagination>
+								@pagination="goToPage" size="small"></mdl-pagination>
 			</div>
 		</div>
 		<table :class="tableClasses">

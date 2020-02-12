@@ -41,6 +41,8 @@ class OrderToSupportTicket {
 		if ( $ticket_id ) {
 			$supportTicket->update_metadata( $ticket_id, 'created_via', 'order' );
 			$supportTicket->update_metadata( $ticket_id, 'belongs_to_id', $order->get_id() );
+
+			add_action( 'stackonet_support_ticket/v1/ticket_created', $ticket_id );
 		}
 	}
 

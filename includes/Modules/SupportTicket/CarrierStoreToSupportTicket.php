@@ -17,7 +17,6 @@ class CarrierStoreToSupportTicket {
 	 * @throws Exception
 	 */
 	public static function process( CarrierStore $carrier_store ) {
-		$issues = array_column( $carrier_store->get( 'device_issues' ), 'title' );
 		$_model = $carrier_store->get( 'model' );
 		$model  = ( 'high' == $_model ) ? 'High end model' : 'Low end model';
 		$phone  = $carrier_store->get( 'phone' );
@@ -79,6 +78,8 @@ class CarrierStoreToSupportTicket {
 		if ( $ticket_id ) {
 			$supportTicket->update_metadata( $ticket_id, 'created_via', 'carrier_store' );
 			$supportTicket->update_metadata( $ticket_id, 'belongs_to_id', $carrier_store->get( 'id' ) );
+
+			do_action( 'stackonet_support_ticket/v1/ticket_created', $ticket_id );
 		}
 	}
 }
