@@ -199,14 +199,16 @@ class SupportTicketController extends ApiController {
 		<?php
 		$html = ob_get_clean();
 
-		$user = wp_get_current_user();
-		$supportTicket->add_ticket_info( $id, [
+		$user      = wp_get_current_user();
+		$thread_id = $supportTicket->add_ticket_info( $id, [
 			'thread_type'    => 'sms',
 			'customer_name'  => $user->display_name,
 			'customer_email' => $user->user_email,
 			'post_content'   => $html,
 			'agent_created'  => $user->ID,
 		] );
+
+		do_action( 'stackonet_support_ticket/v1/thread_created', $id, $thread_id );
 
 		( new Twilio() )->send_support_ticket_sms( $phones, $content );
 
@@ -591,6 +593,8 @@ class SupportTicketController extends ApiController {
 			return $this->respondUnauthorized();
 		}
 
+		do_action( 'stackonet_support_ticket/v1/ticket_deleted', $id, $action );
+
 		if ( 'trash' == $action ) {
 			$class->trash( $id );
 		}
@@ -600,8 +604,6 @@ class SupportTicketController extends ApiController {
 		if ( 'delete' == $action ) {
 			$class->delete( $id );
 		}
-
-		do_action( 'stackonet_support_ticket/v1/ticket_deleted', $id, $action );
 
 		return $this->respondOK( "#{$id} Support ticket has been deleted" );
 	}
@@ -631,6 +633,8 @@ class SupportTicketController extends ApiController {
 				continue;
 			}
 
+			do_action( 'stackonet_support_ticket/v1/ticket_deleted', $id, $action );
+
 			if ( 'trash' == $action ) {
 				$class->trash( $id );
 			}
@@ -640,8 +644,6 @@ class SupportTicketController extends ApiController {
 			if ( 'delete' == $action ) {
 				$class->delete( $id );
 			}
-
-			do_action( 'stackonet_support_ticket/v1/ticket_deleted', $id, $action );
 		}
 
 		return $this->respondOK( "Support tickets has been deleted" );
@@ -789,8 +791,9 @@ class SupportTicketController extends ApiController {
 			return $this->respondUnauthorized();
 		}
 
+		do_action( 'stackonet_support_ticket/v1/delete_thread', $id, $thread_id );
+
 		if ( $support_ticket->delete_thread( $thread_id ) ) {
-			do_action( 'stackonet_support_ticket/v1/delete_thread', $id, $thread_id );
 
 			return $this->respondOK( [ $id, $thread_id ] );
 		}
